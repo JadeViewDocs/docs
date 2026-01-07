@@ -1,0 +1,44 @@
+---
+title: 执行 JavaScript
+sidebar_position: 2
+---
+
+# 执行 JavaScript
+
+## execute_javascript
+
+在指定窗口的 WebView 中执行 JavaScript 代码。
+
+### 函数签名
+
+```c
+int execute_javascript(uint32_t window_id, const char* script);
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `script` | const char* | 要执行的 JavaScript 代码 |
+
+### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `0` | 当前未实现 |
+
+### 功能描述
+
+在指定窗口的 WebView 中执行 JavaScript 代码。该功能目前尚未实现。
+
+### 使用示例
+
+```c
+// 在 ID 为 1 的窗口中执行 JavaScript 代码
+execute_javascript(1, "alert('Hello from C API!');");
+```
+
+### 注意事项
+
+该功能目前尚未实现，返回值始终为 0。

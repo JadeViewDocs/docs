@@ -1,0 +1,261 @@
+---
+title: 数据结构
+sidebar_position: 1
+---
+
+# 数据结构定义
+
+## RGBA 颜色结构体
+
+### 定义
+
+```c
+typedef struct {
+    int r;
+    int g;
+    int b;
+    int a;
+} RGBA;
+```
+
+### 字段说明
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `r` | int | 红色通道值，范围 0-255 |
+| `g` | int | 绿色通道值，范围 0-255 |
+| `b` | int | 蓝色通道值，范围 0-255 |
+| `a` | int | alpha 通道值，范围 0-255，0 表示完全透明，255 表示完全不透明 |
+
+### 功能描述
+
+用于表示 RGBA 颜色，与易语言的 JadeRgb 结构完全匹配。
+
+### 使用示例
+
+```c
+// 创建一个半透明的红色 RGBA 结构体
+RGBA color = {
+    .r = 255,
+    .g = 0,
+    .b = 0,
+    .a = 128
+};
+```
+
+## WebView 设置结构体
+
+### 定义
+
+```c
+typedef struct {
+    int autoplay;
+    int background_throttling;
+    int disable_right_click;
+    const char* ua;
+    const char* preload_js;
+} WebViewSettings;
+```
+
+### 字段说明
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `autoplay` | int | 是否允许自动播放媒体，0=禁用，1=启用 |
+| `background_throttling` | int | 背景限速策略，0=默认（启用背景限速），1=禁用背景限速。背景限速是浏览器的性能优化机制，当页面在后台时会降低 JavaScript 执行速度，某些场景下（如后台持续运行计算）需要禁用此功能。 |
+| `disable_right_click` | int | 是否禁用右键菜单，0=启用，1=禁用 |
+| `ua` | const char* | 自定义 User-Agent 字符串指针，NULL 表示使用默认 UA |
+| `preload_js` | const char* | 预载 JavaScript 代码字符串指针，NULL 表示不预载 JS |
+
+### 功能描述
+
+用于设置 WebView 的高级选项。
+
+### 使用示例
+
+```c
+// 创建 WebView 设置结构体
+WebViewSettings settings = {
+    .autoplay = 0, // 禁用自动播放
+    .background_throttling = 1, // 禁用背景限速
+    .disable_right_click = 0, // 启用右键菜单
+    .ua = "Custom User Agent", // 自定义 User-Agent
+    .preload_js = "console.log('Preloaded JS');" // 预载 JavaScript 代码
+};
+```
+
+## WebView 窗口选项结构体
+
+### 定义
+
+```c
+typedef struct {
+    const char* title;
+    int width;
+    int height;
+    int resizable;
+    int remove_titlebar;
+    int transparent;
+    RGBA background_color;
+    int always_on_top;
+    int no_center;
+    const char* theme;
+    int maximized;
+    int maximizable;
+    int minimizable;
+    int x;
+    int y;
+    int min_width;
+    int min_height;
+    int max_width;
+    int max_height;
+    int fullscreen;
+    int focus;
+    int hide_window;
+    int use_page_icon;
+} WebViewWindowOptions;
+```
+
+### 字段说明
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `title` | const char* | 窗口标题 |
+| `width` | int | 窗口宽度，默认 800 |
+| `height` | int | 窗口高度，默认 600 |
+| `resizable` | int | 窗口是否可调整大小，0=不可调整，1=可调整，默认 1 |
+| `remove_titlebar` | int | 是否去除标题栏，0=显示标题栏，1=去除标题栏，默认 0 |
+| `transparent` | int | 窗口是否透明，0=不透明，1=透明，默认 0 |
+| `background_color` | RGBA | 窗口背景色，仅当 transparent=0 时有效 |
+| `always_on_top` | int | 窗口是否始终置顶，0=不置顶，1=置顶，默认 0 |
+| `no_center` | int | 是否不居中，0=居中，1=不居中，默认 0 |
+| `theme` | const char* | 窗口主题，可选值："Light"、"Dark"、"System"，默认 "System" |
+| `maximized` | int | 窗口是否最大化，0=不最大化，1=最大化，默认 0 |
+| `maximizable` | int | 窗口是否可最大化，0=不可最大化，1=可最大化，默认 1 |
+| `minimizable` | int | 窗口是否可最小化，0=不可最小化，1=可最小化，默认 1 |
+| `x` | int | 窗口 X 坐标，-1 表示居中，默认 -1 |
+| `y` | int | 窗口 Y 坐标，-1 表示居中，默认 -1 |
+| `min_width` | int | 窗口最小宽度，默认 0 |
+| `min_height` | int | 窗口最小高度，默认 0 |
+| `max_width` | int | 窗口最大宽度，默认 0 |
+| `max_height` | int | 窗口最大高度，默认 0 |
+| `fullscreen` | int | 窗口是否全屏，0=不全屏，1=全屏，默认 0 |
+| `focus` | int | 窗口是否获得焦点，0=不获得焦点，1=获得焦点，默认 1 |
+| `hide_window` | int | 窗口是否隐藏，0=显示窗口，1=隐藏窗口，默认 0 |
+| `use_page_icon` | int | 是否使用页面图标，0=使用主进程图标，1=使用页面图标，默认 0 |
+
+### 功能描述
+
+用于设置 WebView 窗口的各种选项。
+
+### 使用示例
+
+```c
+// 创建 WebView 窗口选项结构体
+WebViewWindowOptions options = {
+    .title = "My WebView Window",
+    .width = 1024,
+    .height = 768,
+    .resizable = 1,
+    .remove_titlebar = 0,
+    .transparent = 0,
+    .background_color = {255, 255, 255, 255}, // 白色背景
+    .always_on_top = 0,
+    .no_center = 0,
+    .theme = "System",
+    .maximized = 0,
+    .maximizable = 1,
+    .minimizable = 1,
+    .x = -1,
+    .y = -1,
+    .min_width = 800,
+    .min_height = 600,
+    .max_width = 0,
+    .max_height = 0,
+    .fullscreen = 0,
+    .focus = 1,
+    .hide_window = 0,
+    .use_page_icon = 0
+};
+```
+
+## 回调函数类型定义
+
+### IpcCallback
+
+#### 定义
+
+```c
+typedef int (*IpcCallback)(uint32_t window_id, const char* event_data);
+```
+
+#### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `event_data` | const char* | 事件数据，UTF-8 字符串 |
+
+#### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `1` | 成功处理 |
+| `0` | 处理失败 |
+
+### WindowEventCallback
+
+#### 定义
+
+```c
+typedef int (*WindowEventCallback)(uint32_t window_id, const char* event_type, const char* event_data);
+```
+
+#### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `event_type` | const char* | 事件类型 |
+| `event_data` | const char* | 事件数据 |
+
+#### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `0` | 允许操作 |
+| `1` | 阻止操作 |
+
+### PageLoadCallback
+
+#### 定义
+
+```c
+typedef void (*PageLoadCallback)(uint32_t window_id, const char* url, const char* status);
+```
+
+#### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `url` | const char* | 页面 URL |
+| `status` | const char* | 加载状态 |
+
+### FileDropCallback
+
+#### 定义
+
+```c
+typedef void (*FileDropCallback)(uint32_t window_id, const char* file_path, const char* mime_type, double x, double y);
+```
+
+#### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `file_path` | const char* | 文件路径 |
+| `mime_type` | const char* | 文件 MIME 类型 |
+| `x` | double | 拖放 X 坐标 |
+| `y` | double | 拖放 Y 坐标 |

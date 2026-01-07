@@ -1,0 +1,122 @@
+---
+title: 可见性
+sidebar_position: 4
+---
+
+# 设置窗口可见性
+
+## set_window_visible
+
+设置指定窗口的可见性。
+
+### 函数签名
+
+```c
+int set_window_visible(uint32_t window_id, int visible);
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `visible` | int | 可见性，0=隐藏，1=显示 |
+
+### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `1` | 成功 |
+| `0` | 失败 |
+
+### 功能描述
+
+设置指定窗口的可见性。
+
+### 使用示例
+
+```c
+// 隐藏 ID 为 1 的窗口
+set_window_visible(1, 0);
+
+// 显示 ID 为 1 的窗口
+set_window_visible(1, 1);
+```
+
+## set_window_focus
+
+将焦点设置到指定窗口。
+
+### 函数签名
+
+```c
+int set_window_focus(uint32_t window_id);
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+
+### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `1` | 成功 |
+| `0` | 失败 |
+
+### 功能描述
+
+将焦点设置到指定窗口。
+
+### 使用示例
+
+```c
+// 给 ID 为 1 的窗口设置焦点
+int result = set_window_focus(1);
+
+if (result == 1) {
+    printf("窗口焦点设置成功\n");
+} else {
+    printf("窗口焦点设置失败\n");
+}
+```
+
+## set_window_enabled
+
+启用或禁用指定窗口。
+
+### 函数签名
+
+```c
+int set_window_enabled(uint32_t window_id, int enabled);
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `enabled` | int | 启用状态，0=禁用，1=启用 |
+
+### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `1` | 成功 |
+| `0` | 失败 |
+
+### 功能描述
+
+启用或禁用指定窗口。
+
+### 使用示例
+
+```c
+// 禁用 ID 为 1 的窗口
+set_window_enabled(1, 0);
+
+// 启用 ID 为 1 的窗口
+set_window_enabled(1, 1);
+```

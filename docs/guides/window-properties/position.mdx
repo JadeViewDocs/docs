@@ -1,0 +1,48 @@
+---
+title: 位置
+sidebar_position: 3
+---
+
+# 设置窗口位置
+
+## set_window_position
+
+设置指定窗口的位置。
+
+### 函数签名
+
+```c
+int set_window_position(uint32_t window_id, double x, double y);
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `x` | double | 新的 X 坐标（像素，相对于屏幕左上角） |
+| `y` | double | 新的 Y 坐标（像素，相对于屏幕左上角） |
+
+### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `1` | 成功 |
+| `0` | 失败 |
+
+### 功能描述
+
+设置指定窗口的位置。
+
+### 使用示例
+
+```c
+// 设置 ID 为 1 的窗口位置为屏幕坐标(100, 100)
+int result = set_window_position(1, 100, 100);
+
+if (result == 1) {
+    printf("窗口位置设置成功\n");
+} else {
+    printf("窗口位置设置失败\n");
+}
+```

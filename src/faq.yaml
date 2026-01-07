@@ -1,0 +1,228 @@
+#
+# JadeView FAQs
+#
+
+- question: JadeView 是什么？
+  tags: ['JadeView', 'General']
+  answer: |-
+    JadeView 是一个基于 Rust 开发的 WebView 窗口库，提供了 C 语言兼容的 API 接口，方便在其他语言（如易语言）中调用和使用。
+
+- question: JadeView 支持哪些平台？
+  tags: ['JadeView', 'Platform']
+  answer: |-
+    目前支持 Windows 10/11 平台。
+
+- question: JadeView 的主要功能有哪些？
+  tags: ['JadeView', 'Features']
+  answer: |-
+    - 跨平台支持：支持 Windows 平台
+    - WebView 集成：基于 wry 库，提供现代化的 Web 浏览体验
+    - 灵活的窗口管理：支持创建、关闭、最大化、最小化等窗口操作
+    - 事件处理机制：提供丰富的事件类型和回调机制
+    - 主题管理：支持 Light、Dark、System 主题切换
+    - 本地服务器：内置本地服务器功能，支持自定义协议
+    - 安全的内存管理：严格的内存管理机制，避免内存泄漏
+
+- question: 如何开始使用 JadeView？
+  tags: ['JadeView', 'Getting Started']
+  answer: |-
+    1. 初始化 DLL：调用 `JadeView_init` 函数初始化 DLL
+    2. 创建 WebView 窗口：调用 `create_webview_window` 函数创建窗口
+    3. 注册事件回调：通过 `set_window_event_handlers` 或 `jade_on` 注册事件回调
+    4. 运行消息循环：调用 `run_message_loop` 运行消息循环
+    5. 清理资源：应用程序退出前调用 `cleanup_all_windows` 清理所有资源
+
+    详细的快速开始指南请参考 [快速开始](/guides/quickstart)。
+
+- question: JadeView 的内存管理机制是怎样的？
+  tags: ['JadeView', 'Memory Management']
+  answer: |-
+    JadeView DLL 采用了严格的内存管理机制，确保在易语言等调用者多次调用时不会导致内存溢出：
+
+    1. **安全的字符串转换**：使用 Rust 提供的 `CStr::from_ptr` 和 `CString::new` 方法进行字符串转换，确保内存安全
+    2. **自动内存释放**：所有通过 `CString::new` 分配的内存都会在回调函数执行后自动释放，不会造成内存泄漏
+    3. **无直接 malloc/free 调用**：API 内部不直接使用 `malloc` 和 `free` 分配内存，减少内存泄漏风险
+    4. **严格的生命周期控制**：回调函数执行时，`CString` 的生命周期被严格控制，确保回调完成后内存被释放
+    5. **线程安全**：所有全局状态访问都通过互斥锁保护，确保线程安全
+
+- question: 如何创建一个 WebView 窗口？
+  tags: ['JadeView', 'Window Management']
+  answer: |-
+    使用 `create_webview_window` 函数创建窗口：
+
+    ```c
+    WebViewWindowOptions options = {
+        .title = "我的窗口",
+        .width = 800,
+        .height = 600
+    };
+
+    uint32_t window_id = create_webview_window(
+        "https://www.example.com",
+        0,
+        &options,
+        NULL
+    );
+    ```
+
+    详细的窗口创建指南请参考 [创建窗口](/guides/quickstart)。
+
+- question: 如何关闭窗口？
+  tags: ['JadeView', 'Window Management']
+  answer: |-
+    使用 `close_window` 函数关闭窗口：
+
+    ```c
+    int result = close_window(window_id);
+    ```
+
+- question: 如何设置窗口属性？
+  tags: ['JadeView', 'Window Management']
+  answer: |-
+    使用以下函数设置窗口属性：
+    - `set_window_title`：设置窗口标题
+    - `set_window_size`：设置窗口大小
+    - `set_window_position`：设置窗口位置
+    - `set_window_visible`：设置窗口可见性
+
+- question: 如何处理事件？
+  tags: ['JadeView', 'Events']
+  answer: |-
+    JadeView 提供了多种事件处理方式：
+
+    1. **使用 `set_window_event_handlers`**：设置全局窗口事件处理器
+    2. **使用 `jade_on`**：注册特定事件处理器
+
+    详细的事件处理指南请参考 [注册事件](/guides/events/register-events)。
+
+- question: JadeView 支持哪些事件类型？
+  tags: ['JadeView', 'Events']
+  answer: |-
+    JadeView 支持以下事件类型：
+
+    - **核心事件**：app-ready
+    - **窗口事件**：window-created、window-closed、window-resized、window-moved 等
+    - **WebView 事件**：webview-did-finish-load、webview-page-title-updated 等
+    - **主题事件**：theme-changed
+    - **其他事件**：update-window-icon
+
+    详细的事件类型列表请参考 [事件类型](/guides/events/event-types)。
+
+- question: 如何注销事件处理器？
+  tags: ['JadeView', 'Events']
+  answer: |-
+    使用 `jade_off` 函数注销事件处理器：
+
+    ```c
+    jade_off("window-created", callback_id);
+    ```
+
+- question: 如何设置主题？
+  tags: ['JadeView', 'Theme']
+  answer: |-
+    使用 `set_window_theme` 函数设置主题：
+
+    ```c
+    set_window_theme(window_id, "Dark");
+    ```
+
+    主题可选值：
+    - "Light"：浅色主题
+    - "Dark"：深色主题
+    - "System"：跟随系统主题
+
+    详细的主题设置请参考 [设置主题](/guides/theme/set-theme)。
+
+- question: 如何设置背景材料？
+  tags: ['JadeView', 'Theme']
+  answer: |-
+    使用 `set_window_backdrop` 函数设置背景材料：
+
+    ```c
+    set_window_backdrop(window_id, "mica");
+    ```
+
+    背景材料可选值：
+    - "mica"：Mica 效果
+    - "micaalt"：Mica Alt 效果
+    - "acrylic"：Acrylic 效果
+
+    详细的背景材料设置请参考 [背景材料](/guides/theme/backdrop)。
+
+- question: 如何使用 IPC 通信？
+  tags: ['JadeView', 'IPC']
+  answer: |-
+    1. **发送 IPC 消息**：使用 `send_ipc_message` 函数
+    2. **注册 IPC 处理器**：使用 `register_ipc_handler` 函数
+
+    详细的 IPC 通信指南请参考 [IPC 通信](/guides/ipc/send-message)。
+
+- question: IPC 和事件有什么区别？
+  tags: ['JadeView', 'IPC', 'Events']
+  answer: |-
+    - **IPC**：用于与前端的双向通信，可以发送和接收消息
+    - **事件**：用于监听窗口和 WebView 的各种事件，如窗口创建、页面加载等
+
+- question: 如何使用本地服务器？
+  tags: ['JadeView', 'Local Server']
+  answer: |-
+    使用 `create_local_server` 函数创建本地服务器：
+
+    ```c
+    char url[128];
+    create_local_server(
+        "C:\myapp\dist",
+        "myapp",
+        url,
+        sizeof(url)
+    );
+
+    // 使用返回的 URL 创建窗口
+    create_webview_window(url, 0, NULL, NULL);
+    ```
+
+    详细的本地服务器使用请参考 [创建服务器](/guides/local-server/create-server)。
+
+- question: 本地服务器的优势是什么？
+  tags: ['JadeView', 'Local Server']
+  answer: |-
+    - **安全**：自定义协议 URL 不受浏览器同源策略限制
+    - **性能**：直接访问本地文件，加载速度快
+    - **方便部署**：将所有资源打包到本地目录，无需额外的 Web 服务器
+    - **支持 SPA**：支持单页应用的路由处理
+    - **跨平台**：在不同平台上表现一致
+
+- question: 如何调试 JadeView 应用？
+  tags: ['JadeView', 'Debugging']
+  answer: |-
+    1. **启用开发者工具**：在初始化时设置 `enable_devtools` 参数为 1
+    2. **查看日志**：设置 `log_path` 参数指定日志文件路径
+    3. **监听事件**：注册事件处理器，监听窗口和 WebView 事件
+
+- question: 常见错误有哪些？
+  tags: ['JadeView', 'Troubleshooting']
+  answer: |-
+    1. **初始化失败**：检查是否正确调用 `JadeView_init` 函数
+    2. **窗口创建失败**：检查 URL 是否正确，窗口选项是否合理
+    3. **内存泄漏**：确保在应用程序退出前调用 `cleanup_all_windows`
+
+- question: 如何避免内存泄漏？
+  tags: ['JadeView', 'Best Practices']
+  answer: |-
+    1. 及时调用 `cleanup_all_windows` 清理资源
+    2. 不要在回调函数中保存 `CString` 的指针
+    3. 确保所有回调函数正确返回
+
+- question: 如何提高性能？
+  tags: ['JadeView', 'Best Practices']
+  answer: |-
+    1. 禁用不必要的功能（如背景限速）
+    2. 合理设置窗口大小和位置
+    3. 使用本地服务器访问本地文件
+
+- question: 如何确保线程安全？
+  tags: ['JadeView', 'Best Practices']
+  answer: |-
+    1. 所有 API 函数都是线程安全的
+    2. 事件处理可能在不同的线程中执行，需要注意线程安全性
+    3. 使用互斥锁保护共享资源

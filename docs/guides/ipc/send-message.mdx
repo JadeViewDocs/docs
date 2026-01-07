@@ -1,0 +1,45 @@
+---
+title: 发送消息
+sidebar_position: 1
+---
+
+# 发送 IPC 消息
+
+## send_ipc_message
+
+向前端发送 IPC 消息。
+
+### 函数签名
+
+```c
+int send_ipc_message(uint32_t window_id, const char* message_type, const char* message_content);
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `message_type` | const char* | 消息类型 |
+| `message_content` | const char* | 消息内容 |
+
+### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `1` | 成功 |
+| `0` | 失败 |
+
+### 功能描述
+
+向前端发送 IPC 消息。
+
+### 使用示例
+
+```c
+// 向 ID 为 1 的窗口发送 test 类型的 IPC 消息
+send_ipc_message(1, "test", "Hello from C API!");
+
+// 向 ID 为 1 的窗口发送 json 类型的 IPC 消息
+send_ipc_message(1, "json", "{\"type\":\"event\",\"data\":\"value\"}");
+```

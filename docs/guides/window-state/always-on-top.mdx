@@ -1,0 +1,44 @@
+---
+title: 置顶
+sidebar_position: 3
+---
+
+# 设置窗口置顶
+
+## set_window_always_on_top
+
+设置指定窗口是否始终置顶。
+
+### 函数签名
+
+```c
+int set_window_always_on_top(uint32_t window_id, int always_on_top);
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `window_id` | uint32_t | 窗口 ID |
+| `always_on_top` | int | 置顶状态，0=取消置顶，1=设置置顶 |
+
+### 返回值说明
+
+| 返回值 | 说明 |
+|---------|------|
+| `1` | 成功 |
+| `0` | 失败 |
+
+### 功能描述
+
+设置指定窗口是否始终置顶。
+
+### 使用示例
+
+```c
+// 设置 ID 为 1 的窗口始终置顶
+set_window_always_on_top(1, 1);
+
+// 取消 ID 为 1 的窗口置顶
+set_window_always_on_top(1, 0);
+```

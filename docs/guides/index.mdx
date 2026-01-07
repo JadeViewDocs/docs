@@ -1,0 +1,130 @@
+---
+slug: /
+sidebar_position: 1
+sidebar_class_name: guide_sidebar_index
+description: 'JadeView API 文档 - 基于 Rust 的 WebView 窗口库'
+---
+
+# JadeView API 文档
+
+JadeView 是一个基于 Rust 开发的 WebView 窗口库，提供了 C 语言兼容的 API 接口，方便在其他语言（如易语言）中调用和使用。
+
+## 主要功能
+
+- **跨平台支持**：支持 Windows 平台
+- **WebView 集成**：基于 wry 库，提供现代化的 Web 浏览体验
+- **灵活的窗口管理**：支持创建、关闭、最大化、最小化等窗口操作
+- **事件处理机制**：提供丰富的事件类型和回调机制
+- **主题管理**：支持 Light、Dark、System 主题切换
+- **本地服务器**：内置本地服务器功能，支持自定义协议
+- **安全的内存管理**：严格的内存管理机制，避免内存泄漏
+
+## 快速开始
+
+1. **初始化 DLL**：调用 `JadeView_init` 函数初始化 DLL
+2. **创建 WebView 窗口**：调用 `create_webview_window` 函数创建窗口
+3. **注册事件回调**：通过 `set_window_event_handlers` 或 `jade_on` 注册事件回调
+4. **运行消息循环**：调用 `run_message_loop` 运行消息循环
+5. **清理资源**：应用程序退出前调用 `cleanup_all_windows` 清理所有资源
+
+## 文档导航
+
+### 快速开始
+
+- [介绍](/guides/introduction) - 了解 JadeView 的基本概念和功能
+- [快速开始](/guides/quickstart) - 快速上手指南
+
+### 核心 API
+
+- [初始化](/guides/core/initialization) - JadeView_init 函数
+- [消息循环](/guides/core/message-loop) - run_message_loop 函数
+- [清理](/guides/core/cleanup) - cleanup_all_windows 函数
+
+### 窗口管理
+
+- [创建窗口](/guides/window-management/create-window) - create_webview_window 函数
+- [关闭窗口](/guides/window-management/close-window) - close_window 函数
+- [事件处理](/guides/window-management/event-handlers) - set_window_event_handlers 函数
+
+### 窗口属性
+
+- [标题](/guides/window-properties/title) - set_window_title 函数
+- [大小](/guides/window-properties/size) - set_window_size 函数
+- [位置](/guides/window-properties/position) - set_window_position 函数
+- [可见性](/guides/window-properties/visibility) - set_window_visible 函数
+
+### 窗口状态
+
+- [最小化](/guides/window-state/minimize) - minimize_window 函数
+- [最大化](/guides/window-state/maximize) - toggle_maximize_window 函数
+- [置顶](/guides/window-state/always-on-top) - set_window_always_on_top 函数
+
+### WebView 功能
+
+- [导航](/guides/webview/navigation) - navigate_to_url 函数
+- [执行 JavaScript](/guides/webview/javascript) - execute_javascript 函数
+
+### 事件系统
+
+- [注册事件](/guides/events/register-events) - jade_on、jade_off 函数
+- [事件类型](/guides/events/event-types) - 所有事件类型列表
+
+### 主题外观
+
+- [设置主题](/guides/theme/set-theme) - set_window_theme、get_window_theme 函数
+- [背景材料](/guides/theme/backdrop) - set_window_backdrop 函数
+
+### IPC 通信
+
+- [发送消息](/guides/ipc/send-message) - send_ipc_message 函数
+- [注册处理器](/guides/ipc/register-handler) - register_ipc_handler 函数
+
+### 本地服务器
+
+- [创建服务器](/guides/local-server/create-server) - create_local_server 函数
+
+### API 参考
+
+- [数据结构](/guides/reference/data-structures) - RGBA、WebViewSettings、WebViewWindowOptions 等结构体
+- [C API 列表](/guides/reference/c-api) - 完整的 C API 函数列表
+
+### 常见问题
+
+- [FAQ](/faq) - 常见问题解答
+
+### 更新日志
+
+- [更新日志](/changelog) - 版本更新记录
+
+## SDK 文档
+
+JadeView 提供了多种编程语言的 SDK，方便开发者集成使用：
+
+- [Web Core SDK](/web-core) - JavaScript/TypeScript SDK
+- [UI Kit](/ui-kit) - JavaScript UI Kit
+
+## 注意事项
+
+1. **多线程安全性**：所有 API 函数都是线程安全的，可以在多个线程中调用
+2. **窗口创建异步性**：`create_webview_window` 函数会立即返回请求的窗口 ID，但窗口实际创建是在事件循环线程中异步完成的
+3. **事件处理顺序**：事件处理可能在不同的线程中执行，需要注意线程安全性
+4. **回调函数返回值**：窗口事件回调函数返回值含义：0=允许操作，1=阻止操作
+5. **资源管理**：使用完毕后应及时调用 `cleanup_all_windows` 清理资源
+
+## 版本信息
+
+当前版本：开发中
+
+## 支持的平台
+
+- Windows 10/11
+
+## 依赖库
+
+- tao：窗口管理库
+- wry：WebView 库
+- Rust 标准库
+
+## 许可证
+
+本项目采用 MIT License 开源协议。
