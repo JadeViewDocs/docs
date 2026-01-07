@@ -86,7 +86,7 @@ const developers = [
   },
   {
     name: 'API Reference',
-    href: '/api',
+    href: '/guides/reference/c-api',
   },
   {
     name: 'Guides',

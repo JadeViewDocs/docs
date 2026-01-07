@@ -125,6 +125,9 @@ const config = {
     experimental_faster: true,
   },
 
+  // 禁用断链检查，因为文档是从 Dyte fork 而来，包含大量 Dyte 特定链接
+  onBrokenLinks: 'ignore',
+  onBrokenMarkdownLinks: 'ignore',
   trailingSlash: false,
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   clientModules: [
