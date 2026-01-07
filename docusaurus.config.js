@@ -9,9 +9,9 @@ const code_themes = {
 const meta = {
   title: 'JadeView Docs',
   tagline: '基于 Rust 的 WebView 窗口库 API 文档',
-  // GitHub Pages 部署配置
-  url: 'https://JadeViewDocs.github.io', // GitHub Pages 域名
-  baseUrl: '/docs/', // 仓库名称
+  // 自定义域名部署配置
+  url: 'http://jade.run', // 自定义域名
+  baseUrl: '/', // 根路径
   favicon: '/favicon.ico',
   // 部署配置
   organizationName: 'JadeViewDocs', // GitHub 用户名
