@@ -66,7 +66,7 @@ const docs = [
 /** @type {import('@docusaurus/plugin-content-docs').Options} */
 const defaultSettings = {
   breadcrumbs: true,
-  editUrl: 'https://github.com/dyte-io/docs/tree/main/',
+  editUrl: 'https://github.com/JadeViewDocs/docs/tree/main/',
   showLastUpdateTime: true,
   sidebarCollapsible: true,
   remarkPlugins: [
