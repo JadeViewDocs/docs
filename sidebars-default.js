@@ -20,6 +20,7 @@ const sidebars = {
       items: [
         'index',
         'quickstart',
+        'webview2-installation',
       ],
     },
     {
