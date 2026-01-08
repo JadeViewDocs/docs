@@ -13,10 +13,10 @@ const code_themes = {
 const meta = {
   title: 'JadeView Docs',
   tagline: '基于 Rust 的 WebView 窗口库 API 文档',
-  // GitHub Pages 部署配置（支持自定义域名）
-  url: 'https://JadeViewDocs.github.io', // GitHub Pages 基础域名
-  baseUrl: '/', // 仓库名称，保持与GitHub Pages路径一致
-  // 自定义域名配置将在GitHub Pages设置中完成
+  // 自定义域名配置
+  url: 'http://jade.run', // 自定义域名
+  baseUrl: '/', // 基础路径
+  // 自定义域名已配置
   favicon: '/favicon.png',
   // 部署配置
   organizationName: 'JadeViewDocs', // GitHub 用户名
