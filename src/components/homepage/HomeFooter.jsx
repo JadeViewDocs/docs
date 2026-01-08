@@ -10,6 +10,10 @@ const products = [
     name: '镜芯API',
     href: 'https://api2.wer.plus',
   },
+  {
+    name: '小维API',
+    href: 'https://openapi.52vmy.cn',
+  },
 ];
 
 // 开发者链接
