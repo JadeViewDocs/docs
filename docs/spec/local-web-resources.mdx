@@ -1,0 +1,214 @@
+# 使用本地 Web 资源
+
+JadeView 提供了创建本地服务器的功能，允许开发者轻松地在 WebView 窗口中加载和使用本地 Web 资源。以下是一个完整的教程，展示如何使用 JadeView 创建本地服务器并加载本地 Web 资源。
+
+## 前提条件
+
+- 已安装 JadeView SDK
+- 了解 C 语言基础
+
+## 步骤 1：初始化 JadeView
+
+首先，我们需要初始化 JadeView 库：
+
+```c
+#include "jadeview.h"
+
+// 窗口创建成功回调
+void window_created(uint32_t window_id, int success, const char* reason) {
+    if (success == 1) {
+        printf("窗口创建成功，窗口 ID：%u\n", window_id);
+    } else {
+        printf("窗口创建失败：%s\n", reason ? reason : "未知错误");
+    }
+}
+
+// 应用初始化完成回调
+int app_ready_callback(int success, const char* reason) {
+    if (success == 1 && reason && strcmp(reason, "success") == 0) {
+        printf("JadeView 初始化成功\n");
+        
+        // 注册窗口创建完成回调
+        jade_on("window-created", (int arg1, const char* arg2) => {
+            window_created((uint32_t)arg1, arg1 > 0 ? 1 : 0, arg2);
+            return 0;
+        });
+        
+        // 步骤 2：创建本地服务器
+        const char* root_path = "./web";
+        const char* appname = "myapp";
+        char url[128];
+        
+        int result = create_local_server(
+            root_path,   // 本地 Web 资源根目录
+            appname,     // 应用名称
+            url,         // 输出 URL 缓冲区
+            sizeof(url)  // 缓冲区大小
+        );
+        
+        if (result == 1) {
+            printf("本地服务器创建成功，URL：%s\n", url);
+            
+            // 窗口选项配置
+            WebViewWindowOptions options = {
+                .width = 800,
+                .height = 600,
+                .resizable = 1,
+                .remove_titlebar = 0
+            };
+            
+            // WebView 设置配置
+            WebViewSettings settings = {
+                .autoplay = 0,
+                .background_throttling = 0,
+                .disable_right_click = 0
+            };
+            
+            // 创建 WebView 窗口，加载本地服务器上的资源
+            uint32_t new_window_id = create_webview_window(url, 0, &options, &settings);
+            
+            if (new_window_id == 0) {
+                printf("窗口创建失败\n");
+            }
+        } else {
+            printf("创建本地服务器失败\n");
+        }
+    } else {
+        printf("JadeView 初始化失败：%s\n", reason ? reason : "未知错误");
+    }
+    return 0;
+}
+
+int main() {
+    // 初始化 JadeView DLL
+    int result = JadeView_init(1, NULL, NULL);
+    if (result == 0) {
+        printf("DLL 初始化失败\n");
+        return 1;
+    }
+    
+    // 注册 app-ready 事件回调
+    jade_on("app-ready", app_ready_callback);
+    
+    // 运行消息循环
+    run_message_loop();
+    
+    // 清理资源
+    cleanup_all_windows();
+    
+    return 0;
+}
+```
+
+## 步骤 2：创建本地 Web 资源
+
+在项目目录下创建 `web` 文件夹，并在其中创建 `index.html` 文件：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JadeView 本地 Web 资源示例</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎使用 JadeView！</h1>
+        <p>这是一个使用本地服务器加载的 Web 页面。</p>
+        <p>您可以在此页面中使用完整的 Web 技术栈（HTML、CSS、JavaScript）来构建您的应用界面。</p>
+        <button onclick="showMessage()">点击我</button>
+        <div id="message"></div>
+    </div>
+    
+    <script>
+        function showMessage() {
+            document.getElementById('message').innerHTML = '<p>Hello from local JavaScript!</p>';
+        }
+        
+        // 监听来自原生应用的消息
+        if (window.jade) {
+            window.jade.ipcMain('custom-message', (content) => {
+                console.log('收到原生应用消息:', content);
+            });
+            
+            // 发送消息给原生应用
+            window.jade.ipcSend('page-loaded', JSON.stringify({ status: 'ready' }));
+        }
+    </script>
+</body>
+</html>
+```
+
+## 步骤 3：编译和运行
+
+1. 将上述代码保存为 `main.c`
+2. 将 `jadeview.h` 和 `jadeview.dll` 放在同一目录下
+3. 编译代码（以 GCC 为例）：
+   ```sh
+gcc -o app main.c -L. -ljadeview
+   ```
+4. 创建 `web` 文件夹，并将 `index.html` 文件放入其中
+5. 运行编译后的可执行文件：
+   ```sh
+./app
+   ```
+
+## 自定义协议 URL
+
+创建本地服务器后，JadeView 会返回一个自定义协议 URL，格式为 `JADE://appname/`。您可以使用这个 URL 来访问本地文件：
+
+- `JADE://myapp/index.html`：访问根目录下的 index.html 文件
+- `JADE://myapp/assets/css/style.css`：访问 assets/css 目录下的 style.css 文件
+- `JADE://myapp/api/data.json`：访问 api 目录下的 data.json 文件
+
+## 注意事项
+
+1. 自定义协议 URL 使用 `JADE://` 作为协议头，而不是标准的 `http://` 或 `https://`
+2. appname 参数用于构造自定义协议 URL 的域名部分，如 `JADE://appname/`
+3. 本地服务器会自动处理 MIME 类型，无需手动配置
+4. 自定义协议 URL 只能在 JadeView 内部使用，外部浏览器无法访问
+5. 支持单页应用的路由处理
+
+## 本地服务器的优势
+
+- **安全**：自定义协议 URL 不受浏览器同源策略限制，同时避免了直接文件路径的安全风险
+- **性能**：直接访问本地文件，加载速度快
+- **方便部署**：将所有资源打包到本地目录，无需额外的 Web 服务器
+- **支持 SPA**：支持单页应用的路由处理
+- **跨平台**：在不同平台上表现一致
+
+## 最佳实践
+
+1. **资源组织**：将本地 Web 资源组织在一个单独的目录中，便于管理和维护
+2. **错误处理**：添加适当的错误处理和日志记录，便于调试
+3. **安全性**：在生产环境中，考虑添加适当的安全措施，如访问控制
+4. **性能优化**：对本地 Web 资源进行优化，如压缩 CSS 和 JavaScript 文件，提高加载速度
+
+## 总结
+
+通过使用 JadeView 的本地服务器功能，开发者可以轻松地在 WebView 窗口中加载和使用本地 Web 资源。这种方式结合了 Web 技术的灵活性和原生应用的性能，是构建现代化桌面应用的理想选择。
+
+JadeView 的高性能设计（16 毫秒启动时间）确保了即使使用本地服务器加载资源，应用仍然能够快速启动和运行，为用户提供流畅的体验。
