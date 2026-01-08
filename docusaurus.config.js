@@ -137,6 +137,8 @@ const config = {
   clientModules: [
     require.resolve('./src/client/define-ui-kit.js'),
     require.resolve('./src/client/set-framework.js'),
+    require.resolve('./src/client/add-contributors-to-all-docs.js'),
+    require.resolve('./src/client/update-changelog-badge.js'),
   ],
   scripts: [{ src: 'https://cdn.statuspage.io/se-v2.js', async: true }],
   markdown: {
@@ -225,6 +227,7 @@ const config = {
           {
             label: '更新日志',
             to: '/changelog',
+            className: 'changelog-nav-item',
           },
           {
             type: 'search',
