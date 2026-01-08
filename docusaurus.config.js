@@ -123,7 +123,7 @@ const config = {
     require.resolve('./src/client/set-framework.js'),
     require.resolve('./src/client/add-contributors-to-all-docs.js'),
     require.resolve('./src/client/update-changelog-badge.js'),
-    require.resolve('./src/client/update-dynamic-changelog.js'),
+    // 移除动态更新日志脚本，使用工作流编译方式
   ],
   scripts: [{ src: 'https://cdn.statuspage.io/se-v2.js', async: true }],
   markdown: {
