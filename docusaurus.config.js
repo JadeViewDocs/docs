@@ -13,7 +13,7 @@ const meta = {
   url: 'https://JadeViewDocs.github.io', // GitHub Pages 基础域名
   baseUrl: '/', // 仓库名称，保持与GitHub Pages路径一致
   // 自定义域名配置将在GitHub Pages设置中完成
-  favicon: '/favicon.ico',
+  favicon: '/favicon.png',
   // 部署配置
   organizationName: 'JadeViewDocs', // GitHub 用户名
   projectName: 'docs', // 仓库名称
@@ -55,6 +55,12 @@ const docs = [
     path: 'docs/web-core',
     routeBasePath: 'web-core',
     sidebarPath: require.resolve('./sidebars-web-core.js'),
+  },
+  {
+    id: 'easy-language-sdk',
+    path: 'docs/easy-language-sdk',
+    routeBasePath: 'easy-language-sdk',
+    sidebarPath: require.resolve('./sidebars-easy-language-sdk.js'),
   },
   {
     id: 'changelog',
@@ -105,18 +111,16 @@ const plugins = [
   webpackPlugin,
   // 添加本地搜索插件，替代Dyte AI搜索
   [
-    '@easyops-cn/docusaurus-search-local',
-    {
-      hashed: true,
-      language: ['zh'],
-      highlightSearchTermsOnTargetPage: true,
-      explicitSearchResultPath: true,
-      docsRouteBasePath: ['guides', 'web-core', 'ui-kit', 'plugin-sdk', 'cli', 'community-packages', 'changelog'],
-    },
-  ],
+      '@easyops-cn/docusaurus-search-local',
+      {
+        hashed: true,
+        language: ['zh'],
+        highlightSearchTermsOnTargetPage: true,
+        explicitSearchResultPath: true,
+        docsRouteBasePath: ['guides', 'web-core', 'ui-kit', 'plugin-sdk', 'cli', 'community-packages', 'changelog', 'easy-language-sdk'],
+      },
+    ],
 ];
-
-const fs = require('fs');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -208,6 +212,10 @@ const config = {
               {
                 label: 'UI Kit',
                 to: '/ui-kit',
+              },
+              {
+                label: '易语言 SDK',
+                to: '/easy-language-sdk',
               },
             ],
           },

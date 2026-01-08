@@ -12,63 +12,61 @@ export default function HelpSection({ className = '' }) {
         )}
       >
         <h2 className="mb-12 text-center lg:text-3xl">
-          How can we help you today?
+          我们如何为您提供帮助？
         </h2>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="rounded-lg bg-zinc-100 p-6 dark:bg-zinc-900">
             <img
               src="/static/landing-page/calendar.svg"
-              alt="Book a demo"
+              alt="预约演示"
               width="48"
               height="48"
             />
-            <h3 className="my-3">Book a Demo</h3>
+            <h3 className="my-3">预约演示</h3>
             <p className="text-zinc-600 dark:text-zinc-400">
-              Contact us for a demo. We are looking forward to connecting with
-              you.
+              联系我们获取演示。我们期待与您交流。
             </p>
             <Link
-              href="https://dyte.io/schedule-demo"
+              href="#"
               className="text-primary dark:text-primary-100"
             >
-              Schedule a Call &rarr;
+              预约演示 &rarr;
             </Link>
           </div>
 
           <div className="rounded-lg bg-zinc-100 p-6 dark:bg-zinc-900">
             <img
               src="/static/landing-page/customer.svg"
-              alt="Support"
+              alt="技术支持"
               width="48"
               height="48"
             />
-            <h3 className="my-3">Support</h3>
+            <h3 className="my-3">技术支持</h3>
             <p className="text-zinc-600 dark:text-zinc-400">
-              Dyte&apos;s expert support team is always available to help.
-              Connect for dedicated 1:1 support!
+              JadeView 的专业支持团队随时为您提供帮助。
+              联系我们获取一对一支持！
             </p>
             <Link
-              href="https://dyte.io/contact"
+              href="#"
               className="text-primary dark:text-primary-100"
             >
-              Contact Us &rarr;
+              联系我们 &rarr;
             </Link>
           </div>
 
           <div className="rounded-lg bg-zinc-100 p-6 dark:bg-zinc-900">
             <img
               src="/static/landing-page/chat.svg"
-              alt="FAQs"
+              alt="常见问题"
               width="48"
               height="48"
             />
-            <h3 className="my-3">FAQs</h3>
+            <h3 className="my-3">常见问题</h3>
             <p className="text-zinc-600 dark:text-zinc-400">
-              Browse through our FAQs to find answers to commonly asked
-              questions.
+              浏览我们的常见问题，查找您需要的答案。
             </p>
             <Link href="/faq" className="text-primary dark:text-primary-100">
-              View FAQs &rarr;
+              查看常见问题 &rarr;
             </Link>
           </div>
         </div>

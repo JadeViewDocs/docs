@@ -130,7 +130,6 @@ export default function Homepage() {
     <Layout
       title="JadeView Documentation"
       wrapperClassName="homepage flex flex-col"
-      noFooter
     >
       <Head>
         <title>JadeView Documentation - 基于 Rust 的 WebView 窗口库</title>
@@ -247,6 +246,26 @@ export default function Homepage() {
                   <HTMLIcon />
                 </div>
                 <span className="font-medium">UI Kit</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="mb-10">
+            <h4 className="mb-2 text-2xl">易语言 SDK</h4>
+
+            <p className="mb-6 text-text-400">
+              JadeView 提供了易语言 SDK，方便易语言开发者快速集成和使用
+            </p>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              <Link
+                to="/easy-language-sdk"
+                className="flex cursor-pointer items-center rounded-lg border border-secondary-700 p-2.5 text-inherit hover:border-primary hover:text-primary hover:no-underline"
+              >
+                <div className="mr-2 h-7 w-7 flex items-center justify-center rounded bg-gradient-to-br from-orange-500 to-red-500 text-white">
+                  <APIIcon />
+                </div>
+                <span className="font-medium">易语言 SDK</span>
               </Link>
             </div>
           </div>
