@@ -177,7 +177,7 @@ const config = {
       algolia: {
         appId: 'VNPCOT49QX',
         apiKey: '1270728145644935a4e726023ce530fb',
-        indexName: 'jade_run',
+        indexName: 'jade_run_vnpcot49qx_pages',
         contextualSearch: true,
       },
       navbar: {
