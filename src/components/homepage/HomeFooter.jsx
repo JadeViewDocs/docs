@@ -14,6 +14,10 @@ const products = [
     name: '小维API',
     href: 'https://openapi.52vmy.cn',
   },
+  {
+    name: '科利特尔网',
+    href: 'https://www.colithel.com',
+  },
 ];
 
 // 开发者链接
@@ -90,8 +94,6 @@ export default function Footer() {
               dark: '/logo/dark.svg',
             }}
           />
-
-          
         </div>
 
         <div className="grid grid-cols-2 gap-6 gap-y-12 md:grid-cols-3 lg:grid-cols-3">
@@ -103,7 +105,7 @@ export default function Footer() {
         <hr className="my-12 !bg-gray-300 dark:!bg-[#999]" />
 
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
-              <div className="flex flex-wrap gap-2 text-sm text-gray-500">
+          <div className="flex flex-wrap gap-2 text-sm text-gray-500">
             <span className="text-inherit dark:text-[#999]">
               &copy; {new Date().getFullYear()} JadeView. 保留所有权利。
             </span>
