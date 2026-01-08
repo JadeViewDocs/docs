@@ -1,5 +1,11 @@
 User-agent: *
 Disallow: /tags/
-Sitemap: https://dyte.io/sitemap.xml
-Sitemap: https://dyte.io/blog/sitemap.xml
-Sitemap: https://docs.dyte.io/sitemap.xml
+Sitemap: https://jade.run/sitemap.xml
+
+# Algolia Crawler Verification
+User-agent: Algolia Crawler
+Disallow:
+Allow: /
+
+# Add your Algolia Application Code below
+algolia-crawler: VNPCOT49QX
