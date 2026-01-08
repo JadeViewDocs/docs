@@ -1,11 +1,13 @@
+# Algolia-Crawler-Verif: 874D46A53032AA05
+
 User-agent: *
 Disallow: /tags/
 Sitemap: https://jade.run/sitemap.xml
 
-# Algolia Crawler Verification
+# Algolia Crawler Configuration
 User-agent: Algolia Crawler
 Disallow:
 Allow: /
 
-# Add your Algolia Application Code below
-algolia-crawler: VNPCOT49QX
+# Algolia Verification Code
+algolia-crawler: 874D46A53032AA05
