@@ -1,0 +1,308 @@
+# 快速开始
+
+本指南将帮助您快速了解如何使用 JadeUI Python SDK 创建桌面应用。
+
+## 环境要求
+
+- Python 3.8+
+- Windows 10+ (当前版本)
+- WebView2 Runtime
+
+## 安装
+
+通过 pip 安装 JadeUI Python SDK：
+
+```bash
+pip install jadeui
+```
+
+## 基本使用
+
+### 创建第一个应用
+
+```python
+from jadeui import JadeUIApp, Window
+
+# 创建应用实例 (单例模式)
+app = JadeUIApp()
+
+@app.on_ready
+def on_ready():
+    # 创建窗口
+    window = Window(
+        title="Hello JadeUI",
+        width=800,
+        height=600,
+        url="https://example.com"
+    )
+    window.show()
+
+# 运行应用
+app.run()
+```
+
+### 使用本地服务器
+
+通过 `LocalServer` 托管本地 Web 内容：
+
+```python
+from jadeui import JadeUIApp, Window, LocalServer
+
+app = JadeUIApp()
+server = LocalServer()
+
+@app.on_ready
+def on_ready():
+    # 启动本地服务器，托管 ./web 目录
+    url = server.start("./web", "myapp")
+    
+    window = Window(
+        title="My App",
+        width=1024,
+        height=768,
+        url=f"{url}/index.html"
+    )
+    window.show()
+
+app.run()
+```
+
+### IPC 通信
+
+使用 `IPCManager` 实现 Python 后端与 Web 前端的双向通信：
+
+```python
+from jadeui import JadeUIApp, Window, IPCManager
+
+app = JadeUIApp()
+ipc = IPCManager()
+
+# 注册 IPC 消息处理器
+@ipc.on("greet")
+def handle_greet(window_id, message):
+    print(f"收到消息: {message}")
+    # 发送响应给前端
+    ipc.send(window_id, "response", f"Hello from Python! You said: {message}")
+    return 1
+
+@app.on_ready
+def on_ready():
+    window = Window(title="IPC Demo", url="...")
+    window.show()
+
+app.run()
+```
+
+前端 JavaScript 代码：
+
+```javascript
+// 发送消息到 Python
+window.jade.ipcSend('greet', 'Hello from JavaScript!');
+
+// 接收 Python 的响应
+window.jade.ipcMain('response', function(content) {
+    console.log('收到响应:', content);
+});
+```
+
+### 使用路由系统
+
+`Router` 提供后端主导的路由系统，自动生成带侧边栏的应用框架：
+
+```python
+from jadeui import JadeUIApp, Router
+
+app = JadeUIApp()
+router = Router()
+
+# 注册页面路由
+router.page("/", "pages/home.html", title="首页", icon="🏠")
+router.page("/settings", "pages/settings.html", title="设置", icon="⚙️")
+router.page("/about", "pages/about.html", title="关于", icon="ℹ️")
+
+@app.on_ready
+def on_ready():
+    # 挂载路由器，创建窗口
+    router.mount(
+        title="My App",
+        web_dir="web",
+        width=1200,
+        height=800,
+        theme="system"
+    )
+
+app.run()
+```
+
+## 窗口配置选项
+
+`Window` 类支持丰富的配置选项：
+
+```python
+from jadeui import Window, Theme, Backdrop, RGBA
+
+window = Window(
+    title="配置示例",
+    width=1024,
+    height=768,
+    url="https://example.com",
+    
+    # 窗口属性
+    resizable=True,           # 允许调整大小
+    remove_titlebar=False,    # 移除原生标题栏
+    transparent=False,        # 启用透明
+    always_on_top=False,      # 窗口置顶
+    
+    # 主题
+    theme=Theme.SYSTEM,       # Light, Dark, System
+    
+    # 位置和大小限制
+    x=-1, y=-1,               # 居中显示 (-1 表示居中)
+    min_width=400,
+    min_height=300,
+    max_width=0,              # 0 表示无限制
+    max_height=0,
+    
+    # 初始状态
+    maximized=False,
+    fullscreen=False,
+    focus=True,
+    hide_window=False,
+    
+    # 窗口控制
+    maximizable=True,
+    minimizable=True,
+    
+    # 背景颜色
+    background_color=RGBA(255, 255, 255, 255),
+    
+    # WebView 设置
+    autoplay=False,           # 允许自动播放媒体
+    disable_right_click=False,
+    user_agent=None,          # 自定义 User-Agent
+    preload_js=None,          # 预加载 JavaScript
+)
+```
+
+## 事件处理
+
+### 应用事件
+
+```python
+@app.on_ready
+def on_ready():
+    print("应用已就绪")
+
+@app.on_window_all_closed
+def on_all_closed():
+    print("所有窗口已关闭")
+```
+
+### 窗口事件
+
+```python
+window = Window(title="Event Demo")
+
+@window.on("created")
+def on_created(win):
+    print("窗口已创建")
+
+@window.on("closed")
+def on_closed():
+    print("窗口已关闭")
+
+@window.on("page-loaded")
+def on_page_loaded(url, status):
+    print(f"页面已加载: {url}")
+
+@window.on("file-drop")
+def on_file_drop(path, mime_type, x, y):
+    print(f"文件拖放: {path}")
+
+window.show()
+```
+
+## 窗口操作
+
+```python
+window = Window(title="My App")
+window.show()
+
+# 窗口状态控制
+window.minimize()           # 最小化
+window.maximize()           # 最大化/还原
+window.set_fullscreen(True) # 全屏
+window.focus()              # 获取焦点
+window.hide()               # 隐藏
+window.close()              # 关闭
+
+# 属性设置
+window.set_title("New Title")
+window.set_size(1280, 720)
+window.set_position(100, 100)
+window.center()
+window.set_always_on_top(True)
+window.set_resizable(False)
+
+# 主题和外观
+window.set_theme(Theme.DARK)
+window.set_backdrop(Backdrop.MICA)  # Windows 11 效果
+
+# WebView 操作
+window.load_url("https://example.com")
+window.execute_js("console.log('Hello from Python!')")
+```
+
+## 完整示例
+
+以下是一个完整的应用示例：
+
+```python
+from jadeui import JadeUIApp, Window, IPCManager, LocalServer
+import json
+
+app = JadeUIApp()
+ipc = IPCManager()
+server = LocalServer()
+
+@ipc.on("get-data")
+def handle_get_data(window_id, message):
+    data = json.loads(message)
+    print(f"请求数据: {data}")
+    
+    response = {
+        "status": "success",
+        "items": ["Python", "JadeUI", "WebView"]
+    }
+    ipc.send(window_id, "data-response", json.dumps(response))
+    return 1
+
+@app.on_ready
+def on_ready():
+    # 启动本地服务器
+    url = server.start("./web", "demo")
+    
+    # 创建窗口
+    window = Window(
+        title="JadeUI Demo",
+        width=1024,
+        height=768,
+        url=f"{url}/index.html",
+        resizable=True,
+    )
+    
+    @window.on("closed")
+    def on_closed():
+        print("窗口已关闭")
+    
+    window.show()
+
+if __name__ == "__main__":
+    app.run()
+```
+
+## 下一步
+
+- 查看 [API 参考](./reference/methods.mdx) 了解详细的 API 文档
+- 探索 `Router` 类构建复杂的多页面应用
+- 学习使用 Windows 11 的 Mica/Acrylic 效果

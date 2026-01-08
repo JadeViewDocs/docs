@@ -1,0 +1,986 @@
+# API 参考
+
+JadeUI Python SDK 提供了一套完整的 API 用于创建桌面应用。本文档详细介绍各个类和方法。
+
+## JadeUIApp
+
+主应用类，管理应用生命周期。采用单例模式。
+
+### 构造函数
+
+```python
+app = JadeUIApp()
+```
+
+### 方法
+
+#### initialize()
+
+初始化应用。
+
+```python
+app.initialize(
+    enable_dev_tools=False,  # 是否启用开发者工具 (F12)
+    log_file=None,           # 日志文件路径
+    data_directory=None,     # WebView 数据目录
+)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| enable_dev_tools | bool | 启用开发者工具 |
+| log_file | str \| None | 日志文件路径 |
+| data_directory | str \| None | WebView 数据存储目录 |
+
+**返回值**: `JadeUIApp` (支持链式调用)
+
+#### run()
+
+启动应用消息循环。此方法会阻塞直到所有窗口关闭。
+
+```python
+app.run()
+```
+
+#### quit()
+
+退出应用。
+
+```python
+app.quit()
+```
+
+#### is_ready()
+
+检查应用是否已初始化。
+
+```python
+if app.is_ready():
+    print("应用已就绪")
+```
+
+**返回值**: `bool`
+
+### 装饰器
+
+#### @on_ready
+
+注册应用就绪事件处理器。
+
+```python
+@app.on_ready
+def setup():
+    window = Window("My App")
+    window.show()
+```
+
+#### @on_window_all_closed
+
+注册所有窗口关闭事件处理器。
+
+```python
+@app.on_window_all_closed
+def cleanup():
+    print("所有窗口已关闭")
+```
+
+### 事件
+
+| 事件名 | 描述 |
+|--------|------|
+| ready | 应用初始化完成 |
+| error | 发生错误 |
+| window-all-closed | 所有窗口关闭 |
+| before-quit | 应用即将退出 |
+
+---
+
+## Window
+
+WebView 窗口类，用于创建和管理窗口。
+
+### 构造函数
+
+```python
+window = Window(
+    title="Window",          # 窗口标题
+    width=800,               # 宽度
+    height=600,              # 高度
+    url=None,                # 初始 URL
+    **options                # 其他选项
+)
+```
+
+### 窗口选项
+
+| 选项 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| resizable | bool | True | 允许调整大小 |
+| remove_titlebar | bool | False | 移除原生标题栏 |
+| transparent | bool | False | 启用窗口透明 |
+| background_color | RGBA | (255,255,255,255) | 背景颜色 |
+| always_on_top | bool | False | 窗口置顶 |
+| theme | str | "System" | 主题 (Light/Dark/System) |
+| maximized | bool | False | 初始最大化 |
+| maximizable | bool | True | 允许最大化 |
+| minimizable | bool | True | 允许最小化 |
+| x | int | -1 | X 坐标 (-1 居中) |
+| y | int | -1 | Y 坐标 (-1 居中) |
+| min_width | int | 0 | 最小宽度 |
+| min_height | int | 0 | 最小高度 |
+| max_width | int | 0 | 最大宽度 (0 无限制) |
+| max_height | int | 0 | 最大高度 (0 无限制) |
+| fullscreen | bool | False | 全屏模式 |
+| focus | bool | True | 创建时获取焦点 |
+| hide_window | bool | False | 创建时隐藏 |
+| use_page_icon | bool | True | 使用页面图标 |
+| autoplay | bool | False | 允许媒体自动播放 |
+| disable_right_click | bool | False | 禁用右键菜单 |
+| user_agent | str \| None | None | 自定义 User-Agent |
+| preload_js | str \| None | None | 预加载 JavaScript |
+
+### 生命周期方法
+
+#### show()
+
+显示窗口。
+
+```python
+window.show(url=None)  # 可选传入 URL
+```
+
+**返回值**: `Window` (链式调用)
+
+#### hide()
+
+隐藏窗口。
+
+```python
+window.hide()
+```
+
+**返回值**: `Window`
+
+#### close()
+
+关闭窗口。
+
+```python
+window.close()
+```
+
+#### focus()
+
+使窗口获取焦点。
+
+```python
+window.focus()
+```
+
+**返回值**: `Window`
+
+### 状态控制方法
+
+#### minimize()
+
+最小化窗口。
+
+```python
+window.minimize()
+```
+
+**返回值**: `Window`
+
+#### maximize()
+
+切换最大化/还原状态。
+
+```python
+window.maximize()
+```
+
+**返回值**: `Window`
+
+#### restore()
+
+从最小化/最大化状态还原。
+
+```python
+window.restore()
+```
+
+**返回值**: `Window`
+
+#### set_fullscreen()
+
+设置全屏模式。
+
+```python
+window.set_fullscreen(True)
+window.set_fullscreen(False)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| fullscreen | bool | 是否全屏 |
+
+**返回值**: `Window`
+
+#### toggle_fullscreen()
+
+切换全屏模式。
+
+```python
+window.toggle_fullscreen()
+```
+
+**返回值**: `Window`
+
+### 属性方法
+
+#### set_title()
+
+设置窗口标题。
+
+```python
+window.set_title("New Title")
+# 或使用属性
+window.title = "New Title"
+```
+
+**返回值**: `Window`
+
+#### set_size()
+
+设置窗口大小。
+
+```python
+window.set_size(1280, 720)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| width | int | 宽度 (像素) |
+| height | int | 高度 (像素) |
+
+**返回值**: `Window`
+
+#### set_min_size()
+
+设置最小窗口大小。
+
+```python
+window.set_min_size(400, 300)
+```
+
+**返回值**: `Window`
+
+#### set_max_size()
+
+设置最大窗口大小。
+
+```python
+window.set_max_size(1920, 1080)  # 0 表示无限制
+```
+
+**返回值**: `Window`
+
+#### set_position()
+
+设置窗口位置。
+
+```python
+window.set_position(100, 100)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| x | int | X 坐标 |
+| y | int | Y 坐标 |
+
+**返回值**: `Window`
+
+#### center()
+
+将窗口居中显示。
+
+```python
+window.center()
+```
+
+**返回值**: `Window`
+
+#### set_visible()
+
+设置窗口可见性。
+
+```python
+window.set_visible(True)
+window.set_visible(False)
+```
+
+**返回值**: `Window`
+
+#### set_always_on_top()
+
+设置窗口置顶。
+
+```python
+window.set_always_on_top(True)
+```
+
+**返回值**: `Window`
+
+#### set_resizable()
+
+设置是否可调整大小。
+
+```python
+window.set_resizable(False)
+```
+
+**返回值**: `Window`
+
+### 主题方法
+
+#### set_theme()
+
+设置窗口主题。
+
+```python
+from jadeui import Theme
+
+window.set_theme(Theme.LIGHT)  # 浅色
+window.set_theme(Theme.DARK)   # 深色
+window.set_theme(Theme.SYSTEM) # 跟随系统
+```
+
+**返回值**: `Window`
+
+#### get_theme()
+
+获取当前主题。
+
+```python
+theme = window.get_theme()
+```
+
+**返回值**: `str`
+
+#### set_backdrop()
+
+设置窗口背景材料 (Windows 11)。
+
+```python
+from jadeui import Backdrop
+
+window.set_backdrop(Backdrop.MICA)     # Mica 效果
+window.set_backdrop(Backdrop.MICA_ALT) # Mica Alt 效果
+window.set_backdrop(Backdrop.ACRYLIC)  # Acrylic 效果
+```
+
+:::note
+窗口必须设置 `transparent=True` 才能使用 backdrop 效果。
+:::
+
+**返回值**: `Window`
+
+### WebView 方法
+
+#### load_url() / navigate()
+
+导航到 URL。
+
+```python
+window.load_url("https://example.com")
+# 或
+window.navigate("https://example.com")
+```
+
+**返回值**: `Window`
+
+#### execute_js() / eval()
+
+执行 JavaScript 代码。
+
+```python
+window.execute_js("console.log('Hello!')")
+# 或
+window.eval("document.title = 'New Title'")
+```
+
+**返回值**: `Window`
+
+### 状态属性
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| id | int \| None | 窗口 ID |
+| title | str | 窗口标题 |
+| size | tuple[int, int] | 窗口大小 (width, height) |
+| position | tuple[int, int] | 窗口位置 (x, y) |
+| is_visible | bool | 是否可见 |
+| is_maximized | bool | 是否最大化 |
+| is_minimized | bool | 是否最小化 |
+| is_focused | bool | 是否获得焦点 |
+| is_fullscreen | bool | 是否全屏 |
+
+### 静态方法
+
+#### get_window_count()
+
+获取活动窗口数量。
+
+```python
+count = Window.get_window_count()
+```
+
+#### get_window_by_id()
+
+通过 ID 获取窗口。
+
+```python
+window = Window.get_window_by_id(1)
+```
+
+#### get_all_windows()
+
+获取所有活动窗口。
+
+```python
+windows = Window.get_all_windows()
+```
+
+### 事件
+
+| 事件名 | 参数 | 描述 |
+|--------|------|------|
+| created | Window | 窗口创建完成 |
+| close | - | 窗口即将关闭 |
+| closed | - | 窗口已关闭 |
+| focus | - | 获得焦点 |
+| blur | - | 失去焦点 |
+| resize | - | 大小改变 |
+| move | - | 位置改变 |
+| page-loaded | url, status | 页面加载完成 |
+| file-drop | path, mime_type, x, y | 文件拖放 |
+
+---
+
+## IPCManager
+
+IPC 通信管理器，处理 Python 后端与 Web 前端的通信。
+
+### 构造函数
+
+```python
+ipc = IPCManager()
+```
+
+### 方法
+
+#### register_handler()
+
+注册消息处理器。
+
+```python
+def handler(window_id: int, message: str) -> int:
+    print(f"收到: {message}")
+    return 1
+
+ipc.register_handler("channel-name", handler)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| channel | str | 通道名称 |
+| handler | Callable | 处理函数 |
+
+#### send()
+
+发送消息到窗口。
+
+```python
+ipc.send(window_id, "channel-name", "message content")
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| window_id | int | 目标窗口 ID |
+| channel | str | 通道名称 |
+| message | str | 消息内容 |
+
+#### remove_handler()
+
+移除消息处理器。
+
+```python
+ipc.remove_handler("channel-name")
+```
+
+#### list_handlers()
+
+列出所有注册的通道。
+
+```python
+channels = ipc.list_handlers()
+```
+
+**返回值**: `list[str]`
+
+### 装饰器
+
+#### @on()
+
+装饰器方式注册处理器。
+
+```python
+@ipc.on("greet")
+def handle_greet(window_id, message):
+    print(f"收到: {message}")
+    ipc.send(window_id, "response", "Hello!")
+    return 1
+```
+
+---
+
+## LocalServer
+
+本地 HTTP 服务器，用于托管 Web 内容。
+
+### 构造函数
+
+```python
+server = LocalServer()
+```
+
+### 方法
+
+#### start()
+
+启动服务器。
+
+```python
+url = server.start(
+    root_path="./web",   # 根目录
+    app_name="myapp"     # 应用名称
+)
+print(f"服务器运行在: {url}")
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| root_path | str | 静态文件根目录 |
+| app_name | str | 应用标识符 |
+
+**返回值**: `str` - 服务器 URL
+
+#### stop()
+
+停止服务器。
+
+```python
+server.stop()
+```
+
+#### get_url()
+
+获取文件的完整 URL。
+
+```python
+url = server.get_url("index.html")
+```
+
+**返回值**: `str`
+
+### 属性
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| is_running | bool | 服务器是否运行中 |
+| url | str \| None | 服务器 URL |
+
+---
+
+## Router
+
+后端主导的路由系统，支持内置模板和自定义模板。
+
+### 构造函数
+
+```python
+router = Router(ipc=None)  # 可传入 IPCManager 实例
+```
+
+### 方法
+
+#### page()
+
+注册页面路由。
+
+```python
+router.page(
+    path="/",                    # 路由路径
+    template="pages/home.html",  # 模板文件
+    title="首页",                # 页面标题
+    icon="🏠",                   # 图标 (侧边栏显示)
+    show_in_nav=True,            # 是否显示在导航栏
+)
+```
+
+| 参数 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| path | str | - | 路由路径，支持参数 (如 `/user/:id`) |
+| template | str | - | 模板文件路径 |
+| title | str | "Page" | 页面标题 |
+| icon | str | "" | 页面图标 |
+| show_in_nav | bool | True | 是否在导航中显示 |
+
+**返回值**: `Router` (链式调用)
+
+#### mount()
+
+挂载路由器并创建窗口。
+
+```python
+window = router.mount(
+    title="My App",          # 窗口标题
+    web_dir="web",           # Web 文件目录
+    width=1024,              # 窗口宽度
+    height=768,              # 窗口高度
+    sidebar_width=220,       # 侧边栏宽度
+    theme="system",          # 主题
+    initial_path="/",        # 初始路由
+    template=None,           # 自定义模板 (None 使用内置)
+    head_links=[],           # 额外 CSS 链接
+    scripts=[],              # 额外 JS 脚本
+    **window_options         # 其他窗口选项
+)
+```
+
+**返回值**: `Window`
+
+#### go()
+
+导航到指定路由。
+
+```python
+router.go("/settings")
+router.go("/user/123")  # 带参数
+```
+
+**返回值**: `bool` - 是否成功
+
+#### set_theme()
+
+设置应用主题。
+
+```python
+router.set_theme("light")  # light, dark, system
+```
+
+#### set_backdrop()
+
+设置窗口背景材料。
+
+```python
+router.set_backdrop("mica")  # mica, micaAlt, acrylic
+```
+
+### 属性
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| current_route | str | 当前路由路径 |
+| window | Window \| None | 关联的窗口实例 |
+
+---
+
+## EventEmitter
+
+事件发射器基类，提供事件订阅和发布功能。
+
+### 方法
+
+#### on()
+
+注册事件监听器。
+
+```python
+# 方法形式
+emitter.on("event", callback)
+
+# 装饰器形式
+@emitter.on("event")
+def callback(data):
+    pass
+```
+
+#### off()
+
+移除事件监听器。
+
+```python
+emitter.off("event", callback)  # 移除特定监听器
+emitter.off("event")            # 移除该事件所有监听器
+```
+
+#### emit()
+
+触发事件。
+
+```python
+emitter.emit("event", arg1, arg2, key=value)
+```
+
+**返回值**: `bool` - 是否有监听器被调用
+
+#### once()
+
+注册一次性监听器。
+
+```python
+@emitter.once("event")
+def callback():
+    pass  # 只会被调用一次
+```
+
+#### remove_all_listeners()
+
+移除所有监听器。
+
+```python
+emitter.remove_all_listeners("event")  # 特定事件
+emitter.remove_all_listeners()         # 所有事件
+```
+
+#### listener_count()
+
+获取监听器数量。
+
+```python
+count = emitter.listener_count("event")
+```
+
+#### event_names()
+
+获取所有有监听器的事件名。
+
+```python
+names = emitter.event_names()
+```
+
+---
+
+## 常量
+
+### Theme
+
+窗口主题常量。
+
+```python
+from jadeui import Theme
+
+Theme.LIGHT   # "Light"
+Theme.DARK    # "Dark"
+Theme.SYSTEM  # "System"
+```
+
+### Backdrop
+
+Windows 11 背景材料常量。
+
+```python
+from jadeui import Backdrop
+
+Backdrop.MICA      # "mica"
+Backdrop.MICA_ALT  # "micaAlt"
+Backdrop.ACRYLIC   # "acrylic"
+```
+
+### Events
+
+标准事件名称常量。
+
+```python
+from jadeui import Events
+
+# 应用事件
+Events.APP_READY          # "app-ready"
+Events.WINDOW_ALL_CLOSED  # "window-all-closed"
+Events.BEFORE_QUIT        # "before-quit"
+
+# 窗口事件
+Events.WINDOW_CREATED     # "window-created"
+Events.WINDOW_CLOSED      # "window-closed"
+Events.WINDOW_FOCUS       # "window-focus"
+Events.WINDOW_BLUR        # "window-blur"
+Events.WINDOW_RESIZE      # "window-resize"
+Events.WINDOW_MOVE        # "window-move"
+
+# 页面事件
+Events.PAGE_LOADED        # "page-loaded"
+
+# 文件事件
+Events.FILE_DROP          # "file-drop"
+```
+
+---
+
+## 类型定义
+
+### RGBA
+
+颜色结构体。
+
+```python
+from jadeui import RGBA
+
+color = RGBA(r=255, g=128, b=64, a=255)
+```
+
+### WebViewWindowOptions
+
+窗口配置选项结构体。
+
+### WebViewSettings
+
+WebView 行为设置结构体。
+
+---
+
+## 异常
+
+### JadeUIError
+
+所有 JadeUI 异常的基类。
+
+### DLLLoadError
+
+DLL 加载失败。
+
+### WindowCreationError
+
+窗口创建失败。
+
+### IPCError
+
+IPC 通信错误。
+
+### ServerError
+
+本地服务器错误。
+
+### InitializationError
+
+SDK 初始化错误。
+
+```python
+from jadeui import JadeUIError, WindowCreationError
+
+try:
+    window = Window(title="Test")
+    window.show()
+except WindowCreationError as e:
+    print(f"窗口创建失败: {e}")
+except JadeUIError as e:
+    print(f"JadeUI 错误: {e}")
+```
+
+---
+
+## 工具函数
+
+### create_app()
+
+快捷创建应用实例。
+
+```python
+from jadeui import create_app, Window
+
+app = create_app(
+    enable_dev_tools=True,
+    log_file="app.log"
+)
+
+@app.on_ready
+def setup():
+    Window(title="My App").show()
+
+app.run()
+```
+
+### utils.get_resource_path()
+
+获取资源文件的绝对路径，兼容打包环境。
+
+```python
+from jadeui import utils
+
+path = utils.get_resource_path("assets/icon.png")
+```
+
+### utils.show_error()
+
+显示错误消息。
+
+```python
+from jadeui import utils
+
+utils.show_error("错误", "发生了一个错误")
+```
+
+### utils.ensure_directory()
+
+确保目录存在。
+
+```python
+from jadeui import utils
+
+utils.ensure_directory("./data/cache")
+```
+
+---
+
+## DLL 下载工具
+
+### download_dll()
+
+下载 JadeView DLL。
+
+```python
+from jadeui import download_dll
+
+download_dll(force=False)  # force=True 强制重新下载
+```
+
+### ensure_dll()
+
+确保 DLL 存在，不存在则下载。
+
+```python
+from jadeui import ensure_dll
+
+ensure_dll()
+```
+
+### find_dll()
+
+查找 DLL 文件路径。
+
+```python
+from jadeui import find_dll
+
+path = find_dll()
+```
+
+### get_architecture()
+
+获取当前系统架构。
+
+```python
+from jadeui import get_architecture
+
+arch = get_architecture()  # "x64" 或 "x86"
+```
+

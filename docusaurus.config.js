@@ -37,6 +37,12 @@ const docs = [
     sidebarPath: require.resolve('./sidebars-web-sdk.js'),
   },
   {
+    id: 'python-sdk',
+    path: 'docs/python-sdk',
+    routeBasePath: 'python-sdk',
+    sidebarPath: require.resolve('./sidebars-python-sdk.js'),
+  },
+  {
     id: 'easy-language-sdk',
     path: 'docs/easy-language-sdk',
     routeBasePath: 'easy-language-sdk',
@@ -107,6 +113,7 @@ const plugins = [
         'guides',
         'changelog',
         'easy-language-sdk',
+        'python-sdk',
         'web-sdk',
         'spec',
       ],

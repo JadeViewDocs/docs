@@ -1,0 +1,109 @@
+# 介绍
+
+JadeUI Python SDK 是一个用于 Python 开发桌面应用的库，提供了基于 JadeView WebView 技术的窗口管理、IPC 通信和 Web 前端集成功能。
+
+## 什么是 JadeUI Python SDK
+
+JadeUI Python SDK 是一套面向对象的 Python 库，为 Python 开发者提供了创建现代桌面应用的完整工具链。它基于 JadeView 的 WebView 技术，允许开发者使用 Python 作为后端，Web 技术（HTML/CSS/JavaScript）作为前端，快速构建跨平台桌面应用。
+
+## 核心功能
+
+- **应用管理**：`JadeUIApp` 类提供应用生命周期管理
+- **窗口管理**：`Window` 类支持创建、配置和控制 WebView 窗口
+- **IPC 通信**：`IPCManager` 类实现 Python 后端与 Web 前端的双向通信
+- **本地服务器**：`LocalServer` 类提供内置 HTTP 服务器用于托管 Web 内容
+- **路由系统**：`Router` 类提供后端主导的路由系统，支持内置模板和自定义模板
+- **事件系统**：`EventEmitter` 类提供灵活的事件订阅和发布机制
+
+## 适用场景
+
+JadeUI Python SDK 适用于以下场景：
+
+1. **桌面应用开发**：使用 Python 开发跨平台桌面应用
+2. **工具类应用**：创建具有现代 UI 的工具和实用程序
+3. **数据可视化**：结合 Web 技术展示 Python 处理的数据
+4. **原型开发**：快速构建应用原型和演示
+
+## 技术架构
+
+JadeUI Python SDK 采用以下技术架构：
+
+```
+┌─────────────────────────────────────────┐
+│              Python 后端                 │
+│  ┌─────────────┐  ┌─────────────┐       │
+│  │ JadeUIApp   │  │ IPCManager  │       │
+│  │ (生命周期)   │  │ (通信管理)   │       │
+│  └─────────────┘  └─────────────┘       │
+│  ┌─────────────┐  ┌─────────────┐       │
+│  │ Window      │  │ LocalServer │       │
+│  │ (窗口管理)   │  │ (资源服务)   │       │
+│  └─────────────┘  └─────────────┘       │
+│  ┌─────────────┐  ┌─────────────┐       │
+│  │ Router      │  │ EventEmitter│       │
+│  │ (路由系统)   │  │ (事件系统)   │       │
+│  └─────────────┘  └─────────────┘       │
+└─────────────────┬───────────────────────┘
+                  │ FFI/ctypes
+┌─────────────────┴───────────────────────┐
+│           JadeView DLL (Rust)           │
+└─────────────────┬───────────────────────┘
+                  │
+┌─────────────────┴───────────────────────┐
+│        WebView2 / 系统 WebView          │
+│  ┌───────────────────────────────────┐  │
+│  │       HTML / CSS / JavaScript      │  │
+│  │            (前端 UI)               │  │
+│  └───────────────────────────────────┘  │
+└─────────────────────────────────────────┘
+```
+
+## 系统要求
+
+- **Python 版本**：Python 3.8+
+- **操作系统**：Windows 10+ (当前版本)
+- **运行时**：WebView2 Runtime (Windows)
+
+## 安装方式
+
+通过 pip 安装 JadeUI Python SDK：
+
+```bash
+pip install jadeui
+```
+
+或者使用 poetry：
+
+```bash
+poetry add jadeui
+```
+
+## 快速示例
+
+```python
+from jadeui import JadeUIApp, Window
+
+app = JadeUIApp()
+
+@app.on_ready
+def on_ready():
+    window = Window(
+        title="My App",
+        width=1024,
+        height=768,
+        url="https://example.com"
+    )
+    window.show()
+
+app.run()
+```
+
+## 许可证
+
+JadeUI Python SDK 遵循 MIT 许可证，允许自由使用、修改和分发。
+
+## 社区和支持
+
+- GitHub 仓库：[https://github.com/JadeViewDocs/python-sdk](https://github.com/JadeViewDocs/python-sdk)
+- 文档网站：[https://jadeviewdocs.github.io](https://jadeviewdocs.github.io)
+- 如有问题或建议，欢迎提交 Issue 或 Pull Request
