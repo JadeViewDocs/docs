@@ -1561,3 +1561,70 @@ h3.anchor > code {
 }
 
 /* CSS for hello bar ends*/
+
+/* Contributors Section */
+
+.contributors-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--docs-color-border);
+}
+
+.contributors-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--docs-color-text);
+  margin-bottom: 1rem;
+  font-family: var(--ifm-font-family-base);
+}
+
+.contributors-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.contributor-avatar-link {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.contributor-avatar-link:hover {
+  transform: translateY(-2px);
+}
+
+/* Avatar Group styling */
+.contributors-avatars :global(.ant-avatar-group) {
+  gap: 8px;
+}
+
+.contributors-avatars :global(.ant-avatar-group .ant-avatar) {
+  border: 2px solid var(--docs-color-background);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme adjustments */
+html[data-theme='dark'] .contributors-avatars :global(.ant-avatar-group .ant-avatar) {
+  border-color: var(--docs-color-secondary-900);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  .contributors-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+  
+  .contributors-title {
+    font-size: 1rem;
+  }
+  
+  .contributors-avatars :global(.ant-avatar-group .ant-avatar) {
+    width: 32px;
+    height: 32px;
+  }
+}
+
