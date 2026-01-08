@@ -74,16 +74,16 @@ sidebar_position: 1
     const releaseDate = new Date(release.published_at).toISOString().split('T')[0];
     
     // 生成版本部分
-    content += `### ${release.tag_name} (${releaseDate})
-
-`;
+    content += `### ${release.tag_name} (${releaseDate})\n\n`;
+    
+    // 添加 GitHub 发布链接
+    content += `[查看发布页面](${release.html_url})\n\n`;
     
     // 添加发布说明
     if (release.body) {
       content += `${release.body}\n\n`;
     } else {
-      content += `**发布说明：**
-- 暂无详细说明\n\n`;
+      content += `**发布说明：**\n- 暂无详细说明\n\n`;
     }
   }
 
