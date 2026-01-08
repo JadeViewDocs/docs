@@ -101,25 +101,9 @@ const plugins = [
   tailwindPlugin,
   ...docs_plugins,
   webpackPlugin,
-  // 添加本地搜索插件，替代Dyte AI搜索
-  [
-    '@easyops-cn/docusaurus-search-local',
-    {
-      hashed: true,
-      language: ['zh'],
-      highlightSearchTermsOnTargetPage: true,
-      explicitSearchResultPath: true,
-      docsRouteBasePath: [
-        'guides',
-        'changelog',
-        'easy-language-sdk',
-        'python-sdk',
-        'web-sdk',
-        'spec',
-      ],
-    },
-  ],
 ];
+
+// 移除本地搜索插件，使用Algolia DocSearch
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -137,6 +121,9 @@ const config = {
   clientModules: [
     require.resolve('./src/client/define-ui-kit.js'),
     require.resolve('./src/client/set-framework.js'),
+    require.resolve('./src/client/add-contributors-to-all-docs.js'),
+    require.resolve('./src/client/update-changelog-badge.js'),
+    // 移除动态更新日志脚本，使用工作流编译方式
   ],
   scripts: [{ src: 'https://cdn.statuspage.io/se-v2.js', async: true }],
   markdown: {
@@ -186,6 +173,13 @@ const config = {
           hideable: true,
         },
       },
+      // 添加Algolia DocSearch配置
+      algolia: {
+        appId: 'VNPCOT49QX',
+        apiKey: '1270728145644935a4e726023ce530fb',
+        indexName: 'jade_run_vnpcot49qx_pages',
+        contextualSearch: true,
+      },
       navbar: {
         logo: {
           href: '/',
@@ -225,6 +219,7 @@ const config = {
           {
             label: '更新日志',
             to: '/changelog',
+            className: 'changelog-nav-item',
           },
           {
             type: 'search',

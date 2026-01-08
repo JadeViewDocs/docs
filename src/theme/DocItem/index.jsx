@@ -1,30 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import DocItem from '@theme-original/DocItem';
-import Contributors from '../../components/Contributors';
-import { getContributors } from '../../utils/getContributors';
+// 自定义DocItem组件，用于在所有文档下方添加贡献者信息
+import React from 'react';
 
-export default function DocItemWrapper(props) {
-  // 从props中获取当前文档的信息
-  const { children, content: { filePath } = {} } = props;
-  const [contributors, setContributors] = useState([]);
+// 导入原始DocItem组件
+import OriginalDocItem from '@theme-original/DocItem';
 
-  useEffect(() => {
-    // 异步获取贡献者数据
-    const fetchContributors = async () => {
-      const data = await getContributors(filePath);
-      setContributors(data);
-    };
+// 导入Contributors组件
+import Contributors from '../../components/Contributors/Contributors';
 
-    fetchContributors();
-  }, [filePath]);
-
+/**
+ * 自定义DocItem组件，在文档内容下方添加贡献者信息
+ * @param {Object} props - 组件属性
+ * @returns {JSX.Element} 自定义DocItem组件
+ */
+export default function DocItem(props) {
+  // 从props中获取当前文档的内容信息，包括filePath
+  const { content: { filePath } = {} } = props;
+  
   return (
-    <>
-      <DocItem {...props}>
-        {children}
-        {/* 在文档内容下方添加贡献者组件 */}
-        <Contributors contributors={contributors} />
-      </DocItem>
-    </>
+    <div className="doc-item-wrapper">
+      {/* 渲染原始DocItem组件 */}
+      <OriginalDocItem {...props} />
+      
+      {/* 在文档内容下方添加贡献者组件，传递filePath */}
+      <Contributors filePath={filePath} />
+    </div>
   );
 }
+

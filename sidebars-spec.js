@@ -17,6 +17,7 @@ const sidebars = {
     'index',
     'local-web-resources',
     'ipc-communication',
+    'javascript-execution',
   ],
 };
 

@@ -69,6 +69,13 @@ const JSIcon = () => (
   </svg>
 );
 
+const PythonIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+    <path d="M8 12l2 2 4-4" />
+  </svg>
+);
+
 const ReactIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -257,6 +264,26 @@ export default function Homepage() {
                   <APIIcon />
                 </div>
                 <span className="font-medium">易语言 SDK</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="mb-10">
+            <h4 className="mb-2 text-2xl">Python SDK</h4>
+
+            <p className="mb-6 text-text-400">
+              JadeView 提供了 Python SDK，使用 Python 创建桌面应用，提供窗口管理、IPC 通信和路由系统
+            </p>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              <Link
+                to="/python-sdk"
+                className="flex cursor-pointer items-center rounded-lg border border-secondary-700 p-2.5 text-inherit hover:border-primary hover:text-primary hover:no-underline"
+              >
+                <div className="mr-2 h-7 w-7 flex items-center justify-center rounded bg-gradient-to-br from-blue-500 to-green-500 text-white">
+                  <PythonIcon />
+                </div>
+                <span className="font-medium">Python SDK</span>
               </Link>
             </div>
           </div>

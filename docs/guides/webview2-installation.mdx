@@ -1,0 +1,79 @@
+# WebView2 安装指南
+
+## 什么是 WebView2 Runtime？
+
+Microsoft Edge WebView2 Runtime 是一个由微软开发的 Web 浏览控件，它允许应用程序在本机应用中嵌入网页内容。JadeView 使用 WebView2 Runtime 来渲染 Web 内容，因此在 Windows 系统上使用 JadeView 之前，需要先安装 WebView2 Runtime。
+
+## 为什么需要安装 WebView2 Runtime？
+
+- JadeView 基于 Rust 的 wry 库开发，而 wry 在 Windows 平台上依赖 WebView2
+- WebView2 提供了高性能的 Web 内容渲染能力
+- 确保 JadeView 应用程序能够正常显示和运行 Web 内容
+
+## 安装步骤
+
+### 方法一：使用官方安装程序
+
+1. 访问 WebView2 官方下载页面：[Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/#download)
+
+2. 选择适合您系统的安装程序：
+   - **常青引导程序**：一个小型安装程序，用于下载并安装适合设备架构的常青运行时
+   - **常青独立安装程序**：一个完整的安装程序，可以在离线环境中安装常青运行时
+   - **固定版本**：选择特定版本的 WebView2 运行时并将其与应用程序打包在一起
+
+3. 下载并运行安装程序
+
+4. 按照安装向导的指示完成安装
+
+### 方法二：通过命令行安装
+
+您也可以使用命令行来安装 WebView2 Runtime：
+
+```bash
+# 使用常青引导程序安装
+MicrosoftEdgeWebView2Setup.exe
+
+# 静默安装（无用户界面）
+MicrosoftEdgeWebView2Setup.exe /silent /install
+```
+
+## 验证安装
+
+安装完成后，您可以通过以下方式验证 WebView2 Runtime 是否已成功安装：
+
+1. 打开文件资源管理器
+2. 导航到 `C:\Program Files (x86)\Microsoft\EdgeWebView\Application`
+3. 检查是否存在以版本号命名的文件夹（如 `120.0.2210.91`）
+
+## 常见问题
+
+### Q: 安装过程中遇到错误怎么办？
+
+A: 请确保您的系统满足以下要求：
+- Windows 10 版本 1803 或更高版本
+- Windows 11
+- 足够的磁盘空间
+- 管理员权限
+
+如果问题仍然存在，请参考 [WebView2 故障排除指南](https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/troubleshooting)
+
+### Q: 可以将 WebView2 Runtime 与应用程序一起打包吗？
+
+A: 是的，您可以使用固定版本的 WebView2 Runtime 并将其与应用程序一起打包。这样可以确保您的应用程序始终使用特定版本的 WebView2，而不受系统更新的影响。
+
+### Q: WebView2 Runtime 会自动更新吗？
+
+A: 是的，常青版本的 WebView2 Runtime 会自动更新，以确保您始终使用最新、最安全的版本。
+
+## 系统要求
+
+- **操作系统**：Windows 10 版本 1803 或更高版本，或 Windows 11
+- **架构**：x86, x64, 或 ARM64
+- **磁盘空间**：至少 100 MB
+- **网络连接**：用于下载和更新（仅常青版本）
+
+## 相关链接
+
+- [WebView2 官方文档](https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/)
+- [WebView2 下载页面](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/#download)
+- [WebView2 故障排除](https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/troubleshooting)

@@ -1628,3 +1628,21 @@ html[data-theme='dark'] .contributors-avatars :global(.ant-avatar-group .ant-ava
   }
 }
 
+/* Changelog Badge */
+.changelog-nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+
+
+html[data-theme='dark'] .changelog-nav-item::after {
+  background-color: #1a90ff;
+  color: white;
+}
+
+.changelog-nav-item:hover::after {
+  transform: scale(1.05);
+}
+

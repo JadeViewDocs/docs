@@ -1,5 +1,13 @@
+# Algolia-Crawler-Verif: 874D46A53032AA05
+
 User-agent: *
 Disallow: /tags/
-Sitemap: https://dyte.io/sitemap.xml
-Sitemap: https://dyte.io/blog/sitemap.xml
-Sitemap: https://docs.dyte.io/sitemap.xml
+Sitemap: https://jade.run/sitemap.xml
+
+# Algolia Crawler Configuration
+User-agent: Algolia Crawler
+Disallow:
+Allow: /
+
+# Algolia Verification Code
+algolia-crawler: 874D46A53032AA05
