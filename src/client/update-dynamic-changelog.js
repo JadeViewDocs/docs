@@ -20,62 +20,134 @@ const updateChangelog = async () => {
     const releaseUrl = release.html_url;
     const releaseNotes = release.body || '- 暂无详细说明';
 
-    // 查找更新日志页面的版本历史部分
-    const changelogContainer = document.querySelector('.theme-doc-markdown');
-    if (!changelogContainer) {
-      console.error('Could not find changelog container');
+    // 查找markdown内容区域
+    const markdownContainer = document.querySelector('.theme-doc-markdown');
+    if (!markdownContainer) {
       return;
     }
-
-    // 查找第一个版本条目
-    const firstVersionHeading = changelogContainer.querySelector('h3');
-    if (!firstVersionHeading) {
-      console.error('Could not find version heading');
+    
+    // 查找版本历史标题
+    let versionHistorySection = null;
+    const sectionTitles = markdownContainer.querySelectorAll('h2');
+    sectionTitles.forEach(title => {
+      if (title.textContent.includes('版本历史')) {
+        versionHistorySection = title;
+      }
+    });
+    
+    if (!versionHistorySection) {
       return;
     }
-
+    
+    // 查找第一个版本条目（版本历史标题之后的第一个h3）
+    let nextSibling = versionHistorySection.nextElementSibling;
+    let firstVersionElement = null;
+    
+    while (nextSibling) {
+      if (nextSibling.tagName === 'H3') {
+        firstVersionElement = nextSibling;
+        break;
+      }
+      nextSibling = nextSibling.nextElementSibling;
+    }
+    
+    if (!firstVersionElement) {
+      return;
+    }
+    
     // 检查是否需要更新
-    if (firstVersionHeading.textContent.includes(latestVersion)) {
-      console.log('Changelog is already up to date');
+    if (firstVersionElement.textContent.includes(latestVersion)) {
       return;
     }
-
+    
+    // 处理发布说明，转换为HTML列表
+    let formattedReleaseNotes = releaseNotes;
+    if (releaseNotes) {
+      // 将GitHub发布说明转换为HTML列表，处理换行符
+      formattedReleaseNotes = releaseNotes
+        .split('\n')
+        .filter(line => line.trim().startsWith('-'))
+        .map(line => `<li>${line.replace(/^-\s*/, '').replace(/\r/g, '')}</li>`)
+        .join('\n');
+      
+      if (formattedReleaseNotes) {
+        formattedReleaseNotes = `<ul class="list-disc ml-6">${formattedReleaseNotes}</ul>`;
+      } else {
+        formattedReleaseNotes = '<p>- 暂无详细说明</p>';
+      }
+    } else {
+      formattedReleaseNotes = '<p>- 暂无详细说明</p>';
+    }
+    
     // 创建新的版本内容
     const versionContent = `
-      <h3 class="text-xl font-semibold mb-2">${latestVersion} (${releaseDate})</h3>
-      <div class="mb-4">
-        <a href="${releaseUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
-          查看发布页面
-        </a>
+      <h3>${latestVersion} (${releaseDate})</h3>
+      <p>
+        <a href="${releaseUrl}" target="_blank" rel="noopener noreferrer">查看发布页面</a>
+      </p>
+      <div>
+        ${formattedReleaseNotes}
       </div>
-      <div class="release-body">${releaseNotes}</div>
     `;
-
-    // 替换旧版本内容
-    const parentElement = firstVersionHeading.parentElement;
-    if (parentElement) {
-      // 找到当前版本部分的所有元素
-      const elementsToRemove = [];
-      let nextElement = firstVersionHeading;
-      
-      while (nextElement && !nextElement.tagName.match(/^H[2-6]$/) && !nextElement.textContent.includes('版权信息')) {
-        elementsToRemove.push(nextElement);
-        nextElement = nextElement.nextElementSibling;
+    
+    // 创建新的版本元素
+    const newVersionElement = document.createElement('div');
+    newVersionElement.innerHTML = versionContent;
+    
+    // 获取版本历史标题
+    const historyTitle = versionHistorySection;
+    
+    // 获取版本历史标题的下一个兄弟元素
+    const nextHistorySibling = historyTitle.nextElementSibling;
+    
+    // 如果有下一个兄弟元素，在它之前插入
+    if (nextHistorySibling) {
+      historyTitle.parentNode.insertBefore(newVersionElement, nextHistorySibling);
+    } else {
+      // 否则，在版本历史标题后追加
+      historyTitle.parentNode.appendChild(newVersionElement);
+    }
+    
+    // 移除旧版本（保留最新的3个版本）
+    const allVersionHeadings = document.querySelectorAll('.theme-doc-markdown h3');
+    
+    // 如果版本数量超过3个，移除最旧的版本
+    if (allVersionHeadings.length > 3) {
+      // 从第4个版本开始移除（索引从0开始）
+      for (let i = 3; i < allVersionHeadings.length; i++) {
+        const heading = allVersionHeadings[i];
+        
+        // 移除这个版本的所有内容
+        let currentElement = heading;
+        
+        // 移除当前元素及其所有后续兄弟元素，直到下一个h2或文档末尾
+        while (currentElement) {
+          const nextElement = currentElement.nextElementSibling;
+          
+          // 如果下一个元素是h2，停止移除
+          if (nextElement && nextElement.tagName === 'H2') {
+            break;
+          }
+          
+          // 移除当前元素
+          currentElement.remove();
+          
+          // 如果没有下一个元素，停止循环
+          if (!nextElement) {
+            break;
+          }
+          
+          currentElement = nextElement;
+        }
       }
-      
-      // 移除旧元素
-      elementsToRemove.forEach(el => el.remove());
-      
-      // 添加新内容
-      parentElement.innerHTML = versionContent;
     }
   } catch (error) {
-    console.error('Failed to update changelog:', error);
     // 失败时不影响现有内容
   }
 };
 
 // 页面加载完成后执行
 if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', updateChangelog);
+  // 使用setTimeout确保DOM完全加载
+  setTimeout(updateChangelog, 1000);
 }
