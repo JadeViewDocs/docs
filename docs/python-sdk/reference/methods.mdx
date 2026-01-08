@@ -463,7 +463,37 @@ windows = Window.get_all_windows()
 | resize | - | 大小改变 |
 | move | - | 位置改变 |
 | page-loaded | url, status | 页面加载完成 |
-| file-drop | path, mime_type, x, y | 文件拖放 |
+| file-drop | files, x, y | 文件拖放 (files 为文件路径列表) |
+
+#### file-drop 事件详解
+
+`file-drop` 事件在用户将文件拖放到窗口时触发。
+
+**回调参数**：
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| files | List[str] | 拖放的文件路径列表 |
+| x | float | 拖放位置的 X 坐标 |
+| y | float | 拖放位置的 Y 坐标 |
+
+**示例**：
+
+```python
+window = Window(title="文件拖放示例")
+
+@window.on("file-drop")
+def on_file_drop(files, x, y):
+    print(f"拖放了 {len(files)} 个文件到位置 ({x}, {y})")
+    for file_path in files:
+        print(f"  - {file_path}")
+
+window.show()
+```
+
+:::warning 注意
+使用 `file-drop` 事件会接管 WebView 的拖拽事件处理，**导致前端无法收到原生拖拽事件**。如果您需要在前端处理拖拽事件，请不要注册此事件。
+:::
 
 ---
 
