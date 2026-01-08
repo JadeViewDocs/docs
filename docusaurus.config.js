@@ -96,16 +96,22 @@ const plugins = [
   ...docs_plugins,
   webpackPlugin,
   // 添加本地搜索插件，替代Dyte AI搜索
-      [
-          '@easyops-cn/docusaurus-search-local',
-          {
-            hashed: true,
-            language: ['zh'],
-            highlightSearchTermsOnTargetPage: true,
-            explicitSearchResultPath: true,
-            docsRouteBasePath: ['guides', 'changelog', 'easy-language-sdk', 'web-sdk', 'spec'],
-          },
-        ],
+  [
+    '@easyops-cn/docusaurus-search-local',
+    {
+      hashed: true,
+      language: ['zh'],
+      highlightSearchTermsOnTargetPage: true,
+      explicitSearchResultPath: true,
+      docsRouteBasePath: [
+        'guides',
+        'changelog',
+        'easy-language-sdk',
+        'web-sdk',
+        'spec',
+      ],
+    },
+  ],
 ];
 
 /** @type {import('@docusaurus/types').Config} */
@@ -184,14 +190,10 @@ const config = {
         },
         items: [
           {
-            label: '文档',
-            to: 'guides',
-            className: 'guides-top-header',
-          },
-          {
             label: '设计',
             to: '/spec',
           },
+
           {
             label: 'SDKs',
             type: 'dropdown',
@@ -203,6 +205,11 @@ const config = {
                 className: 'dyte-dropdown',
               },
             ],
+          },
+          {
+            label: 'Api',
+            to: 'guides',
+            className: 'guides-top-header',
           },
           {
             label: 'FAQ',

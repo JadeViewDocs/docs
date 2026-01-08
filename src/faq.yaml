@@ -155,7 +155,7 @@
     1. **发送 IPC 消息**：使用 `send_ipc_message` 函数
     2. **注册 IPC 处理器**：使用 `register_ipc_handler` 函数
 
-    详细的 IPC 通信指南请参考 [IPC 通信](/guides/ipc/send-message)。
+    详细的 IPC 通信指南请参考 [双向通信介绍](/spec/ipc-communication)。
 
 - question: IPC 和事件有什么区别？
   tags: ['JadeView', 'IPC', 'Events']

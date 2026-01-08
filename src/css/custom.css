@@ -250,7 +250,10 @@ pre.prism-code {
 .menu__link {
   font-size: 14px;
 }
-
+.navbar__item.navbar__link.navbar__link--active{
+    background: #c6cdd32e;
+      @apply rounded-md border-secondary-700;
+}
 .menu__link {
   border-radius: 4px 0 0 4px;
 }
@@ -1192,6 +1195,7 @@ html[data-theme='dark'] .video_sidebar_header > div > a::before {
 .guides-top-header {
   @apply ml-6 mr-2 rounded-md border-secondary-700;
   border-width: 1px;
+
 }
 
 .pagination-nav__sublabel {

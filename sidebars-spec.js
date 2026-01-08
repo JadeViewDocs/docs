@@ -16,6 +16,7 @@ const sidebars = {
   specSidebar: [
     'index',
     'local-web-resources',
+    'ipc-communication',
   ],
 };
 
