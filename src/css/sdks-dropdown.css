@@ -7,19 +7,43 @@
   display: none;
 }
 
+/* 默认显示 Web SDK */
 .sdks-dropdown [data-dropdown-sdks="web"] {
   display: block;
 }
 
+/* Web SDK 选中状态 */
 body[data-sdk-menu="web"] .sdks-dropdown [data-dropdown-sdks="web"] {
   display: block;
+}
+
+body[data-sdk-menu="web"] .sdks-dropdown [data-dropdown-sdks="python"] {
+  display: none;
 }
 
 body[data-sdk-menu="web"] .sdks-dropdown [data-dropdown-sdks="easy-language"] {
   display: none;
 }
 
+/* Python SDK 选中状态 */
+body[data-sdk-menu="python"] .sdks-dropdown [data-dropdown-sdks="web"] {
+  display: none;
+}
+
+body[data-sdk-menu="python"] .sdks-dropdown [data-dropdown-sdks="python"] {
+  display: block;
+}
+
+body[data-sdk-menu="python"] .sdks-dropdown [data-dropdown-sdks="easy-language"] {
+  display: none;
+}
+
+/* 易语言 SDK 选中状态 */
 body[data-sdk-menu="easy-language"] .sdks-dropdown [data-dropdown-sdks="web"] {
+  display: none;
+}
+
+body[data-sdk-menu="easy-language"] .sdks-dropdown [data-dropdown-sdks="python"] {
   display: none;
 }
 
