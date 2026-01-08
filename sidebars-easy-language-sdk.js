@@ -23,6 +23,7 @@ const sidebars = {
         'reference/constants',
         'reference/data-types',
         'reference/methods',
+        'reference/public-methods',
       ],
     },
   ],

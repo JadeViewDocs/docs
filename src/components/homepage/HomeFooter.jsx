@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
-import clsx from 'clsx';
 import { Github } from '@styled-icons/boxicons-logos';
 import ThemedImage from '@theme/ThemedImage';
 
