@@ -42,6 +42,7 @@
     "@headlessui/react": "^1.7.14",
     "@radix-ui/react-select": "^2.1.5",
     "@stoplight/elements": "^8.0.2",
+    "algoliasearch": "^5.46.2",
     "antd": "^6.1.4",
     "clsx": "^2.1.1",
     "nanoid": "^5.0.6",

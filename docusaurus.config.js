@@ -101,25 +101,9 @@ const plugins = [
   tailwindPlugin,
   ...docs_plugins,
   webpackPlugin,
-  // 添加本地搜索插件，替代Dyte AI搜索
-  [
-    '@easyops-cn/docusaurus-search-local',
-    {
-      hashed: true,
-      language: ['zh'],
-      highlightSearchTermsOnTargetPage: true,
-      explicitSearchResultPath: true,
-      docsRouteBasePath: [
-        'guides',
-        'changelog',
-        'easy-language-sdk',
-        'python-sdk',
-        'web-sdk',
-        'spec',
-      ],
-    },
-  ],
 ];
+
+// 移除本地搜索插件，使用Algolia DocSearch
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -188,6 +172,13 @@ const config = {
           autoCollapseCategories: true,
           hideable: true,
         },
+      },
+      // 添加Algolia DocSearch配置
+      algolia: {
+        appId: 'VNPCOT49QX',
+        apiKey: '1270728145644935a4e726023ce530fb',
+        indexName: 'jade_run',
+        contextualSearch: true,
       },
       navbar: {
         logo: {
