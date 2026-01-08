@@ -1,0 +1,140 @@
+# 快速开始
+
+本指南将帮助您快速了解如何使用 JadeView Web SDK 与 JadeView WebView 进行通信。
+
+## 环境要求
+
+- TypeScript 4.0+
+- 现代浏览器（支持 ES6+ 语法）
+- JadeView WebView
+
+## 安装
+
+通过 npm 安装 JadeView Web SDK：
+
+```bash
+npm install --save-dev jadeview-ipc-types
+```
+
+或者使用 yarn：
+
+```bash
+yarn add --dev jadeview-ipc-types
+```
+
+## 基本使用
+
+JadeView Web SDK 提供了与 JadeView WebView 进行 IPC 通信的 API，主要包括以下功能：
+
+### 订阅消息
+
+使用 `window.jade?.ipcMain` 方法订阅消息：
+
+```javascript
+// 订阅消息类型
+const callbackId = window.jade?.ipcMain('messageType', (content) => {
+  console.log('Received message:', content);
+});
+```
+
+### 发送消息
+
+使用 `window.jade?.ipcSend` 方法发送消息：
+
+```javascript
+// 发送消息
+window.jade?.ipcSend('channelName', JSON.stringify({ key: 'value' }));
+```
+
+### 取消订阅
+
+使用 `window.jade?.ipcRemove` 方法取消订阅：
+
+```javascript
+// 取消订阅
+window.jade?.ipcRemove('messageType', callbackId);
+```
+
+## 类型导入
+
+您也可以导入特定类型：
+
+```typescript
+import type { JadeView, JadeViewMessage, JadeViewCallback } from 'jadeview-ipc-types';
+
+// 使用导入的类型
+const handleMessage = (message: JadeViewMessage) => {
+  console.log('Message type:', message.type);
+  console.log('Message content:', message.content);
+};
+```
+
+## 注意事项
+
+1. **可选链使用**：`window.jade` 对象可能在某些环境中未定义，因此建议使用可选链 `?.` 访问其方法
+2. **异步初始化**：确保 JadeView IPC 系统在使用前已初始化
+3. **字符串内容**：发送的消息内容必须是字符串，复杂数据结构需要使用 `JSON.stringify` 转换
+4. **回调管理**：妥善管理订阅的回调，避免内存泄漏
+
+## 完整示例
+
+以下是一个完整的示例，展示了如何使用 JadeView Web SDK 进行通信：
+
+```typescript
+import type { JadeViewMessage } from 'jadeview-ipc-types';
+
+// 应用初始化
+function initApp() {
+  // 检查 jade 对象是否可用
+  if (!window.jade) {
+    console.error('JadeView IPC system not available');
+    return;
+  }
+
+  // 订阅消息
+  const callbackId = window.jade.ipcMain('app-ready', (content) => {
+    console.log('App ready:', content);
+    
+    // 发送初始化完成消息
+    window.jade?.ipcSend('app-init', JSON.stringify({ status: 'ready' }));
+  });
+
+  // 订阅主题变化消息
+  window.jade.ipcMain('theme-changed', (content) => {
+    const themeData = JSON.parse(content);
+    console.log('Theme changed:', themeData);
+    // 处理主题变化
+    document.body.className = themeData.theme;
+  });
+
+  // 订阅窗口状态变化消息
+  window.jade.ipcMain('window-state-changed', (content) => {
+    const stateData = JSON.parse(content);
+    console.log('Window state changed:', stateData);
+    // 处理窗口状态变化
+  });
+
+  // 清理函数
+  return () => {
+    // 取消订阅
+    window.jade?.ipcRemove('app-ready', callbackId);
+    // 取消其他订阅...
+  };
+}
+
+// 启动应用
+const cleanup = initApp();
+
+// 应用卸载时清理
+window.addEventListener('beforeunload', () => {
+  cleanup?.();
+});
+```
+
+## 下一步
+
+- 查看 [API 参考](./reference/methods.mdx) 了解详细的 API 文档
+- 探索更多高级用法和最佳实践
+- 参与社区讨论，分享您的经验和建议
+
+现在您已经成功安装并使用了 JadeView Web SDK，开始构建您的 JadeView WebView 应用吧！

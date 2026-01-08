@@ -1,4 +1,8 @@
 const { themes } = require('prism-react-renderer');
+const fs = require('fs');
+
+// 读取 SDKs 下拉菜单的 HTML 内容
+const sdksHTML = fs.readFileSync('./src/snippets/sdks.html', 'utf-8');
 
 const code_themes = {
   light: themes.github,
@@ -27,34 +31,10 @@ const meta = {
 /** @type {import('@docusaurus/plugin-content-docs').Options} */
 const docs = [
   {
-    id: 'cli',
-    path: 'docs/cli',
-    routeBasePath: 'cli',
-    sidebarPath: require.resolve('./sidebars-cli.js'),
-  },
-  {
-    id: 'plugin-sdk',
-    path: 'docs/plugin-sdk',
-    routeBasePath: 'plugin-sdk',
-    sidebarPath: require.resolve('./sidebars-plugin-sdk.js'),
-  },
-  {
-    id: 'community-packages',
-    path: 'docs/community-packages',
-    routeBasePath: 'community-packages',
-    sidebarPath: require.resolve('./sidebars-community-packages.js'),
-  },
-  {
-    id: 'ui-kit',
-    path: 'docs/ui-kit',
-    routeBasePath: 'ui-kit',
-    sidebarPath: require.resolve('./sidebars-ui-kit.js'),
-  },
-  {
-    id: 'web-core',
-    path: 'docs/web-core',
-    routeBasePath: 'web-core',
-    sidebarPath: require.resolve('./sidebars-web-core.js'),
+    id: 'web-sdk',
+    path: 'docs/web-sdk',
+    routeBasePath: 'web-sdk',
+    sidebarPath: require.resolve('./sidebars-web-sdk.js'),
   },
   {
     id: 'easy-language-sdk',
@@ -110,16 +90,16 @@ const plugins = [
   ...docs_plugins,
   webpackPlugin,
   // 添加本地搜索插件，替代Dyte AI搜索
-  [
-      '@easyops-cn/docusaurus-search-local',
-      {
-        hashed: true,
-        language: ['zh'],
-        highlightSearchTermsOnTargetPage: true,
-        explicitSearchResultPath: true,
-        docsRouteBasePath: ['guides', 'web-core', 'ui-kit', 'plugin-sdk', 'cli', 'community-packages', 'changelog', 'easy-language-sdk'],
-      },
-    ],
+      [
+          '@easyops-cn/docusaurus-search-local',
+          {
+            hashed: true,
+            language: ['zh'],
+            highlightSearchTermsOnTargetPage: true,
+            explicitSearchResultPath: true,
+            docsRouteBasePath: ['guides', 'changelog', 'easy-language-sdk', 'web-sdk'],
+          },
+        ],
 ];
 
 /** @type {import('@docusaurus/types').Config} */
@@ -161,6 +141,7 @@ const config = {
           customCss: [
             require.resolve('./src/css/custom.css'),
             require.resolve('./src/css/api-reference.css'),
+            require.resolve('./src/css/sdks-dropdown.css'),
           ],
         },
         sitemap: {
@@ -204,18 +185,12 @@ const config = {
           {
             label: 'SDKs',
             type: 'dropdown',
+            className: 'dyte-dropdown',
             items: [
               {
-                label: 'Web Core',
-                to: '/web-core',
-              },
-              {
-                label: 'UI Kit',
-                to: '/ui-kit',
-              },
-              {
-                label: '易语言 SDK',
-                to: '/easy-language-sdk',
+                type: 'html',
+                value: sdksHTML,
+                className: 'dyte-dropdown',
               },
             ],
           },
@@ -251,7 +226,7 @@ const config = {
               },
               {
                 label: 'SDKs',
-                href: '/web-core',
+                href: '/web-sdk',
               },
               {
                 label: '更新日志',

@@ -1,0 +1,131 @@
+/* SDKs Dropdown Styles */
+.sdks-dropdown {
+  position: relative;
+}
+
+.sdks-dropdown [data-dropdown-sdks] {
+  display: none;
+}
+
+.sdks-dropdown [data-dropdown-sdks="web"] {
+  display: block;
+}
+
+body[data-sdk-menu="web"] .sdks-dropdown [data-dropdown-sdks="web"] {
+  display: block;
+}
+
+body[data-sdk-menu="web"] .sdks-dropdown [data-dropdown-sdks="easy-language"] {
+  display: none;
+}
+
+body[data-sdk-menu="easy-language"] .sdks-dropdown [data-dropdown-sdks="web"] {
+  display: none;
+}
+
+body[data-sdk-menu="easy-language"] .sdks-dropdown [data-dropdown-sdks="easy-language"] {
+  display: block;
+}
+
+.sdks-dropdown a {
+  text-decoration: none !important;
+}
+
+.sdks-dropdown .sdks-ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sdks-dropdown .sdk-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: var(--ifm-background-surface-color);
+  transition: all 0.2s ease;
+  text-decoration: none !important;
+}
+
+.sdks-dropdown .sdk-link:hover {
+  background-color: var(--ifm-color-primary-lightest);
+  transform: translateY(-1px);
+}
+
+.sdks-dropdown .sdk-link img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* 响应式设计 */
+@media (max-width: 996px) {
+  .sdks-dropdown {
+    max-width: 100%;
+    min-width: auto !important;
+  }
+  
+  .sdks-dropdown .flex-col.lg\:flex-row {
+    flex-direction: column;
+  }
+}
+
+/* 确保下拉菜单在深色主题下也有良好的显示效果 */
+[data-theme="dark"] .sdks-dropdown {
+  --ifm-background-surface-color: var(--ifm-background-color);
+}
+
+[data-theme="dark"] .sdks-dropdown .sdk-link:hover {
+  background-color: var(--ifm-color-primary-darkest);
+}
+
+/* 添加过渡动画效果 */
+.sdks-dropdown [data-dropdown-sdks] {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 确保下拉菜单的层级正确 */
+.navbar__dropdown-menu {
+  z-index: 1000;
+}
+
+/* 调整下拉菜单项的间距 */
+.dyte-dropdown {
+  padding: 0;
+}
+
+/* 调整卡片内链接的样式 */
+.sdks-dropdown .bg-secondary-1000 a {
+  color: var(--ifm-color-content);
+  transition: all 0.2s ease;
+}
+
+.sdks-dropdown .bg-secondary-1000 a:hover {
+  color: var(--ifm-color-primary);
+  transform: translateX(4px);
+}
+
+/* 调整卡片内图标的样式 */
+.sdks-dropdown .bg-secondary-1000 a svg {
+  transition: transform 0.2s ease;
+}
+
+.sdks-dropdown .bg-secondary-1000 a:hover svg {
+  transform: scale(1.1);
+}
+
+/* 调整查看文档按钮的样式 */
+.sdks-dropdown a.bg-primary {
+  color: white !important;
+  text-decoration: none !important;
+}
+
+.sdks-dropdown a.bg-primary:hover {
+  color: white !important;
+  transform: none !important;
+  text-decoration: none !important;
+}

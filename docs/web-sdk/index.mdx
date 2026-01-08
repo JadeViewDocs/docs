@@ -1,0 +1,63 @@
+# 介绍
+
+JadeView Web SDK 是一个用于前端开发的库，提供了与 JadeView WebView 进行通信的 IPC 类型定义和 API，帮助前端开发者在使用 JadeView WebView 时获得类型安全和 IntelliSense 支持。
+
+## 什么是 JadeView Web SDK
+
+JadeView Web SDK 是一套 TypeScript 类型定义，为前端开发者提供了与 JadeView WebView 进行 IPC（进程间通信）的类型安全支持。它允许前端代码与原生应用进行通信，实现双向数据交互。
+
+## 核心功能
+
+- **类型安全**：完整的 TypeScript 类型定义，提供 IntelliSense 支持
+- **IPC 通信**：与原生应用进行双向通信的 API
+- **事件订阅**：支持订阅和取消订阅原生应用发送的事件
+- **消息发送**：支持向前端发送消息
+- **自动识别**：安装后自动被 TypeScript 识别，无需额外配置
+
+## 适用场景
+
+JadeView Web SDK 适用于以下场景：
+
+1. **前端与原生应用通信**：需要在 WebView 中与原生应用进行数据交互
+2. **类型安全开发**：希望获得 TypeScript 类型支持，避免类型错误
+3. **事件驱动架构**：采用事件驱动方式处理应用逻辑
+4. **跨平台开发**：开发需要在多个平台上运行的应用
+
+## 技术架构
+
+JadeView Web SDK 采用以下技术架构：
+
+1. **类型定义层**：提供完整的 TypeScript 类型定义
+2. **API 层**：定义与原生应用通信的 API 接口
+3. **事件系统**：支持事件订阅和发布
+4. **IPC 通信**：实现与原生应用的进程间通信
+
+## 系统要求
+
+- TypeScript 4.0+：需要 TypeScript 编译器支持
+- 现代浏览器：支持 ES6+ 语法
+- JadeView WebView：需要在 JadeView WebView 环境中运行
+
+## 安装方式
+
+通过 npm 安装 JadeView Web SDK：
+
+```bash
+npm install --save-dev jadeview-ipc-types
+```
+
+或者使用 yarn：
+
+```bash
+yarn add --dev jadeview-ipc-types
+```
+
+## 许可证
+
+JadeView Web SDK 遵循 MIT 许可证，允许自由使用、修改和分发。
+
+## 社区和支持
+
+- GitHub 仓库：[https://github.com/JadeViewDocs/web_Sdk](https://github.com/JadeViewDocs/web_Sdk)
+- 文档网站：[https://jadeviewdocs.github.io](https://jadeviewdocs.github.io)
+- 如有问题或建议，欢迎提交 Issue 或 Pull Request

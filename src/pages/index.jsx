@@ -230,22 +230,13 @@ export default function Homepage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               <Link
-                to="/web-core"
+                to="/web-sdk"
                 className="flex cursor-pointer items-center rounded-lg border border-secondary-700 p-2.5 text-inherit hover:border-primary hover:text-primary hover:no-underline"
               >
-                <div className="mr-2 h-7 w-7 flex items-center justify-center rounded bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                <div className="mr-2 h-7 w-7 flex items-center justify-center rounded bg-gradient-to-br from-yellow-500 to-orange-500 text-white">
                   <JSIcon />
                 </div>
-                <span className="font-medium">Web Core SDK</span>
-              </Link>
-              <Link
-                to="/ui-kit"
-                className="flex cursor-pointer items-center rounded-lg border border-secondary-700 p-2.5 text-inherit hover:border-primary hover:text-primary hover:no-underline"
-              >
-                <div className="mr-2 h-7 w-7 flex items-center justify-center rounded bg-gradient-to-br from-green-500 to-teal-500 text-white">
-                  <HTMLIcon />
-                </div>
-                <span className="font-medium">UI Kit</span>
+                <span className="font-medium">Web SDK</span>
               </Link>
             </div>
           </div>
