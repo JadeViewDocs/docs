@@ -48,6 +48,12 @@ const docs = [
     routeBasePath: 'changelog',
     sidebarPath: false,
   },
+  {
+    id: 'spec',
+    path: 'docs/spec',
+    routeBasePath: 'spec',
+    sidebarPath: require.resolve('./sidebars-spec.js'),
+  },
 ];
 
 /** @type {import('@docusaurus/plugin-content-docs').Options} */
@@ -97,7 +103,7 @@ const plugins = [
             language: ['zh'],
             highlightSearchTermsOnTargetPage: true,
             explicitSearchResultPath: true,
-            docsRouteBasePath: ['guides', 'changelog', 'easy-language-sdk', 'web-sdk'],
+            docsRouteBasePath: ['guides', 'changelog', 'easy-language-sdk', 'web-sdk', 'spec'],
           },
         ],
 ];
@@ -181,6 +187,10 @@ const config = {
             label: '文档',
             to: 'guides',
             className: 'guides-top-header',
+          },
+          {
+            label: '设计',
+            to: '/spec',
           },
           {
             label: 'SDKs',
