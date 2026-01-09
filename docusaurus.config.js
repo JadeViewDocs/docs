@@ -169,10 +169,11 @@ const config = {
       },
       // 添加Algolia DocSearch配置
       algolia: {
-        appId: 'VNPCOT49QX',
-        apiKey: '1270728145644935a4e726023ce530fb',
-        indexName: 'jade_run_vnpcot49qx_pages',
-        contextualSearch: true,
+        appId: 'G6A6UH3R1R',
+        apiKey: '9ed559408f34f517fc1a70f9d24dbbb7',
+        indexName: 'JadeView',
+        // AI搜索配置
+        insights: true,
       },
       navbar: {
         logo: {
@@ -204,7 +205,6 @@ const config = {
           {
             label: 'Api',
             to: 'guides',
-            className: 'guides-top-header',
           },
           {
             label: 'FAQ',
