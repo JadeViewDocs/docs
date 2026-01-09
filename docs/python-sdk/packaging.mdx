@@ -127,7 +127,7 @@ my_app/
 │   ├── favicon.png     # 自动用作图标
 │   ├── css/
 │   └── js/
-├── assets/             # 其他资源（需手动指定）
+├── assets/             # 其他资源（如果有的话需手动指定）
 └── build.py            # 打包脚本
 ```
 
@@ -135,11 +135,10 @@ my_app/
 
 ```bash
 # 推荐的打包命令
-python build.py app.py \
-    --output MyApp \
-    --icon web/favicon.ico \
-    -c 2 \
-    --include-data-dir assets=assets
+python build.py app.py --output myapp
+
+# 打包其他资源目录
+python build.py app.py --output myapp --include-data-dir assets=assets
 ```
 
 输出：
