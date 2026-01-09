@@ -1,0 +1,136 @@
+# JadeView 发行说明
+
+发行仓库: [JadeViewDocs/library](https://github.com/JadeViewDocs/library)
+
+## 支持的平台和架构
+
+- **平台**: Windows
+
+- **架构**:  
+
+  - x86 (32位)
+
+  - x64 (64位)
+
+  - arm64 (ARM 64位)
+
+- **链接方式**:  
+
+  - dynamic (动态链接)
+
+  - static (静态链接)
+
+## 文件说明
+
+### DLL 文件
+
+- `JadeView_x86_dynamic.dll` - 32位动态链接DLL
+
+- `JadeView_x86_static.dll` - 32位静态链接DLL
+
+- `JadeView_x64_dynamic.dll` - 64位动态链接DLL
+
+- `JadeView_x64_static.dll` - 64位静态链接DLL
+
+- `JadeView_arm64_dynamic.dll` - ARM64位动态链接DLL
+
+- `JadeView_arm64_static.dll` - ARM64位静态链接DLL
+
+### PDB 文件
+
+- `JadeView_x86_dynamic.pdb` - 32位动态链接调试符号
+
+- `JadeView_x86_static.pdb` - 32位静态链接调试符号
+
+- `JadeView_x64_dynamic.pdb` - 64位动态链接调试符号
+
+- `JadeView_x64_static.pdb` - 64位静态链接调试符号
+
+- `JadeView_arm64_dynamic.pdb` - ARM64位动态链接调试符号
+
+- `JadeView_arm64_static.pdb` - ARM64位静态链接调试符号
+
+### 导出文件
+
+- `JadeView.dll_x86_dynamic.exp` - 32位动态链接导出文件
+
+- `JadeView.dll_x86_static.exp` - 32位静态链接导出文件
+
+- `JadeView.dll_x64_dynamic.exp` - 64位动态链接导出文件
+
+- `JadeView.dll_x64_static.exp` - 64位静态链接导出文件
+
+- `JadeView.dll_arm64_dynamic.exp` - ARM64位动态链接导出文件
+
+- `JadeView.dll_arm64_static.exp` - ARM64位静态链接导出文件
+
+### 库文件
+
+- `JadeView.dll_x86_dynamic.lib` - 32位动态链接库文件
+
+- `JadeView.dll_x86_static.lib` - 32位静态链接库文件
+
+- `JadeView.dll_x64_dynamic.lib` - 64位动态链接库文件
+
+- `JadeView.dll_x64_static.lib` - 64位静态链接库文件
+
+- `JadeView.dll_arm64_dynamic.lib` - ARM64位动态链接库文件
+
+- `JadeView.dll_arm64_static.lib` - ARM64位静态链接库文件
+
+### ZIP 包
+
+- `JadeView_win_x86_dynamic_v0.1.2.zip` - 32位动态链接版本打包
+
+- `JadeView_win_x86_static_v0.1.2.zip` - 32位静态链接版本打包
+
+- `JadeView_win_x64_dynamic_v0.1.2.zip` - 64位动态链接版本打包
+
+- `JadeView_win_x64_static_v0.1.2.zip` - 64位静态链接版本打包
+
+- `JadeView_win_arm64_dynamic_v0.1.2.zip` - ARM64位动态链接版本打包
+
+- `JadeView_win_arm64_static_v0.1.2.zip` - ARM64位静态链接版本打包
+
+## 程序发行行为
+
+JadeView 采用定期发布模式，确保用户能够获取到稳定、安全的版本更新。以下是详细的发行行为说明：
+
+### 版本命名规则
+
+JadeView 使用语义化版本号（Semantic Versioning），格式为 `vMAJOR.MINOR.PATCH`：
+
+- **MAJOR**: 主版本号，当进行不兼容的 API 更改时递增
+- **MINOR**: 次版本号，当添加向下兼容的新功能时递增
+- **PATCH**: 修订号，当进行向下兼容的错误修复时递增
+
+### 支持策略
+
+- **当前版本**: 全力支持最新发布的版本，提供完整的 bug 修复和安全更新
+
+### 下载渠道
+
+- **GitHub Releases**: 所有正式版本均可从 GitHub Releases 页面下载
+- **官方文档**: 提供最新版本的下载链接和使用说明
+- **包管理器**: 未来将支持通过主流包管理器安装（如 NuGet）
+
+### 兼容性保证
+
+- **向后兼容**: 次要版本和补丁版本保证向后兼容，不会破坏现有代码
+- **API 稳定性**: 主版本之间可能存在 API 变更，但会提供详细的迁移指南
+- **平台支持**: 每个版本都会在所有支持的平台上进行测试，确保兼容性
+
+### 安全更新
+
+- **漏洞响应**: 对于发现的安全漏洞，将在 72 小时内发布安全公告
+- **紧急修复**: 严重安全漏洞将优先处理，发布紧急补丁版本
+- **透明度**: 所有安全更新都会在发布说明中详细说明
+
+### 贡献与反馈
+
+欢迎社区成员通过以下方式参与 JadeView 的开发和改进：
+
+- **问题反馈**: [Issue Tracker](https://github.com/JadeViewDocs/library/issues)
+- **讨论**: [Discussions](https://github.com/JadeViewDocs/library/discussions)
+
+JadeView 团队致力于打造一个稳定、高效、易用的 WebView 窗口库，感谢所有用户和贡献者的支持！

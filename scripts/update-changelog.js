@@ -18,7 +18,7 @@ const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases`;
 // 获取当前文件的目录路径（ES模块方式）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const CHANGELOG_PATH = path.join(__dirname, '../docs/changelog/index.mdx');
+const CHANGELOG_PATH = path.join(__dirname, '../docs/spec/changelog/index.mdx');
 
 /**
  * 从 GitHub API 获取发布信息

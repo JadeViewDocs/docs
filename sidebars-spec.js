@@ -14,11 +14,35 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   specSidebar: [
-    'index',
-    'local-web-resources',
-    'ipc-communication',
-    'javascript-execution',
-  ],
+    // 概览分组
+    {
+      type: 'category',
+      label: '概览',
+      collapsed: false,
+      items: [
+        'index',
+        'changelog/index'
+      ]
+    },
+    {
+      type: 'category',
+      label: '核心设计',
+      collapsed: false,
+      items: [
+        'local-web-resources',
+        'ipc-communication',
+        'javascript-execution'
+      ]
+    },
+    {
+      type: 'category',
+      label: '发行行为',
+      collapsed: false,
+      items: [
+        'release-behavior'
+      ]
+    }
+  ]
 };
 
 module.exports = sidebars;

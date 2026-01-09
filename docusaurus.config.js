@@ -48,12 +48,7 @@ const docs = [
     routeBasePath: 'easy-language-sdk',
     sidebarPath: require.resolve('./sidebars-easy-language-sdk.js'),
   },
-  {
-    id: 'changelog',
-    path: 'docs/changelog',
-    routeBasePath: 'changelog',
-    sidebarPath: false,
-  },
+  // 移除单独的changelog文档插件，将更新日志合并到spec页面
   {
     id: 'spec',
     path: 'docs/spec',
@@ -122,8 +117,7 @@ const config = {
     require.resolve('./src/client/define-ui-kit.js'),
     require.resolve('./src/client/set-framework.js'),
     require.resolve('./src/client/add-contributors-to-all-docs.js'),
-    require.resolve('./src/client/update-changelog-badge.js'),
-    // 移除动态更新日志脚本，使用工作流编译方式
+    // 移除更新日志角标脚本，不再动态获取
   ],
   scripts: [{ src: 'https://cdn.statuspage.io/se-v2.js', async: true }],
   markdown: {
@@ -175,10 +169,11 @@ const config = {
       },
       // 添加Algolia DocSearch配置
       algolia: {
-        appId: 'VNPCOT49QX',
-        apiKey: '1270728145644935a4e726023ce530fb',
-        indexName: 'jade_run_vnpcot49qx_pages',
-        contextualSearch: true,
+        appId: 'G6A6UH3R1R',
+        apiKey: '9ed559408f34f517fc1a70f9d24dbbb7',
+        indexName: 'JadeView',
+        // AI搜索配置
+        insights: true,
       },
       navbar: {
         logo: {
@@ -210,17 +205,12 @@ const config = {
           {
             label: 'Api',
             to: 'guides',
-            className: 'guides-top-header',
           },
           {
             label: 'FAQ',
             to: '/faq',
           },
-          {
-            label: '更新日志',
-            to: '/changelog',
-            className: 'changelog-nav-item',
-          },
+          // 更新日志已移至设计页面，从导航栏移除
           {
             type: 'search',
             position: 'right',
