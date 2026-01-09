@@ -62,7 +62,7 @@ typedef struct {
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `autoplay` | int | 是否允许自动播放媒体，0=禁用，1=启用 |
-| `background_throttling` | int | 背景限速策略，0=默认（启用背景限速），1=禁用背景限速。背景限速是浏览器的性能优化机制，当页面在后台时会降低 JavaScript 执行速度，某些场景下（如后台持续运行计算）需要禁用此功能。 |
+| `background_throttling` | int | 背景限速策略，0=默认（启用背景限速），1=禁用背景限速。在Windows11下，**只有当该功能开启时**，窗口不可见时会自动为WebView开启效能模式，降低JavaScript执行速度以节省系统资源；禁用后（值为1）效能模式不会生效，某些场景下（如后台持续运行计算）需要禁用此功能。 |
 | `disable_right_click` | int | 是否禁用右键菜单，0=启用，1=禁用 |
 | `ua` | const char* | 自定义 User-Agent 字符串指针，NULL 表示使用默认 UA |
 | `preload_js` | const char* | 预载 JavaScript 代码字符串指针，NULL 表示不预载 JS |

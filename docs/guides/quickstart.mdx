@@ -89,7 +89,7 @@ int app_ready_callback(int success, const char* reason) {
         // 关于 WebViewSettings 的详细说明：[/guides/reference/data-structures#webview-设置结构体](/guides/reference/data-structures#webview-设置结构体)
         WebViewSettings settings = {
             .autoplay = 0, // 是否允许自动播放媒体，0=禁用，1=启用
-            .background_throttling = 0, // 背景限速策略，0=默认（启用背景限速），1=禁用背景限速
+            .background_throttling = 0, // 背景限速策略，0=默认（启用背景限速），1=禁用背景限速。在Windows11下，**只有当该功能开启时**，窗口不可见时自动为WebView开启效能模式
                                         // 背景限速是浏览器的性能优化机制，当页面在后台时会降低 JavaScript 执行速度
                                         // 某些场景下（如后台持续运行计算）需要禁用此功能
             .disable_right_click = 0 // 是否禁用右键菜单，0=启用，1=禁用
