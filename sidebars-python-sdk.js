@@ -16,6 +16,7 @@ const sidebars = {
   pythonSdkSidebar: [
     'index',
     'quickstart',
+    'packaging',
     {
       type: 'category',
       label: 'API 参考',

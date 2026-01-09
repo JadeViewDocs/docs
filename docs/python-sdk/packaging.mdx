@@ -1,0 +1,226 @@
+# 应用打包
+
+本指南介绍如何将 JadeUI Python 应用打包成独立的可执行文件（.exe）。
+
+## 打包工具
+
+JadeUI 提供了基于 [Nuitka](https://nuitka.net/) 的打包脚本，可以将 Python 应用打包成独立的可执行文件，无需目标系统安装 Python 环境。
+
+## 安装 Nuitka
+
+:::warning 重要：推荐使用 Nuitka 4.0rc7
+Nuitka 官方稳定版 (2.x) 的 onefile 模式存在 bug，没有正确打包 VC++ 运行时，导致生成的 exe 在纯净 Windows 系统上无法运行（缺少 `vcruntime140.dll`）。
+
+**Nuitka 4.0rc7** 修复了此问题，onefile bootstrap 使用静态链接。
+:::
+
+安装推荐版本：
+
+```bash
+pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
+```
+
+或者安装 PyPI 稳定版（onefile 需要目标系统有 VC++ 运行时）：
+
+```bash
+pip install nuitka
+```
+
+## 安装编译环境
+```bash
+pip install jadeui[dev]
+```
+
+## 下载打包脚本
+
+从 GitHub 下载打包脚本：
+
+```bash
+# 下载 build.py
+curl -O https://raw.githubusercontent.com/HG-ha/Jadeui/main/scripts/build.py
+```
+
+或直接访问：[build.py](https://github.com/HG-ha/Jadeui/blob/main/scripts/build.py)
+
+## 基本用法
+
+### 最简单的打包
+
+```bash
+python build.py app.py
+```
+
+这将使用默认配置打包：
+- 单文件模式（onefile）
+- 压缩级别 1（基础 LTO 优化）
+- 自动包含 JadeUI DLL
+- 自动包含 `web` 目录（如果存在）
+- 自动使用 `web/favicon.png` 作为图标（如果存在）
+
+### 指定输出文件名
+
+```bash
+python build.py app.py --output MyApp
+```
+
+### 使用自定义图标
+
+```bash
+python build.py app.py --icon custom.ico
+```
+
+### 设置压缩级别
+
+```bash
+python build.py app.py -c 2  # 中等压缩（推荐）
+python build.py app.py -c 3  # 最大压缩
+```
+
+### 打包为目录（非单文件）
+
+```bash
+python build.py app.py --no-onefile
+```
+
+### 包含额外数据目录
+
+```bash
+python build.py app.py --include-data-dir assets=assets
+```
+
+## 命令行参数
+
+| 参数 | 说明 |
+|------|------|
+| `source` | 要编译的 Python 源文件 |
+| `-i, --icon` | 应用程序图标文件 (.ico 或 .png) |
+| `-o, --output` | 输出的可执行文件名（不含 .exe 扩展名） |
+| `--output-dir` | 输出目录（默认: dist） |
+| `--include-data-dir` | 包含数据目录，格式: 源目录=目标目录（可多次使用） |
+| `--include-data-file` | 包含数据文件，格式: 源文件=目标文件（可多次使用） |
+| `--console` | 显示控制台窗口（默认隐藏） |
+| `--upx` | 启用 UPX 压缩 |
+| `--no-jadeui-dll` | 不自动包含 JadeUI DLL |
+| `-c, --compress` | 压缩级别 0-3（默认: 1） |
+| `--no-onefile` | 不打包为单文件，生成目录 |
+
+## 压缩级别说明
+
+| 级别 | 说明 | 编译速度 | 文件大小 |
+|------|------|----------|----------|
+| 0 | 不压缩 | 最快 | 最大 |
+| 1 | 基础优化（启用 LTO） | 较快 | 较大 |
+| 2 | 中等压缩（LTO + 移除文档字符串和 assert） | 较慢 | 较小 |
+| 3 | 最大压缩（全部优化 + Python -OO 模式） | 最慢 | 最小 |
+
+**推荐使用级别 2**，在文件大小和编译时间之间取得平衡。
+
+## 项目结构建议
+
+推荐的项目结构：
+
+```
+my_app/
+├── app.py              # 主程序入口
+├── web/                # Web 前端文件（自动包含）
+│   ├── index.html
+│   ├── favicon.png     # 自动用作图标
+│   ├── css/
+│   └── js/
+├── assets/             # 其他资源（需手动指定）
+└── build.py            # 打包脚本
+```
+
+## 完整打包示例
+
+```bash
+# 推荐的打包命令
+python build.py app.py \
+    --output MyApp \
+    --icon web/favicon.ico \
+    -c 2 \
+    --include-data-dir assets=assets
+```
+
+输出：
+
+```
+============================================================
+JadeUI 应用打包
+============================================================
+源文件: app.py
+输出目录: dist
+输出文件: MyApp.exe
+打包模式: 单文件 (onefile)
+压缩级别: 2 - 中等压缩 (LTO + 无文档/断言)
+图标: web/favicon.ico
+JadeUI DLL: 2 个文件
+数据目录: ['assets=assets']
+============================================================
+```
+
+## 打包后的文件
+
+打包完成后，可执行文件将生成在 `dist` 目录中：
+
+```
+dist/
+└── MyApp.exe    # 独立可执行文件，可直接分发
+```
+
+## 常见问题
+
+### Q: 打包后的程序无法运行，提示缺少 DLL？
+
+**A:** 这通常是因为使用了 Nuitka 2.x 稳定版的 onefile 模式。请升级到 Nuitka 4.0rc7：
+
+```bash
+pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
+```
+
+### Q: 如何减小打包后的文件大小？
+
+**A:** 
+1. 使用更高的压缩级别：`-c 3`
+2. 启用 UPX 压缩：`--upx`（需要安装 UPX）
+3. 确保不包含不必要的文件
+4. 使用低版本 Python，如 Python 3.8
+
+### Q: web 目录没有被自动包含？
+
+**A:** 确保 `web` 目录位于源文件同一目录下。如果在其他位置，使用 `--include-data-dir` 手动指定。
+
+### Q: 如何调试打包后的程序？
+
+**A:** 添加 `--console` 参数显示控制台窗口，可以看到错误输出：
+
+```bash
+python build.py app.py --console
+```
+**B:** 启用开发者工具
+```python
+app.initialize(
+    enable_dev_tools=False,  # 是否启用开发者工具 (F12)
+)
+```
+
+**C:** 允许右键菜单
+```python
+window = Window(
+    disable_right_click=True,
+)
+```
+
+### Q: 打包过程很慢？
+
+**A:** 
+- 使用较低的压缩级别（`-c 0` 或 `-c 1`）
+- 首次打包需要下载依赖，后续会更快
+- 考虑使用 `--no-onefile` 打包为目录模式（更快）
+
+## 参考链接
+
+- [打包脚本源码](https://github.com/HG-ha/Jadeui/blob/main/scripts/build.py)
+- [Nuitka 官方文档](https://nuitka.net/doc/user-manual.html)
+- [JadeUI GitHub 仓库](https://github.com/HG-ha/Jadeui)
+
