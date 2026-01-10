@@ -16,8 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 配置
-const REPO_OWNER = 'JadeViewDocs';
-const REPO_NAME = 'docs';
+const REPO_OWNER = 'JadeViewDev'; // 修改为实际的仓库拥有者
+const REPO_NAME = 'JadeView'; // 修改为实际的仓库名称
 const BRANCH_NAME = 'main';
 const DOCS_DIR = path.join(__dirname, '../docs');
 const OUTPUT_FILE = path.join(__dirname, '../src/data/contributors.json');
@@ -67,13 +67,42 @@ async function getFileContributors(client, filePath) {
 
     // 提取并去重贡献者
     commits.forEach(commit => {
-      if (commit?.author?.user) {
-        const { login, avatarUrl } = commit.author.user;
-        if (!contributorsMap.has(login)) {
-          contributorsMap.set(login, {
-            login,
-            avatar: avatarUrl
-          });
+      // 处理作者信息，包括匿名提交者
+      if (commit?.author) {
+        if (commit.author.user) {
+          // 有GitHub用户的提交
+          const { login, avatarUrl } = commit.author.user;
+          if (!contributorsMap.has(login)) {
+            contributorsMap.set(login, {
+              login,
+              avatar: avatarUrl
+            });
+          }
+        } else {
+          // 匿名提交者，使用提交者的邮箱作为唯一标识
+          const email = commit.author.email || 'unknown';
+          // 生成一个默认的头像URL
+          const avatarUrl = `https://avatars.githubusercontent.com/u/0?d=identicon&f=y`;
+          // 使用邮箱作为login，确保唯一性
+          if (!contributorsMap.has(email)) {
+            contributorsMap.set(email, {
+              login: email.split('@')[0], // 使用邮箱前缀作为显示名称
+              avatar: avatarUrl
+            });
+          }
+        }
+      }
+      // 同时检查提交者信息，因为有时候作者和提交者是不同的人
+      if (commit?.committer && commit.committer !== commit.author) {
+        if (commit.committer.user) {
+          // 有GitHub用户的提交者
+          const { login, avatarUrl } = commit.committer.user;
+          if (!contributorsMap.has(login)) {
+            contributorsMap.set(login, {
+              login,
+              avatar: avatarUrl
+            });
+          }
         }
       }
     });
@@ -165,15 +194,110 @@ if (isMockMode) {
   // 生成模拟贡献者映射
   const contributorsMap = {};
   
+  // 为不同目录的文档生成不同的贡献者数据
+  const contributorGroups = {
+    "python-sdk": [
+      {
+        login: "pythoncontributor",
+        avatar: "https://avatars.githubusercontent.com/u/11111111?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ],
+    "web-sdk": [
+      {
+        login: "websdkcontributor",
+        avatar: "https://avatars.githubusercontent.com/u/22222222?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ],
+    "easy-language-sdk": [
+      {
+        login: "easylangcontributor",
+        avatar: "https://avatars.githubusercontent.com/u/33333333?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ],
+    "spec": [
+      {
+        login: "speccontributor",
+        avatar: "https://avatars.githubusercontent.com/u/44444444?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ],
+    "guides": [
+      {
+        login: "guidescontributor",
+        avatar: "https://avatars.githubusercontent.com/u/55555555?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ],
+    "plugin-sdk": [
+      {
+        login: "pluginsdkcontributor",
+        avatar: "https://avatars.githubusercontent.com/u/66666666?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ],
+    "cli": [
+      {
+        login: "clicontributor",
+        avatar: "https://avatars.githubusercontent.com/u/77777777?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ],
+    "web-core": [
+      {
+        login: "webcorecontributor",
+        avatar: "https://avatars.githubusercontent.com/u/88888888?v=4"
+      },
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ]
+  };
+  
   for (const filePath of docFiles) {
     console.log(`处理文件: ${filePath}`);
-    // 为每个文档文件生成模拟贡献者数据
-    contributorsMap[filePath] = [
+    
+    // 根据文件路径选择贡献者组
+    let contributors = [
       {
         login: "JadeViewDev",
         avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
       }
     ];
+    
+    // 检查文件路径属于哪个目录
+    for (const [dir, groupContributors] of Object.entries(contributorGroups)) {
+      if (filePath.includes(`docs/${dir}/`)) {
+        contributors = groupContributors;
+        break;
+      }
+    }
+    
+    contributorsMap[filePath] = contributors;
   }
   
   // 写入输出文件
