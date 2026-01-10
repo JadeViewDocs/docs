@@ -20,7 +20,7 @@
     "format:docs": "prettier -w docs",
     "typecheck": "tsc",
     "spell-check": "npx cspell docs/**/*.mdx",
-    "update-changelog": "node scripts/update-changelog.js"
+    "update-changelog": "node scripts/update-changelog.mjs"
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.13.5",
