@@ -39,6 +39,7 @@ const sidebars = {
         'window-management/create-window',
         'window-management/close-window',
         'window-management/event-handlers',
+        'window-management/custom-titlebar',
       ],
     },
     {
