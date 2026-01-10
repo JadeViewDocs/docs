@@ -1,20 +1,8 @@
 // 在所有文档页面下方添加贡献者信息的客户端模块
 // 使用静态贡献者数据，不再动态获取
 
-// 静态贡献者数据 - 从JSON文件生成
-const contributorsMap = {
-  "docs/guides/index.mdx": [
-    { "login": "JadeViewDev", "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4" },
-    { "login": "contributor1", "avatar": "https://avatars.githubusercontent.com/u/23456789?v=4" }
-  ],
-  "docs/spec/index.mdx": [
-    { "login": "JadeViewDev", "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4" }
-  ],
-  "docs/web-sdk/index.mdx": [
-    { "login": "JadeViewDev", "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4" },
-    { "login": "webdev1", "avatar": "https://avatars.githubusercontent.com/u/34567890?v=4" }
-  ]
-};
+// 从生成的JSON文件导入静态贡献者数据
+import contributorsMap from '../data/contributors.json';
 
 // 确保只在浏览器环境中执行
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {

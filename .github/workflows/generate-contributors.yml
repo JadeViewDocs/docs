@@ -40,7 +40,7 @@ jobs:
       - name: Generate contributors data
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/generate-contributors.js
+        run: node scripts/generate-contributors.mjs
 
       # 检查是否有更改
       - name: Check for changes
