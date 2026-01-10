@@ -5,7 +5,7 @@ import React from 'react';
 import OriginalDocItem from '@theme-original/DocItem';
 
 // 导入Contributors组件
-import Contributors from '../../components/Contributors/Contributors';
+import Contributors from '../../components/Contributors/Contributors.jsx';
 
 /**
  * 自定义DocItem组件，在文档内容下方添加贡献者信息

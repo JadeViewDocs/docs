@@ -1,28 +1,8 @@
 {
-  "docs/guides/index.mdx": [
-    {
-      "login": "JadeViewDev",
-      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
-    },
-    {
-      "login": "contributor1",
-      "avatar": "https://avatars.githubusercontent.com/u/23456789?v=4"
-    }
-  ],
   "docs/spec/index.mdx": [
     {
       "login": "JadeViewDev",
       "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
-    }
-  ],
-  "docs/web-sdk/index.mdx": [
-    {
-      "login": "JadeViewDev",
-      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
-    },
-    {
-      "login": "webdev1",
-      "avatar": "https://avatars.githubusercontent.com/u/34567890?v=4"
     }
   ]
 }
