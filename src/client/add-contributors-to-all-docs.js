@@ -10,7 +10,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     // 查找所有文档内容容器 - 适配所有文档部分
     const docContentContainers = document.querySelectorAll(
-      '.theme-doc-markdown.markdown' // 匹配所有文档页面的内容容器
+      '.theme-doc-markdown.markdown, .markdown' // 匹配所有文档页面的内容容器
     );
     
     if (docContentContainers.length === 0) {
@@ -52,12 +52,44 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         // 处理guides部分的路径
         const relativePath = pathname.replace('/guides', '');
         docPath = `docs/guides${relativePath || '/index'}.mdx`;
+      } else {
+        // 尝试直接匹配文档路径
+        const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
+        if (cleanPath) {
+          // 直接尝试docs/[pathname].mdx
+          const directPath = `docs/${cleanPath}.mdx`;
+          if (contributorsMap[directPath]) {
+            docPath = directPath;
+          } else {
+            // 尝试docs/[pathname]/index.mdx
+            const indexPath = `docs/${cleanPath}/index.mdx`;
+            if (contributorsMap[indexPath]) {
+              docPath = indexPath;
+            }
+          }
+        }
       }
       
       // 移除末尾的斜杠
       docPath = docPath.replace(/\/$/, '');
       // 替换连续的斜杠
-      docPath = docPath.replace(/\/+/g, '/');
+      docPath = docPath.replace(/\/+\//g, '/');
+      
+      // 处理特殊情况：如果直接匹配失败，尝试多种可能的路径格式
+      if (!contributorsMap[docPath]) {
+        // 1. 尝试移除/index
+        const noIndexPath = docPath.replace(/\/index\.mdx$/, '.mdx');
+        if (contributorsMap[noIndexPath]) {
+          docPath = noIndexPath;
+        } 
+        // 2. 尝试添加/index
+        else {
+          const withIndexPath = docPath.replace(/\.mdx$/, '/index.mdx');
+          if (contributorsMap[withIndexPath]) {
+            docPath = withIndexPath;
+          }
+        }
+      }
       
       // 获取该文档的贡献者
       const contributors = contributorsMap[docPath] || [];
