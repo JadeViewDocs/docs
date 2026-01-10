@@ -1,5 +1,1373 @@
 {
+  "docs/changelog/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/cli/getting-started.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/cli/installation.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/cli/meetings.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/cli/plugins.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/cli/recording.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/cli/webhooks.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/community-packages/device-emulator/examples.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/community-packages/device-emulator/intro.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/community-packages/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/community-packages/socketio-client/emitting.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/community-packages/socketio-client/initialization.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/community-packages/socketio-client/intro.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/easy-language-sdk/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/easy-language-sdk/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/easy-language-sdk/quickstart.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/easy-language-sdk/reference/constants.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/easy-language-sdk/reference/data-types.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/easy-language-sdk/reference/methods.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/easy-language-sdk/reference/public-methods.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/core/cleanup.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/core/initialization.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/core/message-loop.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/events/event-types.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/events/register-events.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/ipc/register-handler.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/ipc/send-message.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/local-server/create-server.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/quickstart.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/reference/c-api.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/reference/data-structures.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/theme/backdrop.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/theme/set-theme.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/webview/javascript.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/webview/navigation.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/webview2-installation.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-management/close-window.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-management/create-window.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-management/custom-titlebar.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-management/event-handlers.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-properties/position.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-properties/size.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-properties/title.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-properties/visibility.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-state/always-on-top.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-state/maximize.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/guides/window-state/minimize.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/frequently-asked-questions.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/guides/exchange-data-between-plugin-and-meeting.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/guides/how-to-work-with-plugin-stores.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/quickstart.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/setup/create.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/setup/customize.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/setup/develop.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/setup/manage.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/setup/publish.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/basic/events.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/basic/initialize.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/basic/methods.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/installation.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/rooms-api/events.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/rooms-api/methods.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/stores-api/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/plugin-sdk/usage/stores-api/manage-stores.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/python-sdk/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/python-sdk/packaging.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/python-sdk/quickstart.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/python-sdk/reference/methods.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/spec/changelog/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
   "docs/spec/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/spec/ipc-communication.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/spec/javascript-execution.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/spec/local-web-resources.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/spec/release-behavior.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/basics/components-basics.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/basics/pre-requisite.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-audio-visualizer.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-avatar.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-button.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-camera-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-chat-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-chat.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-clock.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-confirmation-modal.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-controlbar-button.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-controlbar.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-dialog-manager.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-dialog.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-emoji-picker.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-ended-screen.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-file-message.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-fullscreen-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-grid-pagination.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-grid.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-header.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-icon.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-idle-screen.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-image-message.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-image-viewer.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-leave-button.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-leave-meeting.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-logo.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-meeting-title.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-meeting.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-menu-item.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-menu-list.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-menu.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-mic-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-mixed-grid.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-more-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-name-tag.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-network-indicator.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-notification.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-notifications.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-overlay-modal.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-participant-count.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-participant-tile.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-participant.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-participants-audio.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-participants-stage-list.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-participants-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-participants.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-permissions-message.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-plugin-main.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-plugins-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-plugins.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-poll-form.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-poll.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-polls-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-polls.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-recording-indicator.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-recording-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-remote-access-manager.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-screen-share-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-screenshare-view.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-settings-audio.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-settings-toggle.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-settings-video.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-settings.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-setup-screen.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-sidebar.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-simple-grid.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-spinner.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-spotlight-grid.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-stage.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-switch.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-text-field.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-text-message.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-tooltip.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/dyte-viewer-count.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/components/gallery.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/customizations/custom-iconpack.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/customizations/custom-locale.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/design-system.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/quickstart.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/reference/classes/DyteNotificationsAudio.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/reference/interfaces/Notification.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/reference/interfaces/PollObject.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/reference/interfaces/States.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/reference/interfaces/UIConfig.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/reference/interfaces/UserPreferences.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/reference/reference.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/ui-kit/release-notes.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/advanced/advance.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/chat/edit-chat-messages.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/chat/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/chat/other-chat-functions.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/chat/receiving-chat-messages.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/chat/sending-a-chat-message.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/error-codes/error-code-zero-ten.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/error-codes/error-code.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/Introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/livestreaming.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/local-user/events.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/local-user/extras.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/local-user/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/local-user/manage-media-devices.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/local-user/media-permission-errors.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/participants/events.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/participants/participant-object.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/participants/permissions.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/participants/pip.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/participants/remote-participants.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/plugins/disable-plugin.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/plugins/enable-plugin.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/plugins/extra.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/plugins/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/polls/creating-a-poll.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/polls/introduction.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/polls/other-poll-functions.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/polls/voting-on-a-poll.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/pre-call/1-media-preview.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/pre-call/2-handling-permissions.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/pre-call/3-virtual-bg.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/pre-call/4-meeting-meta.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/pre-call/5-waiting-room.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/quickstart.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/recording.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteAi.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteChat.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteClient.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteConnectedMeetings.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteLivestream.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteMeta.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteParticipant.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteParticipantMap.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteParticipants.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DytePermissionsPreset.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DytePlugin.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DytePluginMap.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DytePlugins.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DytePolls.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteRecording.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteSelf.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteStage.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/reference/DyteThemePreset.md": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/release-notes.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/room-metadata.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/stage.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-core/upgrade.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-sdk/index.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-sdk/quickstart.mdx": [
+    {
+      "login": "JadeViewDev",
+      "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"
+    }
+  ],
+  "docs/web-sdk/reference/methods.mdx": [
     {
       "login": "JadeViewDev",
       "avatar": "https://avatars.githubusercontent.com/u/12345678?v=4"

@@ -1,1005 +1,1005 @@
-﻿2026-01-10T12:27:32.2421141Z Current runner version: '2.330.0'
-2026-01-10T12:27:32.2445891Z ##[group]Runner Image Provisioner
-2026-01-10T12:27:32.2446652Z Hosted Compute Agent
-2026-01-10T12:27:32.2447171Z Version: 20251211.462
-2026-01-10T12:27:32.2447825Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
-2026-01-10T12:27:32.2448515Z Build Date: 2025-12-11T16:28:49Z
-2026-01-10T12:27:32.2449118Z Worker ID: {60bd37dc-dd10-45d8-a7b7-61eefa72ed54}
-2026-01-10T12:27:32.2449875Z ##[endgroup]
-2026-01-10T12:27:32.2450349Z ##[group]Operating System
-2026-01-10T12:27:32.2450903Z Ubuntu
-2026-01-10T12:27:32.2451363Z 24.04.3
-2026-01-10T12:27:32.2451826Z LTS
-2026-01-10T12:27:32.2452229Z ##[endgroup]
-2026-01-10T12:27:32.2452773Z ##[group]Runner Image
-2026-01-10T12:27:32.2453313Z Image: ubuntu-24.04
-2026-01-10T12:27:32.2453762Z Version: 20260105.202.1
-2026-01-10T12:27:32.2454794Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260105.202/images/ubuntu/Ubuntu2404-Readme.md
-2026-01-10T12:27:32.2456684Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260105.202
-2026-01-10T12:27:32.2457848Z ##[endgroup]
-2026-01-10T12:27:32.2458927Z ##[group]GITHUB_TOKEN Permissions
-2026-01-10T12:27:32.2461063Z Contents: read
-2026-01-10T12:27:32.2461713Z Metadata: read
-2026-01-10T12:27:32.2462171Z Pages: write
-2026-01-10T12:27:32.2462627Z ##[endgroup]
-2026-01-10T12:27:32.2464957Z Secret source: Actions
-2026-01-10T12:27:32.2465989Z Prepare workflow directory
-2026-01-10T12:27:32.2904283Z Prepare all required actions
-2026-01-10T12:27:32.2959831Z Getting action download info
-2026-01-10T12:27:32.6732323Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
-2026-01-10T12:27:32.8055942Z Download action repository 'oven-sh/setup-bun@v2' (SHA:b7a1c7ccf290d58743029c4f6903da283811b979)
-2026-01-10T12:27:33.1627168Z Download action repository 'actions/configure-pages@v5' (SHA:983d7736d9b0ae728b81ab479565c72886d7745b)
-2026-01-10T12:27:33.5252157Z Download action repository 'actions/upload-pages-artifact@v3' (SHA:56afc609e74202658d3ffba0e8f6dda462b719fa)
-2026-01-10T12:27:33.9357949Z Download action repository 'actions/deploy-pages@v4' (SHA:d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e)
-2026-01-10T12:27:34.4740630Z Getting action download info
-2026-01-10T12:27:34.6071160Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
-2026-01-10T12:27:34.7615589Z Complete job name: build
-2026-01-10T12:27:34.8488378Z ##[group]Run actions/checkout@v4
-2026-01-10T12:27:34.8489937Z with:
-2026-01-10T12:27:34.8490799Z   fetch-depth: 0
-2026-01-10T12:27:34.8491790Z   repository: JadeViewDocs/docs
-2026-01-10T12:27:34.8493045Z   token: ***
-2026-01-10T12:27:34.8493784Z   ssh-strict: true
-2026-01-10T12:27:34.8494537Z   ssh-user: git
-2026-01-10T12:27:34.8495495Z   persist-credentials: true
-2026-01-10T12:27:34.8496349Z   clean: true
-2026-01-10T12:27:34.8497136Z   sparse-checkout-cone-mode: true
-2026-01-10T12:27:34.8498073Z   fetch-tags: false
-2026-01-10T12:27:34.8498839Z   show-progress: true
-2026-01-10T12:27:34.8499642Z   lfs: false
-2026-01-10T12:27:34.8500347Z   submodules: false
-2026-01-10T12:27:34.8501131Z   set-safe-directory: true
-2026-01-10T12:27:34.8502269Z ##[endgroup]
-2026-01-10T12:27:34.9636154Z Syncing repository: JadeViewDocs/docs
-2026-01-10T12:27:34.9638713Z ##[group]Getting Git version info
-2026-01-10T12:27:34.9640038Z Working directory is '/home/runner/work/docs/docs'
-2026-01-10T12:27:34.9641947Z [command]/usr/bin/git version
-2026-01-10T12:27:34.9726957Z git version 2.52.0
-2026-01-10T12:27:34.9755989Z ##[endgroup]
-2026-01-10T12:27:34.9771784Z Temporarily overriding HOME='/home/runner/work/_temp/48166b18-eb58-4860-81bb-5e638ca36f6c' before making global git config changes
-2026-01-10T12:27:34.9774399Z Adding repository directory to the temporary git global config as a safe directory
-2026-01-10T12:27:34.9785835Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/docs/docs
-2026-01-10T12:27:34.9827460Z Deleting the contents of '/home/runner/work/docs/docs'
-2026-01-10T12:27:34.9831136Z ##[group]Initializing the repository
-2026-01-10T12:27:34.9835664Z [command]/usr/bin/git init /home/runner/work/docs/docs
-2026-01-10T12:27:34.9948727Z hint: Using 'master' as the name for the initial branch. This default branch name
-2026-01-10T12:27:34.9951486Z hint: will change to "main" in Git 3.0. To configure the initial branch name
-2026-01-10T12:27:34.9954137Z hint: to use in all of your new repositories, which will suppress this warning,
-2026-01-10T12:27:34.9956955Z hint: call:
-2026-01-10T12:27:34.9958169Z hint:
-2026-01-10T12:27:34.9959770Z hint: 	git config --global init.defaultBranch <name>
-2026-01-10T12:27:34.9961728Z hint:
-2026-01-10T12:27:34.9963421Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
-2026-01-10T12:27:34.9966700Z hint: 'development'. The just-created branch can be renamed via this command:
-2026-01-10T12:27:34.9969055Z hint:
-2026-01-10T12:27:34.9970175Z hint: 	git branch -m <name>
-2026-01-10T12:27:34.9971494Z hint:
-2026-01-10T12:27:34.9973325Z hint: Disable this message with "git config set advice.defaultBranchName false"
-2026-01-10T12:27:34.9976073Z Initialized empty Git repository in /home/runner/work/docs/docs/.git/
-2026-01-10T12:27:34.9979014Z [command]/usr/bin/git remote add origin https://github.com/JadeViewDocs/docs
-2026-01-10T12:27:35.0006980Z ##[endgroup]
-2026-01-10T12:27:35.0009264Z ##[group]Disabling automatic garbage collection
-2026-01-10T12:27:35.0011394Z [command]/usr/bin/git config --local gc.auto 0
-2026-01-10T12:27:35.0043440Z ##[endgroup]
-2026-01-10T12:27:35.0045840Z ##[group]Setting up auth
-2026-01-10T12:27:35.0051581Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-01-10T12:27:35.0086788Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-01-10T12:27:35.0455511Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-01-10T12:27:35.0489734Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-01-10T12:27:35.0718853Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-01-10T12:27:35.0755553Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-01-10T12:27:35.0989900Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
-2026-01-10T12:27:35.1026846Z ##[endgroup]
-2026-01-10T12:27:35.1029062Z ##[group]Fetching the repository
-2026-01-10T12:27:35.1037975Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
-2026-01-10T12:27:36.2194067Z From https://github.com/JadeViewDocs/docs
-2026-01-10T12:27:36.2196410Z  * [new branch]      main       -> origin/main
-2026-01-10T12:27:36.2237109Z [command]/usr/bin/git branch --list --remote origin/main
-2026-01-10T12:27:36.2262173Z   origin/main
-2026-01-10T12:27:36.2271452Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
-2026-01-10T12:27:36.2292134Z 2b399ec744688fe92f52ade73f01f0a5873e0d1b
-2026-01-10T12:27:36.2296976Z ##[endgroup]
-2026-01-10T12:27:36.2297566Z ##[group]Determining the checkout info
-2026-01-10T12:27:36.2298227Z ##[endgroup]
-2026-01-10T12:27:36.2302504Z [command]/usr/bin/git sparse-checkout disable
-2026-01-10T12:27:36.2341925Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
-2026-01-10T12:27:36.2367026Z ##[group]Checking out the ref
-2026-01-10T12:27:36.2371299Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
-2026-01-10T12:27:36.4850678Z Switched to a new branch 'main'
-2026-01-10T12:27:36.4852702Z branch 'main' set up to track 'origin/main'.
-2026-01-10T12:27:36.4875539Z ##[endgroup]
-2026-01-10T12:27:36.4914865Z [command]/usr/bin/git log -1 --format=%H
-2026-01-10T12:27:36.4937807Z 2b399ec744688fe92f52ade73f01f0a5873e0d1b
-2026-01-10T12:27:36.5204462Z ##[group]Run oven-sh/setup-bun@v2
-2026-01-10T12:27:36.5204741Z with:
-2026-01-10T12:27:36.5204918Z   bun-version: latest
-2026-01-10T12:27:36.5205402Z   no-cache: false
-2026-01-10T12:27:36.5205584Z ##[endgroup]
-2026-01-10T12:27:36.7382747Z Downloading a new version of Bun: https://bun.sh/download/latest/linux/x64?avx2=true&profile=false
-2026-01-10T12:27:37.3269177Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/46d0476c-4c83-47fd-9e3d-89f528d68fe9.zip
-2026-01-10T12:27:38.1042663Z [command]/home/runner/.bun/bin/bun --revision
-2026-01-10T12:27:38.1080391Z 1.3.5+1e86cebd7
-2026-01-10T12:27:38.1212949Z ##[group]Run bun install
-2026-01-10T12:27:38.1213253Z [36;1mbun install[0m
-2026-01-10T12:27:38.1251295Z shell: /usr/bin/bash -e {0}
-2026-01-10T12:27:38.1251557Z ##[endgroup]
-2026-01-10T12:27:38.1349268Z bun install v1.3.5 (1e86cebd)
-2026-01-10T12:27:43.0388649Z 
-2026-01-10T12:27:43.0393764Z $ patch-package
-2026-01-10T12:27:43.2983098Z patch-package 6.5.1
-2026-01-10T12:27:43.2987336Z Applying patches...
-2026-01-10T12:27:43.3371961Z @stoplight/elements@8.0.2 ✔
-2026-01-10T12:27:43.3441098Z @stoplight/elements-core@8.0.2 ✔
-2026-01-10T12:27:43.3441711Z 
-2026-01-10T12:27:43.3442008Z Warning: patch-package detected a patch file version mismatch
-2026-01-10T12:27:43.3442415Z 
-2026-01-10T12:27:43.3442727Z   Don't worry! This is probably fine. The patch was still applied
-2026-01-10T12:27:43.3443297Z   successfully. Here's the deets:
-2026-01-10T12:27:43.3443589Z 
-2026-01-10T12:27:43.3443735Z   Patch file created for
-2026-01-10T12:27:43.3443970Z 
-2026-01-10T12:27:43.3444213Z     @stoplight/elements-core@8.0.2
-2026-01-10T12:27:43.3444484Z 
-2026-01-10T12:27:43.3444615Z   applied to
-2026-01-10T12:27:43.3444800Z 
-2026-01-10T12:27:43.3444944Z     @stoplight/elements-core@8.0.5
-2026-01-10T12:27:43.3445572Z   
-2026-01-10T12:27:43.3445836Z   At path
-2026-01-10T12:27:43.3446163Z   
-2026-01-10T12:27:43.3446468Z     node_modules/@stoplight/elements-core
-2026-01-10T12:27:43.3446759Z 
-2026-01-10T12:27:43.3447075Z   This warning is just to give you a heads-up. There is a small chance of
-2026-01-10T12:27:43.3447894Z   breakage even though the patch was applied successfully. Make sure the package
-2026-01-10T12:27:43.3448780Z   still behaves like you expect (you wrote tests, right?) and then run
-2026-01-10T12:27:43.3449277Z 
-2026-01-10T12:27:43.3449458Z     patch-package @stoplight/elements-core
-2026-01-10T12:27:43.3449815Z 
-2026-01-10T12:27:43.3450158Z   to update the version in the patch file name and make this warning go away.
-2026-01-10T12:27:43.3450732Z 
-2026-01-10T12:27:43.3450859Z ---
-2026-01-10T12:27:43.3451303Z patch-package finished with 1 warning(s).
-2026-01-10T12:27:43.3518531Z 
-2026-01-10T12:27:43.3519417Z + @docusaurus/tsconfig@3.7.0
-2026-01-10T12:27:43.3519899Z + @styled-icons/boxicons-logos@10.47.0
-2026-01-10T12:27:43.3520309Z + @swc/core@1.10.11
-2026-01-10T12:27:43.3520689Z + @typescript-eslint/eslint-plugin@5.56.0
-2026-01-10T12:27:43.3521146Z + @typescript-eslint/parser@5.56.0
-2026-01-10T12:27:43.3521557Z + autoprefixer@10.4.20
-2026-01-10T12:27:43.3521889Z + buffer@6.0.3
-2026-01-10T12:27:43.3522229Z + docusaurus-plugin-typedoc@0.18.0
-2026-01-10T12:27:43.3522620Z + eslint@8.36.0
-2026-01-10T12:27:43.3522945Z + eslint-config-prettier@8.8.0
-2026-01-10T12:27:43.3523345Z + eslint-plugin-prettier@4.2.1
-2026-01-10T12:27:43.3523723Z + gray-matter@4.0.3
-2026-01-10T12:27:43.3524029Z + js-yaml@4.1.0
-2026-01-10T12:27:43.3524315Z + pascal-case@3.1.2
-2026-01-10T12:27:43.3524624Z + path-browserify@1.0.1
-2026-01-10T12:27:43.3524916Z + postcss@8.5.1
-2026-01-10T12:27:43.3525347Z + prettier@3.4.2
-2026-01-10T12:27:43.3525675Z + prettier-plugin-tailwindcss@0.6.11
-2026-01-10T12:27:43.3526082Z + process@0.11.10
-2026-01-10T12:27:43.3526384Z + react-markdown@8.0.7
-2026-01-10T12:27:43.3526720Z + stream-browserify@3.0.0
-2026-01-10T12:27:43.3527033Z + swc-loader@0.2.6
-2026-01-10T12:27:43.3527679Z + tailwindcss@3.4.17
-2026-01-10T12:27:43.3527954Z + typedoc@0.23.28
-2026-01-10T12:27:43.3528257Z + typedoc-plugin-markdown@3.14.0
-2026-01-10T12:27:43.3528611Z + typescript@5.0.2
-2026-01-10T12:27:43.3528877Z + url@0.11.4
-2026-01-10T12:27:43.3529163Z + @codesandbox/sandpack-react@2.13.5
-2026-01-10T12:27:43.3529570Z + @codesandbox/sandpack-themes@2.0.21
-2026-01-10T12:27:43.3529948Z + @docsly/react@1.8.6
-2026-01-10T12:27:43.3530249Z + @docusaurus/core@3.7.0
-2026-01-10T12:27:43.3530583Z + @docusaurus/faster@3.7.0
-2026-01-10T12:27:43.3530946Z + @docusaurus/module-type-aliases@3.7.0
-2026-01-10T12:27:43.3531396Z + @docusaurus/plugin-client-redirects@3.7.0
-2026-01-10T12:27:43.3531858Z + @docusaurus/preset-classic@3.7.0
-2026-01-10T12:27:43.3532619Z + @docusaurus/remark-plugin-npm2yarn@3.7.0
-2026-01-10T12:27:43.3533103Z + @docusaurus/theme-live-codeblock@3.7.0
-2026-01-10T12:27:43.3533521Z + @docusaurus/theme-mermaid@3.7.0
-2026-01-10T12:27:43.3533911Z + @docusaurus/theme-search-algolia@3.9.2
-2026-01-10T12:27:43.3534324Z + @dytesdk/react-ui-kit@1.66.0
-2026-01-10T12:27:43.3534901Z + @dytesdk/react-web-core@modules/dytesdk-react-web-core-1.36.4-stripped.1.tgz
-2026-01-10T12:27:43.3535994Z + @dytesdk/web-core@modules/dytesdk-web-core-1.31.0-stripped.1.tgz
-2026-01-10T12:27:43.3536664Z + @easyops-cn/docusaurus-search-local@0.52.2
-2026-01-10T12:27:43.3537180Z + @fluentui/react-icons@2.0.271
-2026-01-10T12:27:43.3537582Z + @headlessui/react@1.7.18
-2026-01-10T12:27:43.3537943Z + @radix-ui/react-select@2.1.5
-2026-01-10T12:27:43.3538310Z + @stoplight/elements@8.0.2
-2026-01-10T12:27:43.3538667Z + algoliasearch@5.46.2
-2026-01-10T12:27:43.3538977Z + antd@6.1.4
-2026-01-10T12:27:43.3539240Z + clsx@2.1.1
-2026-01-10T12:27:43.3539506Z + nanoid@5.0.6
-2026-01-10T12:27:43.3539794Z + param-case@3.0.4
-2026-01-10T12:27:43.3540106Z + patch-package@6.5.1
-2026-01-10T12:27:43.3540441Z + prism-react-renderer@2.3.1
-2026-01-10T12:27:43.3540804Z + raw-loader@4.0.2
-2026-01-10T12:27:43.3541095Z + react@18.2.0
-2026-01-10T12:27:43.3541376Z + react-dom@18.2.0
-2026-01-10T12:27:43.3541677Z + react-feather@2.0.10
-2026-01-10T12:27:43.3542006Z + reactflow@11.10.4
-2026-01-10T12:27:43.3542293Z + zustand@4.5.2
-2026-01-10T12:27:43.3542473Z 
-2026-01-10T12:27:43.3542610Z 2111 packages installed [5.22s]
-2026-01-10T12:27:43.3982095Z ##[group]Run bun run update-changelog
-2026-01-10T12:27:43.3982432Z [36;1mbun run update-changelog[0m
-2026-01-10T12:27:43.4020397Z shell: /usr/bin/bash -e {0}
-2026-01-10T12:27:43.4020647Z ##[endgroup]
-2026-01-10T12:27:43.4092784Z $ node scripts/update-changelog.mjs
-2026-01-10T12:27:43.4624870Z 正在从 GitHub 获取发布信息...
-2026-01-10T12:27:43.7488606Z 成功获取 3 个发布版本
-2026-01-10T12:27:43.7534371Z 更新日志已成功更新到 /home/runner/work/docs/docs/docs/spec/changelog/index.mdx
-2026-01-10T12:27:43.7612553Z ##[group]Run bun run build
-2026-01-10T12:27:43.7612830Z [36;1mbun run build[0m
-2026-01-10T12:27:43.7645733Z shell: /usr/bin/bash -e {0}
-2026-01-10T12:27:43.7646034Z ##[endgroup]
-2026-01-10T12:27:43.7716689Z $ docusaurus build
-2026-01-10T12:27:44.9575504Z [INFO] [zh] Creating an optimized production build...
-2026-01-10T12:27:45.6727796Z Browserslist: browsers data (caniuse-lite) is 13 months old. Please run:
-2026-01-10T12:27:45.6728293Z   npx update-browserslist-db@latest
-2026-01-10T12:27:45.6728785Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
-2026-01-10T12:27:45.9067795Z Browserslist: caniuse-lite is outdated. Please run:
-2026-01-10T12:27:45.9068356Z   npx update-browserslist-db@latest
-2026-01-10T12:27:45.9068881Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
-2026-01-10T12:27:57.3369629Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6448:31\n","compilerPath":"client"}
-2026-01-10T12:27:57.3373495Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6452:31\n","compilerPath":"client"}
-2026-01-10T12:27:57.3376514Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6459:55\n","compilerPath":"client"}
-2026-01-10T12:27:57.3378743Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6476:33\n","compilerPath":"client"}
-2026-01-10T12:27:59.2424635Z [SUCCESS] Generated static files in "build".
-2026-01-10T12:27:59.2425625Z [INFO] Use `npm run serve` command to test your build locally.
-2026-01-10T12:27:59.6026066Z ##[group]Run actions/configure-pages@v5
-2026-01-10T12:27:59.6026341Z with:
-2026-01-10T12:27:59.6026619Z   token: ***
-2026-01-10T12:27:59.6026799Z   enablement: false
-2026-01-10T12:27:59.6026976Z ##[endgroup]
-2026-01-10T12:28:00.0092905Z ##[group]Run actions/upload-pages-artifact@v3
-2026-01-10T12:28:00.0093225Z with:
-2026-01-10T12:28:00.0093390Z   path: ./build
-2026-01-10T12:28:00.0093572Z   name: github-pages
-2026-01-10T12:28:00.0093766Z   retention-days: 1
-2026-01-10T12:28:00.0093945Z env:
-2026-01-10T12:28:00.0094098Z   GITHUB_PAGES: true
-2026-01-10T12:28:00.0094276Z ##[endgroup]
-2026-01-10T12:28:00.0182494Z ##[group]Run echo ::group::Archive artifact
-2026-01-10T12:28:00.0182821Z [36;1mecho ::group::Archive artifact[0m
-2026-01-10T12:28:00.0183061Z [36;1mtar \[0m
-2026-01-10T12:28:00.0183283Z [36;1m  --dereference --hard-dereference \[0m
-2026-01-10T12:28:00.0183572Z [36;1m  --directory "$INPUT_PATH" \[0m
-2026-01-10T12:28:00.0183834Z [36;1m  -cvf "$RUNNER_TEMP/artifact.tar" \[0m
-2026-01-10T12:28:00.0184087Z [36;1m  --exclude=.git \[0m
-2026-01-10T12:28:00.0184293Z [36;1m  --exclude=.github \[0m
-2026-01-10T12:28:00.0184496Z [36;1m  .[0m
-2026-01-10T12:28:00.0184661Z [36;1mecho ::endgroup::[0m
-2026-01-10T12:28:00.0376803Z shell: /usr/bin/sh -e {0}
-2026-01-10T12:28:00.0377112Z env:
-2026-01-10T12:28:00.0377339Z   GITHUB_PAGES: true
-2026-01-10T12:28:00.0377584Z   INPUT_PATH: ./build
-2026-01-10T12:28:00.0377830Z ##[endgroup]
-2026-01-10T12:28:00.0445925Z ##[group]Archive artifact
-2026-01-10T12:28:00.0463505Z ./
-2026-01-10T12:28:00.0463809Z ./web-sdk/
-2026-01-10T12:28:00.0464113Z ./web-sdk/reference/
-2026-01-10T12:28:00.0464483Z ./web-sdk/reference/methods.html
-2026-01-10T12:28:00.0464914Z ./web-sdk/quickstart.html
-2026-01-10T12:28:00.0466214Z ./release-notes/
-2026-01-10T12:28:00.0466565Z ./release-notes/web-core.json
-2026-01-10T12:28:00.0466965Z ./release-notes/flutter-core.json
-2026-01-10T12:28:00.0467414Z ./release-notes/iOS-ui-kit.json
-2026-01-10T12:28:00.0467839Z ./release-notes/android-ui-kit.json
-2026-01-10T12:28:00.0468281Z ./release-notes/rest-api.json
-2026-01-10T12:28:00.0468713Z ./release-notes/react-web-core.json
-2026-01-10T12:28:00.0469165Z ./release-notes/react-native-ui-kit.json
-2026-01-10T12:28:00.0469655Z ./release-notes/iOS-core.json
-2026-01-10T12:28:00.0470052Z ./release-notes/android-core.json
-2026-01-10T12:28:00.0470487Z ./release-notes/rest-api.html
-2026-01-10T12:28:00.0470871Z ./release-notes/flutter-ui-kit.json
-2026-01-10T12:28:00.0471284Z ./release-notes/ui-kit.json
-2026-01-10T12:28:00.0471692Z ./release-notes/react-native-core.json
-2026-01-10T12:28:00.0472107Z ./spec.html
-2026-01-10T12:28:00.0472414Z ./easy-language-sdk.html
-2026-01-10T12:28:00.0472745Z ./.nojekyll
-2026-01-10T12:28:00.0473012Z ./spec/
-2026-01-10T12:28:00.0473312Z ./spec/javascript-execution.html
-2026-01-10T12:28:00.0473736Z ./spec/local-web-resources.html
-2026-01-10T12:28:00.0474128Z ./spec/ipc-communication.html
-2026-01-10T12:28:00.0475511Z ./spec/changelog.html
-2026-01-10T12:28:00.0476128Z ./spec/release-behavior.html
-2026-01-10T12:28:00.0476851Z ./img/
-2026-01-10T12:28:00.0477152Z ./img/gdpr_docs.png
-2026-01-10T12:28:00.0477478Z ./img/dyte-docs-card.png
-2026-01-10T12:28:00.0478239Z ./img/soc-compliant-1.png
-2026-01-10T12:28:00.0478609Z ./img/vector.png
-2026-01-10T12:28:00.0478929Z ./getting-started.html
-2026-01-10T12:28:00.0479473Z ./index.html
-2026-01-10T12:28:00.0479754Z ./opensearch.xml
-2026-01-10T12:28:00.0480266Z ./static/
-2026-01-10T12:28:00.0480533Z ./static/voice-conf/
-2026-01-10T12:28:00.0480768Z ./static/voice-conf/savepreset.png
-2026-01-10T12:28:00.0482759Z ./static/react/
-2026-01-10T12:28:00.0482977Z ./static/react/preset-edit-name.png
-2026-01-10T12:28:00.0484210Z ./static/react/ui-customizations/
-2026-01-10T12:28:00.0484620Z ./static/react/ui-customizations/control-bar-elements.mp4
-2026-01-10T12:28:00.0487879Z ./static/react/ui-customizations/themes.mp4
-2026-01-10T12:28:00.0489526Z ./static/react/ui-customizations/header.mp4
-2026-01-10T12:28:00.0492236Z ./static/react/ui-customizations/control-bar.mp4
-2026-01-10T12:28:00.0496076Z ./static/react/ui-customizations/meeting-ui.png
-2026-01-10T12:28:00.0496906Z ./static/react/ui-customizations/header-elements.mp4
-2026-01-10T12:28:00.0499421Z ./static/react/react-control-bar.png
-2026-01-10T12:28:00.0499897Z ./static/react/react-context-menu.png
-2026-01-10T12:28:00.0500324Z ./static/errorcodes/
-2026-01-10T12:28:00.0500551Z ./static/errorcodes/chat-perms.png
-2026-01-10T12:28:00.0502079Z ./static/faq/
-2026-01-10T12:28:00.0502390Z ./static/faq/create-meeting.png
-2026-01-10T12:28:00.0502763Z ./static/rn-ui-kit/
-2026-01-10T12:28:00.0503239Z ./static/rn-ui-kit/images/
-2026-01-10T12:28:00.0503617Z ./static/rn-ui-kit/images/DyteAvatar.png
-2026-01-10T12:28:00.0504386Z ./static/rn-ui-kit/images/DyteGridPagination.png
-2026-01-10T12:28:00.0505265Z ./static/rn-ui-kit/images/DyteChatToggle.png
-2026-01-10T12:28:00.0506357Z ./static/rn-ui-kit/images/DyteIcon.png
-2026-01-10T12:28:00.0507133Z ./static/rn-ui-kit/images/DyteImageMessage.png
-2026-01-10T12:28:00.0515187Z ./static/rn-ui-kit/images/DyteCameraToggle-On.png
-2026-01-10T12:28:00.0515873Z ./static/rn-ui-kit/images/DyteMicToggle-Off.png
-2026-01-10T12:28:00.0516678Z ./static/rn-ui-kit/images/DyteImageViewer.png
-2026-01-10T12:28:00.0523666Z ./static/rn-ui-kit/images/DyteChat.png
-2026-01-10T12:28:00.0524402Z ./static/rn-ui-kit/images/DyteHeader.png
-2026-01-10T12:28:00.0525710Z ./static/rn-ui-kit/images/DyteCameraToggle-Off.png
-2026-01-10T12:28:00.0526497Z ./static/rn-ui-kit/images/DyteButton-Example.png
-2026-01-10T12:28:00.0527401Z ./static/rn-ui-kit/images/DyteControlbar.png
-2026-01-10T12:28:00.0528318Z ./static/rn-ui-kit/images/DyteButton.png
-2026-01-10T12:28:00.0529330Z ./static/rn-ui-kit/images/DyteEndedScreen.png
-2026-01-10T12:28:00.0530339Z ./static/rn-ui-kit/images/DyteMicToggle-On.png
-2026-01-10T12:28:00.0531068Z ./static/rn-ui-kit/images/DyteControlBarButton.png
-2026-01-10T12:28:00.0532068Z ./static/rn-ui-kit/images/DyteGrid.png
-2026-01-10T12:28:00.0533184Z ./static/rn-ui-kit/images/DyteImageViewer-Chat.png
-2026-01-10T12:28:00.0536990Z ./static/rn-ui-kit/images/DyteFileMessage.png
-2026-01-10T12:28:00.0537667Z ./static/rn-ui-kit/images/DyteClock.png
-2026-01-10T12:28:00.0538581Z ./static/rn-ui-kit/images/DyteIdleScreen.png
-2026-01-10T12:28:00.0539550Z ./static/video-conf/
-2026-01-10T12:28:00.0539899Z ./static/video-conf/savepreset.png
-2026-01-10T12:28:00.0541561Z ./static/webhook/
-2026-01-10T12:28:00.0541869Z ./static/webhook/webhook_id.png
-2026-01-10T12:28:00.0544092Z ./static/android-ui-kit/
-2026-01-10T12:28:00.0544461Z ./static/android-ui-kit/plugins-list.png
-2026-01-10T12:28:00.0546407Z ./static/android-ui-kit/use-plugin.png
-2026-01-10T12:28:00.0546911Z ./static/android-ui-kit/render-participant-videos/
-2026-01-10T12:28:00.0547650Z ./static/android-ui-kit/render-participant-videos/render-videos-custom-ui-impl.png
-2026-01-10T12:28:00.0549854Z ./static/android-ui-kit/render-participant-videos/render-videos-example-ui-wireframe.png
-2026-01-10T12:28:00.0550787Z ./static/android-ui-kit/render-participant-videos/render-videos-dytegrid.png
-2026-01-10T12:28:00.0552732Z ./static/android-ui-kit/participants-list.png
-2026-01-10T12:28:00.0553542Z ./static/android-ui-kit/plugin-screen.png
-2026-01-10T12:28:00.0555007Z ./static/android-ui-kit/host-controls.png
-2026-01-10T12:28:00.0556133Z ./static/android-ui-kit/chat/
-2026-01-10T12:28:00.0556643Z ./static/android-ui-kit/chat/chat-prebuilt-screen-messages.png
-2026-01-10T12:28:00.0561977Z ./static/android-ui-kit/chat/chat-prebuilt-send-options.png
-2026-01-10T12:28:00.0562579Z ./static/android-ui-kit/polls/
-2026-01-10T12:28:00.0563041Z ./static/android-ui-kit/polls/prebuilt-polls-screen.png
-2026-01-10T12:28:00.0563815Z ./static/android-ui-kit/polls/prebuilt-create-poll.png
-2026-01-10T12:28:00.0564925Z ./static/cli/
-2026-01-10T12:28:00.0565384Z ./static/cli/cli-meetings-create.png
-2026-01-10T12:28:00.0586048Z ./static/cli/cli-help.png
-2026-01-10T12:28:00.0586558Z ./static/cli/cli-meetings-info.png
-2026-01-10T12:28:00.0586982Z ./static/ui-kit/
-2026-01-10T12:28:00.0587288Z ./static/ui-kit/1.x.x/
-2026-01-10T12:28:00.0587624Z ./static/ui-kit/1.x.x/grid-comps.png
-2026-01-10T12:28:00.0588004Z ./static/ui-kit/1.x.x/components/
-2026-01-10T12:28:00.0588274Z ./static/ui-kit/1.x.x/components/dyte-button.svg
-2026-01-10T12:28:00.0589195Z ./static/ui-kit/1.x.x/components/dyte-meeting.svg
-2026-01-10T12:28:00.0589744Z ./static/ui-kit/1.x.x/components/dyte-spotlight-grid.svg
-2026-01-10T12:28:00.0590283Z ./static/ui-kit/1.x.x/components/dyte-grid-pagination.svg
-2026-01-10T12:28:00.0590727Z ./static/ui-kit/1.x.x/components/dyte-sidebar.svg
-2026-01-10T12:28:00.0591137Z ./static/ui-kit/1.x.x/components/dyte-screenshare-view.svg
-2026-01-10T12:28:00.0591460Z ./static/ui-kit/1.x.x/components/dyte-plugins.svg
-2026-01-10T12:28:00.0591753Z ./static/ui-kit/1.x.x/components/dyte-logo.svg
-2026-01-10T12:28:00.0592058Z ./static/ui-kit/1.x.x/components/dyte-plugin-main.svg
-2026-01-10T12:28:00.0592348Z ./static/ui-kit/1.x.x/components/dyte-menu.svg
-2026-01-10T12:28:00.0592633Z ./static/ui-kit/1.x.x/components/dyte-settings.svg
-2026-01-10T12:28:00.0593132Z ./static/ui-kit/1.x.x/components/dyte-emoji-picker.svg
-2026-01-10T12:28:00.0593456Z ./static/ui-kit/1.x.x/components/dyte-avatar.svg
-2026-01-10T12:28:00.0593799Z ./static/ui-kit/1.x.x/components/dyte-participant-count.svg
-2026-01-10T12:28:00.0594153Z ./static/ui-kit/1.x.x/components/dyte-participant-tile.svg
-2026-01-10T12:28:00.0594638Z ./static/ui-kit/1.x.x/components/dyte-participants.svg
-2026-01-10T12:28:00.0595500Z ./static/ui-kit/1.x.x/components/dyte-audio-visualizer.svg
-2026-01-10T12:28:00.0596145Z ./static/ui-kit/1.x.x/components/dyte-idle-screen.svg
-2026-01-10T12:28:00.0596547Z ./static/ui-kit/1.x.x/components/dyte-controlbar-button.svg
-2026-01-10T12:28:00.0596882Z ./static/ui-kit/1.x.x/components/dyte-clock.svg
-2026-01-10T12:28:00.0597346Z ./static/ui-kit/1.x.x/components/dyte-mixed-grid.svg
-2026-01-10T12:28:00.0597677Z ./static/ui-kit/1.x.x/components/dyte-notification.svg
-2026-01-10T12:28:00.0598037Z ./static/ui-kit/1.x.x/components/dyte-chat.svg
-2026-01-10T12:28:00.0598578Z ./static/ui-kit/1.x.x/components/dyte-spinner.svg
-2026-01-10T12:28:00.0599016Z ./static/ui-kit/1.x.x/components/dyte-meeting-title.svg
-2026-01-10T12:28:00.0599379Z ./static/ui-kit/1.x.x/components/dyte-recording-indicator.svg
-2026-01-10T12:28:00.0599710Z ./static/ui-kit/1.x.x/components/dyte-polls.svg
-2026-01-10T12:28:00.0600009Z ./static/ui-kit/1.x.x/components/dyte-tooltip.svg
-2026-01-10T12:28:00.0600468Z ./static/ui-kit/1.x.x/components/dyte-setup-screen.svg
-2026-01-10T12:28:00.0600876Z ./static/ui-kit/1.x.x/components/dyte-grid.svg
-2026-01-10T12:28:00.0601237Z ./static/ui-kit/1.x.x/components/dyte-participants-audio.svg
-2026-01-10T12:28:00.0601841Z ./static/ui-kit/1.x.x/components/dyte-name-tag.svg
-2026-01-10T12:28:00.0602184Z ./static/ui-kit/1.x.x/components/dyte-image-viewer.svg
-2026-01-10T12:28:00.0602500Z ./static/ui-kit/1.x.x/components/dyte-ended-screen.svg
-2026-01-10T12:28:00.0602900Z ./static/ui-kit/1.x.x/components/dyte-leave-meeting.svg
-2026-01-10T12:28:00.0603460Z ./static/ui-kit/1.x.x/components/dyte-remote-access-manager.svg
-2026-01-10T12:28:00.0603933Z ./static/ui-kit/1.x.x/components/dyte-switch.svg
-2026-01-10T12:28:00.0604323Z ./static/ui-kit/1.x.x/components/dyte-dialog.svg
-2026-01-10T12:28:00.0604667Z ./static/ui-kit/1.x.x/components/dyte-simple-grid.svg
-2026-01-10T12:28:00.0604955Z ./static/ui-kit/1.x.x/atomic-design.svg
-2026-01-10T12:28:00.0605624Z ./static/ui-kit/1.x.x/ui-kit-cover.jpg
-2026-01-10T12:28:00.0606145Z ./static/livestream/
-2026-01-10T12:28:00.0606362Z ./static/livestream/createpreset.png
-2026-01-10T12:28:00.0619158Z ./static/livestream/Misc.png
-2026-01-10T12:28:00.0621691Z ./static/livestream/pluginlivestream.png
-2026-01-10T12:28:00.0628879Z ./static/livestream/Media.png
-2026-01-10T12:28:00.0630798Z ./static/livestream/chat.png
-2026-01-10T12:28:00.0632186Z ./static/livestream/golive.png
-2026-01-10T12:28:00.0637923Z ./static/livestream/savepresetils.png
-2026-01-10T12:28:00.0639013Z ./static/livestream/Polls.png
-2026-01-10T12:28:00.0640018Z ./static/livestream/savepreset.png
-2026-01-10T12:28:00.0641989Z ./static/livestream/endlive.png
-2026-01-10T12:28:00.0644875Z ./static/livestream/colors.png
-2026-01-10T12:28:00.0655248Z ./static/livestream/host-control.png
-2026-01-10T12:28:00.0658472Z ./static/livestream/ilslist.png
-2026-01-10T12:28:00.0659916Z ./static/livestream/livestream.png
-2026-01-10T12:28:00.0662944Z ./static/livestream/Plugins.png
-2026-01-10T12:28:00.0664827Z ./static/livestream/ls-share-screen.png
-2026-01-10T12:28:00.0670688Z ./static/preset/
-2026-01-10T12:28:00.0670894Z ./static/preset/savepreset.png
-2026-01-10T12:28:00.0672580Z ./static/preset/group-call.png
-2026-01-10T12:28:00.0672985Z ./static/preset/livestream.png
-2026-01-10T12:28:00.0673931Z ./static/guides/
-2026-01-10T12:28:00.0674131Z ./static/guides/dev-portal.png
-2026-01-10T12:28:00.0681405Z ./static/guides/analytics.png
-2026-01-10T12:28:00.0689135Z ./static/guides/session-details.png
-2026-01-10T12:28:00.0693270Z ./static/guides/dyte-arch.png
-2026-01-10T12:28:00.0696058Z ./static/guides/build-pre-call-ui/
-2026-01-10T12:28:00.0696416Z ./static/guides/build-pre-call-ui/pre-call-ui-setup-screen.png
-2026-01-10T12:28:00.0700395Z ./static/guides/build-pre-call-ui/skeleton-page/
-2026-01-10T12:28:00.0700829Z ./static/guides/build-pre-call-ui/skeleton-page/meeting-precall.png
-2026-01-10T12:28:00.0701561Z ./static/guides/build-pre-call-ui/skeleton-page/meeting-over.png
-2026-01-10T12:28:00.0702763Z ./static/guides/build-pre-call-ui/skeleton-page/meeting-stage.png
-2026-01-10T12:28:00.0704406Z ./static/guides/build-pre-call-ui/inside-meeting-sample-two-users.png
-2026-01-10T12:28:00.0726817Z ./static/guides/build-pre-call-ui/meeting-stage-components.png
-2026-01-10T12:28:00.0728403Z ./static/guides/build-pre-call-ui/inside-meeting-sample-single-user.png
-2026-01-10T12:28:00.0746598Z ./static/guides/build-pre-call-ui/preset-edit-your-name.png
-2026-01-10T12:28:00.0749127Z ./static/guides/virtual-background.png
-2026-01-10T12:28:00.0750892Z ./static/guides/tar-format.png
-2026-01-10T12:28:00.0751611Z ./static/guides/chat-build.png
-2026-01-10T12:28:00.0754912Z ./static/guides/add-preset-live-video.png
-2026-01-10T12:28:00.0769893Z ./static/guides/recording-storage.png
-2026-01-10T12:28:00.0771261Z ./static/guides/create-live-video-apps1.png
-2026-01-10T12:28:00.0776268Z ./static/guides/obs-example.jpeg
-2026-01-10T12:28:00.0778025Z ./static/guides/screenshare-max.png
-2026-01-10T12:28:00.0779066Z ./static/guides/concept-meeting.png
-2026-01-10T12:28:00.0783567Z ./static/guides/chat-sdk.png
-2026-01-10T12:28:00.0788007Z ./static/guides/preset-editor-sample.png
-2026-01-10T12:28:00.0790743Z ./static/guides/chat-sdk-intro.png
-2026-01-10T12:28:00.0796237Z ./static/guides/opentok-arch.png
-2026-01-10T12:28:00.0799645Z ./static/guides/obs-example.png
-2026-01-10T12:28:00.0801725Z ./static/guides/twilio-arch.png
-2026-01-10T12:28:00.0806382Z ./static/plugin-sdk/
-2026-01-10T12:28:00.0806659Z ./static/plugin-sdk/plugin-sdk-cover.png
-2026-01-10T12:28:00.0808794Z ./static/sip/
-2026-01-10T12:28:00.0809038Z ./static/sip/sip-devportal.png
-2026-01-10T12:28:00.0810486Z ./static/sip/twilio.png
-2026-01-10T12:28:00.0813500Z ./static/v2-API-migration/
-2026-01-10T12:28:00.0813804Z ./static/v2-API-migration/Preset1.png
-2026-01-10T12:28:00.0821992Z ./static/v2-API-migration/v2_selector.png
-2026-01-10T12:28:00.0825445Z ./static/v2-API-migration/Preset2.png
-2026-01-10T12:28:00.0829088Z ./static/home/
-2026-01-10T12:28:00.0829681Z ./static/home/how-dyte-works-v2.png
-2026-01-10T12:28:00.0830029Z ./static/home/create-preset.png
-2026-01-10T12:28:00.0831680Z ./static/home/api-keys.png
-2026-01-10T12:28:00.0833721Z ./static/dev-portal/
-2026-01-10T12:28:00.0833995Z ./static/dev-portal/api-key-light.png
-2026-01-10T12:28:00.0835891Z ./static/dev-portal/api-key-dark.png
-2026-01-10T12:28:00.0837832Z ./static/dev-portal/create-preset-dark.png
-2026-01-10T12:28:00.0840234Z ./static/dev-portal/create-preset-light.png
-2026-01-10T12:28:00.0843241Z ./static/dev-portal/auth-header-dark.png
-2026-01-10T12:28:00.0845926Z ./static/dev-portal/auth-header-light.png
-2026-01-10T12:28:00.0848422Z ./static/android-core/
-2026-01-10T12:28:00.0848767Z ./static/android-core/audio-selector.png
-2026-01-10T12:28:00.0849176Z ./static/android-core/video-selector.png
-2026-01-10T12:28:00.0849622Z ./static/breakoutrooms/
-2026-01-10T12:28:00.0850153Z ./static/breakoutrooms/create-br.png
-2026-01-10T12:28:00.0850569Z ./static/breakoutrooms/switch-connected-meetings.png
-2026-01-10T12:28:00.0852219Z ./static/breakoutrooms/edit-br.png
-2026-01-10T12:28:00.0852686Z ./static/breakoutrooms/breakout-room1.png
-2026-01-10T12:28:00.0854975Z ./static/breakoutrooms/switch-parent-meeting.png
-2026-01-10T12:28:00.0857578Z ./static/breakoutrooms/shuffle.png
-2026-01-10T12:28:00.0858314Z ./static/breakoutrooms/full-access.png
-2026-01-10T12:28:00.0859690Z ./static/breakoutrooms/assign-manual.png
-2026-01-10T12:28:00.0860780Z ./static/breakoutrooms/assign-participants.png
-2026-01-10T12:28:00.0865260Z ./static/mobile/
-2026-01-10T12:28:00.0865582Z ./static/mobile/build-pre-call-ui/
-2026-01-10T12:28:00.0865945Z ./static/mobile/build-pre-call-ui/pre-call-ui-setup-screen.png
-2026-01-10T12:28:00.0869796Z ./static/mobile/build-pre-call-ui/skeleton-page/
-2026-01-10T12:28:00.0870251Z ./static/mobile/build-pre-call-ui/skeleton-page/android-setup-final-preview.png
-2026-01-10T12:28:00.0871050Z ./static/mobile/build-pre-call-ui/skeleton-page/android-setup-custom-preview.png
-2026-01-10T12:28:00.0871704Z ./static/mobile/build-pre-call-ui/skeleton-page/meeting-precall.png
-2026-01-10T12:28:00.0872183Z ./static/mobile/build-pre-call-ui/skeleton-page/meeting-over.png
-2026-01-10T12:28:00.0873027Z ./static/mobile/build-pre-call-ui/skeleton-page/meeting-stage.png
-2026-01-10T12:28:00.0874675Z ./static/mobile/build-pre-call-ui/inside-meeting-sample-two-users.png
-2026-01-10T12:28:00.0896849Z ./static/mobile/build-pre-call-ui/meeting-stage-components.png
-2026-01-10T12:28:00.0898368Z ./static/mobile/build-pre-call-ui/inside-meeting-sample-single-user.png
-2026-01-10T12:28:00.0916214Z ./static/mobile/build-pre-call-ui/preset-edit-your-name.png
-2026-01-10T12:28:00.0918784Z ./static/mobile/0.x.x/
-2026-01-10T12:28:00.0919143Z ./static/mobile/0.x.x/mobile-opt2-meeting-options.png
-2026-01-10T12:28:00.0919517Z ./static/mobile/0.x.x/flutter-uikit-config.png
-2026-01-10T12:28:00.0925853Z ./static/mobile/0.x.x/flutter-setup-ct.png
-2026-01-10T12:28:00.0926273Z ./static/mobile/0.x.x/iOS-screen-share.png
-2026-01-10T12:28:00.0927949Z ./static/mobile/0.x.x/flutter-host-actions-ct.png
-2026-01-10T12:28:00.0928477Z ./static/mobile/0.x.x/mobile-opt1-meeting.png
-2026-01-10T12:28:00.0928817Z ./static/mobile/0.x.x/ios-setup-info.png
-2026-01-10T12:28:00.0929640Z ./static/mobile/0.x.x/ios-setup-0.png
-2026-01-10T12:28:00.0932253Z ./static/mobile/0.x.x/mobile-meeting.png
-2026-01-10T12:28:00.0932620Z ./static/mobile/0.x.x/ios-setup-01.png
-2026-01-10T12:28:00.0934098Z ./static/mobile/0.x.x/ios-setup-1.png
-2026-01-10T12:28:00.0936076Z ./static/mobile/0.x.x/flutter-chat.png
-2026-01-10T12:28:00.0936809Z ./static/mobile/0.x.x/mobile-meeting-ui.png
-2026-01-10T12:28:00.0937949Z ./static/mobile/0.x.x/mobile-meeting-options.png
-2026-01-10T12:28:00.0938468Z ./static/mobile/0.x.x/mobile-opt2-meeting.png
-2026-01-10T12:28:00.0938935Z ./static/mobile/0.x.x/ios-setup-app.png
-2026-01-10T12:28:00.0939272Z ./static/mobile/0.x.x/ios-setup-demo.png
-2026-01-10T12:28:00.0946138Z ./static/mobile/0.x.x/flutter-poll-ct.png
-2026-01-10T12:28:00.0946803Z ./static/mobile/0.x.x/mobile-setup.png
-2026-01-10T12:28:00.0947062Z ./static/mobile/0.x.x/mobile-opt2-setup.png
-2026-01-10T12:28:00.0947343Z ./static/mobile/0.x.x/flutter-participant-list.png
-2026-01-10T12:28:00.0948031Z ./static/mobile/0.x.x/flutter-video-call.png
-2026-01-10T12:28:00.0950626Z ./static/mobile/0.x.x/flutter-setup-page.png
-2026-01-10T12:28:00.0951938Z ./static/mobile/0.x.x/mobile-opt1-setup.png
-2026-01-10T12:28:00.0952249Z ./static/mobile/0.x.x/ios-setup-03.png
-2026-01-10T12:28:00.0954142Z ./static/mobile/0.x.x/mobile-opt1-meeting-options.png
-2026-01-10T12:28:00.0954625Z ./static/mobile/0.x.x/flutter-participants-list-ct.png
-2026-01-10T12:28:00.0954993Z ./static/mobile/0.x.x/flutter-advanced-features.png
-2026-01-10T12:28:00.0956201Z ./static/mobile/0.x.x/flutter-vc-ct.png
-2026-01-10T12:28:00.0958456Z ./static/mobile/flutter/
-2026-01-10T12:28:00.0959221Z ./static/mobile/flutter/chat-icon-widget.png
-2026-01-10T12:28:00.0959597Z ./static/mobile/flutter/flutter-leave-meeting.png
-2026-01-10T12:28:00.0959910Z ./static/mobile/flutter/name-tag.png
-2026-01-10T12:28:00.0960365Z ./static/mobile/flutter/flutter-leave-meeting-dialog.png
-2026-01-10T12:28:00.0960785Z ./static/mobile/flutter/chat-screen.png
-2026-01-10T12:28:00.0961398Z ./static/mobile/flutter/participant-icon-widget.png
-2026-01-10T12:28:00.0961804Z ./static/mobile/flutter/flutter-participant-tile.png
-2026-01-10T12:28:00.0962337Z ./static/mobile/flutter/audio-icon-widget.png
-2026-01-10T12:28:00.0962844Z ./static/mobile/flutter/flutter-meeting-title.png
-2026-01-10T12:28:00.0963337Z ./static/mobile/flutter/flutter-join-button.png
-2026-01-10T12:28:00.0963722Z ./static/mobile/flutter/flutter-self-video-toggle.png
-2026-01-10T12:28:00.0964049Z ./static/mobile/flutter/participant-screen.png
-2026-01-10T12:28:00.0964630Z ./static/mobile/flutter/flutter-self-audio-toggle.png
-2026-01-10T12:28:00.0965222Z ./static/ios/
-2026-01-10T12:28:00.0965471Z ./static/ios/ios_create_polls.png
-2026-01-10T12:28:00.0967973Z ./static/ios/meeting.png
-2026-01-10T12:28:00.0968664Z ./static/ios/ios_participant-tile-view.png
-2026-01-10T12:28:00.0974372Z ./static/ios/meeting-options.png
-2026-01-10T12:28:00.0975450Z ./static/ios/ios_settings.jpg
-2026-01-10T12:28:00.0977629Z ./static/ios/ios_participant-tile-avatar-view.png
-2026-01-10T12:28:00.0979967Z ./static/ios/iOS_show_plugin.jpg
-2026-01-10T12:28:00.0980801Z ./static/ios/meeting-setup.png
-2026-01-10T12:28:00.0981843Z ./static/ios/iOS_plugins.png
-2026-01-10T12:28:00.0984301Z ./static/ios/ios_active_HorizontalView.png
-2026-01-10T12:28:00.0985316Z ./static/ios/ios_settings_avatar.png
-2026-01-10T12:28:00.0987359Z ./static/ios/ios-setup.png
-2026-01-10T12:28:00.0990949Z ./static/ios/ios_show_polls.png
-2026-01-10T12:28:00.0993033Z ./static/landing-page/
-2026-01-10T12:28:00.0993431Z ./static/landing-page/api-ref-light.png
-2026-01-10T12:28:00.0994075Z ./static/landing-page/api-ref-dark.png
-2026-01-10T12:28:00.0995352Z ./static/landing-page/calendar.svg
-2026-01-10T12:28:00.0995785Z ./static/landing-page/resources/
-2026-01-10T12:28:00.0996276Z ./static/landing-page/resources/active-session.png
-2026-01-10T12:28:00.0996794Z ./static/landing-page/chat.svg
-2026-01-10T12:28:00.0997192Z ./static/landing-page/customer.svg
-2026-01-10T12:28:00.0997608Z ./static/landing-page/grid-light.svg
-2026-01-10T12:28:00.0998062Z ./static/landing-page/plugin-sdk-light.png
-2026-01-10T12:28:00.0998546Z ./static/landing-page/plugin-sdk-dark.png
-2026-01-10T12:28:00.0999806Z ./static/landing-page/hero/
-2026-01-10T12:28:00.1000258Z ./static/landing-page/hero/voice-graphic-dark.png
-2026-01-10T12:28:00.1000787Z ./static/landing-page/hero/voice-graphic.png
-2026-01-10T12:28:00.1001311Z ./static/landing-page/hero/livestream-graphic.png
-2026-01-10T12:28:00.1001859Z ./static/landing-page/hero/chat-graphic-dark.png
-2026-01-10T12:28:00.1002418Z ./static/landing-page/hero/livestream-graphic-dark.png
-2026-01-10T12:28:00.1002956Z ./static/landing-page/hero/video.png
-2026-01-10T12:28:00.1003415Z ./static/landing-page/hero/video-graphic.png
-2026-01-10T12:28:00.1003905Z ./static/landing-page/hero/chat-graphic.png
-2026-01-10T12:28:00.1004641Z ./static/landing-page/hero/video-graphic-dark.png
-2026-01-10T12:28:00.1005298Z ./static/landing-page/grid-dark.svg
-2026-01-10T12:28:00.1005722Z ./static/landing-page/sdk-icons/
-2026-01-10T12:28:00.1006130Z ./static/landing-page/sdk-icons/react.png
-2026-01-10T12:28:00.1006599Z ./static/landing-page/sdk-icons/kotlin.png
-2026-01-10T12:28:00.1007050Z ./static/landing-page/sdk-icons/swift.png
-2026-01-10T12:28:00.1007495Z ./static/landing-page/sdk-icons/html.png
-2026-01-10T12:28:00.1007977Z ./static/landing-page/sdk-icons/electron.png
-2026-01-10T12:28:00.1008472Z ./static/landing-page/sdk-icons/resources/
-2026-01-10T12:28:00.1009007Z ./static/landing-page/sdk-icons/resources/book-open.svg
-2026-01-10T12:28:00.1009561Z ./static/landing-page/sdk-icons/resources/web.svg
-2026-01-10T12:28:00.1010106Z ./static/landing-page/sdk-icons/resources/mobile.svg
-2026-01-10T12:28:00.1010822Z ./static/landing-page/sdk-icons/resources/github.svg
-2026-01-10T12:28:00.1011368Z ./static/landing-page/sdk-icons/resources/faq.svg
-2026-01-10T12:28:00.1011899Z ./static/landing-page/sdk-icons/resources/plugin.svg
-2026-01-10T12:28:00.1012443Z ./static/landing-page/sdk-icons/resources/video.svg
-2026-01-10T12:28:00.1012938Z ./static/landing-page/sdk-icons/js.png
-2026-01-10T12:28:00.1013389Z ./static/landing-page/sdk-icons/flutter.png
-2026-01-10T12:28:00.1013900Z ./static/landing-page/sdk-icons/vue.png
-2026-01-10T12:28:00.1014360Z ./static/landing-page/sdk-icons/angular.png
-2026-01-10T12:28:00.1014790Z ./web-sdk.html
-2026-01-10T12:28:00.1015259Z ./assets/
-2026-01-10T12:28:00.1015544Z ./assets/images/
-2026-01-10T12:28:00.1016039Z ./assets/images/how-dyte-works-v2-9f36c8cda047aabc8da766b57fc6e678.png
-2026-01-10T12:28:00.1016804Z ./assets/images/api-keys-0ca0bcbd0f86fdd235b638cb572a9b48.png
-2026-01-10T12:28:00.1017506Z ./assets/images/create-preset-40c05622c0bac1a165388eac561c6a4c.png
-2026-01-10T12:28:00.1018084Z ./assets/css/
-2026-01-10T12:28:00.1018380Z ./assets/css/docsly.min.css
-2026-01-10T12:28:00.1018756Z ./assets/css/styles.5fb083c6.css
-2026-01-10T12:28:00.1019161Z ./assets/css/elements.min.css
-2026-01-10T12:28:00.1019510Z ./assets/fonts/
-2026-01-10T12:28:00.1019946Z ./assets/fonts/FiraCode-26fa1940716beb9d1da18c13df9e1716.woff2
-2026-01-10T12:28:00.1020738Z ./assets/fonts/PlusJakartaSans-latin-641c0ed01070e3b07724f408836f6a67.woff2
-2026-01-10T12:28:00.1021422Z ./assets/fonts/Inter.woff2
-2026-01-10T12:28:00.1022021Z ./assets/fonts/PlusJakartaSans-italic-03c8659285721a62189b10f564783a70.woff2
-2026-01-10T12:28:00.1022727Z ./assets/fonts/PlusJakartaSans-latin.woff2
-2026-01-10T12:28:00.1023292Z ./assets/fonts/Inter-e85d84dcfe3b365aaaa3f6054d9fcfa7.woff2
-2026-01-10T12:28:00.1023934Z ./assets/fonts/PlusJakartaSans-italic.woff2
-2026-01-10T12:28:00.1024385Z ./assets/fonts/FiraCode.woff2
-2026-01-10T12:28:00.1024915Z ./assets/fonts/Inter-italic-e1716d2a673d0faa8f1372b4bd6de8ab.woff2
-2026-01-10T12:28:00.1025671Z ./assets/fonts/Inter-italic.woff2
-2026-01-10T12:28:00.1027619Z ./assets/js/
-2026-01-10T12:28:00.1027956Z ./assets/js/3665.c5716dba.js
-2026-01-10T12:28:00.1028401Z ./assets/js/4309.2f4b5afb.js
-2026-01-10T12:28:00.1028766Z ./assets/js/2661.1c4f1a31.js
-2026-01-10T12:28:00.1029136Z ./assets/js/1c68ad46.8328ed80.js
-2026-01-10T12:28:00.1029530Z ./assets/js/4941.79ad2a0a.js
-2026-01-10T12:28:00.1029895Z ./assets/js/3453.009975e2.js
-2026-01-10T12:28:00.1030248Z ./assets/js/6068.1e36ed61.js
-2026-01-10T12:28:00.1030628Z ./assets/js/d32f8fad.17dafce9.js
-2026-01-10T12:28:00.1031022Z ./assets/js/392.47b1063e.js
-2026-01-10T12:28:00.1031379Z ./assets/js/6917.32a30763.js
-2026-01-10T12:28:00.1031741Z ./assets/js/5423.d0848171.js
-2026-01-10T12:28:00.1032087Z ./assets/js/3866.5d12c857.js
-2026-01-10T12:28:00.1032453Z ./assets/js/5e95c892.2b0aab5c.js
-2026-01-10T12:28:00.1032824Z ./assets/js/9766.3739509c.js
-2026-01-10T12:28:00.1033168Z ./assets/js/7106.07351364.js
-2026-01-10T12:28:00.1033528Z ./assets/js/8436.3d6b0c6e.js
-2026-01-10T12:28:00.1033899Z ./assets/js/495.0a702b28.js
-2026-01-10T12:28:00.1034253Z ./assets/js/45fbd18b.58e49fd0.js
-2026-01-10T12:28:00.1034810Z ./assets/js/5955.d5ae6773.js
-2026-01-10T12:28:00.1035342Z ./assets/js/4224.32f9b0c7.js
-2026-01-10T12:28:00.1035784Z ./assets/js/1059.bc6e8021.js
-2026-01-10T12:28:00.1036135Z ./assets/js/6134.e2d2e137.js
-2026-01-10T12:28:00.1036497Z ./assets/js/3986.09cb59da.js
-2026-01-10T12:28:00.1036848Z ./assets/js/97.1b62310c.js
-2026-01-10T12:28:00.1037206Z ./assets/js/3553.170adabb.js
-2026-01-10T12:28:00.1037556Z ./assets/js/5596e81a.f67385a9.js
-2026-01-10T12:28:00.1037945Z ./assets/js/df5d343d.c588382f.js
-2026-01-10T12:28:00.1038327Z ./assets/js/6397.5a46f75e.js
-2026-01-10T12:28:00.1038671Z ./assets/js/311.e3815ea9.js
-2026-01-10T12:28:00.1039024Z ./assets/js/6431.93b7d048.js
-2026-01-10T12:28:00.1039371Z ./assets/js/8394.a76973b8.js
-2026-01-10T12:28:00.1039725Z ./assets/js/aa6c73c2.a91d967e.js
-2026-01-10T12:28:00.1040086Z ./assets/js/904.1f97893d.js
-2026-01-10T12:28:00.1040571Z ./assets/js/8190.00af8b21.js
-2026-01-10T12:28:00.1040919Z ./assets/js/163.10be0592.js
-2026-01-10T12:28:00.1041280Z ./assets/js/1066.4782d374.js
-2026-01-10T12:28:00.1041625Z ./assets/js/6654.c707df32.js
-2026-01-10T12:28:00.1041969Z ./assets/js/1769.a57f718f.js
-2026-01-10T12:28:00.1042320Z ./assets/js/main.67a2be4f.js
-2026-01-10T12:28:00.1046521Z ./assets/js/5067.ed5ae3a1.js
-2026-01-10T12:28:00.1046925Z ./assets/js/aaf29a30.3e923a3c.js
-2026-01-10T12:28:00.1047305Z ./assets/js/4477.500ecf1d.js
-2026-01-10T12:28:00.1047666Z ./assets/js/21a30673.34712afc.js
-2026-01-10T12:28:00.1048091Z ./assets/js/bbaff741.919082bc.js
-2026-01-10T12:28:00.1048465Z ./assets/js/8640.20246632.js
-2026-01-10T12:28:00.1048816Z ./assets/js/9084f04c.9c932141.js
-2026-01-10T12:28:00.1049178Z ./assets/js/1349.62b8c7ba.js
-2026-01-10T12:28:00.1049534Z ./assets/js/6972.ded478ac.js
-2026-01-10T12:28:00.1049875Z ./assets/js/7534.145acef8.js
-2026-01-10T12:28:00.1050253Z ./assets/js/1bef5041.0eac0d8f.js
-2026-01-10T12:28:00.1050627Z ./assets/js/4986.40eb4a80.js
-2026-01-10T12:28:00.1050991Z ./assets/js/642.db52f3a1.js
-2026-01-10T12:28:00.1051340Z ./assets/js/396.c081a81f.js
-2026-01-10T12:28:00.1051704Z ./assets/js/8565.e5e63947.js
-2026-01-10T12:28:00.1052066Z ./assets/js/09f79313.7241a221.js
-2026-01-10T12:28:00.1052435Z ./assets/js/24c768db.61e046b7.js
-2026-01-10T12:28:00.1052810Z ./assets/js/1353.a23dacb0.js
-2026-01-10T12:28:00.1053167Z ./assets/js/c141421f.888b1f14.js
-2026-01-10T12:28:00.1053539Z ./assets/js/4446.24675f0e.js
-2026-01-10T12:28:00.1053888Z ./assets/js/684.b8de189b.js
-2026-01-10T12:28:00.1054261Z ./assets/js/df552813.52ae98f7.js
-2026-01-10T12:28:00.1054634Z ./assets/js/74c9de24.94fa868d.js
-2026-01-10T12:28:00.1055007Z ./assets/js/7024.9ba5e797.js
-2026-01-10T12:28:00.1055538Z ./assets/js/1143.4af0112c.js
-2026-01-10T12:28:00.1055905Z ./assets/js/ecba80a3.056b00cd.js
-2026-01-10T12:28:00.1056300Z ./assets/js/a7bd4aaa.4162a2bc.js
-2026-01-10T12:28:00.1056668Z ./assets/js/3864.408e10f3.js
-2026-01-10T12:28:00.1057045Z ./assets/js/6465.6cef56cc.js
-2026-01-10T12:28:00.1057491Z ./assets/js/4b64c7f6.fc873025.js
-2026-01-10T12:28:00.1057893Z ./assets/js/5899.aabad09e.js
-2026-01-10T12:28:00.1058250Z ./assets/js/5602.61b1a607.js
-2026-01-10T12:28:00.1058611Z ./assets/js/9c4a6c13.ac589ca3.js
-2026-01-10T12:28:00.1058996Z ./assets/js/6882.f31f497c.js
-2026-01-10T12:28:00.1059347Z ./assets/js/7276.f3278278.js
-2026-01-10T12:28:00.1059703Z ./assets/js/a4086163.1c322f1e.js
-2026-01-10T12:28:00.1060060Z ./assets/js/6763.2120fb24.js
-2026-01-10T12:28:00.1060416Z ./assets/js/8522.943bd199.js
-2026-01-10T12:28:00.1060768Z ./assets/js/397.df9af6d3.js
-2026-01-10T12:28:00.1061122Z ./assets/js/6415.8959b371.js
-2026-01-10T12:28:00.1061477Z ./assets/js/5325.df886dcd.js
-2026-01-10T12:28:00.1061831Z ./assets/js/9559.7f78760f.js
-2026-01-10T12:28:00.1062183Z ./assets/js/4278.1bcb1c8f.js
-2026-01-10T12:28:00.1062541Z ./assets/js/8142.62eb1c7f.js
-2026-01-10T12:28:00.1062894Z ./assets/js/1046.182f1ed9.js
-2026-01-10T12:28:00.1063247Z ./assets/js/5669.7c8e73a8.js
-2026-01-10T12:28:00.1063619Z ./assets/js/3343d287.f42de370.js
-2026-01-10T12:28:00.1063987Z ./assets/js/3757.f0ce6f8c.js
-2026-01-10T12:28:00.1064519Z ./assets/js/2712.860b8136.js
-2026-01-10T12:28:00.1064858Z ./assets/js/1512.2721d8fb.js
-2026-01-10T12:28:00.1065355Z ./assets/js/6744.49f48899.js
-2026-01-10T12:28:00.1065696Z ./assets/js/5455.8043e650.js
-2026-01-10T12:28:00.1066054Z ./assets/js/2316.9d9414ad.js
-2026-01-10T12:28:00.1066396Z ./assets/js/8257.c5d66264.js
-2026-01-10T12:28:00.1066748Z ./assets/js/8293.9e5c0fa4.js
-2026-01-10T12:28:00.1067109Z ./assets/js/dc1b4c6d.02f539b0.js
-2026-01-10T12:28:00.1067478Z ./assets/js/17896441.018ef84b.js
-2026-01-10T12:28:00.1067840Z ./assets/js/9434.093f20e4.js
-2026-01-10T12:28:00.1068199Z ./assets/js/2890.75446fe3.js
-2026-01-10T12:28:00.1068555Z ./assets/js/9223.b67d94fc.js
-2026-01-10T12:28:00.1068906Z ./assets/js/5ec32547.cfeb5e4d.js
-2026-01-10T12:28:00.1069278Z ./assets/js/9413.944921de.js
-2026-01-10T12:28:00.1069616Z ./assets/js/3853.9d11e4d7.js
-2026-01-10T12:28:00.1070114Z ./assets/js/494.b7b82eed.js
-2026-01-10T12:28:00.1070473Z ./assets/js/a4b476a1.0590c198.js
-2026-01-10T12:28:00.1070836Z ./assets/js/827e6bb8.211ef291.js
-2026-01-10T12:28:00.1071219Z ./assets/js/0b259009.4764f9ed.js
-2026-01-10T12:28:00.1071589Z ./assets/js/96b32abd.423743d6.js
-2026-01-10T12:28:00.1071958Z ./assets/js/5146.a54eb96a.js
-2026-01-10T12:28:00.1072311Z ./assets/js/2097.037f497f.js
-2026-01-10T12:28:00.1072673Z ./assets/js/9238fb59.d1798856.js
-2026-01-10T12:28:00.1073041Z ./assets/js/687.5d63ae3c.js
-2026-01-10T12:28:00.1073394Z ./assets/js/3421.f2e48df9.js
-2026-01-10T12:28:00.1073747Z ./assets/js/2694.7955414a.js
-2026-01-10T12:28:00.1074102Z ./assets/js/69625a36.53ed9a73.js
-2026-01-10T12:28:00.1074480Z ./assets/js/f689313d.0f21cd0a.js
-2026-01-10T12:28:00.1074856Z ./assets/js/5721b619.649771c6.js
-2026-01-10T12:28:00.1075387Z ./assets/js/9869.5a56c694.js
-2026-01-10T12:28:00.1075743Z ./assets/js/46.8a3fdf11.js
-2026-01-10T12:28:00.1076102Z ./assets/js/716.cb61d514.js
-2026-01-10T12:28:00.1076449Z ./assets/js/6137.ebb59b64.js
-2026-01-10T12:28:00.1080717Z ./assets/js/3334.cc6f0f9a.js
-2026-01-10T12:28:00.1081114Z ./assets/js/4644.d0e0c691.js
-2026-01-10T12:28:00.1081546Z ./assets/js/91479000.b7666aa1.js
-2026-01-10T12:28:00.1081925Z ./assets/js/6390.6c35922f.js
-2026-01-10T12:28:00.1082283Z ./assets/js/2934.b8ff845f.js
-2026-01-10T12:28:00.1082636Z ./assets/js/7370.1759632b.js
-2026-01-10T12:28:00.1082996Z ./assets/js/5702.db1dbfb1.js
-2026-01-10T12:28:00.1083360Z ./assets/js/db67a208.3d49de28.js
-2026-01-10T12:28:00.1083723Z ./assets/js/8537.47c51f89.js
-2026-01-10T12:28:00.1084090Z ./assets/js/c2a9e211.86871eeb.js
-2026-01-10T12:28:00.1084455Z ./assets/js/3363.d10d5da5.js
-2026-01-10T12:28:00.1084800Z ./assets/js/7480.c3643e87.js
-2026-01-10T12:28:00.1085323Z ./assets/js/4f450061.5005bf98.js
-2026-01-10T12:28:00.1085717Z ./assets/js/8853.47ca59e3.js
-2026-01-10T12:28:00.1086083Z ./assets/js/aba21aa0.82173a8e.js
-2026-01-10T12:28:00.1086515Z ./assets/js/73d3958d.7f09d3ae.js
-2026-01-10T12:28:00.1086882Z ./assets/js/4529.745c909e.js
-2026-01-10T12:28:00.1087235Z ./assets/js/2853.a6b1eaa8.js
-2026-01-10T12:28:00.1100484Z ./assets/js/2369.a9eb8a72.js
-2026-01-10T12:28:00.1100882Z ./assets/js/6200.db3cf538.js
-2026-01-10T12:28:00.1101251Z ./assets/js/8018.fdfe5118.js
-2026-01-10T12:28:00.1101609Z ./assets/js/8587.5e95c950.js
-2026-01-10T12:28:00.1101980Z ./assets/js/697fbaab.899f7212.js
-2026-01-10T12:28:00.1102363Z ./assets/js/7168.118e27a8.js
-2026-01-10T12:28:00.1102738Z ./assets/js/8259.b2f9fa55.js
-2026-01-10T12:28:00.1103094Z ./assets/js/4527.0baeb987.js
-2026-01-10T12:28:00.1103450Z ./assets/js/a94703ab.e2528f2c.js
-2026-01-10T12:28:00.1103830Z ./assets/js/7134.c784421b.js
-2026-01-10T12:28:00.1104181Z ./assets/js/779.ccea6c79.js
-2026-01-10T12:28:00.1104541Z ./assets/js/9095.d5da4d27.js
-2026-01-10T12:28:00.1105243Z ./assets/js/3507.9872d332.js
-2026-01-10T12:28:00.1105604Z ./assets/js/3904.3aab2287.js
-2026-01-10T12:28:00.1105965Z ./assets/js/7620.cb320674.js
-2026-01-10T12:28:00.1199649Z ./assets/js/2463.c38a7a0f.js
-2026-01-10T12:28:00.1200063Z ./assets/js/1a4e3797.c9a1614c.js
-2026-01-10T12:28:00.1200819Z ./assets/js/20d8c527.fd060072.js
-2026-01-10T12:28:00.1201272Z ./assets/js/9802.aec9c539.js
-2026-01-10T12:28:00.1201845Z ./assets/js/6b87c5d9.888cc03f.js
-2026-01-10T12:28:00.1202219Z ./assets/js/43961543.8a7d1b0e.js
-2026-01-10T12:28:00.1202581Z ./assets/js/8198.a86dd47f.js
-2026-01-10T12:28:00.1202949Z ./assets/js/dfd51a51.cb4a92a5.js
-2026-01-10T12:28:00.1203321Z ./assets/js/7087.8101bd5a.js
-2026-01-10T12:28:00.1204025Z ./assets/js/2b9850a8.1528cc30.js
-2026-01-10T12:28:00.1204414Z ./assets/js/9752.525dd66e.js
-2026-01-10T12:28:00.1204819Z ./assets/js/6912.f65b33b0.js
-2026-01-10T12:28:00.1205608Z ./assets/js/09960970.811c5182.js
-2026-01-10T12:28:00.1206081Z ./assets/js/7958.2ab750fc.js
-2026-01-10T12:28:00.1206386Z ./assets/js/1471d7e3.f7864171.js
-2026-01-10T12:28:00.1206887Z ./assets/js/2696.57f3bb37.js
-2026-01-10T12:28:00.1208063Z ./assets/js/9081.9d77fda9.js
-2026-01-10T12:28:00.1208429Z ./assets/js/7886ff75.4622720b.js
-2026-01-10T12:28:00.1208968Z ./assets/js/9535.b3091db0.js
-2026-01-10T12:28:00.1209333Z ./assets/js/455.f6e73998.js
-2026-01-10T12:28:00.1209706Z ./assets/js/runtime~main.b78fce16.js
-2026-01-10T12:28:00.1210129Z ./assets/js/1364.dd860c88.js
-2026-01-10T12:28:00.1210477Z ./assets/js/764.e5cf9cac.js
-2026-01-10T12:28:00.1210836Z ./assets/js/088c25a0.7a5a9506.js
-2026-01-10T12:28:00.1211210Z ./assets/js/9972.0b4cc184.js
-2026-01-10T12:28:00.1211575Z ./assets/js/8e1ea740.06b75ff2.js
-2026-01-10T12:28:00.1211954Z ./assets/js/9dd8a0d2.9fccc484.js
-2026-01-10T12:28:00.1212325Z ./assets/js/9633.9359d52c.js
-2026-01-10T12:28:00.1212665Z ./assets/js/6877.a944d49c.js
-2026-01-10T12:28:00.1213030Z ./assets/js/1444f22f.1f640c54.js
-2026-01-10T12:28:00.1213398Z ./assets/js/7014.9e85abcc.js
-2026-01-10T12:28:00.1213739Z ./assets/js/1910.8a257fc3.js
-2026-01-10T12:28:00.1214095Z ./assets/js/cb706853.dd8123f5.js
-2026-01-10T12:28:00.1214457Z ./assets/js/9526.db8047a9.js
-2026-01-10T12:28:00.1214817Z ./assets/js/538.9fcda81a.js
-2026-01-10T12:28:00.1215306Z ./assets/js/3433.20a40336.js
-2026-01-10T12:28:00.1215674Z ./assets/js/6905.9c3df8f7.js
-2026-01-10T12:28:00.1216014Z ./assets/js/8842.48b2db08.js
-2026-01-10T12:28:00.1216369Z ./assets/js/4890.2b2b2fb0.js
-2026-01-10T12:28:00.1216717Z ./assets/js/1209.55943e5b.js
-2026-01-10T12:28:00.1217057Z ./assets/js/7781.faa9af4b.js
-2026-01-10T12:28:00.1217434Z ./assets/js/2ea6743a.0b7c1729.js
-2026-01-10T12:28:00.1217803Z ./assets/js/3188.faae99f4.js
-2026-01-10T12:28:00.1218167Z ./assets/js/f59731df.50115b4c.js
-2026-01-10T12:28:00.1218530Z ./assets/js/3e088593.0995cc8f.js
-2026-01-10T12:28:00.1218890Z ./assets/js/9813.2149ba09.js
-2026-01-10T12:28:00.1219248Z ./assets/js/4bdc0de0.356dea61.js
-2026-01-10T12:28:00.1219622Z ./assets/js/e570d44c.a294d210.js
-2026-01-10T12:28:00.1219989Z ./assets/js/8582.523b03f0.js
-2026-01-10T12:28:00.1220337Z ./assets/js/a7456010.45e5a91b.js
-2026-01-10T12:28:00.1220708Z ./assets/js/8174.b61937c5.js
-2026-01-10T12:28:00.1221058Z ./assets/js/81494120.8e94db10.js
-2026-01-10T12:28:00.1221438Z ./assets/js/1f391b9e.eaf799db.js
-2026-01-10T12:28:00.1221829Z ./assets/js/2163.e8f6923f.js
-2026-01-10T12:28:00.1222176Z ./assets/js/9325.276959c8.js
-2026-01-10T12:28:00.1222523Z ./assets/js/922.c6692815.js
-2026-01-10T12:28:00.1222877Z ./assets/js/ab7043ca.7217c1dc.js
-2026-01-10T12:28:00.1223238Z ./assets/js/d4380c73.2d5ad5cc.js
-2026-01-10T12:28:00.1223603Z ./assets/js/417.01b9ea56.js
-2026-01-10T12:28:00.1223947Z ./assets/js/5431.a94547eb.js
-2026-01-10T12:28:00.1224288Z ./assets/js/5660.847a2ad5.js
-2026-01-10T12:28:00.1224639Z ./assets/js/0659c9a0.17a2a419.js
-2026-01-10T12:28:00.1225025Z ./assets/js/4b073ecd.7f3fc6ef.js
-2026-01-10T12:28:00.1225637Z ./assets/js/2ca84061.dfedc190.js
-2026-01-10T12:28:00.1226003Z ./assets/js/5483.ab5b940b.js
-2026-01-10T12:28:00.1226338Z ./assets/js/4538.8b797926.js
-2026-01-10T12:28:00.1226675Z ./assets/js/6294.4235d1e5.js
-2026-01-10T12:28:00.1227032Z ./assets/js/5f377498.fdca94e4.js
-2026-01-10T12:28:00.1227420Z ./assets/js/a2d420e2.a69c8e12.js
-2026-01-10T12:28:00.1227794Z ./assets/js/9646.cc60cc24.js
-2026-01-10T12:28:00.1228156Z ./assets/js/298.0db850bd.js
-2026-01-10T12:28:00.1228507Z ./assets/js/5bdf933f.7e9bedea.js
-2026-01-10T12:28:00.1229070Z ./assets/js/2245.38c85c92.js
-2026-01-10T12:28:00.1229427Z ./faq.html
-2026-01-10T12:28:00.1229713Z ./favicon.png
-2026-01-10T12:28:00.1229988Z ./logo/
-2026-01-10T12:28:00.1230245Z ./logo/dark.svg
-2026-01-10T12:28:00.1230536Z ./logo/dyte.svg
-2026-01-10T12:28:00.1230829Z ./logo/dyte_dark_logo.svg
-2026-01-10T12:28:00.1231171Z ./logo/light.svg
-2026-01-10T12:28:00.1231453Z ./guides/
-2026-01-10T12:28:00.1231731Z ./guides/webview/
-2026-01-10T12:28:00.1232047Z ./guides/webview/javascript.html
-2026-01-10T12:28:00.1232458Z ./guides/webview/navigation.html
-2026-01-10T12:28:00.1232817Z ./guides/events/
-2026-01-10T12:28:00.1233140Z ./guides/events/register-events.html
-2026-01-10T12:28:00.1233559Z ./guides/events/event-types.html
-2026-01-10T12:28:00.1233949Z ./guides/introduction.html
-2026-01-10T12:28:00.1234311Z ./guides/window-state/
-2026-01-10T12:28:00.1234663Z ./guides/window-state/maximize.html
-2026-01-10T12:28:00.1235421Z ./guides/window-state/always-on-top.html
-2026-01-10T12:28:00.1235911Z ./guides/window-state/minimize.html
-2026-01-10T12:28:00.1236323Z ./guides/reference/
-2026-01-10T12:28:00.1236659Z ./guides/reference/data-structures.html
-2026-01-10T12:28:00.1237105Z ./guides/reference/c-api.html
-2026-01-10T12:28:00.1238335Z ./guides/theme/
-2026-01-10T12:28:00.1238664Z ./guides/theme/backdrop.html
-2026-01-10T12:28:00.1239057Z ./guides/theme/set-theme.html
-2026-01-10T12:28:00.1239779Z ./guides/window-properties/
-2026-01-10T12:28:00.1240195Z ./guides/window-properties/position.html
-2026-01-10T12:28:00.1240671Z ./guides/window-properties/visibility.html
-2026-01-10T12:28:00.1241169Z ./guides/window-properties/title.html
-2026-01-10T12:28:00.1241691Z ./guides/window-properties/size.html
-2026-01-10T12:28:00.1242522Z ./guides/local-server/
-2026-01-10T12:28:00.1242901Z ./guides/local-server/create-server.html
-2026-01-10T12:28:00.1243504Z ./guides/core/
-2026-01-10T12:28:00.1243843Z ./guides/core/initialization.html
-2026-01-10T12:28:00.1244267Z ./guides/core/cleanup.html
-2026-01-10T12:28:00.1244958Z ./guides/core/message-loop.html
-2026-01-10T12:28:00.1245847Z ./guides/window-management/
-2026-01-10T12:28:00.1246273Z ./guides/window-management/event-handlers.html
-2026-01-10T12:28:00.1246819Z ./guides/window-management/custom-titlebar.html
-2026-01-10T12:28:00.1247371Z ./guides/window-management/close-window.html
-2026-01-10T12:28:00.1248109Z ./guides/window-management/create-window.html
-2026-01-10T12:28:00.1248996Z ./guides/ipc/
-2026-01-10T12:28:00.1249206Z ./guides/ipc/register-handler.html
-2026-01-10T12:28:00.1249736Z ./guides/ipc/send-message.html
-2026-01-10T12:28:00.1250250Z ./guides/webview2-installation.html
-2026-01-10T12:28:00.1250882Z ./guides/quickstart.html
-2026-01-10T12:28:00.1252900Z ./_redirects
-2026-01-10T12:28:00.1253262Z ./release-notes.html
-2026-01-10T12:28:00.1253595Z ./guides.html
-2026-01-10T12:28:00.1254105Z ./robots.txt
-2026-01-10T12:28:00.1254414Z ./easy-language-sdk/
-2026-01-10T12:28:00.1254787Z ./easy-language-sdk/introduction.html
-2026-01-10T12:28:00.1255419Z ./easy-language-sdk/reference/
-2026-01-10T12:28:00.1255863Z ./easy-language-sdk/reference/data-types.html
-2026-01-10T12:28:00.1256405Z ./easy-language-sdk/reference/public-methods.html
-2026-01-10T12:28:00.1256947Z ./easy-language-sdk/reference/constants.html
-2026-01-10T12:28:00.1257434Z ./easy-language-sdk/reference/methods.html
-2026-01-10T12:28:00.1258320Z ./easy-language-sdk/quickstart.html
-2026-01-10T12:28:00.1258948Z ./favicon.ico
-2026-01-10T12:28:00.1259313Z ./search.html
-2026-01-10T12:28:00.1259675Z ./sitemap.xml
-2026-01-10T12:28:00.1259966Z ./python-sdk.html
-2026-01-10T12:28:00.1260535Z ./404.html
-2026-01-10T12:28:00.1260904Z ./python-sdk/
-2026-01-10T12:28:00.1261234Z ./python-sdk/packaging.html
-2026-01-10T12:28:00.1262164Z ./python-sdk/reference/
-2026-01-10T12:28:00.1262543Z ./python-sdk/reference/methods.html
-2026-01-10T12:28:00.1265290Z ./python-sdk/quickstart.html
-2026-01-10T12:28:00.1270559Z ##[endgroup]
-2026-01-10T12:28:00.1343816Z ##[group]Run actions/upload-artifact@v4
-2026-01-10T12:28:00.1344067Z with:
-2026-01-10T12:28:00.1344375Z   name: github-pages
-2026-01-10T12:28:00.1344588Z   path: /home/runner/work/_temp/artifact.tar
-2026-01-10T12:28:00.1344841Z   retention-days: 1
-2026-01-10T12:28:00.1345026Z   if-no-files-found: error
-2026-01-10T12:28:00.1345470Z   compression-level: 6
-2026-01-10T12:28:00.1345652Z   overwrite: false
-2026-01-10T12:28:00.1345836Z   include-hidden-files: false
-2026-01-10T12:28:00.1346034Z env:
-2026-01-10T12:28:00.1346190Z   GITHUB_PAGES: true
-2026-01-10T12:28:00.1346361Z ##[endgroup]
-2026-01-10T12:28:00.3638248Z With the provided path, there will be 1 file uploaded
-2026-01-10T12:28:00.3643257Z Artifact name is valid!
-2026-01-10T12:28:00.3645367Z Root directory input is valid!
-2026-01-10T12:28:00.4875362Z Beginning upload of artifact content to blob storage
-2026-01-10T12:28:01.1978138Z Uploaded bytes 8388608
-2026-01-10T12:28:01.5196752Z Uploaded bytes 16777216
-2026-01-10T12:28:01.5793418Z Uploaded bytes 25165824
-2026-01-10T12:28:01.8420667Z Uploaded bytes 33554432
-2026-01-10T12:28:02.1663645Z Uploaded bytes 41943040
-2026-01-10T12:28:02.5621448Z Uploaded bytes 46832111
-2026-01-10T12:28:02.5921417Z Finished uploading artifact content to blob storage!
-2026-01-10T12:28:02.5925487Z SHA256 digest of uploaded artifact zip is 51e62273135ca8b6abb16452323fcc1b366a52039149b2f159f0513f9c0430d8
-2026-01-10T12:28:02.5927413Z Finalizing artifact upload
-2026-01-10T12:28:02.6867006Z Artifact github-pages.zip successfully finalized. Artifact ID 5084991401
-2026-01-10T12:28:02.6868376Z Artifact github-pages has been successfully uploaded! Final size is 46832111 bytes. Artifact ID is 5084991401
-2026-01-10T12:28:02.6876274Z Artifact download URL: https://github.com/JadeViewDocs/docs/actions/runs/20878298166/artifacts/5084991401
-2026-01-10T12:28:02.7113121Z ##[group]Run actions/deploy-pages@v4
-2026-01-10T12:28:02.7113391Z with:
-2026-01-10T12:28:02.7113669Z   token: ***
-2026-01-10T12:28:02.7113850Z   timeout: 600000
-2026-01-10T12:28:02.7114032Z   error_count: 10
-2026-01-10T12:28:02.7114207Z   reporting_interval: 5000
-2026-01-10T12:28:02.7114441Z   artifact_name: github-pages
-2026-01-10T12:28:02.7114655Z   preview: false
-2026-01-10T12:28:02.7114821Z env:
-2026-01-10T12:28:02.7114980Z   GITHUB_PAGES: true
-2026-01-10T12:28:02.7115330Z ##[endgroup]
-2026-01-10T12:28:03.0921028Z Fetching artifact metadata for "github-pages" in this workflow run
-2026-01-10T12:28:03.2044513Z Found 1 artifact(s)
-2026-01-10T12:28:03.2059532Z Creating Pages deployment with payload:
-2026-01-10T12:28:03.2060129Z {
-2026-01-10T12:28:03.2060496Z 	"artifact_id": 5084991401,
-2026-01-10T12:28:03.2061059Z 	"pages_build_version": "2b399ec744688fe92f52ade73f01f0a5873e0d1b",
-2026-01-10T12:28:03.2100171Z 	"oidc_token": "***"
-2026-01-10T12:28:03.2100519Z }
-2026-01-10T12:28:03.5038384Z Created deployment for 2b399ec744688fe92f52ade73f01f0a5873e0d1b, ID: 2b399ec744688fe92f52ade73f01f0a5873e0d1b
-2026-01-10T12:28:08.5061757Z Getting Pages deployment status...
-2026-01-10T12:28:08.6530394Z Reported success!
-2026-01-10T12:28:08.6722749Z Post job cleanup.
-2026-01-10T12:28:08.8690358Z Post job cleanup.
-2026-01-10T12:28:08.9671253Z [command]/usr/bin/git version
-2026-01-10T12:28:08.9711901Z git version 2.52.0
-2026-01-10T12:28:08.9758593Z Temporarily overriding HOME='/home/runner/work/_temp/4827bcb7-259e-4589-8130-88bb2b5331a7' before making global git config changes
-2026-01-10T12:28:08.9759655Z Adding repository directory to the temporary git global config as a safe directory
-2026-01-10T12:28:08.9773333Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/docs/docs
-2026-01-10T12:28:08.9815592Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-01-10T12:28:08.9852191Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-01-10T12:28:09.0093040Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-01-10T12:28:09.0118560Z http.https://github.com/.extraheader
-2026-01-10T12:28:09.0132051Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
-2026-01-10T12:28:09.0165688Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-01-10T12:28:09.0399449Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-01-10T12:28:09.0433365Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-01-10T12:28:09.0789948Z Evaluate and set environment url
-2026-01-10T12:28:09.0793659Z Evaluated environment url: https://jade.run/
-2026-01-10T12:28:09.0794509Z Cleaning up orphan processes
+﻿2026-01-10T12:43:32.8414786Z Current runner version: '2.330.0'
+2026-01-10T12:43:32.8440376Z ##[group]Runner Image Provisioner
+2026-01-10T12:43:32.8441194Z Hosted Compute Agent
+2026-01-10T12:43:32.8441711Z Version: 20251211.462
+2026-01-10T12:43:32.8442418Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
+2026-01-10T12:43:32.8443116Z Build Date: 2025-12-11T16:28:49Z
+2026-01-10T12:43:32.8443771Z Worker ID: {798d8111-23bf-4319-99d4-198cbce5a1bf}
+2026-01-10T12:43:32.8444792Z ##[endgroup]
+2026-01-10T12:43:32.8445300Z ##[group]Operating System
+2026-01-10T12:43:32.8445867Z Ubuntu
+2026-01-10T12:43:32.8446335Z 24.04.3
+2026-01-10T12:43:32.8446980Z LTS
+2026-01-10T12:43:32.8447407Z ##[endgroup]
+2026-01-10T12:43:32.8447935Z ##[group]Runner Image
+2026-01-10T12:43:32.8448458Z Image: ubuntu-24.04
+2026-01-10T12:43:32.8448988Z Version: 20260105.202.1
+2026-01-10T12:43:32.8450042Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260105.202/images/ubuntu/Ubuntu2404-Readme.md
+2026-01-10T12:43:32.8451610Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260105.202
+2026-01-10T12:43:32.8452600Z ##[endgroup]
+2026-01-10T12:43:32.8453672Z ##[group]GITHUB_TOKEN Permissions
+2026-01-10T12:43:32.8456036Z Contents: read
+2026-01-10T12:43:32.8456848Z Metadata: read
+2026-01-10T12:43:32.8457339Z Pages: write
+2026-01-10T12:43:32.8457814Z ##[endgroup]
+2026-01-10T12:43:32.8459993Z Secret source: Actions
+2026-01-10T12:43:32.8461184Z Prepare workflow directory
+2026-01-10T12:43:32.8805826Z Prepare all required actions
+2026-01-10T12:43:32.8846362Z Getting action download info
+2026-01-10T12:43:33.2945139Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-01-10T12:43:33.4040251Z Download action repository 'oven-sh/setup-bun@v2' (SHA:b7a1c7ccf290d58743029c4f6903da283811b979)
+2026-01-10T12:43:33.7910057Z Download action repository 'actions/configure-pages@v5' (SHA:983d7736d9b0ae728b81ab479565c72886d7745b)
+2026-01-10T12:43:34.1105519Z Download action repository 'actions/upload-pages-artifact@v3' (SHA:56afc609e74202658d3ffba0e8f6dda462b719fa)
+2026-01-10T12:43:34.3573957Z Download action repository 'actions/deploy-pages@v4' (SHA:d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e)
+2026-01-10T12:43:34.8961727Z Getting action download info
+2026-01-10T12:43:35.0228555Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-01-10T12:43:35.1896292Z Complete job name: build
+2026-01-10T12:43:35.2768689Z ##[group]Run actions/checkout@v4
+2026-01-10T12:43:35.2769980Z with:
+2026-01-10T12:43:35.2770687Z   fetch-depth: 0
+2026-01-10T12:43:35.2771517Z   repository: JadeViewDocs/docs
+2026-01-10T12:43:35.2772726Z   token: ***
+2026-01-10T12:43:35.2773528Z   ssh-strict: true
+2026-01-10T12:43:35.2774293Z   ssh-user: git
+2026-01-10T12:43:35.2775084Z   persist-credentials: true
+2026-01-10T12:43:35.2775949Z   clean: true
+2026-01-10T12:43:35.2776873Z   sparse-checkout-cone-mode: true
+2026-01-10T12:43:35.2777835Z   fetch-tags: false
+2026-01-10T12:43:35.2778622Z   show-progress: true
+2026-01-10T12:43:35.2779450Z   lfs: false
+2026-01-10T12:43:35.2780172Z   submodules: false
+2026-01-10T12:43:35.2780970Z   set-safe-directory: true
+2026-01-10T12:43:35.2782098Z ##[endgroup]
+2026-01-10T12:43:35.3947297Z Syncing repository: JadeViewDocs/docs
+2026-01-10T12:43:35.3951050Z ##[group]Getting Git version info
+2026-01-10T12:43:35.3952671Z Working directory is '/home/runner/work/docs/docs'
+2026-01-10T12:43:35.3955061Z [command]/usr/bin/git version
+2026-01-10T12:43:35.4004872Z git version 2.52.0
+2026-01-10T12:43:35.4033318Z ##[endgroup]
+2026-01-10T12:43:35.4050465Z Temporarily overriding HOME='/home/runner/work/_temp/9fdb4462-eb4b-4b90-a965-3eaeee871e66' before making global git config changes
+2026-01-10T12:43:35.4055005Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-10T12:43:35.4058683Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/docs/docs
+2026-01-10T12:43:35.4101570Z Deleting the contents of '/home/runner/work/docs/docs'
+2026-01-10T12:43:35.4105282Z ##[group]Initializing the repository
+2026-01-10T12:43:35.4109402Z [command]/usr/bin/git init /home/runner/work/docs/docs
+2026-01-10T12:43:35.4214994Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-01-10T12:43:35.4218292Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-01-10T12:43:35.4221087Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-01-10T12:43:35.4222469Z hint: call:
+2026-01-10T12:43:35.4223153Z hint:
+2026-01-10T12:43:35.4224075Z hint: 	git config --global init.defaultBranch <name>
+2026-01-10T12:43:35.4225578Z hint:
+2026-01-10T12:43:35.4227047Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-01-10T12:43:35.4228902Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-01-10T12:43:35.4230375Z hint:
+2026-01-10T12:43:35.4231323Z hint: 	git branch -m <name>
+2026-01-10T12:43:35.4232546Z hint:
+2026-01-10T12:43:35.4233698Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-01-10T12:43:35.4235492Z Initialized empty Git repository in /home/runner/work/docs/docs/.git/
+2026-01-10T12:43:35.4238586Z [command]/usr/bin/git remote add origin https://github.com/JadeViewDocs/docs
+2026-01-10T12:43:35.4280820Z ##[endgroup]
+2026-01-10T12:43:35.4282366Z ##[group]Disabling automatic garbage collection
+2026-01-10T12:43:35.4284118Z [command]/usr/bin/git config --local gc.auto 0
+2026-01-10T12:43:35.4315368Z ##[endgroup]
+2026-01-10T12:43:35.4316596Z ##[group]Setting up auth
+2026-01-10T12:43:35.4322832Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-01-10T12:43:35.4357037Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-01-10T12:43:35.4745747Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-10T12:43:35.4780200Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-01-10T12:43:35.5022068Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-10T12:43:35.5058604Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-01-10T12:43:35.5294004Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-01-10T12:43:35.5330680Z ##[endgroup]
+2026-01-10T12:43:35.5332965Z ##[group]Fetching the repository
+2026-01-10T12:43:35.5341867Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-01-10T12:43:36.5964889Z From https://github.com/JadeViewDocs/docs
+2026-01-10T12:43:36.5966377Z  * [new branch]      main       -> origin/main
+2026-01-10T12:43:36.6006846Z [command]/usr/bin/git branch --list --remote origin/main
+2026-01-10T12:43:36.6031217Z   origin/main
+2026-01-10T12:43:36.6039702Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-01-10T12:43:36.6061048Z b1aa637e42f7e6d02df66f4e29a3ef65673eea83
+2026-01-10T12:43:36.6065302Z ##[endgroup]
+2026-01-10T12:43:36.6065987Z ##[group]Determining the checkout info
+2026-01-10T12:43:36.6066888Z ##[endgroup]
+2026-01-10T12:43:36.6071177Z [command]/usr/bin/git sparse-checkout disable
+2026-01-10T12:43:36.6110756Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-01-10T12:43:36.6136195Z ##[group]Checking out the ref
+2026-01-10T12:43:36.6140757Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-01-10T12:43:36.8617960Z Switched to a new branch 'main'
+2026-01-10T12:43:36.8619259Z branch 'main' set up to track 'origin/main'.
+2026-01-10T12:43:36.8642426Z ##[endgroup]
+2026-01-10T12:43:36.8684670Z [command]/usr/bin/git log -1 --format=%H
+2026-01-10T12:43:36.8709020Z b1aa637e42f7e6d02df66f4e29a3ef65673eea83
+2026-01-10T12:43:36.8985072Z ##[group]Run oven-sh/setup-bun@v2
+2026-01-10T12:43:36.8985416Z with:
+2026-01-10T12:43:36.8985633Z   bun-version: latest
+2026-01-10T12:43:36.8985868Z   no-cache: false
+2026-01-10T12:43:36.8986081Z ##[endgroup]
+2026-01-10T12:43:37.1164266Z Downloading a new version of Bun: https://bun.sh/download/latest/linux/x64?avx2=true&profile=false
+2026-01-10T12:43:37.8159373Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/5308cc70-6f4a-44b9-80e8-49ad0d326d1d.zip
+2026-01-10T12:43:38.5774353Z [command]/home/runner/.bun/bin/bun --revision
+2026-01-10T12:43:38.5813891Z 1.3.5+1e86cebd7
+2026-01-10T12:43:38.5942221Z ##[group]Run bun install
+2026-01-10T12:43:38.5942528Z [36;1mbun install[0m
+2026-01-10T12:43:38.5979018Z shell: /usr/bin/bash -e {0}
+2026-01-10T12:43:38.5979282Z ##[endgroup]
+2026-01-10T12:43:38.6072876Z bun install v1.3.5 (1e86cebd)
+2026-01-10T12:43:43.2830257Z 
+2026-01-10T12:43:43.2835055Z $ patch-package
+2026-01-10T12:43:45.4488980Z patch-package 6.5.1
+2026-01-10T12:43:45.4493187Z Applying patches...
+2026-01-10T12:43:45.4863465Z @stoplight/elements@8.0.2 ✔
+2026-01-10T12:43:45.4929251Z @stoplight/elements-core@8.0.2 ✔
+2026-01-10T12:43:45.4930405Z 
+2026-01-10T12:43:45.4931706Z Warning: patch-package detected a patch file version mismatch
+2026-01-10T12:43:45.4932189Z 
+2026-01-10T12:43:45.4932506Z   Don't worry! This is probably fine. The patch was still applied
+2026-01-10T12:43:45.4933108Z   successfully. Here's the deets:
+2026-01-10T12:43:45.4933404Z 
+2026-01-10T12:43:45.4933577Z   Patch file created for
+2026-01-10T12:43:45.4933819Z 
+2026-01-10T12:43:45.4934066Z     @stoplight/elements-core@8.0.2
+2026-01-10T12:43:45.4934358Z 
+2026-01-10T12:43:45.4934485Z   applied to
+2026-01-10T12:43:45.4934672Z 
+2026-01-10T12:43:45.4934824Z     @stoplight/elements-core@8.0.5
+2026-01-10T12:43:45.4935210Z   
+2026-01-10T12:43:45.4935479Z   At path
+2026-01-10T12:43:45.4935814Z   
+2026-01-10T12:43:45.4936119Z     node_modules/@stoplight/elements-core
+2026-01-10T12:43:45.4936452Z 
+2026-01-10T12:43:45.4937062Z   This warning is just to give you a heads-up. There is a small chance of
+2026-01-10T12:43:45.4937939Z   breakage even though the patch was applied successfully. Make sure the package
+2026-01-10T12:43:45.4938817Z   still behaves like you expect (you wrote tests, right?) and then run
+2026-01-10T12:43:45.4939318Z 
+2026-01-10T12:43:45.4939497Z     patch-package @stoplight/elements-core
+2026-01-10T12:43:45.4939843Z 
+2026-01-10T12:43:45.4940173Z   to update the version in the patch file name and make this warning go away.
+2026-01-10T12:43:45.4940692Z 
+2026-01-10T12:43:45.4940848Z ---
+2026-01-10T12:43:45.4941229Z patch-package finished with 1 warning(s).
+2026-01-10T12:43:45.4981385Z 
+2026-01-10T12:43:45.4981576Z + @docusaurus/tsconfig@3.7.0
+2026-01-10T12:43:45.4982036Z + @styled-icons/boxicons-logos@10.47.0
+2026-01-10T12:43:45.4982466Z + @swc/core@1.10.11
+2026-01-10T12:43:45.4982881Z + @typescript-eslint/eslint-plugin@5.56.0
+2026-01-10T12:43:45.4983382Z + @typescript-eslint/parser@5.56.0
+2026-01-10T12:43:45.4983822Z + autoprefixer@10.4.20
+2026-01-10T12:43:45.4984163Z + buffer@6.0.3
+2026-01-10T12:43:45.4984518Z + docusaurus-plugin-typedoc@0.18.0
+2026-01-10T12:43:45.4984935Z + eslint@8.36.0
+2026-01-10T12:43:45.4985285Z + eslint-config-prettier@8.8.0
+2026-01-10T12:43:45.4985724Z + eslint-plugin-prettier@4.2.1
+2026-01-10T12:43:45.4986122Z + gray-matter@4.0.3
+2026-01-10T12:43:45.4986440Z + js-yaml@4.1.0
+2026-01-10T12:43:45.4987018Z + pascal-case@3.1.2
+2026-01-10T12:43:45.4987373Z + path-browserify@1.0.1
+2026-01-10T12:43:45.4987733Z + postcss@8.5.1
+2026-01-10T12:43:45.4988057Z + prettier@3.4.2
+2026-01-10T12:43:45.4988462Z + prettier-plugin-tailwindcss@0.6.11
+2026-01-10T12:43:45.4988918Z + process@0.11.10
+2026-01-10T12:43:45.4989250Z + react-markdown@8.0.7
+2026-01-10T12:43:45.4989635Z + stream-browserify@3.0.0
+2026-01-10T12:43:45.4990000Z + swc-loader@0.2.6
+2026-01-10T12:43:45.4990675Z + tailwindcss@3.4.17
+2026-01-10T12:43:45.4991010Z + typedoc@0.23.28
+2026-01-10T12:43:45.4991350Z + typedoc-plugin-markdown@3.14.0
+2026-01-10T12:43:45.4991950Z + typescript@5.0.2
+2026-01-10T12:43:45.4992262Z + url@0.11.4
+2026-01-10T12:43:45.4992591Z + @codesandbox/sandpack-react@2.13.5
+2026-01-10T12:43:45.4993048Z + @codesandbox/sandpack-themes@2.0.21
+2026-01-10T12:43:45.4993493Z + @docsly/react@1.8.6
+2026-01-10T12:43:45.4993909Z + @docusaurus/core@3.7.0
+2026-01-10T12:43:45.4994273Z + @docusaurus/faster@3.7.0
+2026-01-10T12:43:45.4994674Z + @docusaurus/module-type-aliases@3.7.0
+2026-01-10T12:43:45.4995216Z + @docusaurus/plugin-client-redirects@3.7.0
+2026-01-10T12:43:45.4995712Z + @docusaurus/preset-classic@3.7.0
+2026-01-10T12:43:45.4996543Z + @docusaurus/remark-plugin-npm2yarn@3.7.0
+2026-01-10T12:43:45.4997327Z + @docusaurus/theme-live-codeblock@3.7.0
+2026-01-10T12:43:45.4997817Z + @docusaurus/theme-mermaid@3.7.0
+2026-01-10T12:43:45.4998280Z + @docusaurus/theme-search-algolia@3.9.2
+2026-01-10T12:43:45.4998750Z + @dytesdk/react-ui-kit@1.66.0
+2026-01-10T12:43:45.4999414Z + @dytesdk/react-web-core@modules/dytesdk-react-web-core-1.36.4-stripped.1.tgz
+2026-01-10T12:43:45.5000307Z + @dytesdk/web-core@modules/dytesdk-web-core-1.31.0-stripped.1.tgz
+2026-01-10T12:43:45.5000954Z + @easyops-cn/docusaurus-search-local@0.52.2
+2026-01-10T12:43:45.5001502Z + @fluentui/react-icons@2.0.271
+2026-01-10T12:43:45.5001908Z + @headlessui/react@1.7.18
+2026-01-10T12:43:45.5002297Z + @radix-ui/react-select@2.1.5
+2026-01-10T12:43:45.5002696Z + @stoplight/elements@8.0.2
+2026-01-10T12:43:45.5003057Z + algoliasearch@5.46.2
+2026-01-10T12:43:45.5003387Z + antd@6.1.4
+2026-01-10T12:43:45.5003662Z + clsx@2.1.1
+2026-01-10T12:43:45.5003944Z + nanoid@5.0.6
+2026-01-10T12:43:45.5004243Z + param-case@3.0.4
+2026-01-10T12:43:45.5004571Z + patch-package@6.5.1
+2026-01-10T12:43:45.5004919Z + prism-react-renderer@2.3.1
+2026-01-10T12:43:45.5005288Z + raw-loader@4.0.2
+2026-01-10T12:43:45.5005591Z + react@18.2.0
+2026-01-10T12:43:45.5005894Z + react-dom@18.2.0
+2026-01-10T12:43:45.5006212Z + react-feather@2.0.10
+2026-01-10T12:43:45.5006616Z + reactflow@11.10.4
+2026-01-10T12:43:45.5007155Z + zustand@4.5.2
+2026-01-10T12:43:45.5007352Z 
+2026-01-10T12:43:45.5007503Z 2111 packages installed [6.89s]
+2026-01-10T12:43:45.5407504Z ##[group]Run bun run update-changelog
+2026-01-10T12:43:45.5407853Z [36;1mbun run update-changelog[0m
+2026-01-10T12:43:45.5442826Z shell: /usr/bin/bash -e {0}
+2026-01-10T12:43:45.5443063Z ##[endgroup]
+2026-01-10T12:43:45.5513719Z $ node scripts/update-changelog.mjs
+2026-01-10T12:43:45.6103025Z 正在从 GitHub 获取发布信息...
+2026-01-10T12:43:45.9632903Z 成功获取 3 个发布版本
+2026-01-10T12:43:46.0232815Z 更新日志已成功更新到 /home/runner/work/docs/docs/docs/spec/changelog/index.mdx
+2026-01-10T12:43:46.0311288Z ##[group]Run bun run build
+2026-01-10T12:43:46.0311539Z [36;1mbun run build[0m
+2026-01-10T12:43:46.0344120Z shell: /usr/bin/bash -e {0}
+2026-01-10T12:43:46.0344353Z ##[endgroup]
+2026-01-10T12:43:46.0415486Z $ docusaurus build
+2026-01-10T12:43:47.5624400Z [INFO] [zh] Creating an optimized production build...
+2026-01-10T12:43:48.5419585Z Browserslist: browsers data (caniuse-lite) is 13 months old. Please run:
+2026-01-10T12:43:48.5420273Z   npx update-browserslist-db@latest
+2026-01-10T12:43:48.5420963Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2026-01-10T12:43:48.8048924Z Browserslist: caniuse-lite is outdated. Please run:
+2026-01-10T12:43:48.8050414Z   npx update-browserslist-db@latest
+2026-01-10T12:43:48.8052662Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2026-01-10T12:43:59.8162173Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6448:31\n","compilerPath":"client"}
+2026-01-10T12:43:59.8163734Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6452:31\n","compilerPath":"client"}
+2026-01-10T12:43:59.8165577Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6459:55\n","compilerPath":"client"}
+2026-01-10T12:43:59.8167207Z [WARNING] {"message":"  ⚠ 'global' is not recognized as a valid pseudo-class. Did you mean '::global' (pseudo-element) or is this a typo? at assets/css/styles.a4af7636.css:6476:33\n","compilerPath":"client"}
+2026-01-10T12:44:01.5707697Z [SUCCESS] Generated static files in "build".
+2026-01-10T12:44:01.5708587Z [INFO] Use `npm run serve` command to test your build locally.
+2026-01-10T12:44:01.9104298Z ##[group]Run actions/configure-pages@v5
+2026-01-10T12:44:01.9104566Z with:
+2026-01-10T12:44:01.9104830Z   token: ***
+2026-01-10T12:44:01.9105004Z   enablement: false
+2026-01-10T12:44:01.9105179Z ##[endgroup]
+2026-01-10T12:44:02.2784000Z ##[group]Run actions/upload-pages-artifact@v3
+2026-01-10T12:44:02.2784314Z with:
+2026-01-10T12:44:02.2784483Z   path: ./build
+2026-01-10T12:44:02.2784728Z   name: github-pages
+2026-01-10T12:44:02.2784918Z   retention-days: 1
+2026-01-10T12:44:02.2785086Z env:
+2026-01-10T12:44:02.2785242Z   GITHUB_PAGES: true
+2026-01-10T12:44:02.2785422Z ##[endgroup]
+2026-01-10T12:44:02.2869362Z ##[group]Run echo ::group::Archive artifact
+2026-01-10T12:44:02.2869665Z [36;1mecho ::group::Archive artifact[0m
+2026-01-10T12:44:02.2869897Z [36;1mtar \[0m
+2026-01-10T12:44:02.2870120Z [36;1m  --dereference --hard-dereference \[0m
+2026-01-10T12:44:02.2870410Z [36;1m  --directory "$INPUT_PATH" \[0m
+2026-01-10T12:44:02.2870675Z [36;1m  -cvf "$RUNNER_TEMP/artifact.tar" \[0m
+2026-01-10T12:44:02.2870933Z [36;1m  --exclude=.git \[0m
+2026-01-10T12:44:02.2871144Z [36;1m  --exclude=.github \[0m
+2026-01-10T12:44:02.2871352Z [36;1m  .[0m
+2026-01-10T12:44:02.2871521Z [36;1mecho ::endgroup::[0m
+2026-01-10T12:44:02.3719700Z shell: /usr/bin/sh -e {0}
+2026-01-10T12:44:02.3720003Z env:
+2026-01-10T12:44:02.3720237Z   GITHUB_PAGES: true
+2026-01-10T12:44:02.3720502Z   INPUT_PATH: ./build
+2026-01-10T12:44:02.3720769Z ##[endgroup]
+2026-01-10T12:44:02.3788499Z ##[group]Archive artifact
+2026-01-10T12:44:02.3801486Z ./
+2026-01-10T12:44:02.3801770Z ./web-sdk/
+2026-01-10T12:44:02.3802049Z ./web-sdk/reference/
+2026-01-10T12:44:02.3802421Z ./web-sdk/reference/methods.html
+2026-01-10T12:44:02.3803156Z ./web-sdk/quickstart.html
+2026-01-10T12:44:02.3804409Z ./release-notes/
+2026-01-10T12:44:02.3804741Z ./release-notes/web-core.json
+2026-01-10T12:44:02.3805125Z ./release-notes/flutter-core.json
+2026-01-10T12:44:02.3805556Z ./release-notes/iOS-ui-kit.json
+2026-01-10T12:44:02.3805937Z ./release-notes/android-ui-kit.json
+2026-01-10T12:44:02.3806341Z ./release-notes/rest-api.json
+2026-01-10T12:44:02.3806904Z ./release-notes/react-web-core.json
+2026-01-10T12:44:02.3807341Z ./release-notes/react-native-ui-kit.json
+2026-01-10T12:44:02.3807794Z ./release-notes/iOS-core.json
+2026-01-10T12:44:02.3808164Z ./release-notes/android-core.json
+2026-01-10T12:44:02.3808571Z ./release-notes/rest-api.html
+2026-01-10T12:44:02.3808941Z ./release-notes/flutter-ui-kit.json
+2026-01-10T12:44:02.3809331Z ./release-notes/ui-kit.json
+2026-01-10T12:44:02.3809698Z ./release-notes/react-native-core.json
+2026-01-10T12:44:02.3810089Z ./spec.html
+2026-01-10T12:44:02.3810370Z ./easy-language-sdk.html
+2026-01-10T12:44:02.3810685Z ./.nojekyll
+2026-01-10T12:44:02.3810938Z ./spec/
+2026-01-10T12:44:02.3811220Z ./spec/javascript-execution.html
+2026-01-10T12:44:02.3811616Z ./spec/local-web-resources.html
+2026-01-10T12:44:02.3811994Z ./spec/ipc-communication.html
+2026-01-10T12:44:02.3813085Z ./spec/changelog.html
+2026-01-10T12:44:02.3813515Z ./spec/release-behavior.html
+2026-01-10T12:44:02.3814216Z ./img/
+2026-01-10T12:44:02.3814484Z ./img/gdpr_docs.png
+2026-01-10T12:44:02.3814802Z ./img/dyte-docs-card.png
+2026-01-10T12:44:02.3815448Z ./img/soc-compliant-1.png
+2026-01-10T12:44:02.3815789Z ./img/vector.png
+2026-01-10T12:44:02.3816078Z ./getting-started.html
+2026-01-10T12:44:02.3816625Z ./index.html
+2026-01-10T12:44:02.3817299Z ./opensearch.xml
+2026-01-10T12:44:02.3817682Z ./static/
+2026-01-10T12:44:02.3818096Z ./static/voice-conf/
+2026-01-10T12:44:02.3818418Z ./static/voice-conf/savepreset.png
+2026-01-10T12:44:02.3820150Z ./static/react/
+2026-01-10T12:44:02.3820489Z ./static/react/preset-edit-name.png
+2026-01-10T12:44:02.3821270Z ./static/react/ui-customizations/
+2026-01-10T12:44:02.3821773Z ./static/react/ui-customizations/control-bar-elements.mp4
+2026-01-10T12:44:02.3824376Z ./static/react/ui-customizations/themes.mp4
+2026-01-10T12:44:02.3825808Z ./static/react/ui-customizations/header.mp4
+2026-01-10T12:44:02.3828468Z ./static/react/ui-customizations/control-bar.mp4
+2026-01-10T12:44:02.3831306Z ./static/react/ui-customizations/meeting-ui.png
+2026-01-10T12:44:02.3831957Z ./static/react/ui-customizations/header-elements.mp4
+2026-01-10T12:44:02.3834353Z ./static/react/react-control-bar.png
+2026-01-10T12:44:02.3834804Z ./static/react/react-context-menu.png
+2026-01-10T12:44:02.3835217Z ./static/errorcodes/
+2026-01-10T12:44:02.3835551Z ./static/errorcodes/chat-perms.png
+2026-01-10T12:44:02.3836396Z ./static/faq/
+2026-01-10T12:44:02.3836842Z ./static/faq/create-meeting.png
+2026-01-10T12:44:02.3837278Z ./static/rn-ui-kit/
+2026-01-10T12:44:02.3837844Z ./static/rn-ui-kit/images/
+2026-01-10T12:44:02.3838211Z ./static/rn-ui-kit/images/DyteAvatar.png
+2026-01-10T12:44:02.3838863Z ./static/rn-ui-kit/images/DyteGridPagination.png
+2026-01-10T12:44:02.3839751Z ./static/rn-ui-kit/images/DyteChatToggle.png
+2026-01-10T12:44:02.3840571Z ./static/rn-ui-kit/images/DyteIcon.png
+2026-01-10T12:44:02.3841437Z ./static/rn-ui-kit/images/DyteImageMessage.png
+2026-01-10T12:44:02.3849420Z ./static/rn-ui-kit/images/DyteCameraToggle-On.png
+2026-01-10T12:44:02.3850019Z ./static/rn-ui-kit/images/DyteMicToggle-Off.png
+2026-01-10T12:44:02.3850955Z ./static/rn-ui-kit/images/DyteImageViewer.png
+2026-01-10T12:44:02.3858052Z ./static/rn-ui-kit/images/DyteChat.png
+2026-01-10T12:44:02.3858744Z ./static/rn-ui-kit/images/DyteHeader.png
+2026-01-10T12:44:02.3859806Z ./static/rn-ui-kit/images/DyteCameraToggle-Off.png
+2026-01-10T12:44:02.3860495Z ./static/rn-ui-kit/images/DyteButton-Example.png
+2026-01-10T12:44:02.3861460Z ./static/rn-ui-kit/images/DyteControlbar.png
+2026-01-10T12:44:02.3862269Z ./static/rn-ui-kit/images/DyteButton.png
+2026-01-10T12:44:02.3863274Z ./static/rn-ui-kit/images/DyteEndedScreen.png
+2026-01-10T12:44:02.3864066Z ./static/rn-ui-kit/images/DyteMicToggle-On.png
+2026-01-10T12:44:02.3864818Z ./static/rn-ui-kit/images/DyteControlBarButton.png
+2026-01-10T12:44:02.3865850Z ./static/rn-ui-kit/images/DyteGrid.png
+2026-01-10T12:44:02.3867143Z ./static/rn-ui-kit/images/DyteImageViewer-Chat.png
+2026-01-10T12:44:02.3870508Z ./static/rn-ui-kit/images/DyteFileMessage.png
+2026-01-10T12:44:02.3871168Z ./static/rn-ui-kit/images/DyteClock.png
+2026-01-10T12:44:02.3872170Z ./static/rn-ui-kit/images/DyteIdleScreen.png
+2026-01-10T12:44:02.3872992Z ./static/video-conf/
+2026-01-10T12:44:02.3873324Z ./static/video-conf/savepreset.png
+2026-01-10T12:44:02.3874772Z ./static/webhook/
+2026-01-10T12:44:02.3875072Z ./static/webhook/webhook_id.png
+2026-01-10T12:44:02.3877840Z ./static/android-ui-kit/
+2026-01-10T12:44:02.3878222Z ./static/android-ui-kit/plugins-list.png
+2026-01-10T12:44:02.3879940Z ./static/android-ui-kit/use-plugin.png
+2026-01-10T12:44:02.3880930Z ./static/android-ui-kit/render-participant-videos/
+2026-01-10T12:44:02.3881668Z ./static/android-ui-kit/render-participant-videos/render-videos-custom-ui-impl.png
+2026-01-10T12:44:02.3883062Z ./static/android-ui-kit/render-participant-videos/render-videos-example-ui-wireframe.png
+2026-01-10T12:44:02.3884023Z ./static/android-ui-kit/render-participant-videos/render-videos-dytegrid.png
+2026-01-10T12:44:02.3886074Z ./static/android-ui-kit/participants-list.png
+2026-01-10T12:44:02.3887081Z ./static/android-ui-kit/plugin-screen.png
+2026-01-10T12:44:02.3888578Z ./static/android-ui-kit/host-controls.png
+2026-01-10T12:44:02.3889430Z ./static/android-ui-kit/chat/
+2026-01-10T12:44:02.3889948Z ./static/android-ui-kit/chat/chat-prebuilt-screen-messages.png
+2026-01-10T12:44:02.3895175Z ./static/android-ui-kit/chat/chat-prebuilt-send-options.png
+2026-01-10T12:44:02.3895813Z ./static/android-ui-kit/polls/
+2026-01-10T12:44:02.3896287Z ./static/android-ui-kit/polls/prebuilt-polls-screen.png
+2026-01-10T12:44:02.3897030Z ./static/android-ui-kit/polls/prebuilt-create-poll.png
+2026-01-10T12:44:02.3897959Z ./static/cli/
+2026-01-10T12:44:02.3917854Z ./static/cli/cli-meetings-create.png
+2026-01-10T12:44:02.3918304Z ./static/cli/cli-help.png
+2026-01-10T12:44:02.3918672Z ./static/cli/cli-meetings-info.png
+2026-01-10T12:44:02.3919031Z ./static/ui-kit/
+2026-01-10T12:44:02.3919334Z ./static/ui-kit/1.x.x/
+2026-01-10T12:44:02.3919685Z ./static/ui-kit/1.x.x/grid-comps.png
+2026-01-10T12:44:02.3920131Z ./static/ui-kit/1.x.x/components/
+2026-01-10T12:44:02.3920566Z ./static/ui-kit/1.x.x/components/dyte-button.svg
+2026-01-10T12:44:02.3921317Z ./static/ui-kit/1.x.x/components/dyte-meeting.svg
+2026-01-10T12:44:02.3921893Z ./static/ui-kit/1.x.x/components/dyte-spotlight-grid.svg
+2026-01-10T12:44:02.3922522Z ./static/ui-kit/1.x.x/components/dyte-grid-pagination.svg
+2026-01-10T12:44:02.3923089Z ./static/ui-kit/1.x.x/components/dyte-sidebar.svg
+2026-01-10T12:44:02.3923654Z ./static/ui-kit/1.x.x/components/dyte-screenshare-view.svg
+2026-01-10T12:44:02.3924233Z ./static/ui-kit/1.x.x/components/dyte-plugins.svg
+2026-01-10T12:44:02.3924739Z ./static/ui-kit/1.x.x/components/dyte-logo.svg
+2026-01-10T12:44:02.3925247Z ./static/ui-kit/1.x.x/components/dyte-plugin-main.svg
+2026-01-10T12:44:02.3925754Z ./static/ui-kit/1.x.x/components/dyte-menu.svg
+2026-01-10T12:44:02.3926237Z ./static/ui-kit/1.x.x/components/dyte-settings.svg
+2026-01-10T12:44:02.3926929Z ./static/ui-kit/1.x.x/components/dyte-emoji-picker.svg
+2026-01-10T12:44:02.3927465Z ./static/ui-kit/1.x.x/components/dyte-avatar.svg
+2026-01-10T12:44:02.3928024Z ./static/ui-kit/1.x.x/components/dyte-participant-count.svg
+2026-01-10T12:44:02.3928639Z ./static/ui-kit/1.x.x/components/dyte-participant-tile.svg
+2026-01-10T12:44:02.3929210Z ./static/ui-kit/1.x.x/components/dyte-participants.svg
+2026-01-10T12:44:02.3929781Z ./static/ui-kit/1.x.x/components/dyte-audio-visualizer.svg
+2026-01-10T12:44:02.3930337Z ./static/ui-kit/1.x.x/components/dyte-idle-screen.svg
+2026-01-10T12:44:02.3930901Z ./static/ui-kit/1.x.x/components/dyte-controlbar-button.svg
+2026-01-10T12:44:02.3931447Z ./static/ui-kit/1.x.x/components/dyte-clock.svg
+2026-01-10T12:44:02.3931945Z ./static/ui-kit/1.x.x/components/dyte-mixed-grid.svg
+2026-01-10T12:44:02.3932480Z ./static/ui-kit/1.x.x/components/dyte-notification.svg
+2026-01-10T12:44:02.3932977Z ./static/ui-kit/1.x.x/components/dyte-chat.svg
+2026-01-10T12:44:02.3933474Z ./static/ui-kit/1.x.x/components/dyte-spinner.svg
+2026-01-10T12:44:02.3933996Z ./static/ui-kit/1.x.x/components/dyte-meeting-title.svg
+2026-01-10T12:44:02.3934602Z ./static/ui-kit/1.x.x/components/dyte-recording-indicator.svg
+2026-01-10T12:44:02.3935161Z ./static/ui-kit/1.x.x/components/dyte-polls.svg
+2026-01-10T12:44:02.3935660Z ./static/ui-kit/1.x.x/components/dyte-tooltip.svg
+2026-01-10T12:44:02.3936191Z ./static/ui-kit/1.x.x/components/dyte-setup-screen.svg
+2026-01-10T12:44:02.3936818Z ./static/ui-kit/1.x.x/components/dyte-grid.svg
+2026-01-10T12:44:02.3937368Z ./static/ui-kit/1.x.x/components/dyte-participants-audio.svg
+2026-01-10T12:44:02.3937929Z ./static/ui-kit/1.x.x/components/dyte-name-tag.svg
+2026-01-10T12:44:02.3938455Z ./static/ui-kit/1.x.x/components/dyte-image-viewer.svg
+2026-01-10T12:44:02.3938990Z ./static/ui-kit/1.x.x/components/dyte-ended-screen.svg
+2026-01-10T12:44:02.3939556Z ./static/ui-kit/1.x.x/components/dyte-leave-meeting.svg
+2026-01-10T12:44:02.3940165Z ./static/ui-kit/1.x.x/components/dyte-remote-access-manager.svg
+2026-01-10T12:44:02.3940736Z ./static/ui-kit/1.x.x/components/dyte-switch.svg
+2026-01-10T12:44:02.3941277Z ./static/ui-kit/1.x.x/components/dyte-dialog.svg
+2026-01-10T12:44:02.3941792Z ./static/ui-kit/1.x.x/components/dyte-simple-grid.svg
+2026-01-10T12:44:02.3942200Z ./static/ui-kit/1.x.x/atomic-design.svg
+2026-01-10T12:44:02.3942617Z ./static/ui-kit/1.x.x/ui-kit-cover.jpg
+2026-01-10T12:44:02.3942853Z ./static/livestream/
+2026-01-10T12:44:02.3943054Z ./static/livestream/createpreset.png
+2026-01-10T12:44:02.3952133Z ./static/livestream/Misc.png
+2026-01-10T12:44:02.3954464Z ./static/livestream/pluginlivestream.png
+2026-01-10T12:44:02.3961010Z ./static/livestream/Media.png
+2026-01-10T12:44:02.3962749Z ./static/livestream/chat.png
+2026-01-10T12:44:02.3963782Z ./static/livestream/golive.png
+2026-01-10T12:44:02.3969487Z ./static/livestream/savepresetils.png
+2026-01-10T12:44:02.3970406Z ./static/livestream/Polls.png
+2026-01-10T12:44:02.3971337Z ./static/livestream/savepreset.png
+2026-01-10T12:44:02.3973096Z ./static/livestream/endlive.png
+2026-01-10T12:44:02.3975743Z ./static/livestream/colors.png
+2026-01-10T12:44:02.3985009Z ./static/livestream/host-control.png
+2026-01-10T12:44:02.3988119Z ./static/livestream/ilslist.png
+2026-01-10T12:44:02.3989220Z ./static/livestream/livestream.png
+2026-01-10T12:44:02.3991598Z ./static/livestream/Plugins.png
+2026-01-10T12:44:02.3993341Z ./static/livestream/ls-share-screen.png
+2026-01-10T12:44:02.3998902Z ./static/preset/
+2026-01-10T12:44:02.3999216Z ./static/preset/savepreset.png
+2026-01-10T12:44:02.4000484Z ./static/preset/group-call.png
+2026-01-10T12:44:02.4001071Z ./static/preset/livestream.png
+2026-01-10T12:44:02.4001744Z ./static/guides/
+2026-01-10T12:44:02.4002044Z ./static/guides/dev-portal.png
+2026-01-10T12:44:02.4008825Z ./static/guides/analytics.png
+2026-01-10T12:44:02.4014988Z ./static/guides/session-details.png
+2026-01-10T12:44:02.4019215Z ./static/guides/dyte-arch.png
+2026-01-10T12:44:02.4021679Z ./static/guides/build-pre-call-ui/
+2026-01-10T12:44:02.4022216Z ./static/guides/build-pre-call-ui/pre-call-ui-setup-screen.png
+2026-01-10T12:44:02.4025820Z ./static/guides/build-pre-call-ui/skeleton-page/
+2026-01-10T12:44:02.4026461Z ./static/guides/build-pre-call-ui/skeleton-page/meeting-precall.png
+2026-01-10T12:44:02.4027448Z ./static/guides/build-pre-call-ui/skeleton-page/meeting-over.png
+2026-01-10T12:44:02.4028257Z ./static/guides/build-pre-call-ui/skeleton-page/meeting-stage.png
+2026-01-10T12:44:02.4029484Z ./static/guides/build-pre-call-ui/inside-meeting-sample-two-users.png
+2026-01-10T12:44:02.4048908Z ./static/guides/build-pre-call-ui/meeting-stage-components.png
+2026-01-10T12:44:02.4050157Z ./static/guides/build-pre-call-ui/inside-meeting-sample-single-user.png
+2026-01-10T12:44:02.4069339Z ./static/guides/build-pre-call-ui/preset-edit-your-name.png
+2026-01-10T12:44:02.4072440Z ./static/guides/virtual-background.png
+2026-01-10T12:44:02.4074363Z ./static/guides/tar-format.png
+2026-01-10T12:44:02.4075019Z ./static/guides/chat-build.png
+2026-01-10T12:44:02.4078869Z ./static/guides/add-preset-live-video.png
+2026-01-10T12:44:02.4093676Z ./static/guides/recording-storage.png
+2026-01-10T12:44:02.4094994Z ./static/guides/create-live-video-apps1.png
+2026-01-10T12:44:02.4100240Z ./static/guides/obs-example.jpeg
+2026-01-10T12:44:02.4102180Z ./static/guides/screenshare-max.png
+2026-01-10T12:44:02.4103341Z ./static/guides/concept-meeting.png
+2026-01-10T12:44:02.4108001Z ./static/guides/chat-sdk.png
+2026-01-10T12:44:02.4112438Z ./static/guides/preset-editor-sample.png
+2026-01-10T12:44:02.4115383Z ./static/guides/chat-sdk-intro.png
+2026-01-10T12:44:02.4121151Z ./static/guides/opentok-arch.png
+2026-01-10T12:44:02.4124804Z ./static/guides/obs-example.png
+2026-01-10T12:44:02.4127084Z ./static/guides/twilio-arch.png
+2026-01-10T12:44:02.4129697Z ./static/plugin-sdk/
+2026-01-10T12:44:02.4130085Z ./static/plugin-sdk/plugin-sdk-cover.png
+2026-01-10T12:44:02.4132280Z ./static/sip/
+2026-01-10T12:44:02.4132622Z ./static/sip/sip-devportal.png
+2026-01-10T12:44:02.4133852Z ./static/sip/twilio.png
+2026-01-10T12:44:02.4137274Z ./static/v2-API-migration/
+2026-01-10T12:44:02.4137684Z ./static/v2-API-migration/Preset1.png
+2026-01-10T12:44:02.4145787Z ./static/v2-API-migration/v2_selector.png
+2026-01-10T12:44:02.4149548Z ./static/v2-API-migration/Preset2.png
+2026-01-10T12:44:02.4153399Z ./static/home/
+2026-01-10T12:44:02.4153995Z ./static/home/how-dyte-works-v2.png
+2026-01-10T12:44:02.4154427Z ./static/home/create-preset.png
+2026-01-10T12:44:02.4156159Z ./static/home/api-keys.png
+2026-01-10T12:44:02.4158692Z ./static/dev-portal/
+2026-01-10T12:44:02.4159077Z ./static/dev-portal/api-key-light.png
+2026-01-10T12:44:02.4160932Z ./static/dev-portal/api-key-dark.png
+2026-01-10T12:44:02.4163000Z ./static/dev-portal/create-preset-dark.png
+2026-01-10T12:44:02.4165636Z ./static/dev-portal/create-preset-light.png
+2026-01-10T12:44:02.4168296Z ./static/dev-portal/auth-header-dark.png
+2026-01-10T12:44:02.4170823Z ./static/dev-portal/auth-header-light.png
+2026-01-10T12:44:02.4173532Z ./static/android-core/
+2026-01-10T12:44:02.4173932Z ./static/android-core/audio-selector.png
+2026-01-10T12:44:02.4174399Z ./static/android-core/video-selector.png
+2026-01-10T12:44:02.4174828Z ./static/breakoutrooms/
+2026-01-10T12:44:02.4175353Z ./static/breakoutrooms/create-br.png
+2026-01-10T12:44:02.4175857Z ./static/breakoutrooms/switch-connected-meetings.png
+2026-01-10T12:44:02.4177926Z ./static/breakoutrooms/edit-br.png
+2026-01-10T12:44:02.4178501Z ./static/breakoutrooms/breakout-room1.png
+2026-01-10T12:44:02.4180777Z ./static/breakoutrooms/switch-parent-meeting.png
+2026-01-10T12:44:02.4183266Z ./static/breakoutrooms/shuffle.png
+2026-01-10T12:44:02.4184125Z ./static/breakoutrooms/full-access.png
+2026-01-10T12:44:02.4185340Z ./static/breakoutrooms/assign-manual.png
+2026-01-10T12:44:02.4186860Z ./static/breakoutrooms/assign-participants.png
+2026-01-10T12:44:02.4191630Z ./static/mobile/
+2026-01-10T12:44:02.4191988Z ./static/mobile/build-pre-call-ui/
+2026-01-10T12:44:02.4192545Z ./static/mobile/build-pre-call-ui/pre-call-ui-setup-screen.png
+2026-01-10T12:44:02.4196914Z ./static/mobile/build-pre-call-ui/skeleton-page/
+2026-01-10T12:44:02.4197673Z ./static/mobile/build-pre-call-ui/skeleton-page/android-setup-final-preview.png
+2026-01-10T12:44:02.4198632Z ./static/mobile/build-pre-call-ui/skeleton-page/android-setup-custom-preview.png
+2026-01-10T12:44:02.4199508Z ./static/mobile/build-pre-call-ui/skeleton-page/meeting-precall.png
+2026-01-10T12:44:02.4200259Z ./static/mobile/build-pre-call-ui/skeleton-page/meeting-over.png
+2026-01-10T12:44:02.4200987Z ./static/mobile/build-pre-call-ui/skeleton-page/meeting-stage.png
+2026-01-10T12:44:02.4201806Z ./static/mobile/build-pre-call-ui/inside-meeting-sample-two-users.png
+2026-01-10T12:44:02.4221502Z ./static/mobile/build-pre-call-ui/meeting-stage-components.png
+2026-01-10T12:44:02.4223094Z ./static/mobile/build-pre-call-ui/inside-meeting-sample-single-user.png
+2026-01-10T12:44:02.4241548Z ./static/mobile/build-pre-call-ui/preset-edit-your-name.png
+2026-01-10T12:44:02.4244366Z ./static/mobile/0.x.x/
+2026-01-10T12:44:02.4244814Z ./static/mobile/0.x.x/mobile-opt2-meeting-options.png
+2026-01-10T12:44:02.4245369Z ./static/mobile/0.x.x/flutter-uikit-config.png
+2026-01-10T12:44:02.4252322Z ./static/mobile/0.x.x/flutter-setup-ct.png
+2026-01-10T12:44:02.4252818Z ./static/mobile/0.x.x/iOS-screen-share.png
+2026-01-10T12:44:02.4254850Z ./static/mobile/0.x.x/flutter-host-actions-ct.png
+2026-01-10T12:44:02.4255391Z ./static/mobile/0.x.x/mobile-opt1-meeting.png
+2026-01-10T12:44:02.4255882Z ./static/mobile/0.x.x/ios-setup-info.png
+2026-01-10T12:44:02.4256535Z ./static/mobile/0.x.x/ios-setup-0.png
+2026-01-10T12:44:02.4259757Z ./static/mobile/0.x.x/mobile-meeting.png
+2026-01-10T12:44:02.4260223Z ./static/mobile/0.x.x/ios-setup-01.png
+2026-01-10T12:44:02.4261462Z ./static/mobile/0.x.x/ios-setup-1.png
+2026-01-10T12:44:02.4263605Z ./static/mobile/0.x.x/flutter-chat.png
+2026-01-10T12:44:02.4264488Z ./static/mobile/0.x.x/mobile-meeting-ui.png
+2026-01-10T12:44:02.4265514Z ./static/mobile/0.x.x/mobile-meeting-options.png
+2026-01-10T12:44:02.4266455Z ./static/mobile/0.x.x/mobile-opt2-meeting.png
+2026-01-10T12:44:02.4267086Z ./static/mobile/0.x.x/ios-setup-app.png
+2026-01-10T12:44:02.4267971Z ./static/mobile/0.x.x/ios-setup-demo.png
+2026-01-10T12:44:02.4275020Z ./static/mobile/0.x.x/flutter-poll-ct.png
+2026-01-10T12:44:02.4275689Z ./static/mobile/0.x.x/mobile-setup.png
+2026-01-10T12:44:02.4276150Z ./static/mobile/0.x.x/mobile-opt2-setup.png
+2026-01-10T12:44:02.4276880Z ./static/mobile/0.x.x/flutter-participant-list.png
+2026-01-10T12:44:02.4277562Z ./static/mobile/0.x.x/flutter-video-call.png
+2026-01-10T12:44:02.4280135Z ./static/mobile/0.x.x/flutter-setup-page.png
+2026-01-10T12:44:02.4281286Z ./static/mobile/0.x.x/mobile-opt1-setup.png
+2026-01-10T12:44:02.4281765Z ./static/mobile/0.x.x/ios-setup-03.png
+2026-01-10T12:44:02.4283639Z ./static/mobile/0.x.x/mobile-opt1-meeting-options.png
+2026-01-10T12:44:02.4284324Z ./static/mobile/0.x.x/flutter-participants-list-ct.png
+2026-01-10T12:44:02.4284817Z ./static/mobile/0.x.x/flutter-advanced-features.png
+2026-01-10T12:44:02.4285548Z ./static/mobile/0.x.x/flutter-vc-ct.png
+2026-01-10T12:44:02.4287939Z ./static/mobile/flutter/
+2026-01-10T12:44:02.4288660Z ./static/mobile/flutter/chat-icon-widget.png
+2026-01-10T12:44:02.4289107Z ./static/mobile/flutter/flutter-leave-meeting.png
+2026-01-10T12:44:02.4289501Z ./static/mobile/flutter/name-tag.png
+2026-01-10T12:44:02.4290111Z ./static/mobile/flutter/flutter-leave-meeting-dialog.png
+2026-01-10T12:44:02.4290584Z ./static/mobile/flutter/chat-screen.png
+2026-01-10T12:44:02.4291190Z ./static/mobile/flutter/participant-icon-widget.png
+2026-01-10T12:44:02.4291617Z ./static/mobile/flutter/flutter-participant-tile.png
+2026-01-10T12:44:02.4292253Z ./static/mobile/flutter/audio-icon-widget.png
+2026-01-10T12:44:02.4292871Z ./static/mobile/flutter/flutter-meeting-title.png
+2026-01-10T12:44:02.4293474Z ./static/mobile/flutter/flutter-join-button.png
+2026-01-10T12:44:02.4293882Z ./static/mobile/flutter/flutter-self-video-toggle.png
+2026-01-10T12:44:02.4294522Z ./static/mobile/flutter/participant-screen.png
+2026-01-10T12:44:02.4295108Z ./static/mobile/flutter/flutter-self-audio-toggle.png
+2026-01-10T12:44:02.4295457Z ./static/ios/
+2026-01-10T12:44:02.4295693Z ./static/ios/ios_create_polls.png
+2026-01-10T12:44:02.4297902Z ./static/ios/meeting.png
+2026-01-10T12:44:02.4298758Z ./static/ios/ios_participant-tile-view.png
+2026-01-10T12:44:02.4304939Z ./static/ios/meeting-options.png
+2026-01-10T12:44:02.4305756Z ./static/ios/ios_settings.jpg
+2026-01-10T12:44:02.4308105Z ./static/ios/ios_participant-tile-avatar-view.png
+2026-01-10T12:44:02.4310324Z ./static/ios/iOS_show_plugin.jpg
+2026-01-10T12:44:02.4311156Z ./static/ios/meeting-setup.png
+2026-01-10T12:44:02.4312164Z ./static/ios/iOS_plugins.png
+2026-01-10T12:44:02.4314687Z ./static/ios/ios_active_HorizontalView.png
+2026-01-10T12:44:02.4315526Z ./static/ios/ios_settings_avatar.png
+2026-01-10T12:44:02.4318166Z ./static/ios/ios-setup.png
+2026-01-10T12:44:02.4319739Z ./static/ios/ios_show_polls.png
+2026-01-10T12:44:02.4321883Z ./static/landing-page/
+2026-01-10T12:44:02.4322290Z ./static/landing-page/api-ref-light.png
+2026-01-10T12:44:02.4322761Z ./static/landing-page/api-ref-dark.png
+2026-01-10T12:44:02.4323863Z ./static/landing-page/calendar.svg
+2026-01-10T12:44:02.4324302Z ./static/landing-page/resources/
+2026-01-10T12:44:02.4324769Z ./static/landing-page/resources/active-session.png
+2026-01-10T12:44:02.4325286Z ./static/landing-page/chat.svg
+2026-01-10T12:44:02.4325678Z ./static/landing-page/customer.svg
+2026-01-10T12:44:02.4326095Z ./static/landing-page/grid-light.svg
+2026-01-10T12:44:02.4326550Z ./static/landing-page/plugin-sdk-light.png
+2026-01-10T12:44:02.4327227Z ./static/landing-page/plugin-sdk-dark.png
+2026-01-10T12:44:02.4329032Z ./static/landing-page/hero/
+2026-01-10T12:44:02.4329483Z ./static/landing-page/hero/voice-graphic-dark.png
+2026-01-10T12:44:02.4330020Z ./static/landing-page/hero/voice-graphic.png
+2026-01-10T12:44:02.4330536Z ./static/landing-page/hero/livestream-graphic.png
+2026-01-10T12:44:02.4331081Z ./static/landing-page/hero/chat-graphic-dark.png
+2026-01-10T12:44:02.4331641Z ./static/landing-page/hero/livestream-graphic-dark.png
+2026-01-10T12:44:02.4332185Z ./static/landing-page/hero/video.png
+2026-01-10T12:44:02.4332657Z ./static/landing-page/hero/video-graphic.png
+2026-01-10T12:44:02.4333133Z ./static/landing-page/hero/chat-graphic.png
+2026-01-10T12:44:02.4333857Z ./static/landing-page/hero/video-graphic-dark.png
+2026-01-10T12:44:02.4334347Z ./static/landing-page/grid-dark.svg
+2026-01-10T12:44:02.4334757Z ./static/landing-page/sdk-icons/
+2026-01-10T12:44:02.4335169Z ./static/landing-page/sdk-icons/react.png
+2026-01-10T12:44:02.4335626Z ./static/landing-page/sdk-icons/kotlin.png
+2026-01-10T12:44:02.4336093Z ./static/landing-page/sdk-icons/swift.png
+2026-01-10T12:44:02.4336545Z ./static/landing-page/sdk-icons/html.png
+2026-01-10T12:44:02.4337203Z ./static/landing-page/sdk-icons/electron.png
+2026-01-10T12:44:02.4337696Z ./static/landing-page/sdk-icons/resources/
+2026-01-10T12:44:02.4338236Z ./static/landing-page/sdk-icons/resources/book-open.svg
+2026-01-10T12:44:02.4338791Z ./static/landing-page/sdk-icons/resources/web.svg
+2026-01-10T12:44:02.4339339Z ./static/landing-page/sdk-icons/resources/mobile.svg
+2026-01-10T12:44:02.4340038Z ./static/landing-page/sdk-icons/resources/github.svg
+2026-01-10T12:44:02.4340585Z ./static/landing-page/sdk-icons/resources/faq.svg
+2026-01-10T12:44:02.4341140Z ./static/landing-page/sdk-icons/resources/plugin.svg
+2026-01-10T12:44:02.4341688Z ./static/landing-page/sdk-icons/resources/video.svg
+2026-01-10T12:44:02.4342188Z ./static/landing-page/sdk-icons/js.png
+2026-01-10T12:44:02.4342648Z ./static/landing-page/sdk-icons/flutter.png
+2026-01-10T12:44:02.4343116Z ./static/landing-page/sdk-icons/vue.png
+2026-01-10T12:44:02.4343566Z ./static/landing-page/sdk-icons/angular.png
+2026-01-10T12:44:02.4343992Z ./web-sdk.html
+2026-01-10T12:44:02.4344262Z ./assets/
+2026-01-10T12:44:02.4344526Z ./assets/images/
+2026-01-10T12:44:02.4345038Z ./assets/images/how-dyte-works-v2-9f36c8cda047aabc8da766b57fc6e678.png
+2026-01-10T12:44:02.4345800Z ./assets/images/api-keys-0ca0bcbd0f86fdd235b638cb572a9b48.png
+2026-01-10T12:44:02.4346519Z ./assets/images/create-preset-40c05622c0bac1a165388eac561c6a4c.png
+2026-01-10T12:44:02.4347268Z ./assets/css/
+2026-01-10T12:44:02.4347572Z ./assets/css/docsly.min.css
+2026-01-10T12:44:02.4347946Z ./assets/css/styles.5fb083c6.css
+2026-01-10T12:44:02.4348341Z ./assets/css/elements.min.css
+2026-01-10T12:44:02.4348704Z ./assets/fonts/
+2026-01-10T12:44:02.4349140Z ./assets/fonts/FiraCode-26fa1940716beb9d1da18c13df9e1716.woff2
+2026-01-10T12:44:02.4349943Z ./assets/fonts/PlusJakartaSans-latin-641c0ed01070e3b07724f408836f6a67.woff2
+2026-01-10T12:44:02.4350613Z ./assets/fonts/Inter.woff2
+2026-01-10T12:44:02.4351210Z ./assets/fonts/PlusJakartaSans-italic-03c8659285721a62189b10f564783a70.woff2
+2026-01-10T12:44:02.4351922Z ./assets/fonts/PlusJakartaSans-latin.woff2
+2026-01-10T12:44:02.4352489Z ./assets/fonts/Inter-e85d84dcfe3b365aaaa3f6054d9fcfa7.woff2
+2026-01-10T12:44:02.4353061Z ./assets/fonts/PlusJakartaSans-italic.woff2
+2026-01-10T12:44:02.4353468Z ./assets/fonts/FiraCode.woff2
+2026-01-10T12:44:02.4353942Z ./assets/fonts/Inter-italic-e1716d2a673d0faa8f1372b4bd6de8ab.woff2
+2026-01-10T12:44:02.4354528Z ./assets/fonts/Inter-italic.woff2
+2026-01-10T12:44:02.4356948Z ./assets/js/
+2026-01-10T12:44:02.4357268Z ./assets/js/3665.c5716dba.js
+2026-01-10T12:44:02.4357898Z ./assets/js/4309.2f4b5afb.js
+2026-01-10T12:44:02.4358258Z ./assets/js/2661.1c4f1a31.js
+2026-01-10T12:44:02.4358631Z ./assets/js/1c68ad46.8328ed80.js
+2026-01-10T12:44:02.4359016Z ./assets/js/4941.79ad2a0a.js
+2026-01-10T12:44:02.4359360Z ./assets/js/3453.009975e2.js
+2026-01-10T12:44:02.4359710Z ./assets/js/6068.1e36ed61.js
+2026-01-10T12:44:02.4360064Z ./assets/js/d32f8fad.17dafce9.js
+2026-01-10T12:44:02.4360439Z ./assets/js/392.47b1063e.js
+2026-01-10T12:44:02.4360789Z ./assets/js/6917.32a30763.js
+2026-01-10T12:44:02.4361148Z ./assets/js/5423.d0848171.js
+2026-01-10T12:44:02.4361497Z ./assets/js/3866.5d12c857.js
+2026-01-10T12:44:02.4361852Z ./assets/js/5e95c892.2b0aab5c.js
+2026-01-10T12:44:02.4362212Z ./assets/js/9766.3739509c.js
+2026-01-10T12:44:02.4362543Z ./assets/js/7106.07351364.js
+2026-01-10T12:44:02.4362876Z ./assets/js/8436.3d6b0c6e.js
+2026-01-10T12:44:02.4363222Z ./assets/js/495.0a702b28.js
+2026-01-10T12:44:02.4363576Z ./assets/js/45fbd18b.58e49fd0.js
+2026-01-10T12:44:02.4364111Z ./assets/js/5955.d5ae6773.js
+2026-01-10T12:44:02.4364465Z ./assets/js/4224.32f9b0c7.js
+2026-01-10T12:44:02.4364799Z ./assets/js/1059.bc6e8021.js
+2026-01-10T12:44:02.4365151Z ./assets/js/6134.e2d2e137.js
+2026-01-10T12:44:02.4365485Z ./assets/js/3986.09cb59da.js
+2026-01-10T12:44:02.4365829Z ./assets/js/97.1b62310c.js
+2026-01-10T12:44:02.4366161Z ./assets/js/3553.170adabb.js
+2026-01-10T12:44:02.4366519Z ./assets/js/5596e81a.f67385a9.js
+2026-01-10T12:44:02.4367067Z ./assets/js/df5d343d.c588382f.js
+2026-01-10T12:44:02.4367436Z ./assets/js/6397.5a46f75e.js
+2026-01-10T12:44:02.4367782Z ./assets/js/311.e3815ea9.js
+2026-01-10T12:44:02.4368121Z ./assets/js/6431.93b7d048.js
+2026-01-10T12:44:02.4368471Z ./assets/js/8394.a76973b8.js
+2026-01-10T12:44:02.4368839Z ./assets/js/aa6c73c2.a91d967e.js
+2026-01-10T12:44:02.4369209Z ./assets/js/904.1f97893d.js
+2026-01-10T12:44:02.4369707Z ./assets/js/8190.00af8b21.js
+2026-01-10T12:44:02.4370072Z ./assets/js/163.10be0592.js
+2026-01-10T12:44:02.4370428Z ./assets/js/1066.4782d374.js
+2026-01-10T12:44:02.4370762Z ./assets/js/6654.c707df32.js
+2026-01-10T12:44:02.4371117Z ./assets/js/1769.a57f718f.js
+2026-01-10T12:44:02.4371497Z ./assets/js/5067.ed5ae3a1.js
+2026-01-10T12:44:02.4371869Z ./assets/js/aaf29a30.3e923a3c.js
+2026-01-10T12:44:02.4372228Z ./assets/js/4477.500ecf1d.js
+2026-01-10T12:44:02.4372576Z ./assets/js/21a30673.34712afc.js
+2026-01-10T12:44:02.4372948Z ./assets/js/bbaff741.919082bc.js
+2026-01-10T12:44:02.4373319Z ./assets/js/8640.20246632.js
+2026-01-10T12:44:02.4373662Z ./assets/js/9084f04c.9c932141.js
+2026-01-10T12:44:02.4374025Z ./assets/js/1349.62b8c7ba.js
+2026-01-10T12:44:02.4374380Z ./assets/js/6972.ded478ac.js
+2026-01-10T12:44:02.4374731Z ./assets/js/7534.145acef8.js
+2026-01-10T12:44:02.4375089Z ./assets/js/1bef5041.0eac0d8f.js
+2026-01-10T12:44:02.4375453Z ./assets/js/4986.40eb4a80.js
+2026-01-10T12:44:02.4375819Z ./assets/js/642.db52f3a1.js
+2026-01-10T12:44:02.4376159Z ./assets/js/17896441.3330ece6.js
+2026-01-10T12:44:02.4376519Z ./assets/js/396.c081a81f.js
+2026-01-10T12:44:02.4377012Z ./assets/js/8565.e5e63947.js
+2026-01-10T12:44:02.4377374Z ./assets/js/09f79313.7241a221.js
+2026-01-10T12:44:02.4377749Z ./assets/js/24c768db.61e046b7.js
+2026-01-10T12:44:02.4378110Z ./assets/js/1353.a23dacb0.js
+2026-01-10T12:44:02.4378474Z ./assets/js/c141421f.888b1f14.js
+2026-01-10T12:44:02.4378836Z ./assets/js/4446.24675f0e.js
+2026-01-10T12:44:02.4379187Z ./assets/js/684.b8de189b.js
+2026-01-10T12:44:02.4379528Z ./assets/js/df552813.52ae98f7.js
+2026-01-10T12:44:02.4379899Z ./assets/js/74c9de24.94fa868d.js
+2026-01-10T12:44:02.4380257Z ./assets/js/7024.9ba5e797.js
+2026-01-10T12:44:02.4380615Z ./assets/js/1143.4af0112c.js
+2026-01-10T12:44:02.4380969Z ./assets/js/ecba80a3.056b00cd.js
+2026-01-10T12:44:02.4381347Z ./assets/js/a7bd4aaa.4162a2bc.js
+2026-01-10T12:44:02.4381722Z ./assets/js/3864.408e10f3.js
+2026-01-10T12:44:02.4382067Z ./assets/js/6465.6cef56cc.js
+2026-01-10T12:44:02.4382441Z ./assets/js/4b64c7f6.fc873025.js
+2026-01-10T12:44:02.4382809Z ./assets/js/5899.aabad09e.js
+2026-01-10T12:44:02.4383172Z ./assets/js/5602.61b1a607.js
+2026-01-10T12:44:02.4383530Z ./assets/js/9c4a6c13.ac589ca3.js
+2026-01-10T12:44:02.4383901Z ./assets/js/6882.f31f497c.js
+2026-01-10T12:44:02.4384238Z ./assets/js/7276.f3278278.js
+2026-01-10T12:44:02.4384588Z ./assets/js/a4086163.1c322f1e.js
+2026-01-10T12:44:02.4384998Z ./assets/js/6763.2120fb24.js
+2026-01-10T12:44:02.4385333Z ./assets/js/8522.943bd199.js
+2026-01-10T12:44:02.4385684Z ./assets/js/397.df9af6d3.js
+2026-01-10T12:44:02.4386020Z ./assets/js/6415.8959b371.js
+2026-01-10T12:44:02.4386362Z ./assets/js/5325.df886dcd.js
+2026-01-10T12:44:02.4386856Z ./assets/js/9559.7f78760f.js
+2026-01-10T12:44:02.4387220Z ./assets/js/4278.1bcb1c8f.js
+2026-01-10T12:44:02.4387565Z ./assets/js/8142.62eb1c7f.js
+2026-01-10T12:44:02.4387921Z ./assets/js/1046.182f1ed9.js
+2026-01-10T12:44:02.4388274Z ./assets/js/5669.7c8e73a8.js
+2026-01-10T12:44:02.4388643Z ./assets/js/3343d287.f42de370.js
+2026-01-10T12:44:02.4389017Z ./assets/js/3757.f0ce6f8c.js
+2026-01-10T12:44:02.4389512Z ./assets/js/2712.860b8136.js
+2026-01-10T12:44:02.4389855Z ./assets/js/1512.2721d8fb.js
+2026-01-10T12:44:02.4390197Z ./assets/js/6744.49f48899.js
+2026-01-10T12:44:02.4390547Z ./assets/js/5455.8043e650.js
+2026-01-10T12:44:02.4390889Z ./assets/js/2316.9d9414ad.js
+2026-01-10T12:44:02.4391244Z ./assets/js/8257.c5d66264.js
+2026-01-10T12:44:02.4391585Z ./assets/js/8293.9e5c0fa4.js
+2026-01-10T12:44:02.4391945Z ./assets/js/dc1b4c6d.02f539b0.js
+2026-01-10T12:44:02.4392305Z ./assets/js/9434.093f20e4.js
+2026-01-10T12:44:02.4392651Z ./assets/js/2890.75446fe3.js
+2026-01-10T12:44:02.4392999Z ./assets/js/9223.b67d94fc.js
+2026-01-10T12:44:02.4393346Z ./assets/js/5ec32547.cfeb5e4d.js
+2026-01-10T12:44:02.4393726Z ./assets/js/9413.944921de.js
+2026-01-10T12:44:02.4394067Z ./assets/js/3853.9d11e4d7.js
+2026-01-10T12:44:02.4394425Z ./assets/js/494.b7b82eed.js
+2026-01-10T12:44:02.4394936Z ./assets/js/a4b476a1.0590c198.js
+2026-01-10T12:44:02.4395338Z ./assets/js/827e6bb8.211ef291.js
+2026-01-10T12:44:02.4395707Z ./assets/js/0b259009.4764f9ed.js
+2026-01-10T12:44:02.4396090Z ./assets/js/96b32abd.423743d6.js
+2026-01-10T12:44:02.4396451Z ./assets/js/5146.a54eb96a.js
+2026-01-10T12:44:02.4396963Z ./assets/js/2097.037f497f.js
+2026-01-10T12:44:02.4397329Z ./assets/js/9238fb59.d1798856.js
+2026-01-10T12:44:02.4397690Z ./assets/js/687.5d63ae3c.js
+2026-01-10T12:44:02.4398034Z ./assets/js/3421.f2e48df9.js
+2026-01-10T12:44:02.4398371Z ./assets/js/2694.7955414a.js
+2026-01-10T12:44:02.4398731Z ./assets/js/69625a36.53ed9a73.js
+2026-01-10T12:44:02.4399094Z ./assets/js/f689313d.0f21cd0a.js
+2026-01-10T12:44:02.4399457Z ./assets/js/5721b619.649771c6.js
+2026-01-10T12:44:02.4399813Z ./assets/js/9869.5a56c694.js
+2026-01-10T12:44:02.4400160Z ./assets/js/46.8a3fdf11.js
+2026-01-10T12:44:02.4400503Z ./assets/js/716.cb61d514.js
+2026-01-10T12:44:02.4400855Z ./assets/js/6137.ebb59b64.js
+2026-01-10T12:44:02.4403411Z ./assets/js/3334.cc6f0f9a.js
+2026-01-10T12:44:02.4403812Z ./assets/js/4644.d0e0c691.js
+2026-01-10T12:44:02.4404181Z ./assets/js/91479000.b7666aa1.js
+2026-01-10T12:44:02.4404562Z ./assets/js/6390.6c35922f.js
+2026-01-10T12:44:02.4404918Z ./assets/js/2934.b8ff845f.js
+2026-01-10T12:44:02.4405260Z ./assets/js/7370.1759632b.js
+2026-01-10T12:44:02.4405613Z ./assets/js/5702.db1dbfb1.js
+2026-01-10T12:44:02.4405969Z ./assets/js/db67a208.3d49de28.js
+2026-01-10T12:44:02.4406341Z ./assets/js/8537.47c51f89.js
+2026-01-10T12:44:02.4406883Z ./assets/js/c2a9e211.86871eeb.js
+2026-01-10T12:44:02.4407255Z ./assets/js/3363.d10d5da5.js
+2026-01-10T12:44:02.4407613Z ./assets/js/7480.c3643e87.js
+2026-01-10T12:44:02.4407949Z ./assets/js/4f450061.5005bf98.js
+2026-01-10T12:44:02.4408325Z ./assets/js/8853.47ca59e3.js
+2026-01-10T12:44:02.4408670Z ./assets/js/aba21aa0.82173a8e.js
+2026-01-10T12:44:02.4409046Z ./assets/js/73d3958d.7f09d3ae.js
+2026-01-10T12:44:02.4409400Z ./assets/js/4529.745c909e.js
+2026-01-10T12:44:02.4409755Z ./assets/js/2853.a6b1eaa8.js
+2026-01-10T12:44:02.4422781Z ./assets/js/2369.a9eb8a72.js
+2026-01-10T12:44:02.4423157Z ./assets/js/6200.db3cf538.js
+2026-01-10T12:44:02.4423535Z ./assets/js/8018.fdfe5118.js
+2026-01-10T12:44:02.4424107Z ./assets/js/8587.5e95c950.js
+2026-01-10T12:44:02.4424479Z ./assets/js/697fbaab.899f7212.js
+2026-01-10T12:44:02.4424847Z ./assets/js/7168.118e27a8.js
+2026-01-10T12:44:02.4425202Z ./assets/js/8259.b2f9fa55.js
+2026-01-10T12:44:02.4425558Z ./assets/js/4527.0baeb987.js
+2026-01-10T12:44:02.4425905Z ./assets/js/a94703ab.e2528f2c.js
+2026-01-10T12:44:02.4426278Z ./assets/js/7134.c784421b.js
+2026-01-10T12:44:02.4426793Z ./assets/js/779.ccea6c79.js
+2026-01-10T12:44:02.4427175Z ./assets/js/9095.d5da4d27.js
+2026-01-10T12:44:02.4427560Z ./assets/js/3507.9872d332.js
+2026-01-10T12:44:02.4427926Z ./assets/js/3904.3aab2287.js
+2026-01-10T12:44:02.4428286Z ./assets/js/7620.cb320674.js
+2026-01-10T12:44:02.4522104Z ./assets/js/2463.c38a7a0f.js
+2026-01-10T12:44:02.4522489Z ./assets/js/1a4e3797.c9a1614c.js
+2026-01-10T12:44:02.4523323Z ./assets/js/20d8c527.fd060072.js
+2026-01-10T12:44:02.4523842Z ./assets/js/9802.aec9c539.js
+2026-01-10T12:44:02.4524347Z ./assets/js/6b87c5d9.888cc03f.js
+2026-01-10T12:44:02.4525249Z ./assets/js/43961543.8a7d1b0e.js
+2026-01-10T12:44:02.4525733Z ./assets/js/8198.a86dd47f.js
+2026-01-10T12:44:02.4526198Z ./assets/js/dfd51a51.cb4a92a5.js
+2026-01-10T12:44:02.4526984Z ./assets/js/7087.8101bd5a.js
+2026-01-10T12:44:02.4527482Z ./assets/js/2b9850a8.1528cc30.js
+2026-01-10T12:44:02.4527803Z ./assets/js/9752.525dd66e.js
+2026-01-10T12:44:02.4528099Z ./assets/js/main.2032fbbc.js
+2026-01-10T12:44:02.4533758Z ./assets/js/6912.f65b33b0.js
+2026-01-10T12:44:02.4534243Z ./assets/js/09960970.811c5182.js
+2026-01-10T12:44:02.4534722Z ./assets/js/7958.2ab750fc.js
+2026-01-10T12:44:02.4535008Z ./assets/js/1471d7e3.f7864171.js
+2026-01-10T12:44:02.4535490Z ./assets/js/2696.57f3bb37.js
+2026-01-10T12:44:02.4536518Z ./assets/js/9081.9d77fda9.js
+2026-01-10T12:44:02.4537122Z ./assets/js/7886ff75.4622720b.js
+2026-01-10T12:44:02.4538126Z ./assets/js/9535.b3091db0.js
+2026-01-10T12:44:02.4538594Z ./assets/js/455.f6e73998.js
+2026-01-10T12:44:02.4539063Z ./assets/js/1364.dd860c88.js
+2026-01-10T12:44:02.4539534Z ./assets/js/764.e5cf9cac.js
+2026-01-10T12:44:02.4540005Z ./assets/js/088c25a0.7a5a9506.js
+2026-01-10T12:44:02.4540495Z ./assets/js/9972.0b4cc184.js
+2026-01-10T12:44:02.4540972Z ./assets/js/8e1ea740.06b75ff2.js
+2026-01-10T12:44:02.4541469Z ./assets/js/9dd8a0d2.9fccc484.js
+2026-01-10T12:44:02.4541967Z ./assets/js/9633.9359d52c.js
+2026-01-10T12:44:02.4542433Z ./assets/js/6877.a944d49c.js
+2026-01-10T12:44:02.4542901Z ./assets/js/1444f22f.1f640c54.js
+2026-01-10T12:44:02.4543385Z ./assets/js/7014.9e85abcc.js
+2026-01-10T12:44:02.4543839Z ./assets/js/1910.8a257fc3.js
+2026-01-10T12:44:02.4544313Z ./assets/js/cb706853.dd8123f5.js
+2026-01-10T12:44:02.4544796Z ./assets/js/9526.db8047a9.js
+2026-01-10T12:44:02.4545271Z ./assets/js/538.9fcda81a.js
+2026-01-10T12:44:02.4545726Z ./assets/js/3433.20a40336.js
+2026-01-10T12:44:02.4546190Z ./assets/js/6905.9c3df8f7.js
+2026-01-10T12:44:02.4546790Z ./assets/js/8842.48b2db08.js
+2026-01-10T12:44:02.4547252Z ./assets/js/4890.2b2b2fb0.js
+2026-01-10T12:44:02.4547675Z ./assets/js/1209.55943e5b.js
+2026-01-10T12:44:02.4547996Z ./assets/js/7781.faa9af4b.js
+2026-01-10T12:44:02.4548334Z ./assets/js/2ea6743a.0b7c1729.js
+2026-01-10T12:44:02.4548681Z ./assets/js/3188.faae99f4.js
+2026-01-10T12:44:02.4549025Z ./assets/js/f59731df.50115b4c.js
+2026-01-10T12:44:02.4549370Z ./assets/js/3e088593.0995cc8f.js
+2026-01-10T12:44:02.4549722Z ./assets/js/9813.2149ba09.js
+2026-01-10T12:44:02.4550054Z ./assets/js/4bdc0de0.356dea61.js
+2026-01-10T12:44:02.4550421Z ./assets/js/e570d44c.a294d210.js
+2026-01-10T12:44:02.4550774Z ./assets/js/8582.523b03f0.js
+2026-01-10T12:44:02.4551103Z ./assets/js/a7456010.45e5a91b.js
+2026-01-10T12:44:02.4551450Z ./assets/js/8174.b61937c5.js
+2026-01-10T12:44:02.4551773Z ./assets/js/81494120.8e94db10.js
+2026-01-10T12:44:02.4552122Z ./assets/js/2163.e8f6923f.js
+2026-01-10T12:44:02.4552445Z ./assets/js/9325.276959c8.js
+2026-01-10T12:44:02.4552778Z ./assets/js/922.c6692815.js
+2026-01-10T12:44:02.4553112Z ./assets/js/ab7043ca.7217c1dc.js
+2026-01-10T12:44:02.4553471Z ./assets/js/d4380c73.2d5ad5cc.js
+2026-01-10T12:44:02.4553816Z ./assets/js/417.01b9ea56.js
+2026-01-10T12:44:02.4554137Z ./assets/js/1f391b9e.7b1738f5.js
+2026-01-10T12:44:02.4554491Z ./assets/js/5431.a94547eb.js
+2026-01-10T12:44:02.4554811Z ./assets/js/5660.847a2ad5.js
+2026-01-10T12:44:02.4555148Z ./assets/js/0659c9a0.17a2a419.js
+2026-01-10T12:44:02.4555428Z ./assets/js/4b073ecd.7f3fc6ef.js
+2026-01-10T12:44:02.4555645Z ./assets/js/2ca84061.dfedc190.js
+2026-01-10T12:44:02.4556964Z ./assets/js/5483.ab5b940b.js
+2026-01-10T12:44:02.4557346Z ./assets/js/4538.8b797926.js
+2026-01-10T12:44:02.4557715Z ./assets/js/6294.4235d1e5.js
+2026-01-10T12:44:02.4558015Z ./assets/js/5f377498.fdca94e4.js
+2026-01-10T12:44:02.4558443Z ./assets/js/a2d420e2.a69c8e12.js
+2026-01-10T12:44:02.4558707Z ./assets/js/9646.cc60cc24.js
+2026-01-10T12:44:02.4558969Z ./assets/js/298.0db850bd.js
+2026-01-10T12:44:02.4559348Z ./assets/js/5bdf933f.7e9bedea.js
+2026-01-10T12:44:02.4559635Z ./assets/js/2245.38c85c92.js
+2026-01-10T12:44:02.4560093Z ./assets/js/runtime~main.a70e82c4.js
+2026-01-10T12:44:02.4560406Z ./faq.html
+2026-01-10T12:44:02.4560558Z ./favicon.png
+2026-01-10T12:44:02.4560850Z ./logo/
+2026-01-10T12:44:02.4561022Z ./logo/dark.svg
+2026-01-10T12:44:02.4561183Z ./logo/dyte.svg
+2026-01-10T12:44:02.4561350Z ./logo/dyte_dark_logo.svg
+2026-01-10T12:44:02.4561601Z ./logo/light.svg
+2026-01-10T12:44:02.4561845Z ./guides/
+2026-01-10T12:44:02.4561993Z ./guides/webview/
+2026-01-10T12:44:02.4562181Z ./guides/webview/javascript.html
+2026-01-10T12:44:02.4562407Z ./guides/webview/navigation.html
+2026-01-10T12:44:02.4562766Z ./guides/events/
+2026-01-10T12:44:02.4563013Z ./guides/events/register-events.html
+2026-01-10T12:44:02.4563338Z ./guides/events/event-types.html
+2026-01-10T12:44:02.4563559Z ./guides/introduction.html
+2026-01-10T12:44:02.4563902Z ./guides/window-state/
+2026-01-10T12:44:02.4564107Z ./guides/window-state/maximize.html
+2026-01-10T12:44:02.4564626Z ./guides/window-state/always-on-top.html
+2026-01-10T12:44:02.4564986Z ./guides/window-state/minimize.html
+2026-01-10T12:44:02.4565410Z ./guides/reference/
+2026-01-10T12:44:02.4565615Z ./guides/reference/data-structures.html
+2026-01-10T12:44:02.4566407Z ./guides/reference/c-api.html
+2026-01-10T12:44:02.4568028Z ./guides/theme/
+2026-01-10T12:44:02.4568365Z ./guides/theme/backdrop.html
+2026-01-10T12:44:02.4568906Z ./guides/theme/set-theme.html
+2026-01-10T12:44:02.4569514Z ./guides/window-properties/
+2026-01-10T12:44:02.4569943Z ./guides/window-properties/position.html
+2026-01-10T12:44:02.4570436Z ./guides/window-properties/visibility.html
+2026-01-10T12:44:02.4571112Z ./guides/window-properties/title.html
+2026-01-10T12:44:02.4571563Z ./guides/window-properties/size.html
+2026-01-10T12:44:02.4572226Z ./guides/local-server/
+2026-01-10T12:44:02.4572472Z ./guides/local-server/create-server.html
+2026-01-10T12:44:02.4573290Z ./guides/core/
+2026-01-10T12:44:02.4573496Z ./guides/core/initialization.html
+2026-01-10T12:44:02.4573932Z ./guides/core/cleanup.html
+2026-01-10T12:44:02.4574594Z ./guides/core/message-loop.html
+2026-01-10T12:44:02.4575240Z ./guides/window-management/
+2026-01-10T12:44:02.4575688Z ./guides/window-management/event-handlers.html
+2026-01-10T12:44:02.4576245Z ./guides/window-management/custom-titlebar.html
+2026-01-10T12:44:02.4577086Z ./guides/window-management/close-window.html
+2026-01-10T12:44:02.4577733Z ./guides/window-management/create-window.html
+2026-01-10T12:44:02.4578576Z ./guides/ipc/
+2026-01-10T12:44:02.4578779Z ./guides/ipc/register-handler.html
+2026-01-10T12:44:02.4579360Z ./guides/ipc/send-message.html
+2026-01-10T12:44:02.4579911Z ./guides/webview2-installation.html
+2026-01-10T12:44:02.4580493Z ./guides/quickstart.html
+2026-01-10T12:44:02.4582752Z ./_redirects
+2026-01-10T12:44:02.4583073Z ./release-notes.html
+2026-01-10T12:44:02.4583828Z ./guides.html
+2026-01-10T12:44:02.4584116Z ./robots.txt
+2026-01-10T12:44:02.4584397Z ./easy-language-sdk/
+2026-01-10T12:44:02.4584765Z ./easy-language-sdk/introduction.html
+2026-01-10T12:44:02.4585202Z ./easy-language-sdk/reference/
+2026-01-10T12:44:02.4585646Z ./easy-language-sdk/reference/data-types.html
+2026-01-10T12:44:02.4586170Z ./easy-language-sdk/reference/public-methods.html
+2026-01-10T12:44:02.4586878Z ./easy-language-sdk/reference/constants.html
+2026-01-10T12:44:02.4587392Z ./easy-language-sdk/reference/methods.html
+2026-01-10T12:44:02.4587983Z ./easy-language-sdk/quickstart.html
+2026-01-10T12:44:02.4588638Z ./favicon.ico
+2026-01-10T12:44:02.4588999Z ./search.html
+2026-01-10T12:44:02.4589408Z ./sitemap.xml
+2026-01-10T12:44:02.4589814Z ./python-sdk.html
+2026-01-10T12:44:02.4590220Z ./404.html
+2026-01-10T12:44:02.4590769Z ./python-sdk/
+2026-01-10T12:44:02.4591084Z ./python-sdk/packaging.html
+2026-01-10T12:44:02.4591951Z ./python-sdk/reference/
+2026-01-10T12:44:02.4592326Z ./python-sdk/reference/methods.html
+2026-01-10T12:44:02.4594868Z ./python-sdk/quickstart.html
+2026-01-10T12:44:02.4600109Z ##[endgroup]
+2026-01-10T12:44:02.4679999Z ##[group]Run actions/upload-artifact@v4
+2026-01-10T12:44:02.4680252Z with:
+2026-01-10T12:44:02.4680553Z   name: github-pages
+2026-01-10T12:44:02.4680771Z   path: /home/runner/work/_temp/artifact.tar
+2026-01-10T12:44:02.4681027Z   retention-days: 1
+2026-01-10T12:44:02.4681211Z   if-no-files-found: error
+2026-01-10T12:44:02.4681416Z   compression-level: 6
+2026-01-10T12:44:02.4681595Z   overwrite: false
+2026-01-10T12:44:02.4681778Z   include-hidden-files: false
+2026-01-10T12:44:02.4681975Z env:
+2026-01-10T12:44:02.4682129Z   GITHUB_PAGES: true
+2026-01-10T12:44:02.4682298Z ##[endgroup]
+2026-01-10T12:44:02.6824341Z With the provided path, there will be 1 file uploaded
+2026-01-10T12:44:02.6829446Z Artifact name is valid!
+2026-01-10T12:44:02.6830799Z Root directory input is valid!
+2026-01-10T12:44:02.8048776Z Beginning upload of artifact content to blob storage
+2026-01-10T12:44:03.7132794Z Uploaded bytes 8388608
+2026-01-10T12:44:03.9091818Z Uploaded bytes 16777216
+2026-01-10T12:44:03.9925202Z Uploaded bytes 25165824
+2026-01-10T12:44:04.3102132Z Uploaded bytes 33554432
+2026-01-10T12:44:04.5197322Z Uploaded bytes 41943040
+2026-01-10T12:44:04.9524789Z Uploaded bytes 46804034
+2026-01-10T12:44:04.9867614Z Finished uploading artifact content to blob storage!
+2026-01-10T12:44:04.9871202Z SHA256 digest of uploaded artifact zip is f5a289bcbd794996e0a04ff0ffd769804a3663834ea8dfe7256636f035ea8c40
+2026-01-10T12:44:04.9872556Z Finalizing artifact upload
+2026-01-10T12:44:05.0713935Z Artifact github-pages.zip successfully finalized. Artifact ID 5085033584
+2026-01-10T12:44:05.0715737Z Artifact github-pages has been successfully uploaded! Final size is 46804034 bytes. Artifact ID is 5085033584
+2026-01-10T12:44:05.0722687Z Artifact download URL: https://github.com/JadeViewDocs/docs/actions/runs/20878490077/artifacts/5085033584
+2026-01-10T12:44:05.0952484Z ##[group]Run actions/deploy-pages@v4
+2026-01-10T12:44:05.0952748Z with:
+2026-01-10T12:44:05.0953040Z   token: ***
+2026-01-10T12:44:05.0953218Z   timeout: 600000
+2026-01-10T12:44:05.0953393Z   error_count: 10
+2026-01-10T12:44:05.0953571Z   reporting_interval: 5000
+2026-01-10T12:44:05.0953805Z   artifact_name: github-pages
+2026-01-10T12:44:05.0954025Z   preview: false
+2026-01-10T12:44:05.0954191Z env:
+2026-01-10T12:44:05.0954351Z   GITHUB_PAGES: true
+2026-01-10T12:44:05.0954538Z ##[endgroup]
+2026-01-10T12:44:05.4506931Z Fetching artifact metadata for "github-pages" in this workflow run
+2026-01-10T12:44:05.5487468Z Found 1 artifact(s)
+2026-01-10T12:44:05.5502345Z Creating Pages deployment with payload:
+2026-01-10T12:44:05.5502841Z {
+2026-01-10T12:44:05.5503128Z 	"artifact_id": 5085033584,
+2026-01-10T12:44:05.5503701Z 	"pages_build_version": "b1aa637e42f7e6d02df66f4e29a3ef65673eea83",
+2026-01-10T12:44:05.5574016Z 	"oidc_token": "***"
+2026-01-10T12:44:05.5574400Z }
+2026-01-10T12:44:05.8280328Z Created deployment for b1aa637e42f7e6d02df66f4e29a3ef65673eea83, ID: b1aa637e42f7e6d02df66f4e29a3ef65673eea83
+2026-01-10T12:44:10.8296557Z Getting Pages deployment status...
+2026-01-10T12:44:10.9527599Z Reported success!
+2026-01-10T12:44:10.9731630Z Post job cleanup.
+2026-01-10T12:44:11.1648243Z Post job cleanup.
+2026-01-10T12:44:11.2580759Z [command]/usr/bin/git version
+2026-01-10T12:44:11.2617093Z git version 2.52.0
+2026-01-10T12:44:11.2658826Z Temporarily overriding HOME='/home/runner/work/_temp/f886819c-33df-4b46-9081-b88a62f40006' before making global git config changes
+2026-01-10T12:44:11.2660316Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-10T12:44:11.2670423Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/docs/docs
+2026-01-10T12:44:11.2704393Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-01-10T12:44:11.2736037Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-01-10T12:44:11.2968218Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-10T12:44:11.2987205Z http.https://github.com/.extraheader
+2026-01-10T12:44:11.2999076Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-01-10T12:44:11.3028464Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-01-10T12:44:11.3248772Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-10T12:44:11.3279123Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-01-10T12:44:11.3606431Z Evaluate and set environment url
+2026-01-10T12:44:11.3609827Z Evaluated environment url: https://jade.run/
+2026-01-10T12:44:11.3610630Z Cleaning up orphan processes

@@ -9,7 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createGithubGraphQLClient } from './github-graphql-client.js';
+import { createGithubGraphQLClient } from './github-graphql-client.mjs';
 
 // 获取当前文件的目录路径（ES模块方式）
 const __filename = fileURLToPath(import.meta.url);
@@ -100,10 +100,9 @@ function getAllDocFiles(dir) {
       files.push(...getAllDocFiles(fullPath));
     } else if (/(md|mdx)$/.test(entry.name)) {
       // 只处理 Markdown 文件
-      const relativePath = path.relative(__dirname, fullPath)
-        .replace(/^\.\.\//, '')
-        .replace(/\\/g, '/');
-      files.push(relativePath);
+        const relativePath = path.relative(path.join(__dirname, '..'), fullPath)
+          .replace(/\\/g, '/');
+        files.push(relativePath);
     }
   }
 
@@ -151,7 +150,39 @@ async function main() {
 }
 
 // 执行主函数
-main().catch(error => {
-  console.error('生成贡献者数据失败:', error);
-  process.exit(1);
-});
+// 添加模拟模式支持，用于测试
+const args = process.argv.slice(2);
+const isMockMode = args.includes('--mock');
+
+if (isMockMode) {
+  // 模拟生成贡献者数据
+  console.log('使用模拟模式生成贡献者数据...');
+  
+  // 获取所有文档文件
+  const docFiles = getAllDocFiles(DOCS_DIR);
+  console.log(`找到 ${docFiles.length} 个文档文件`);
+  
+  // 生成模拟贡献者映射
+  const contributorsMap = {};
+  
+  for (const filePath of docFiles) {
+    console.log(`处理文件: ${filePath}`);
+    // 为每个文档文件生成模拟贡献者数据
+    contributorsMap[filePath] = [
+      {
+        login: "JadeViewDev",
+        avatar: "https://avatars.githubusercontent.com/u/12345678?v=4"
+      }
+    ];
+  }
+  
+  // 写入输出文件
+  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(contributorsMap, null, 2), 'utf-8');
+  console.log(`贡献者数据已生成: ${OUTPUT_FILE}`);
+  console.log(`共生成 ${Object.keys(contributorsMap).length} 个文件的贡献者数据`);
+} else {
+  main().catch(error => {
+    console.error('生成贡献者数据失败:', error);
+    process.exit(1);
+  });
+}

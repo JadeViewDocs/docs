@@ -45,6 +45,11 @@ jobs:
       - name: Update changelog
         run: bun run update-changelog
 
+      - name: Generate contributors data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/generate-contributors.mjs
+
       - name: Build with Docusaurus
         run: bun run build
 
