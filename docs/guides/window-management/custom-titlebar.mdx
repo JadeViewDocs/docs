@@ -1,0 +1,45 @@
+---
+title: 自定义标题栏
+sidebar_position: 4
+---
+
+# 自定义标题栏
+
+当使用 `remove_titlebar = 1` 移除原生标题栏后，需要通过 CSS 定义可拖拽区域来实现窗口拖动。
+
+## 拖拽区域 CSS 属性
+
+使用 `-webkit-app-region` 属性定义拖拽行为：
+
+| 值 | 说明 |
+|------|------|
+| `drag` | 该区域可拖拽移动窗口 |
+| `no-drag` | 该区域不可拖拽（用于按钮等交互元素） |
+
+## 示例
+
+```css
+/* 标题栏可拖拽 */
+.titlebar {
+    -webkit-app-region: drag;
+    height: 32px;
+}
+
+/* 按钮不可拖拽，否则无法点击 */
+.titlebar button {
+    -webkit-app-region: no-drag;
+}
+```
+
+```html
+<div class="titlebar">
+    <span>我的应用</span>
+    <button onclick="windowAction('close')">✕</button>
+</div>
+```
+
+## 注意事项
+
+1. 仅在无边框窗口中生效（需设置 `remove_titlebar = 1`）
+2. 交互元素（按钮、链接、输入框）必须设置 `no-drag`，否则无法点击
+3. 双击可拖拽区域会触发最大化/还原（系统行为）
