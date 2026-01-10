@@ -6,152 +6,187 @@ import contributorsMap from '../data/contributors.json';
 
 // 确保只在浏览器环境中执行
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  // 等待DOM加载完成
-  document.addEventListener('DOMContentLoaded', () => {
+  // 防抖函数：确保DOM稳定后执行
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeoutId);
+        func(...args);
+      };
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(later, delay);
+    };
+  };
+
+  // 函数：添加贡献者信息
+  const addContributorsInfo = () => {
+    // 检查是否已经添加过贡献者信息
+    if (document.querySelector('.contributors-section')) {
+      return;
+    }
+
     // 查找所有文档内容容器 - 适配所有文档部分
     const docContentContainers = document.querySelectorAll(
       '.theme-doc-markdown.markdown, .markdown' // 匹配所有文档页面的内容容器
     );
     
     if (docContentContainers.length === 0) {
-      console.log('未找到文档内容容器');
+      return;
+    }
+
+    // 从URL中提取更准确的文档路径
+    const pathname = window.location.pathname;
+    let docPath = 'docs/guides/index.mdx'; // 默认路径
+    
+    // 通用路径匹配逻辑：从URL中提取文档路径并尝试多种匹配方式
+    const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
+    
+    // 尝试多种可能的文档路径格式，按优先级排序
+    const possiblePaths = [];
+    
+    // 1. 直接格式：docs/[pathname].mdx
+    if (cleanPath) {
+      possiblePaths.push(`docs/${cleanPath}.mdx`);
+    }
+    
+    // 2. 带index格式：docs/[pathname]/index.mdx
+    if (cleanPath) {
+      possiblePaths.push(`docs/${cleanPath}/index.mdx`);
+    }
+    
+    // 3. 处理根路径情况
+    possiblePaths.push('docs/guides/index.mdx');
+    
+    // 4. 尝试移除文件扩展名（如果有）
+    if (cleanPath && cleanPath.endsWith('.mdx')) {
+      const noExtPath = cleanPath.replace('.mdx', '');
+      possiblePaths.push(`docs/${noExtPath}.mdx`);
+      possiblePaths.push(`docs/${noExtPath}/index.mdx`);
+    }
+    
+    // 5. 尝试移除最后一个路径段，添加index
+    if (cleanPath && cleanPath.includes('/')) {
+      const lastSlashIndex = cleanPath.lastIndexOf('/');
+      const parentPath = cleanPath.substring(0, lastSlashIndex);
+      possiblePaths.push(`docs/${parentPath}.mdx`);
+      possiblePaths.push(`docs/${parentPath}/index.mdx`);
+    }
+    
+    // 遍历所有可能的路径，找到匹配的贡献者数据
+    let matchedPath = null;
+    for (const possiblePath of possiblePaths) {
+      if (contributorsMap[possiblePath]) {
+        matchedPath = possiblePath;
+        break;
+      }
+    }
+    
+    // 如果找到匹配的路径，使用它
+    if (matchedPath) {
+      docPath = matchedPath;
+    }
+    
+    // 移除末尾的斜杠
+    docPath = docPath.replace(/\/$/, '');
+    // 替换连续的斜杠
+    docPath = docPath.replace(/\/+/g, '/');
+    
+    // 处理特殊情况：如果直接匹配失败，尝试多种可能的路径格式
+    if (!contributorsMap[docPath]) {
+      // 1. 尝试移除/index
+      const noIndexPath = docPath.replace(/\/index\.mdx$/, '.mdx');
+      if (contributorsMap[noIndexPath]) {
+        docPath = noIndexPath;
+      } 
+      // 2. 尝试添加/index
+      else {
+        const withIndexPath = docPath.replace(/\.mdx$/, '/index.mdx');
+        if (contributorsMap[withIndexPath]) {
+          docPath = withIndexPath;
+        }
+      }
+    }
+    
+    // 获取该文档的贡献者
+    const contributors = contributorsMap[docPath] || [];
+    
+    // 如果没有贡献者，跳过
+    if (contributors.length === 0) {
       return;
     }
     
-    // 遍历所有文档容器
+    // 构建贡献者HTML
+    let avatarsHTML = '';
+    contributors.forEach(contributor => {
+      avatarsHTML += `
+        <a 
+          href="https://github.com/${contributor.login}" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          title="${contributor.login}"
+          style="text-decoration: none;"
+        >
+          <img 
+            src="${contributor.avatar}" 
+            alt="${contributor.login}" 
+            width="40" 
+            height="40"
+            style="
+              border-radius: 50%;
+              border: 2px solid var(--docs-color-background);
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              transition: transform 0.2s ease;
+            "
+            onmouseenter="this.style.transform = 'translateY(-2px)'"
+            onmouseleave="this.style.transform = 'translateY(0)'"
+          />
+        </a>
+      `;
+    });
+    
+    // 创建贡献者组件的HTML结构
+    const contributorsHTML = `
+      <div class="contributors-section" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--docs-color-border); width: 100%; max-width: 100%;">
+        <h3 class="contributors-title" style="font-size: 1.125rem; font-weight: 600; color: var(--docs-color-text); margin-bottom: 1rem; font-family: var(--ifm-font-family-base);">文档贡献者</h3>
+        <div class="contributors-avatars" style="display: flex; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">${avatarsHTML}</div>
+        </div>
+      </div>
+    `;
+    
+    // 在文档内容容器之后添加贡献者信息
     for (let i = 0; i < docContentContainers.length; i++) {
-      const container = docContentContainers[i];
+      const contentContainer = docContentContainers[i];
       
       // 检查是否已经添加了贡献者信息
-      if (container.nextElementSibling && container.nextElementSibling.classList.contains('contributors-section')) {
+      if (contentContainer.nextElementSibling && contentContainer.nextElementSibling.classList.contains('contributors-section')) {
         continue;
       }
-      
-      // 从URL中提取更准确的文档路径
-      const pathname = window.location.pathname;
-      let docPath = 'docs/guides/index.mdx'; // 默认路径
-      
-      // 通用路径匹配逻辑：从URL中提取文档路径并尝试多种匹配方式
-      const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
-      
-      // 尝试多种可能的文档路径格式，按优先级排序
-      const possiblePaths = [];
-      
-      // 1. 直接格式：docs/[pathname].mdx
-      if (cleanPath) {
-        possiblePaths.push(`docs/${cleanPath}.mdx`);
-      }
-      
-      // 2. 带index格式：docs/[pathname]/index.mdx
-      if (cleanPath) {
-        possiblePaths.push(`docs/${cleanPath}/index.mdx`);
-      }
-      
-      // 3. 处理根路径情况
-      possiblePaths.push('docs/guides/index.mdx');
-      
-      // 4. 尝试移除文件扩展名（如果有）
-      if (cleanPath && cleanPath.endsWith('.mdx')) {
-        const noExtPath = cleanPath.replace('.mdx', '');
-        possiblePaths.push(`docs/${noExtPath}.mdx`);
-        possiblePaths.push(`docs/${noExtPath}/index.mdx`);
-      }
-      
-      // 5. 尝试移除最后一个路径段，添加index
-      if (cleanPath && cleanPath.includes('/')) {
-        const lastSlashIndex = cleanPath.lastIndexOf('/');
-        const parentPath = cleanPath.substring(0, lastSlashIndex);
-        possiblePaths.push(`docs/${parentPath}.mdx`);
-        possiblePaths.push(`docs/${parentPath}/index.mdx`);
-      }
-      
-      // 遍历所有可能的路径，找到匹配的贡献者数据
-      let matchedPath = null;
-      for (const possiblePath of possiblePaths) {
-        if (contributorsMap[possiblePath]) {
-          matchedPath = possiblePath;
-          break;
-        }
-      }
-      
-      // 如果找到匹配的路径，使用它
-      if (matchedPath) {
-        docPath = matchedPath;
-      } else {
-        // 如果没有找到匹配，输出调试信息
-        console.log(`未找到贡献者数据的路径：${pathname}，尝试过的路径：`, possiblePaths);
-      }
-      
-      // 移除末尾的斜杠
-      docPath = docPath.replace(/\/$/, '');
-      // 替换连续的斜杠
-      docPath = docPath.replace(/\/+\//g, '/');
-      
-      // 处理特殊情况：如果直接匹配失败，尝试多种可能的路径格式
-      if (!contributorsMap[docPath]) {
-        // 1. 尝试移除/index
-        const noIndexPath = docPath.replace(/\/index\.mdx$/, '.mdx');
-        if (contributorsMap[noIndexPath]) {
-          docPath = noIndexPath;
-        } 
-        // 2. 尝试添加/index
-        else {
-          const withIndexPath = docPath.replace(/\.mdx$/, '/index.mdx');
-          if (contributorsMap[withIndexPath]) {
-            docPath = withIndexPath;
-          }
-        }
-      }
-      
-      // 获取该文档的贡献者
-      const contributors = contributorsMap[docPath] || [];
-      
-      // 如果没有贡献者，跳过
-      if (contributors.length === 0) {
-        continue;
-      }
-      
-      // 构建贡献者HTML
-      let avatarsHTML = '';
-      contributors.forEach(contributor => {
-        avatarsHTML += `
-          <a 
-            href="https://github.com/${contributor.login}" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            title="${contributor.login}"
-            style="text-decoration: none;"
-          >
-            <img 
-              src="${contributor.avatar}" 
-              alt="${contributor.login}" 
-              width="40" 
-              height="40"
-              style="
-                border-radius: 50%;
-                border: 2px solid var(--docs-color-background);
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                transition: transform 0.2s ease;
-              "
-              onmouseenter="this.style.transform = 'translateY(-2px)'"
-              onmouseleave="this.style.transform = 'translateY(0)'"
-            />
-          </a>
-        `;
-      });
-      
-      // 创建贡献者组件的HTML结构
-      const contributorsHTML = `
-        <div class="contributors-section">
-          <h3 class="contributors-title">文档贡献者</h3>
-          <div class="contributors-avatars">
-            <div style="display: flex; align-items: center; gap: 8px;">${avatarsHTML}</div>
-          </div>
-        </div>
-      `;
       
       // 在文档内容容器之后添加贡献者信息
-      container.insertAdjacentHTML('afterend', contributorsHTML);
+      contentContainer.insertAdjacentHTML('afterend', contributorsHTML);
     }
+  };
+
+  // 使用防抖函数，确保DOM稳定后执行
+  const debouncedAdd = debounce(addContributorsInfo, 500);
+
+  // 监听DOM变化，当DOM停止变化后添加贡献者信息
+  const observer = new MutationObserver(debouncedAdd);
+
+  // 开始观察DOM变化
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
   });
+
+  // 设置最大观察时间，5秒后停止观察并添加贡献者信息
+  setTimeout(() => {
+    observer.disconnect();
+    addContributorsInfo();
+  }, 5000);
+
+  // 初始执行一次
+  debouncedAdd();
 }
