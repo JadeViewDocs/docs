@@ -16,8 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 配置
-const REPO_OWNER = 'JadeViewDev'; // 修改为实际的仓库拥有者
-const REPO_NAME = 'JadeView'; // 修改为实际的仓库名称
+const REPO_OWNER = 'JadeViewDocs'; // 实际的仓库拥有者
+const REPO_NAME = 'docs'; // 实际的仓库名称
 const BRANCH_NAME = 'main';
 const DOCS_DIR = path.join(__dirname, '../docs');
 const OUTPUT_FILE = path.join(__dirname, '../src/data/contributors.json');
