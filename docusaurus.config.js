@@ -244,19 +244,19 @@ const config = {
             ],
           },
           {
-            title: '公司',
+            title: '社群',
             items: [
               {
-                label: '关于我们',
-                href: '#',
+                label: 'QQ群',
+                href: 'https://qm.qq.com/q/tU0aOkV5lu',
               },
               {
-                label: '联系我们',
-                href: '#',
+                label: 'issues',
+                href: 'https://github.com/JadeViewDocs/library/issues',
               },
               {
-                label: '隐私政策',
-                href: '#',
+                label: '邮箱',
+                href: 'ihanlong@qq.com',
               },
             ],
           },

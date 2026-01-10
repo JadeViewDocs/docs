@@ -46,16 +46,21 @@ const developers = [
 // 公司链接
 const company = [
   {
-    name: '关于我们',
-    href: '#',
-  },
-  {
-    name: '常见问题',
-    href: '/faq',
-  },
-  {
-    name: '联系我们',
-    href: '#',
+    title: '社群',
+    items: [
+      {
+        label: 'QQ群',
+        href: 'https://qm.qq.com/q/tU0aOkV5lu',
+      },
+      {
+        label: 'issues',
+        href: 'https://github.com/JadeViewDocs/library/issues',
+      },
+      {
+        label: '邮箱',
+        href: 'ihanlong@qq.com',
+      },
+    ],
   },
 ];
 
