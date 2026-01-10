@@ -14,13 +14,29 @@ JadeView 提供了创建本地服务器的功能，允许开发者轻松地在 W
 ```c
 #include "jadeview.h"
 
+// 保存窗口 ID，供 IPC 回调使用
+static uint32_t g_window_id = 0;
+
 // 窗口创建成功回调
 void window_created(uint32_t window_id, int success, const char* reason) {
     if (success == 1) {
         printf("窗口创建成功，窗口 ID：%u\n", window_id);
+        g_window_id = window_id;
     } else {
         printf("窗口创建失败：%s\n", reason ? reason : "未知错误");
     }
+}
+
+// 处理标题栏按钮的 IPC 回调
+int window_action_handler(uint32_t window_id, const char* action) {
+    if (strcmp(action, "minimize") == 0) {
+        minimize_window(g_window_id);
+    } else if (strcmp(action, "maximize") == 0) {
+        toggle_maximize_window(g_window_id);
+    } else if (strcmp(action, "close") == 0) {
+        close_window(g_window_id);
+    }
+    return 1;
 }
 
 // 应用初始化完成回调
@@ -34,7 +50,10 @@ int app_ready_callback(int success, const char* reason) {
             return 0;
         });
         
-        // 步骤 2：创建本地服务器
+        // 注册窗口操作 IPC 处理器（用于标题栏按钮）
+        register_ipc_handler("windowAction", window_action_handler);
+        
+        // 创建本地服务器
         const char* root_path = "./web";
         const char* appname = "myapp";
         char url[128];
@@ -61,7 +80,8 @@ int app_ready_callback(int success, const char* reason) {
             WebViewSettings settings = {
                 .autoplay = 0,
                 .background_throttling = 0,
-                .disable_right_click = 0
+                .disable_right_click = 0,
+                .remove_titlebar = 1
             };
             
             // 创建 WebView 窗口，加载本地服务器上的资源
@@ -109,37 +129,78 @@ int main() {
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JadeView 本地 Web 资源示例</title>
+    <title>本地 Web 资源示例</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
             background-color: #f0f0f0;
+            user-select: none;  /* 禁止选中，更像原生应用 */
         }
-        h1 {
-            color: #333;
+        
+        /* 自定义标题栏 */
+        .titlebar {
+            -webkit-app-region: drag;
+            height: 32px;
+            background: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: 12px;
         }
-        p {
-            color: #666;
+        .titlebar-controls {
+            -webkit-app-region: no-drag;
+            display: flex;
         }
+        .titlebar-btn {
+            width: 46px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+        }
+        .titlebar-btn:hover { background: #555; }
+        .titlebar-btn.close:hover { background: #e81123; }
+        
         .container {
-            max-width: 800px;
-            margin: 0 auto;
             background-color: white;
             padding: 20px;
+            margin: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-height: calc(100vh - 32px - 40px);
         }
+        h1 { color: #333; }
+        p { color: #666; margin: 8px 0; }
+        .btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        .btn:hover { background: #555; }
     </style>
 </head>
 <body>
+    <div class="titlebar">
+        <span>本地 Web 资源示例</span>
+        <div class="titlebar-controls">
+            <button class="titlebar-btn" onclick="jade.ipcSend('windowAction','minimize')">─</button>
+            <button class="titlebar-btn" onclick="jade.ipcSend('windowAction','maximize')">□</button>
+            <button class="titlebar-btn close" onclick="jade.ipcSend('windowAction','close')">✕</button>
+        </div>
+    </div>
     <div class="container">
         <h1>欢迎使用 JadeView！</h1>
         <p>这是一个使用本地服务器加载的 Web 页面。</p>
         <p>您可以在此页面中使用完整的 Web 技术栈（HTML、CSS、JavaScript）来构建您的应用界面。</p>
-        <button onclick="showMessage()">点击我</button>
+        <p>拖拽上方标题栏可移动窗口。</p>
+        <button class="btn" onclick="showMessage()">点击我</button>
         <div id="message"></div>
     </div>
     
