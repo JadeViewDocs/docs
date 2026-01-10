@@ -31,43 +31,55 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       const pathname = window.location.pathname;
       let docPath = 'docs/guides/index.mdx'; // 默认路径
       
-      // 根据URL路径生成更准确的文档路径
-      if (pathname.startsWith('/web-sdk')) {
-        // 处理web-sdk部分的路径
-        const relativePath = pathname.replace('/web-sdk', '');
-        docPath = `docs/web-sdk${relativePath || '/index'}.mdx`;
-      } else if (pathname.startsWith('/easy-language-sdk')) {
-        // 处理easy-language-sdk部分的路径
-        const relativePath = pathname.replace('/easy-language-sdk', '');
-        docPath = `docs/easy-language-sdk${relativePath || '/index'}.mdx`;
-      } else if (pathname.startsWith('/changelog')) {
-        // 处理changelog部分的路径
-        const relativePath = pathname.replace('/changelog', '');
-        docPath = `docs/changelog${relativePath || '/index'}.mdx`;
-      } else if (pathname.startsWith('/spec')) {
-        // 处理spec部分的路径
-        const relativePath = pathname.replace('/spec', '');
-        docPath = `docs/spec${relativePath || '/index'}.mdx`;
-      } else if (pathname.startsWith('/guides')) {
-        // 处理guides部分的路径
-        const relativePath = pathname.replace('/guides', '');
-        docPath = `docs/guides${relativePath || '/index'}.mdx`;
-      } else {
-        // 尝试直接匹配文档路径
-        const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
-        if (cleanPath) {
-          // 直接尝试docs/[pathname].mdx
-          const directPath = `docs/${cleanPath}.mdx`;
-          if (contributorsMap[directPath]) {
-            docPath = directPath;
-          } else {
-            // 尝试docs/[pathname]/index.mdx
-            const indexPath = `docs/${cleanPath}/index.mdx`;
-            if (contributorsMap[indexPath]) {
-              docPath = indexPath;
-            }
-          }
+      // 通用路径匹配逻辑：从URL中提取文档路径并尝试多种匹配方式
+      const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
+      
+      // 尝试多种可能的文档路径格式，按优先级排序
+      const possiblePaths = [];
+      
+      // 1. 直接格式：docs/[pathname].mdx
+      if (cleanPath) {
+        possiblePaths.push(`docs/${cleanPath}.mdx`);
+      }
+      
+      // 2. 带index格式：docs/[pathname]/index.mdx
+      if (cleanPath) {
+        possiblePaths.push(`docs/${cleanPath}/index.mdx`);
+      }
+      
+      // 3. 处理根路径情况
+      possiblePaths.push('docs/guides/index.mdx');
+      
+      // 4. 尝试移除文件扩展名（如果有）
+      if (cleanPath && cleanPath.endsWith('.mdx')) {
+        const noExtPath = cleanPath.replace('.mdx', '');
+        possiblePaths.push(`docs/${noExtPath}.mdx`);
+        possiblePaths.push(`docs/${noExtPath}/index.mdx`);
+      }
+      
+      // 5. 尝试移除最后一个路径段，添加index
+      if (cleanPath && cleanPath.includes('/')) {
+        const lastSlashIndex = cleanPath.lastIndexOf('/');
+        const parentPath = cleanPath.substring(0, lastSlashIndex);
+        possiblePaths.push(`docs/${parentPath}.mdx`);
+        possiblePaths.push(`docs/${parentPath}/index.mdx`);
+      }
+      
+      // 遍历所有可能的路径，找到匹配的贡献者数据
+      let matchedPath = null;
+      for (const possiblePath of possiblePaths) {
+        if (contributorsMap[possiblePath]) {
+          matchedPath = possiblePath;
+          break;
         }
+      }
+      
+      // 如果找到匹配的路径，使用它
+      if (matchedPath) {
+        docPath = matchedPath;
+      } else {
+        // 如果没有找到匹配，输出调试信息
+        console.log(`未找到贡献者数据的路径：${pathname}，尝试过的路径：`, possiblePaths);
       }
       
       // 移除末尾的斜杠
