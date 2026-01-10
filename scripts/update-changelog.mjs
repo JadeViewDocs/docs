@@ -79,6 +79,17 @@ sidebar_position: 1
 
 `;
 
+  /**
+   * 处理Release body中的Issue引用，将#1转换为链接
+   */
+  function processReleaseBody(body) {
+    if (!body) return body;
+    
+    // 将#123转换为GitHub Issue链接，避免被解析为标题
+    // 匹配#后面跟数字，前面不是:，避免匹配URL中的#片段
+    return body.replace(/(^|[^:])#(\d+)(?![\d])/g, '$1[#$2](https://github.com/JadeViewDocs/library/issues/$2)');
+  }
+
   // 遍历所有发布版本
   for (const release of releases) {
     // 解析发布日期
@@ -92,7 +103,8 @@ sidebar_position: 1
     
     // 添加发布说明
     if (release.body) {
-      content += `${release.body}\n\n`;
+      const processedBody = processReleaseBody(release.body);
+      content += `${processedBody}\n\n`;
     } else {
       content += `**发布说明：**\n- 暂无详细说明\n\n`;
     }

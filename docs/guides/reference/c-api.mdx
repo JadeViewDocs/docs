@@ -313,6 +313,25 @@ int execute_javascript(uint32_t window_id, const char* script);
 **说明**：
 - 该功能目前尚未实现
 
+### reload
+
+```c
+int reload(uint32_t window_id);
+```
+
+**功能**：重新加载指定窗口的 WebView 内容。
+
+**参数**：
+- `window_id`：窗口 ID
+
+**返回值**：
+- 1：成功
+- 0：失败
+
+**说明**：
+- 调用此方法会重新加载当前页面，相当于浏览器的刷新功能
+- **支持版本**：0.2 以上
+
 ## 6. 事件系统
 
 ### jade_on
