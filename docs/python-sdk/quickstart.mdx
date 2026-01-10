@@ -37,7 +37,8 @@ def on_ready():
     )
     window.show()
 
-# 运行应用
+# 初始化并运行应用
+app.initialize()
 app.run()
 ```
 
@@ -53,8 +54,9 @@ server = LocalServer()
 
 @app.on_ready
 def on_ready():
-    # 启动本地服务器，托管 ./web 目录
-    url = server.start("./web", "myapp")
+    # 启动本地服务器，托管 web 目录（默认）
+    url = server.start("myapp")
+    # 或指定目录: server.start("myapp", "./web")
     
     window = Window(
         title="My App",
@@ -64,8 +66,37 @@ def on_ready():
     )
     window.show()
 
+app.initialize()
 app.run()
 ```
+
+### 简化 API
+
+对于简单应用，可以使用更简洁的方式：
+
+```python
+from jadeui import Window, Theme, Backdrop
+
+# 创建窗口
+window = Window(
+    title="本地应用示例",
+    width=800,
+    height=600,
+    remove_titlebar=True,
+    transparent=True,
+    theme=Theme.SYSTEM,
+)
+
+# 设置窗口属性
+window.set_backdrop(Backdrop.MICA)
+
+# 运行 - 自动检测 web 目录并启动服务器
+window.run()
+```
+
+:::tip 提示
+`window.run()` 会自动检测当前目录下的 `web` 目录，启动本地服务器，并注册窗口操作处理器。适合快速开发简单应用。
+:::
 
 ### IPC 通信
 
@@ -90,6 +121,7 @@ def on_ready():
     window = Window(title="IPC Demo", url="...")
     window.show()
 
+app.initialize()
 app.run()
 ```
 
@@ -110,27 +142,43 @@ window.jade.ipcMain('response', function(content) {
 `Router` 提供后端主导的路由系统，自动生成带侧边栏的应用框架：
 
 ```python
-from jadeui import JadeUIApp, Router
+from jadeui import JadeUIApp, Router, Events
+import json
 
 app = JadeUIApp()
 router = Router()
 
 # 注册页面路由
 router.page("/", "pages/home.html", title="首页", icon="🏠")
+router.page("/dashboard", "pages/dashboard.html", title="仪表盘", icon="📊")
+router.page("/users", "pages/users.html", title="用户管理", icon="👥")
+router.page("/user/:id", "pages/user.html", title="用户详情", show_in_nav=False)
 router.page("/settings", "pages/settings.html", title="设置", icon="⚙️")
-router.page("/about", "pages/about.html", title="关于", icon="ℹ️")
+router.page("/about", "pages/about.html", title="关于", icon="😄")
+
+# IPC 处理器（通过 router.ipc 访问）
+@router.ipc.on("get_users")
+def get_users(window_id, data):
+    users = [{"id": 1, "name": "张三"}, {"id": 2, "name": "李四"}]
+    router.ipc.send(window_id, "get_users:response", json.dumps(users))
+    return 1
 
 @app.on_ready
 def on_ready():
     # 挂载路由器，创建窗口
-    router.mount(
+    window = router.mount(
         title="My App",
         web_dir="web",
-        width=1200,
-        height=800,
+        width=1100,
+        height=750,
+        sidebar_width=200,
         theme="system"
     )
+    
+    # 监听窗口事件
+    window.on(Events.WINDOW_RESIZED, lambda data: print(f"窗口大小变化: {data}"))
 
+app.initialize()
 app.run()
 ```
 
@@ -200,22 +248,43 @@ def on_all_closed():
 
 ### 窗口事件
 
+推荐使用 `Events` 常量监听事件：
+
 ```python
+from jadeui import Window, Events
+import json
+
 window = Window(title="Event Demo")
 
-@window.on("created")
-def on_created(win):
-    print("窗口已创建")
+# 监听窗口大小变化
+@window.on(Events.WINDOW_RESIZED)
+def on_resize(json_data):
+    data = json.loads(json_data)
+    print(f"窗口大小变化: {data['width']} x {data['height']}")
 
-@window.on("closed")
-def on_closed():
-    print("窗口已关闭")
+# 监听窗口移动
+@window.on(Events.WINDOW_MOVED)
+def on_move(json_data):
+    data = json.loads(json_data)
+    print(f"窗口位置: ({data['x']}, {data['y']})")
 
-@window.on("page-loaded")
-def on_page_loaded(url, status):
-    print(f"页面已加载: {url}")
+# 监听焦点事件
+@window.on(Events.WINDOW_FOCUSED)
+def on_focus(json_data):
+    print("窗口获得焦点")
 
-@window.on("file-drop")
+@window.on(Events.WINDOW_BLURRED)
+def on_blur(json_data):
+    print("窗口失去焦点")
+
+# 监听页面加载完成
+@window.on(Events.WEBVIEW_DID_FINISH_LOAD)
+def on_page_load(json_data):
+    data = json.loads(json_data)
+    print(f"页面加载完成: {data['url']}")
+
+# 监听文件拖放
+@window.on(Events.FILE_DROP)
 def on_file_drop(files, x, y):
     # files 是文件路径列表，支持多文件拖放
     print(f"拖放了 {len(files)} 个文件到位置 ({x}, {y})")
@@ -265,13 +334,14 @@ window.execute_js("console.log('Hello from Python!')")
 以下是一个完整的应用示例：
 
 ```python
-from jadeui import JadeUIApp, Window, IPCManager, LocalServer
+from jadeui import JadeUIApp, Window, IPCManager, LocalServer, Events, Theme, Backdrop
 import json
 
 app = JadeUIApp()
 ipc = IPCManager()
 server = LocalServer()
 
+# IPC 处理器
 @ipc.on("get-data")
 def handle_get_data(window_id, message):
     data = json.loads(message)
@@ -284,10 +354,23 @@ def handle_get_data(window_id, message):
     ipc.send(window_id, "data-response", json.dumps(response))
     return 1
 
+# 窗口操作处理器
+@ipc.on("windowAction")
+def handle_window_action(window_id, action):
+    window = Window.get_window_by_id(window_id)
+    if window:
+        if action == "close":
+            window.close()
+        elif action == "minimize":
+            window.minimize()
+        elif action == "maximize":
+            window.maximize()
+    return 1
+
 @app.on_ready
 def on_ready():
-    # 启动本地服务器
-    url = server.start("./web", "demo")
+    # 启动本地服务器（默认托管 web 目录）
+    url = server.start("demo")
     
     # 创建窗口
     window = Window(
@@ -295,16 +378,28 @@ def on_ready():
         width=1024,
         height=768,
         url=f"{url}/index.html",
-        resizable=True,
+        remove_titlebar=True,
+        transparent=True,
+        theme=Theme.SYSTEM,
     )
     
-    @window.on("closed")
-    def on_closed():
-        print("窗口已关闭")
+    # 使用 Events 常量监听事件
+    @window.on(Events.WINDOW_RESIZED)
+    def on_resize(json_data):
+        data = json.loads(json_data)
+        print(f"窗口大小变化: {data['width']} x {data['height']}")
+    
+    @window.on(Events.FILE_DROP)
+    def on_file_drop(files, x, y):
+        print(f"拖放了 {len(files)} 个文件")
+        for path in files:
+            print(f"  - {path}")
     
     window.show()
+    window.set_backdrop(Backdrop.MICA)
 
 if __name__ == "__main__":
+    app.initialize()
     app.run()
 ```
 

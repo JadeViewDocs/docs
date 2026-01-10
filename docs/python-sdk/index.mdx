@@ -81,21 +81,9 @@ poetry add jadeui
 ## 快速示例
 
 ```python
-from jadeui import JadeUIApp, Window
+from jadeui import Window
 
-app = JadeUIApp()
-
-@app.on_ready
-def on_ready():
-    window = Window(
-        title="My App",
-        width=1024,
-        height=768,
-        url="https://example.com"
-    )
-    window.show()
-
-app.run()
+Window(title="Hello JadeUI", url="https://example.com").run()
 ```
 
 ## 许可证
