@@ -80,14 +80,20 @@ sidebar_position: 1
 `;
 
   /**
-   * 处理Release body中的Issue引用，将#1转换为链接
+   * 处理Release body中的Issue引用和内部标题
    */
   function processReleaseBody(body) {
     if (!body) return body;
     
     // 将#123转换为GitHub Issue链接，避免被解析为标题
     // 匹配#后面跟数字，前面不是:，避免匹配URL中的#片段
-    return body.replace(/(^|[^:])#(\d+)(?![\d])/g, '$1[#$2](https://github.com/JadeViewDocs/library/issues/$2)');
+    let processedBody = body.replace(/(^|[^:])#(\d+)(?![\d])/g, '$1[#$2](https://github.com/JadeViewDocs/library/issues/$2)');
+    
+    // 将内部标题转换为粗体文本，避免出现在目录中
+    processedBody = processedBody.replace(/^##\s+(.*)$/gm, '**$1**');
+    processedBody = processedBody.replace(/^###\s+(.*)$/gm, '**$1**');
+    
+    return processedBody;
   }
 
   // 遍历所有发布版本
@@ -95,19 +101,26 @@ sidebar_position: 1
     // 解析发布日期
     const releaseDate = new Date(release.published_at).toISOString().split('T')[0];
     
-    // 生成版本部分
+    // 生成版本部分，使用容器包裹，防止内部标题污染全局目录
     content += `### ${release.tag_name} (${releaseDate})\n\n`;
     
     // 添加 GitHub 发布链接
     content += `[查看发布页面](${release.html_url})\n\n`;
     
-    // 添加发布说明
+    // 添加发布说明，使用容器包裹
+    content += `<div className="changelog-version-container">
+
+`;
+    
     if (release.body) {
       const processedBody = processReleaseBody(release.body);
       content += `${processedBody}\n\n`;
     } else {
       content += `**发布说明：**\n- 暂无详细说明\n\n`;
     }
+    
+    // 关闭容器
+    content += `</div>\n\n`;
   }
 
   // 添加未来计划部分
