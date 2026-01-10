@@ -67,6 +67,7 @@ const sidebars = {
       items: [
         'webview/navigation',
         'webview/javascript',
+        'webview/style',
       ],
     },
     {
