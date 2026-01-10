@@ -116,7 +116,7 @@ const config = {
   clientModules: [
     require.resolve('./src/client/define-ui-kit.js'),
     require.resolve('./src/client/set-framework.js'),
-    // 移除贡献者脚本，因为React主题组件已经在处理贡献者显示
+    require.resolve('./src/client/add-contributors-to-all-docs.js'),
     // 移除更新日志角标脚本，不再动态获取
   ],
   scripts: [{ src: 'https://cdn.statuspage.io/se-v2.js', async: true }],
