@@ -375,11 +375,11 @@ int jade_off(const char* event_name, uint32_t callback_id);
 int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 ```
 
-**功能**：兼容旧版本的 IPC 注册函数，用于注册 IPC 通道的回调处理器。
+**功能**，用于注册 IPC 通道的回调处理器。
 
 **参数**：
 - `channel`：IPC 通道名称
-- `ipc_cb`：IPC 回调函数
+- `ipc_cb`：[WindowEventCallback](/guides/reference/data-structures#windoweventcallback)，IPC 回调函数
 
 **返回值**：
 - 1：成功

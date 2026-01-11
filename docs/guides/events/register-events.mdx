@@ -20,7 +20,7 @@ uint32_t jade_on(const char* event_name, IpcCallback callback);
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | `event_name` | const char* | 事件名称 |
-| `callback` | IpcCallback | 事件回调函数 |
+| `callback` | [WindowEventCallback](/guides/reference/data-structures#windoweventcallback) | 事件回调函数 |
 
 ### 返回值说明
 
@@ -105,7 +105,7 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | `channel` | const char* | IPC 通道名称 |
-| `ipc_cb` | IpcCallback | IPC 回调函数 |
+| `ipc_cb` | [WindowEventCallback](/guides/reference/data-structures#windoweventcallback) | IPC 回调函数 |
 
 ### 返回值说明
 
