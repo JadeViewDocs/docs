@@ -156,10 +156,11 @@ body {
   --docs-color-text: #000000;
   --docs-color-text-100: #646464;
 
-  --docs-color-background: #ffffff;
-  --docs-color-background-100: #f8f8f8;
-  --docs-color-background-200: #efefef;
-  --docs-color-background-300: #dcdcdc;
+  --docs-color-background: #f5f5f7;
+  --docs-color-background-100: #e8e8ec;
+  --docs-color-background-200: #dadde1;
+  --docs-color-background-300: #c7c7cc;
+  --ifm-background-color: var(--docs-color-background);
 
   /* Color from prism themes */
   --docs-color-code-background: #f6f8fa;
@@ -390,6 +391,10 @@ nav.menu {
   display: inline-block;
   vertical-align: middle;
   margin-bottom: 0.2rem;
+}
+
+.get-button {
+  margin-right: 1rem !important;
 }
 
 .dev-portal-signup {

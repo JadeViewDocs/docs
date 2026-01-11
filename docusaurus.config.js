@@ -215,6 +215,12 @@ const config = {
             type: 'search',
             position: 'right',
           },
+          {
+            label: '获取',
+            href: 'https://github.com/JadeViewDocs/library/releases',
+            className: 'get-button bg-primary text-white  rounded-md hover:bg-primary/90 font-medium',
+            position: 'right',
+          },
         ],
       },
       footer: {
