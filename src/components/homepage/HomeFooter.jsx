@@ -44,23 +44,18 @@ const developers = [
 ];
 
 // 社群链接
-const company = [
+const community = [
   {
-    title: '社群',
-    items: [
-      {
-        label: 'QQ群: 703623743',
-        href: 'https://qm.qq.com/q/MVsl5VWokC',
-      },
-      {
-        label: 'issues',
-        href: 'https://github.com/JadeViewDocs/library/issues',
-      },
-      {
-        label: '邮箱',
-        href: 'ihanlong@qq.com',
-      },
-    ],
+    name: 'QQ群: 703623743',
+    href: 'https://qm.qq.com/q/MVsl5VWokC',
+  },
+  {
+    name: 'issues',
+    href: 'https://github.com/JadeViewDocs/library/issues',
+  },
+  {
+    name: '邮箱',
+    href: 'mailto:ihanlong@qq.com',
   },
 ];
 
@@ -103,7 +98,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-6 gap-y-12 md:grid-cols-3 lg:grid-cols-3">
           <Links name="友情链接" links={products} />
           <Links name="开发者" links={developers} />
-          <Links name="社群" links={company} />
+          <Links name="社群" links={community} />
         </div>
 
         <hr className="my-12 !bg-gray-300 dark:!bg-[#999]" />
