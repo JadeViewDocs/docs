@@ -120,7 +120,7 @@ typedef struct {
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `title` | const char* | 窗口标题 |
+| `title` | const char* | 窗口标题，留空自动跟随页面标题 |
 | `width` | int | 窗口宽度，默认 800 |
 | `height` | int | 窗口高度，默认 600 |
 | `resizable` | int | 窗口是否可调整大小，0=不可调整，1=可调整，默认 1 |
@@ -204,7 +204,7 @@ typedef int (*IpcCallback)(uint32_t window_id, const char* event_data);
 | `0` | 处理失败 |
 
 ### WindowEventCallback
-
+全局通用事件回调函数类型定义，无论是IPC事件还是程序事件，都可以使用此回调函数。
 #### 定义
 
 ```c
@@ -226,36 +226,5 @@ typedef int (*WindowEventCallback)(uint32_t window_id, const char* event_type, c
 | `0` | 允许操作 |
 | `1` | 阻止操作 |
 
-### PageLoadCallback
 
-#### 定义
 
-```c
-typedef void (*PageLoadCallback)(uint32_t window_id, const char* url, const char* status);
-```
-
-#### 参数说明
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `window_id` | uint32_t | 窗口 ID |
-| `url` | const char* | 页面 URL |
-| `status` | const char* | 加载状态 |
-
-### FileDropCallback
-
-#### 定义
-
-```c
-typedef void (*FileDropCallback)(uint32_t window_id, const char* file_path, const char* mime_type, double x, double y);
-```
-
-#### 参数说明
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `window_id` | uint32_t | 窗口 ID |
-| `file_path` | const char* | 文件路径 |
-| `mime_type` | const char* | 文件 MIME 类型 |
-| `x` | double | 拖放 X 坐标 |
-| `y` | double | 拖放 Y 坐标 |
