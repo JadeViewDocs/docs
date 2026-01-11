@@ -105,6 +105,10 @@ int request_redraw(uint32_t window_id);
 
 ### set_window_event_handlers
 
+:::caution 即将移除
+该函数计划在 JadeView 0.2.1 版本中移除，请使用 `jade_on` 函数作为替代方案。
+:::
+
 ```c
 int set_window_event_handlers(
     uint32_t window_id,

@@ -228,6 +228,9 @@ int app_ready_callback(int success, const char* reason) {
         );
         
         // 设置事件处理器
+        // :::caution 即将移除
+        // set_window_event_handlers 函数计划在 JadeView 0.2.1 版本中移除，请使用 `jade_on` 函数作为替代方案
+        // :::
         set_window_event_handlers(
             0, // 兼容旧 API，不再使用
             window_event_callback,
@@ -353,6 +356,9 @@ int app_ready_callback(int success, const char* reason) {
         printf("窗口创建成功，窗口 ID：%u\n", new_window_id);
         
         // 设置事件处理器
+        // :::caution 即将移除
+        // set_window_event_handlers 函数计划在 JadeView 0.2.1 版本中移除，请使用 `jade_on` 函数作为替代方案
+        // :::
         set_window_event_handlers(
             0,
             window_event_callback,

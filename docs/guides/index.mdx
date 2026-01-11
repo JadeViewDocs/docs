@@ -23,7 +23,7 @@ JadeView 是一个基于 Rust 开发的 WebView 窗口库，提供了 C 语言�
 
 1. **初始化 DLL**：调用 `JadeView_init` 函数初始化 DLL
 2. **创建 WebView 窗口**：调用 `create_webview_window` 函数创建窗口
-3. **注册事件回调**：通过 `set_window_event_handlers` 或 `jade_on` 注册事件回调
+3. **注册事件回调**：通过 `set_window_event_handlers`（将在 0.2.1 版本移除）或 `jade_on` 注册事件回调
 4. **运行消息循环**：调用 `run_message_loop` 运行消息循环
 5. **清理资源**：应用程序退出前调用 `cleanup_all_windows` 清理所有资源
 
@@ -44,7 +44,7 @@ JadeView 是一个基于 Rust 开发的 WebView 窗口库，提供了 C 语言�
 
 - [创建窗口](/guides/window-management/create-window) - create_webview_window 函数
 - [关闭窗口](/guides/window-management/close-window) - close_window 函数
-- [事件处理](/guides/window-management/event-handlers) - set_window_event_handlers 函数
+- [事件处理](/guides/window-management/event-handlers) - set_window_event_handlers 函数（将在 0.2.1 版本移除）
 
 ### 窗口属性
 

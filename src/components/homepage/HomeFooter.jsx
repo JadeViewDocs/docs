@@ -43,14 +43,14 @@ const developers = [
   },
 ];
 
-// 公司链接
+// 社群链接
 const company = [
   {
     title: '社群',
     items: [
       {
-        label: 'QQ群',
-        href: 'https://qm.qq.com/q/tU0aOkV5lu',
+        label: 'QQ群: 703623743',
+        href: 'https://qm.qq.com/q/MVsl5VWokC',
       },
       {
         label: 'issues',
@@ -103,7 +103,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-6 gap-y-12 md:grid-cols-3 lg:grid-cols-3">
           <Links name="友情链接" links={products} />
           <Links name="开发者" links={developers} />
-          <Links name="公司" links={company} />
+          <Links name="社群" links={company} />
         </div>
 
         <hr className="my-12 !bg-gray-300 dark:!bg-[#999]" />
