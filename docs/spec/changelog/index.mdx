@@ -59,6 +59,8 @@ sidebar_position: 1
 - **WebView 窗口选项增强**
   - 在 `WebViewWindowOptions` 结构体中新增 `borderless` 字段，支持无边框窗口设置
   - 无边框选项：1 为无边框，去除边框和系统阴影
+  - 在 `WebViewSettings` 结构体中新增 `allow_fullscreen` 字段，控制是否允许页面全屏
+  - `allow_fullscreen`：是否允许页面全屏，0=false，1=true
 
 **API 变更**
 - **移除 deprecated 函数**
