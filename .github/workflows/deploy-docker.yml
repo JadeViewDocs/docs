@@ -64,4 +64,9 @@ jobs:
               "repository": "${{ github.repository }}",
               "commit": "${{ github.sha }}"
             }' \
-            --fail --silent --show-error
+            --connect-timeout 10 \
+            --max-time 300 \
+            --retry 3 \
+            --retry-delay 5 \
+            --retry-max-time 120 \
+            --fail --show-error
