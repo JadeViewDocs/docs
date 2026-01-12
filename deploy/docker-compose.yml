@@ -26,6 +26,6 @@ services:
       IMAGE_NAME: "yiminger/jadeview_docs:latest"
       CONTAINER_NAME: "docs-site"
     working_dir: /app
-    command: bash -c "pip install --quiet flask docker && python webhook-server.py"
+    command: bash -c "pip install --quiet fastapi uvicorn docker && python webhook-server.py"
     labels:
       createdBy: "1Panel"
