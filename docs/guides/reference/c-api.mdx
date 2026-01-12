@@ -103,6 +103,41 @@ int request_redraw(uint32_t window_id);
 - 1：成功
 - 0：失败
 
+### set_window_fullscreen
+
+```c
+int set_window_fullscreen(uint32_t window_id, int fullscreen);
+```
+
+**功能**：设置指定窗口的全屏状态。
+
+**版本支持**：JadeView 0.2.1+
+
+**参数**：
+- `window_id`：窗口 ID
+- `fullscreen`：是否全屏，0=不全屏，1=全屏
+
+**返回值**：
+- 1：成功
+- 0：失败
+
+### is_window_maximized
+
+```c
+int is_window_maximized(uint32_t window_id);
+```
+
+**功能**：获取指定窗口是否处于最大化状态。
+
+**版本支持**：JadeView 0.2.1+
+
+**参数**：
+- `window_id`：窗口 ID
+
+**返回值**：
+- 1：窗口已最大化
+- 0：窗口未最大化或窗口不存在
+
 ### set_window_event_handlers
 
 :::caution 即将移除

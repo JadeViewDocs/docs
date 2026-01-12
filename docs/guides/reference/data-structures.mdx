@@ -113,6 +113,7 @@ typedef struct {
     int focus;
     int hide_window;
     int use_page_icon;
+    int borderless;
 } WebViewWindowOptions;
 ```
 
@@ -143,6 +144,7 @@ typedef struct {
 | `focus` | int | 窗口是否获得焦点，0=不获得焦点，1=获得焦点，默认 1 |
 | `hide_window` | int | 窗口是否隐藏，0=显示窗口，1=隐藏窗口，默认 0 |
 | `use_page_icon` | int | 是否使用页面图标，0=使用主进程图标，1=使用页面图标，默认 0 |
+| `borderless` | int |0.2.1新增 无边框选项，1为无边框，去除边框和系统阴影，默认 0 |
 
 ### 功能描述
 

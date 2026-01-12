@@ -48,6 +48,28 @@ sidebar_position: 1
 
 </div>
 
+### v0.2.1 (2026-01-12)
+<div className="changelog-version-container">
+
+**功能增强**
+- **新增 C API 函数**
+  - 添加 `set_window_fullscreen` 函数，用于设置窗口全屏状态
+  - 添加 `is_window_maximized` 函数，用于获取窗口是否最大化
+
+- **WebView 窗口选项增强**
+  - 在 `WebViewWindowOptions` 结构体中新增 `borderless` 字段，支持无边框窗口设置
+  - 无边框选项：1 为无边框，去除边框和系统阴影
+
+**API 变更**
+- **移除 deprecated 函数**
+  - 移除 `set_window_event_handlers` 函数，建议使用 `jade_on` 函数替代
+
+**Bug 修复**
+- 修复窗口启动偶尔掉速的情况
+- 修复窗口大小调整时的卡顿问题
+
+</div>
+
 ### v0.1.2 (2026-01-09)
 
 [查看发布页面](https://github.com/JadeViewDocs/library/releases/tag/v0.1.2)
