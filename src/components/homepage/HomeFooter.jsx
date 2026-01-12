@@ -43,19 +43,19 @@ const developers = [
   },
 ];
 
-// 公司链接
-const company = [
+// 社群链接
+const community = [
   {
-    name: '关于我们',
-    href: '#',
+    name: 'QQ群: 703623743',
+    href: 'https://qm.qq.com/q/MVsl5VWokC',
   },
   {
-    name: '常见问题',
-    href: '/faq',
+    name: 'issues',
+    href: 'https://github.com/JadeViewDocs/library/issues',
   },
   {
-    name: '联系我们',
-    href: '#',
+    name: '邮箱',
+    href: 'mailto:ihanlong@qq.com',
   },
 ];
 
@@ -98,7 +98,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-6 gap-y-12 md:grid-cols-3 lg:grid-cols-3">
           <Links name="友情链接" links={products} />
           <Links name="开发者" links={developers} />
-          <Links name="公司" links={company} />
+          <Links name="社群" links={community} />
         </div>
 
         <hr className="my-12 !bg-gray-300 dark:!bg-[#999]" />

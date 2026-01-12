@@ -7,6 +7,10 @@ sidebar_position: 3
 
 ## set_window_event_handlers
 
+:::caution 即将移除
+该函数计划在 JadeView 0.2.1 版本中移除，请使用 `jade_on` 函数作为替代方案。
+:::
+
 设置全局窗口事件处理器，适用于所有窗口。
 
 ### 函数签名
@@ -25,9 +29,9 @@ int set_window_event_handlers(
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | `window_id` | uint32_t | 窗口 ID，兼容旧 API，不再使用 |
-| `window_event_cb` | WindowEventCallback | 窗口事件回调函数 |
-| `page_load_cb` | PageLoadCallback | 页面加载事件回调函数 |
-| `file_drop_cb` | FileDropCallback | 文件拖放事件回调函数 |
+| `window_event_cb` | [WindowEventCallback](/guides/reference/data-structures#windoweventcallback) | 窗口事件回调函数 |
+| `page_load_cb` | [WindowEventCallback](/guides/reference/data-structures#windoweventcallback) | 页面加载事件回调函数 |
+| `file_drop_cb` | [WindowEventCallback](/guides/reference/data-structures#windoweventcallback) | 文件拖放事件回调函数 |
 
 ### 返回值说明
 

@@ -4,25 +4,18 @@ import React from 'react';
 // 导入原始DocItem组件
 import OriginalDocItem from '@theme-original/DocItem';
 
-// 导入Contributors组件
-import Contributors from '../../components/Contributors/Contributors';
-
 /**
- * 自定义DocItem组件，在文档内容下方添加贡献者信息
+ * 自定义DocItem组件，保持原样
  * @param {Object} props - 组件属性
  * @returns {JSX.Element} 自定义DocItem组件
  */
 export default function DocItem(props) {
-  // 从props中获取当前文档的内容信息，包括filePath
-  const { content: { filePath } = {} } = props;
-  
   return (
     <div className="doc-item-wrapper">
       {/* 渲染原始DocItem组件 */}
       <OriginalDocItem {...props} />
       
-      {/* 在文档内容下方添加贡献者组件，传递filePath */}
-      <Contributors filePath={filePath} />
+      {/* 贡献者信息由客户端脚本添加，此处不再重复显示 */}
     </div>
   );
 }

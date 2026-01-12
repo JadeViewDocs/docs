@@ -28,7 +28,7 @@
   answer: |-
     1. 初始化 DLL：调用 `JadeView_init` 函数初始化 DLL
     2. 创建 WebView 窗口：调用 `create_webview_window` 函数创建窗口
-    3. 注册事件回调：通过 `set_window_event_handlers` 或 `jade_on` 注册事件回调
+    3. 注册事件回调：通过 `set_window_event_handlers`（将在 0.2.1 版本移除）或 `jade_on` 注册事件回调
     4. 运行消息循环：调用 `run_message_loop` 运行消息循环
     5. 清理资源：应用程序退出前调用 `cleanup_all_windows` 清理所有资源
 
@@ -90,7 +90,7 @@
   answer: |-
     JadeView 提供了多种事件处理方式：
 
-    1. **使用 `set_window_event_handlers`**：设置全局窗口事件处理器
+    1. **使用 `set_window_event_handlers`**：（将在 0.2.1 版本移除）设置全局窗口事件处理器
     2. **使用 `jade_on`**：注册特定事件处理器
 
     详细的事件处理指南请参考 [注册事件](/guides/events/register-events)。
