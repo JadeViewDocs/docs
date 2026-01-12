@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  docs:
+    image: yiminger/jadeview_docs:latest
+    container_name: docs-site
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    labels:
+      createdBy: "1Panel"
+
+  webhook:
+    image: python:3.11-slim
+    container_name: docs-webhook
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/1panel/docker/compose/docs-site/webhook-server.py:/app/webhook-server.py:ro
+    environment:
+      WEBHOOK_TOKEN: "your-webhook-secret-token"
+      DOCKERHUB_USER: "yiminger"
+      DOCKERHUB_TOKEN: "your-dockerhub-token"
+      IMAGE_NAME: "yiminger/jadeview_docs:latest"
+      CONTAINER_NAME: "docs-site"
+    working_dir: /app
+    command: bash -c "pip install --quiet flask docker && python webhook-server.py"
+    labels:
+      createdBy: "1Panel"

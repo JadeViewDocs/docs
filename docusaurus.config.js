@@ -48,12 +48,23 @@ const docs = [
     routeBasePath: 'easy-language-sdk',
     sidebarPath: require.resolve('./sidebars-easy-language-sdk.js'),
   },
-  // 移除单独的changelog文档插件，将更新日志合并到spec页面
   {
     id: 'spec',
     path: 'docs/spec',
     routeBasePath: 'spec',
     sidebarPath: require.resolve('./sidebars-spec.js'),
+  },
+  {
+    id: 'community-packages',
+    path: 'docs/community-packages',
+    routeBasePath: 'community-packages',
+    sidebarPath: require.resolve('./sidebars-community-packages.js'),
+  },
+  {
+    id: 'changelog',
+    path: 'docs/changelog',
+    routeBasePath: 'changelog',
+    sidebarPath: false,
   },
 ];
 

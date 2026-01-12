@@ -463,43 +463,105 @@ windows = Window.get_all_windows()
 
 ### 事件
 
-使用 `window.on(event, callback)` 方法监听事件。推荐使用 `Events` 常量。
+Window 类提供两种事件监听方式：**类型化装饰器**（推荐）和 **Events 常量**。
 
-#### 窗口事件
+事件参数已自动解析，不需要手动 `json.loads`。
+
+#### 类型化事件装饰器（推荐）
+
+提供 IDE 类型提示，参数已自动解析：
+
+| 装饰器 | 回调签名 | 描述 |
+|--------|----------|------|
+| `@window.on_resized` | `(width: int, height: int)` | 窗口大小改变 |
+| `@window.on_moved` | `(x: int, y: int)` | 窗口位置改变 |
+| `@window.on_focused` | `()` | 窗口获得焦点 |
+| `@window.on_blurred` | `()` | 窗口失去焦点 |
+| `@window.on_closing` | `() -> bool` | 窗口即将关闭，返回 True 阻止 |
+| `@window.on_state_changed` | `(is_maximized: bool)` | 窗口状态改变 |
+| `@window.on_file_dropped` | `(files: List[str], x: int, y: int)` | 文件拖放 |
+| `@window.on_navigate` | `(url: str) -> bool` | 即将导航，返回 True 阻止 |
+| `@window.on_page_loaded` | `(url: str)` | 页面加载完成 |
+| `@window.on_title_updated` | `(title: str)` | 页面标题更新 |
+| `@window.on_new_window` | `(url: str, frame_name: str) -> bool` | 新窗口请求，返回 True 阻止 |
+
+**示例**：
+
+```python
+from jadeui import Window
+
+window = Window(title="事件示例")
+
+@window.on_resized
+def handle_resize(width: int, height: int):
+    print(f"窗口大小: {width} x {height}")
+
+@window.on_moved
+def handle_move(x: int, y: int):
+    print(f"窗口位置: ({x}, {y})")
+
+@window.on_focused
+def handle_focus():
+    print("窗口获得焦点")
+
+@window.on_closing
+def handle_closing():
+    if has_unsaved_changes:
+        return True  # 阻止关闭
+    return False
+
+@window.on_page_loaded
+def handle_loaded(url: str):
+    print(f"页面加载完成: {url}")
+
+window.show()
+```
+
+#### Events 常量方式
+
+也可以使用 `Events` 常量，参数同样已自动解析：
 
 | 事件常量 | 事件名 | 回调参数 | 描述 |
 |----------|--------|----------|------|
-| `Events.WINDOW_CREATED` | window-created | json_data | 窗口创建完成 |
-| `Events.WINDOW_CLOSING` | window-closing | json_data | 窗口即将关闭（返回 1 可阻止） |
-| `Events.WINDOW_CLOSED` | window-closed | json_data | 窗口已关闭 |
-| `Events.WINDOW_DESTROYED` | window-destroyed | json_data | 窗口已销毁 |
-| `Events.WINDOW_FOCUSED` | window-focused | json_data | 获得焦点 |
-| `Events.WINDOW_BLURRED` | window-blurred | json_data | 失去焦点 |
-| `Events.WINDOW_RESIZED` | window-resized | json_data | 大小改变，数据：`{"width": 宽度, "height": 高度}` |
-| `Events.WINDOW_MOVED` | window-moved | json_data | 位置改变，数据：`{"x": x, "y": y}` |
-| `Events.WINDOW_STATE_CHANGED` | window-state-changed | json_data | 状态改变，数据：`{"isMaximized": 布尔值}` |
-| `Events.FILE_DROP` | file-drop | files, x, y | 文件拖放（参数已自动解析） |
+| `Events.WINDOW_RESIZED` | window-resized | `(width, height)` | 大小改变 |
+| `Events.WINDOW_MOVED` | window-moved | `(x, y)` | 位置改变 |
+| `Events.WINDOW_FOCUSED` | window-focused | `()` | 获得焦点 |
+| `Events.WINDOW_BLURRED` | window-blurred | `()` | 失去焦点 |
+| `Events.WINDOW_CLOSING` | window-closing | `()` | 即将关闭（返回 1 可阻止） |
+| `Events.WINDOW_STATE_CHANGED` | window-state-changed | `(is_maximized,)` | 状态改变 |
+| `Events.FILE_DROP` | file-drop | `(files, x, y)` | 文件拖放 |
+| `Events.WEBVIEW_WILL_NAVIGATE` | webview-will-navigate | `(url,)` | 即将导航 |
+| `Events.WEBVIEW_DID_FINISH_LOAD` | webview-did-finish-load | `(url,)` | 加载完成 |
+| `Events.WEBVIEW_NEW_WINDOW` | webview-new-window | `(url, frame_name)` | 新窗口请求 |
+| `Events.WEBVIEW_PAGE_TITLE_UPDATED` | webview-page-title-updated | `(title,)` | 标题更新 |
+| `Events.FAVICON_UPDATED` | favicon-updated | `(favicon,)` | 图标更新 |
 
-#### WebView 事件
+**示例**：
 
-| 事件常量 | 事件名 | 回调参数 | 描述 |
-|----------|--------|----------|------|
-| `Events.WEBVIEW_WILL_NAVIGATE` | webview-will-navigate | json_data | 即将导航 |
-| `Events.WEBVIEW_DID_START_LOADING` | webview-did-start-loading | json_data | 开始加载 |
-| `Events.WEBVIEW_DID_FINISH_LOAD` | webview-did-finish-load | json_data | 加载完成 |
-| `Events.WEBVIEW_NEW_WINDOW` | webview-new-window | json_data | 新窗口请求 |
-| `Events.WEBVIEW_PAGE_TITLE_UPDATED` | webview-page-title-updated | json_data | 标题更新 |
-| `Events.FAVICON_UPDATED` | favicon-updated | json_data | 图标更新 |
+```python
+from jadeui import Window, Events
 
-#### 其他事件
+window = Window(title="事件示例")
 
-| 事件常量 | 事件名 | 回调参数 | 描述 |
-|----------|--------|----------|------|
-| `Events.THEME_CHANGED` | theme-changed | json_data | 主题改变 |
-| `Events.JAVASCRIPT_RESULT` | javascript-result | json_data | JS 执行结果 |
-| - | created | Window | 内部事件：窗口创建完成 |
-| - | closed | - | 内部事件：窗口已关闭 |
-| - | page-loaded | url, status | 内部事件：页面加载完成 |
+# 参数已自动解析，不需要 json.loads
+@window.on(Events.WINDOW_RESIZED)
+def on_resize(width: int, height: int):
+    print(f"窗口大小: {width} x {height}")
+
+@window.on(Events.WEBVIEW_DID_FINISH_LOAD)
+def on_page_load(url: str):
+    print(f"页面加载完成: {url}")
+
+window.show()
+```
+
+#### 内部事件
+
+| 事件名 | 回调参数 | 描述 |
+|--------|----------|------|
+| created | Window | 窗口创建完成 |
+| closed | - | 窗口已关闭 |
+| page-loaded | url, status | 页面加载完成 |
 
 #### file-drop 事件详解
 
@@ -510,18 +572,18 @@ windows = Window.get_all_windows()
 | 参数 | 类型 | 描述 |
 |------|------|------|
 | files | List[str] | 拖放的文件路径列表 |
-| x | float | 拖放位置的 X 坐标 |
-| y | float | 拖放位置的 Y 坐标 |
+| x | int | 拖放位置的 X 坐标 |
+| y | int | 拖放位置的 Y 坐标 |
 
 **示例**：
 
 ```python
-from jadeui import Window, Events
+from jadeui import Window
 
 window = Window(title="文件拖放示例")
 
-@window.on(Events.FILE_DROP)
-def on_file_drop(files, x, y):
+@window.on_file_dropped
+def on_file_drop(files: list, x: int, y: int):
     print(f"拖放了 {len(files)} 个文件到位置 ({x}, {y})")
     for file_path in files:
         print(f"  - {file_path}")
@@ -912,40 +974,45 @@ Events.UPDATE_WINDOW_ICON # "update-window-icon"
 Events.IPC_MESSAGE        # "ipc-message"
 ```
 
-#### 使用 Events 常量监听事件
+#### 使用类型化装饰器监听事件
 
 ```python
-from jadeui import Window, Events
-import json
+from jadeui import Window
 
 window = Window(title="事件示例")
 
-# 使用 Events 常量监听窗口大小改变
-@window.on(Events.WINDOW_RESIZED)
-def on_resize(json_data):
-    data = json.loads(json_data)
-    print(f"窗口大小改变: {data['width']} x {data['height']}")
+# 参数已自动解析，提供 IDE 类型提示
+@window.on_resized
+def on_resize(width: int, height: int):
+    print(f"窗口大小改变: {width} x {height}")
 
-# 使用 Events 常量监听窗口移动
-@window.on(Events.WINDOW_MOVED)
-def on_move(json_data):
-    data = json.loads(json_data)
-    print(f"窗口位置: ({data['x']}, {data['y']})")
+@window.on_moved
+def on_move(x: int, y: int):
+    print(f"窗口位置: ({x}, {y})")
 
-# 使用 Events 常量监听焦点事件
-@window.on(Events.WINDOW_FOCUSED)
-def on_focus(json_data):
+@window.on_focused
+def on_focus():
     print("窗口获得焦点")
 
-@window.on(Events.WINDOW_BLURRED)
-def on_blur(json_data):
+@window.on_blurred
+def on_blur():
     print("窗口失去焦点")
 
-# 使用 Events 常量监听页面加载
-@window.on(Events.WEBVIEW_DID_FINISH_LOAD)
-def on_page_load(json_data):
-    data = json.loads(json_data)
-    print(f"页面加载完成: {data['url']}")
+@window.on_page_loaded
+def on_page_load(url: str):
+    print(f"页面加载完成: {url}")
+
+# 阻止窗口关闭
+@window.on_closing
+def on_closing():
+    return True  # 返回 True 阻止关闭
+
+# 拦截新窗口请求
+@window.on_new_window
+def on_new_window(url: str, frame_name: str):
+    print(f"拦截新窗口: {url}")
+    window.navigate(url)  # 在当前窗口打开
+    return True  # 阻止打开新窗口
 
 window.show()
 ```
