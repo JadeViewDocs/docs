@@ -83,12 +83,6 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/easy-language-sdk/introduction.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
   "docs/easy-language-sdk/quickstart.mdx": [
     {
       "login": "tuyangJs",
@@ -119,31 +113,13 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/guides/core/cleanup.mdx": [
+  "docs/guides/communication-api.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/guides/core/initialization.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/core/message-loop.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/events/event-types.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/events/register-events.mdx": [
+  "docs/guides/custom-titlebar.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -155,145 +131,25 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/guides/introduction.mdx": [
+  "docs/guides/local-server-api.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/guides/ipc/register-handler.mdx": [
+  "docs/guides/theme-management.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/guides/ipc/send-message.mdx": [
+  "docs/guides/webview-api.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/guides/local-server/create-server.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/quickstart.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/reference/c-api.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/reference/data-structures.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/theme/backdrop.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/theme/set-theme.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/webview/javascript.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/webview/navigation.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/webview/style.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/webview2-installation.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-management/close-window.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-management/create-window.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-management/custom-titlebar.mdx": [
-    {
-      "login": "HG-ha",
-      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
-    }
-  ],
-  "docs/guides/window-management/event-handlers.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-properties/position.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-properties/size.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-properties/title.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-properties/visibility.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-state/always-on-top.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-state/maximize.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/window-state/minimize.mdx": [
+  "docs/guides/window-api.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -435,7 +291,19 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
+  "docs/spec/behavior.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
   "docs/spec/changelog/index.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
+  "docs/spec/custom-titlebar.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -469,7 +337,19 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
+  "docs/spec/quickstart.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
   "docs/spec/release-behavior.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
+  "docs/spec/webview2-installation.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
