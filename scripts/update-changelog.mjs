@@ -18,7 +18,12 @@ const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases`;
 // 获取当前文件的目录路径（ES模块方式）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const CHANGELOG_PATH = path.join(__dirname, '../docs/spec/changelog/index.mdx');
+
+// 更新两个位置的 changelog
+const CHANGELOG_PATHS = [
+  path.join(__dirname, '../docs/changelog/index.mdx'),
+  path.join(__dirname, '../docs/spec/changelog/index.mdx'),
+];
 
 /**
  * 从 GitHub API 获取发布信息
@@ -147,10 +152,11 @@ async function updateChangelog() {
     // 生成更新日志内容
     const content = generateChangelogContent(releases);
     
-    // 更新文件
-    fs.writeFileSync(CHANGELOG_PATH, content, 'utf-8');
-    
-    console.log(`更新日志已成功更新到 ${CHANGELOG_PATH}`);
+    // 更新所有 changelog 文件
+    for (const filePath of CHANGELOG_PATHS) {
+      fs.writeFileSync(filePath, content, 'utf-8');
+      console.log(`更新日志已成功更新到 ${filePath}`);
+    }
     
   } catch (error) {
     console.warn('⚠️ 更新更新日志失败:', error.message);

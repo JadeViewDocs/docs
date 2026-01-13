@@ -138,6 +138,7 @@ window = Window(
 | disable_right_click | bool | False | 禁用右键菜单 |
 | user_agent | str \| None | None | 自定义 User-Agent |
 | preload_js | str \| None | None | 预加载 JavaScript |
+| allow_fullscreen | bool | True | 允许页面 JS 调用全屏 API (需 Jadeui 0.2.1) |
 
 ### 生命周期方法
 
@@ -215,9 +216,13 @@ window.restore()
 
 设置全屏模式。
 
+:::note 版本要求
+此功能需要 Jadeui 0.2.1 或更高版本。
+:::
+
 ```python
-window.set_fullscreen(True)
-window.set_fullscreen(False)
+window.set_fullscreen(True)   # 进入全屏
+window.set_fullscreen(False)  # 退出全屏
 ```
 
 | 参数 | 类型 | 描述 |
@@ -228,7 +233,11 @@ window.set_fullscreen(False)
 
 #### toggle_fullscreen()
 
-切换全屏模式。
+切换全屏模式。如果当前是全屏则退出，否则进入全屏。
+
+:::note 版本要求
+此功能需要 Jadeui 0.2.1 或更高版本。
+:::
 
 ```python
 window.toggle_fullscreen()
@@ -430,10 +439,10 @@ window.reload()
 | size | tuple[int, int] | 窗口大小 (width, height) |
 | position | tuple[int, int] | 窗口位置 (x, y) |
 | is_visible | bool | 是否可见 |
-| is_maximized | bool | 是否最大化 |
+| is_maximized | bool | 是否最大化 (需 Jadeui 0.2.1) |
 | is_minimized | bool | 是否最小化 |
 | is_focused | bool | 是否获得焦点 |
-| is_fullscreen | bool | 是否全屏 |
+| is_fullscreen | bool | 是否全屏 (需 Jadeui 0.2.1) |
 
 ### 静态方法
 

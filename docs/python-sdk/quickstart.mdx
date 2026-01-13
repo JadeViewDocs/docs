@@ -228,6 +228,7 @@ window = Window(
     disable_right_click=False,
     user_agent=None,          # 自定义 User-Agent
     preload_js=None,          # 预加载 JavaScript
+    allow_fullscreen=True,    # 允许页面 JS 调用全屏 API (需 Jadeui 0.2.1)
 )
 ```
 
@@ -327,10 +328,16 @@ window.show()
 # 窗口状态控制
 window.minimize()           # 最小化
 window.maximize()           # 最大化/还原
-window.set_fullscreen(True) # 全屏
 window.focus()              # 获取焦点
 window.hide()               # 隐藏
 window.close()              # 关闭
+
+# 全屏控制 (需要 JadeView Jadeui 0.2.1)
+window.set_fullscreen(True)   # 进入全屏
+window.set_fullscreen(False)  # 退出全屏
+window.toggle_fullscreen()    # 切换全屏状态
+print(window.is_fullscreen)   # 查询全屏状态
+print(window.is_maximized)    # 查询最大化状态
 
 # 属性设置
 window.set_title("New Title")
