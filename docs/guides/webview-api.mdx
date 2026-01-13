@@ -1,0 +1,98 @@
+---
+title: WebView API 和数据结构
+sidebar_position: 3
+---
+
+# WebView API 和数据结构
+
+## WebView 导航
+
+### 导航到 URL
+
+**函数签名**
+```c
+int navigate_to_url(uint32_t window_id, const char* url);
+```
+
+**功能描述**
+让指定窗口的 WebView 导航到指定的 URL。
+
+**参数**
+- `window_id`：窗口 ID
+- `url`：要导航到的 URL
+
+**返回值**
+- 1：成功
+- 0：失败
+
+### 重新加载 WebView 内容
+
+**函数签名**
+```c
+int reload_webview_window(uint32_t window_id);
+```
+
+**功能描述**
+重新加载指定窗口的 WebView 内容。
+
+**参数**
+- `window_id`：窗口 ID
+
+**返回值**
+- 1：成功
+- 0：失败
+
+**说明**
+- 调用此方法会重新加载当前页面，相当于浏览器的刷新功能
+- **支持版本**：0.2 以上
+
+##  JavaScript 交互
+
+### 执行 JavaScript
+
+**函数签名**
+```c
+int execute_javascript(uint32_t window_id, const char* script);
+```
+
+**功能描述**
+在指定窗口的 WebView 中执行 JavaScript 代码。
+
+**参数**
+- `window_id`：窗口 ID
+- `script`：要执行的 JavaScript 代码
+
+**返回值**
+- 0：当前未实现
+
+**说明**
+- 该功能目前尚未实现
+
+## 数据结构
+
+### WebViewSettings 结构体
+
+**定义**
+```c
+typedef struct {
+    int autoplay;
+    int background_throttling;
+    int disable_right_click;
+    const char* ua;
+    const char* preload_js;
+    int allow_fullscreen;
+} WebViewSettings;
+```
+
+**字段说明**
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `autoplay` | int | 是否允许自动播放媒体，0=禁用，1=启用 |
+| `background_throttling` | int | 背景限速策略，0=默认（启用背景限速），1=禁用背景限速 |
+| `disable_right_click` | int | 是否禁用右键菜单，0=启用，1=禁用 |
+| `ua` | const char* | 自定义 User-Agent 字符串指针，NULL 表示使用默认 UA |
+| `preload_js` | const char* | 预载 JavaScript 代码字符串指针，NULL 表示不预载 JS |
+| `allow_fullscreen` | int | 是否允许页面全屏，0=false，1=true（版本支持：JadeView 0.2.1+） |
+
+**功能描述**
+用于设置 WebView 的高级选项。

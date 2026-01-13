@@ -197,7 +197,7 @@ const config = {
         },
         items: [
           {
-            label: '设计',
+            label: '研发',
             to: '/spec',
           },
 

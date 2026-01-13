@@ -1,120 +1,97 @@
 ---
-slug: /
-sidebar_position: 1
-sidebar_class_name: guide_sidebar_index
-description: 'JadeView API 文档 - 基于 Rust 的 WebView 窗口库'
+title: 核心 API
+sidebar_position: 7
 ---
 
-# JadeView API 文档
+# 核心 API
 
-JadeView 是一个基于 Rust 开发的 WebView 窗口库，提供了 C 语言兼容的 API 接口，方便在其他语言（如易语言）中调用和使用。
+## 初始化与清理
 
-## 主要功能
+### 初始化 DLL
 
-- **跨平台支持**：支持 Windows 平台
-- **WebView 集成**：基于 wry 库，提供现代化的 Web 浏览体验
-- **灵活的窗口管理**：支持创建、关闭、最大化、最小化等窗口操作
-- **事件处理机制**：提供丰富的事件类型和回调机制
-- **主题管理**：支持 Light、Dark、System 主题切换
-- **本地服务器**：内置本地服务器功能，支持自定义协议
-- **安全的内存管理**：严格的内存管理机制，避免内存泄漏
+**函数签名**
+```c
+int JadeView_init(int enable_devtools, const char* log_path, const char* data_directory);
+```
 
-## 快速开始
+**功能描述**
+初始化 JadeView DLL，启动 GUI 线程。
 
-1. **初始化 DLL**：调用 `JadeView_init` 函数初始化 DLL
-2. **创建 WebView 窗口**：调用 `create_webview_window` 函数创建窗口
-3. **注册事件回调**：通过 `set_window_event_handlers`（将在 0.2.1 版本移除）或 `jade_on` 注册事件回调
-4. **运行消息循环**：调用 `run_message_loop` 运行消息循环
-5. **清理资源**：应用程序退出前调用 `cleanup_all_windows` 清理所有资源
+**参数**
+- `enable_devtools`：是否启用开发者工具（0=禁用，1=启用）
+- `log_path`：日志文件路径，NULL 表示不输出日志到文件
+- `data_directory`：WebView 数据目录，NULL 表示使用默认值
 
-## 文档导航
+**返回值**
+- 1：初始化成功
+- 0：初始化失败
 
-### 快速开始
+**说明**
+- 此函数会启动一个新的 GUI 线程，所有窗口操作都在该线程中执行
+- 初始化完成后会发送 "app-ready" 事件
 
-- [介绍](/guides/introduction) - 了解 JadeView 的基本概念和功能
-- [快速开始](/guides/quickstart) - 快速上手指南
+### 清理所有窗口
 
-### 核心 API
+**函数签名**
+```c
+int cleanup_all_windows();
+```
 
-- [初始化](/guides/core/initialization) - JadeView_init 函数
-- [消息循环](/guides/core/message-loop) - run_message_loop 函数
-- [清理](/guides/core/cleanup) - cleanup_all_windows 函数
+**功能描述**
+清理所有窗口资源并结束事件循环。
 
-### 窗口管理
+**返回值**
+- 1：成功
+- 0：失败
 
-- [创建窗口](/guides/window-management/create-window) - create_webview_window 函数
-- [关闭窗口](/guides/window-management/close-window) - close_window 函数
-- [事件处理](/guides/window-management/event-handlers) - set_window_event_handlers 函数（将在 0.2.1 版本移除）
+## 消息循环
 
-### 窗口属性
+### 运行消息循环
 
-- [标题](/guides/window-properties/title) - set_window_title 函数
-- [大小](/guides/window-properties/size) - set_window_size 函数
-- [位置](/guides/window-properties/position) - set_window_position 函数
-- [可见性](/guides/window-properties/visibility) - set_window_visible 函数
+**函数签名**
+```c
+int run_message_loop();
+```
 
-### 窗口状态
+**功能描述**
+运行消息循环，阻塞等待应用程序退出。
 
-- [最小化](/guides/window-state/minimize) - minimize_window 函数
-- [最大化](/guides/window-state/maximize) - toggle_maximize_window 函数
-- [置顶](/guides/window-state/always-on-top) - set_window_always_on_top 函数
+**返回值**
+- 1：消息循环正常退出
 
-### WebView 功能
+**说明**
+- 在 DLL 模式下，此函数通常不需要宿主调用，因为已在 `JadeView_init` 中创建了 GUI 线程
+- 此函数用于阻塞等待，直到 `cleanup_all_windows` 被调用
 
-- [导航](/guides/webview/navigation) - navigate_to_url 函数
-- [执行 JavaScript](/guides/webview/javascript) - execute_javascript 函数
+## 工具函数
 
-### 事件系统
+### 获取窗口数量
 
-- [注册事件](/guides/events/register-events) - jade_on、jade_off 函数
-- [事件类型](/guides/events/event-types) - 所有事件类型列表
+**函数签名**
+```c
+uint32_t get_window_count();
+```
 
-### 主题外观
+**功能描述**
+获取当前已创建的窗口数量。
 
-- [设置主题](/guides/theme/set-theme) - set_window_theme、get_window_theme 函数
-- [背景材料](/guides/theme/backdrop) - set_window_backdrop 函数
+**返回值**
+- 返回当前已创建的窗口数量
 
-### IPC 通信
+### 获取 WebView 版本
 
-- [双向通信介绍](/spec/ipc-communication) - 前后端双向 IPC 通信机制详解
-- [发送消息](/guides/ipc/send-message) - send_ipc_message 函数
-- [注册处理器](/guides/ipc/register-handler) - register_ipc_handler 函数
+**函数签名**
+```c
+int get_webview_version(char* buffer, size_t buffer_size);
+```
 
-### 本地服务器
+**功能描述**
+获取 WebView 引擎的版本号，并将其写入指定的缓冲区。
 
-- [创建服务器](/guides/local-server/create-server) - create_local_server 函数
+**参数**
+- `buffer`：存储版本号的缓冲区
+- `buffer_size`：缓冲区大小
 
-### API 参考
-
-- [数据结构](/guides/reference/data-structures) - RGBA、WebViewSettings、WebViewWindowOptions 等结构体
-- [C API 列表](/guides/reference/c-api) - 完整的 C API 函数列表
-
-### 常见问题
-
-- [FAQ](/faq) - 常见问题解答
-
-### 更新日志
-
-- [更新日志](/changelog) - 版本更新记录
-
-## SDK 文档
-
-JadeView 提供了多种编程语言的 SDK，方便开发者集成使用：
-
-- [Web SDK](/web-sdk) - JavaScript/TypeScript SDK
-- [Python SDK](/python-sdk) - Python 语言 SDK
-- [易语言 SDK](/easy-language-sdk) - 易语言 SDK
-
-## 注意事项
-
-1. **多线程安全性**：所有 API 函数都是线程安全的，可以在多个线程中调用
-2. **窗口创建异步性**：`create_webview_window` 函数会立即返回请求的窗口 ID，但窗口实际创建是在事件循环线程中异步完成的
-3. **事件处理顺序**：事件处理可能在不同的线程中执行，需要注意线程安全性
-4. **回调函数返回值**：窗口事件回调函数返回值含义：0=允许操作，1=阻止操作
-5. **资源管理**：使用完毕后应及时调用 `cleanup_all_windows` 清理资源
-
-
-
-## 版权信息
-
-© 2025 JadeView. 保留所有权利。
+**返回值**
+- 1：成功
+- 0：失败

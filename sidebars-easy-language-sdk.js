@@ -15,7 +15,6 @@
 const sidebars = {
   easyLanguageSdkSidebar: [
     'index',
-    'quickstart',
     {
       type: 'category',
       label: 'API 参考',

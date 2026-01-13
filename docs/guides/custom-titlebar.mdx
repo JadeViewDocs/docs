@@ -1,0 +1,244 @@
+---
+title: 自定义标题栏
+sidebar_position: 8
+---
+
+# 自定义标题栏
+
+当使用 `remove_titlebar = 1` 移除原生标题栏后，需要通过 CSS 定义可拖拽区域来实现窗口拖动。
+
+## 拖拽区域 CSS 属性
+
+使用 `-webkit-app-region` 属性定义拖拽行为：
+
+| 值 | 说明 |
+|------|------|
+| `drag` | 该区域可拖拽移动窗口 |
+| `no-drag` | 该区域不可拖拽（用于按钮等交互元素） |
+
+## 示例
+
+```css
+/* 标题栏可拖拽 */
+.titlebar {
+    -webkit-app-region: drag;
+    height: 32px;
+}
+
+/* 按钮不可拖拽，否则无法点击 */
+.titlebar button {
+    -webkit-app-region: no-drag;
+}
+```
+
+```html
+<div class="titlebar">
+    <span>我的应用</span>
+    <button onclick="windowAction('close')">✕</button>
+</div>
+```
+
+## 注意事项
+
+1. 仅在无边框窗口中生效（需设置 `remove_titlebar = 1`）
+2. 交互元素（按钮、链接、输入框）必须设置 `no-drag`，否则无法点击
+3. 双击可拖拽区域会触发最大化/还原（系统行为）
+
+## 自定义窗口拖动区域
+
+JadeView 支持使用 CSS 属性自定义窗口的可拖动区域，无需传统的拖拽句柄即可实现窗口移动。
+
+### CSS 属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `app-region` | CSS 属性 | 用于定义可拖动区域 |
+| `-webkit-app-region` | CSS 属性 | 同上，用于兼容旧版本 |
+
+### 基本使用
+
+1. **首先移除原生标题栏**
+   ```c
+   WebViewWindowOptions options;
+   options.remove_titlebar = 1; // 移除原生标题栏
+   ```
+
+2. **在 CSS 中定义可拖动区域**
+   ```css
+   /* 将整个标题栏设置为可拖动 */
+   .custom-titlebar {
+       -webkit-app-region: drag;
+       height: 40px;
+       background-color: #333;
+       color: white;
+       display: flex;
+       align-items: center;
+       padding: 0 10px;
+   }
+   ```
+
+3. **排除不可拖动元素**
+   ```css
+   /* 按钮等交互元素必须设置为 no-drag，否则无法点击 */
+   .window-control-button {
+       -webkit-app-region: no-drag;
+       margin-left: auto;
+       background: none;
+       border: none;
+       color: white;
+       cursor: pointer;
+       padding: 5px 10px;
+   }
+   ```
+
+### 完整示例
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义标题栏示例</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* 自定义标题栏 */
+        .custom-titlebar {
+            -webkit-app-region: drag;
+            height: 40px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 标题文本 */
+        .title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 窗口控制按钮容器 */
+        .window-controls {
+            margin-left: auto;
+            display: flex;
+            gap: 5px;
+        }
+
+        /* 窗口控制按钮 */
+        .window-button {
+            -webkit-app-region: no-drag;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 3px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .window-button:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .window-button.close:hover {
+            background-color: #e74c3c;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 自定义标题栏 -->
+    <div class="custom-titlebar">
+        <div class="title">我的应用</div>
+        <div class="window-controls">
+            <button class="window-button minimize" onclick="minimizeWindow()">—</button>
+            <button class="window-button maximize" onclick="toggleMaximize()">□</button>
+            <button class="window-button close" onclick="closeWindow()">×</button>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <h1>自定义标题栏示例</h1>
+        <p>这是一个使用 CSS 属性实现的自定义标题栏示例。</p>
+        <p>你可以通过拖动标题栏来移动窗口。</p>
+    </div>
+
+    <script>
+        // 窗口控制函数
+        function minimizeWindow() {
+            // 调用窗口最小化 API
+            window.jadeView.minimize();
+        }
+
+        function toggleMaximize() {
+            // 调用窗口最大化/还原 API
+            window.jadeView.toggleMaximize();
+        }
+
+        function closeWindow() {
+            // 调用窗口关闭 API
+            window.jadeView.close();
+        }
+    </script>
+</body>
+</html>
+```
+
+### 复杂布局示例
+
+在复杂界面中，可以将拖动属性应用于多个元素：
+
+```html
+<div class="container">
+    <!-- 顶部导航栏，可拖动 -->
+    <header style="-webkit-app-region: drag;">
+        <nav>
+            <!-- 导航链接，不可拖动 -->
+            <a href="#" style="-webkit-app-region: no-drag;">首页</a>
+            <a href="#" style="-webkit-app-region: no-drag;">关于</a>
+            <a href="#" style="-webkit-app-region: no-drag;">联系我们</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- 主要内容区域，不可拖动 -->
+        <section style="-webkit-app-region: no-drag;">
+            <h2>主要内容</h2>
+            <p>这里是应用的主要内容...</p>
+        </section>
+    </main>
+</div>
+```
+
+### 注意事项
+
+| 注意事项 | 详细说明 |
+|----------|----------|
+| 仅在无边框窗口中生效 | 必须设置 `remove_titlebar = 1` 才能使用自定义拖动区域 |
+| 交互元素必须设置 no-drag | 所有可点击元素（按钮、链接、输入框等）必须设置 `no-drag`，否则无法点击 |
+| 双击行为 | 双击可拖动区域会触发窗口最大化/还原（系统默认行为） |
+| 跨平台兼容性 | 该属性在不同操作系统上的表现可能略有差异 |
+| 嵌套元素 | 子元素会继承父元素的拖动属性，因此需要在交互元素上显式设置 `no-drag` |
+
+### 最佳实践
+
+1. **提供视觉反馈**：为拖动区域添加适当的样式，让用户知道该区域可拖动
+2. **合理布局交互元素**：将窗口控制按钮（最小化、最大化、关闭）放在易于访问的位置
+3. **测试所有交互功能**：确保所有按钮和链接都能正常点击
+4. **考虑响应式设计**：确保自定义标题栏在不同屏幕尺寸下都能正常工作
+5. **遵循平台设计指南**：参考目标平台的设计指南，确保标题栏的外观和行为符合用户预期

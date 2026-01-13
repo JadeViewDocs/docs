@@ -1,0 +1,26 @@
+---
+title: 本地服务器 API
+sidebar_position: 5
+---
+
+# 本地服务器 API
+
+## 创建本地服务器
+
+**函数签名**
+```c
+int create_local_server(const char* root_path, const char* appname, char* url_buffer, size_t buffer_size);
+```
+
+**功能描述**
+创建本地服务器，注册自定义协议，用于访问本地文件。
+
+**参数**
+- `root_path`：本地文件根目录路径
+- `appname`：应用名称，用于构造自定义协议 URL，NULL 或空字符串表示使用默认名称 "localhost"
+- `url_buffer`：输出参数，用于存储构造的自定义协议 URL
+- `buffer_size`：url_buffer 的大小
+
+**返回值**
+- 1：成功
+- 0：失败

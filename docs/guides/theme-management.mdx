@@ -1,0 +1,94 @@
+---
+title: 主题管理
+sidebar_position: 6
+---
+
+# 主题管理
+
+## 主题设置
+
+### 设置 WebView 主题
+
+**函数签名**
+```c
+void set_window_theme(int window_id, Theme theme);
+```
+
+**功能描述**
+设置 WebView 窗口的主题。
+
+**参数**
+- `window_id`：窗口 ID
+- `theme`：主题类型（LIGHT, DARK, SYSTEM）
+
+### 获取 WebView 主题
+
+**函数签名**
+```c
+Theme get_window_theme(int window_id);
+```
+
+**功能描述**
+获取 WebView 窗口的当前主题。
+
+**参数**
+- `window_id`：窗口 ID
+
+**返回值**
+- 当前主题类型
+
+## 背景材料
+
+### 设置窗口背景材料
+
+**函数签名**
+```c
+void set_window_backdrop(int window_id, BackdropType backdrop_type);
+```
+
+**功能描述**
+设置窗口的背景材料效果。
+
+**参数**
+- `window_id`：窗口 ID
+- `backdrop_type`：背景材料类型
+
+## 数据结构
+
+### Theme 枚举
+
+**定义**
+```c
+typedef enum {
+    LIGHT,
+    DARK,
+    SYSTEM
+} Theme;
+```
+
+**枚举值说明**
+| 值 | 说明 |
+|-----|------|
+| `LIGHT` | 浅色主题 |
+| `DARK` | 深色主题 |
+| `SYSTEM` | 系统主题 |
+
+### BackdropType 枚举
+
+**定义**
+```c
+typedef enum {
+    MICA,
+    MICA_ALT,
+    ACRYLIC,
+    SOLID_COLOR
+} BackdropType;
+```
+
+**枚举值说明**
+| 值 | 说明 |
+|-----|------|
+| `MICA` | Mica 背景效果 |
+| `MICA_ALT` | Mica Alt 背景效果 |
+| `ACRYLIC` | Acrylic 背景效果 |
+| `SOLID_COLOR` | 纯色背景 |

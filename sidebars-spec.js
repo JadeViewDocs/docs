@@ -21,7 +21,18 @@ const sidebars = {
       collapsed: false,
       items: [
         'index',
+        'behavior',
         'changelog/index'
+      ]
+    },
+    {
+      type: 'category',
+      label: '教程',
+      collapsed: false,
+      items: [
+        'quickstart',
+        'webview2-installation',
+        'custom-titlebar'
       ]
     },
     {
