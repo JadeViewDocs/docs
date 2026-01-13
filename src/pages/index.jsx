@@ -116,19 +116,19 @@ const guides = [
     title: '快速开始',
     icon: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
     text: '快速上手 JadeView，了解基本概念和功能',
-    link: '/guides/quickstart',
+    link: '/spec/quickstart',
   },
   {
     title: '窗口管理',
     icon: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><path d="M9 9h6v6" /></svg>,
     text: '学习如何创建、关闭和管理窗口',
-    link: '/guides/window-management/create-window',
+    link: '/guides/window-api',
   },
   {
     title: '事件系统',
     icon: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>,
     text: '了解事件处理机制和回调函数',
-    link: '/guides/events/register-events',
+    link: '/guides/communication-api',
   },
 ];
 
@@ -186,7 +186,7 @@ export default function Homepage() {
 
             <div className="flex flex-col gap-4">
               <Link
-                to="/guides/core/initialization"
+                to="/guides"
                 className="group flex cursor-pointer items-start gap-2 rounded-lg border-2 border-transparent p-3 text-inherit transition-colors hover:border-primary hover:text-primary"
               >
                 <JSIcon />
@@ -196,23 +196,23 @@ export default function Homepage() {
                 </div>
               </Link>
               <Link
-                to="/guides/reference/c-api"
+                to="/spec/local-web-resources"
                 className="group flex cursor-pointer items-start gap-2 rounded-lg border-2 border-transparent p-3 text-inherit transition-colors hover:border-primary hover:text-primary"
               >
                 <APIIcon />
                 <div className="flex flex-col">
-                  <h4 className="mb-1 font-semibold">API 参考</h4>
-                  <p className="mb-0 text-sm text-text-400">完整的 C API 函数列表</p>
+                  <h4 className="mb-1 font-semibold">核心设计</h4>
+                  <p className="mb-0 text-sm text-text-400">快速了解基本设计理念</p>
                 </div>
               </Link>
               <Link
-                to="/faq"
+                to="/spec/custom-titlebar"
                 className="group flex cursor-pointer items-start gap-2 rounded-lg border-2 border-transparent p-3 text-inherit transition-colors hover:border-primary hover:text-primary"
               >
                 <ReactIcon />
                 <div className="flex flex-col">
-                  <h4 className="mb-1 font-semibold">常见问题</h4>
-                  <p className="mb-0 text-sm text-text-400">常见问题解答</p>
+                  <h4 className="mb-1 font-semibold">自定义标题栏</h4>
+                  <p className="mb-0 text-sm text-text-400">快速自定义窗口标题栏</p>
                 </div>
               </Link>
             </div>

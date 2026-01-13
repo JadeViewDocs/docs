@@ -26,20 +26,12 @@ const developers = [
     href: '/guides',
   },
   {
-    name: 'API 参考',
-    href: '/guides/reference/c-api',
+    name: '更新日志',
+    href: '/spec/changelog',
   },
   {
     name: '快速开始',
-    href: '/guides/quickstart',
-  },
-  {
-    name: '社区包',
-    href: '/community-packages',
-  },
-  {
-    name: '更新日志',
-    href: '/changelog',
+    href: '/spec/quickstart',
   },
 ];
 
