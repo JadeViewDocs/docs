@@ -19,7 +19,7 @@ void set_window_theme(int window_id, Theme theme);
 
 **参数**
 - `window_id`：窗口 ID
-- `theme`：主题类型（LIGHT, DARK, SYSTEM）
+- `theme`：主题类型（Light, Dark, System）
 
 ### 获取 WebView 主题
 
@@ -60,35 +60,33 @@ void set_window_backdrop(int window_id, BackdropType backdrop_type);
 **定义**
 ```c
 typedef enum {
-    LIGHT,
-    DARK,
-    SYSTEM
+    Light,
+    Dark,
+    System
 } Theme;
 ```
 
 **枚举值说明**
 | 值 | 说明 |
 |-----|------|
-| `LIGHT` | 浅色主题 |
-| `DARK` | 深色主题 |
-| `SYSTEM` | 系统主题 |
+| `Light` | 浅色主题 |
+| `Dark` | 深色主题 |
+| `System` | 系统主题 |
 
 ### BackdropType 枚举
 
 **定义**
 ```c
 typedef enum {
-    MICA,
-    MICA_ALT,
-    ACRYLIC,
-    SOLID_COLOR
+    mica,
+    micaAlt,
+    acrylic
 } BackdropType;
 ```
 
 **枚举值说明**
 | 值 | 说明 |
 |-----|------|
-| `MICA` | Mica 背景效果 |
-| `MICA_ALT` | Mica Alt 背景效果 |
-| `ACRYLIC` | Acrylic 背景效果 |
-| `SOLID_COLOR` | 纯色背景 |
+| `mica` | 云母背景效果 |
+| `micaAlt` | 选项夹标题栏云母效果 |
+| `acrylic` | 亚克力 背景效果 |
