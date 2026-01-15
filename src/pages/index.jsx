@@ -84,12 +84,7 @@ const ReactIcon = () => (
   </svg>
 );
 
-const HTMLIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="16 18 22 12 16 6" />
-    <polyline points="8 6 2 12 8 18" />
-  </svg>
-);
+
 
 const APIIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -155,6 +150,24 @@ export default function Homepage() {
             <p className="max-w-xl text-center text-text-400">
              轻量驱动流畅，安全护航开发，JadeView 以 WebView 全场景潜力，异步架构赋能无滞交互，极致性能体验，创作自在随心。
             </p>
+            <div className="mt-8 flex gap-4">
+              <a 
+                href="https://github.com/JadeViewDocs/library/releases" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary/90 font-medium transition-colors"
+              >
+                获取(GitHub)
+              </a>
+              <a 
+                href="https://gitee.com/ilinxuan/JadeView_library/releases" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-gray-700 text-white rounded-md hover:bg-gray-600 font-medium transition-colors"
+              >
+                获取 (Gitee)
+              </a>
+            </div>
           </div>
         </section>
 
