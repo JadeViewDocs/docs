@@ -181,12 +181,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     subtree: true
   });
 
-  // 设置最大观察时间，5秒后停止观察并添加贡献者信息
-  setTimeout(() => {
-    observer.disconnect();
-    addContributorsInfo();
-  }, 5000);
-
+  // 监听Docusaurus路由变化事件
+  window.addEventListener('popstate', debouncedAdd);
+  
+  // 监听可能的Docusaurus自定义路由变化事件
+  window.addEventListener('docusaurus:routeDidChange', debouncedAdd);
+  
   // 初始执行一次
   debouncedAdd();
 }
