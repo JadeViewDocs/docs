@@ -153,7 +153,7 @@ export default function Homepage() {
               JadeView
             </h2>
             <p className="max-w-xl text-center text-text-400">
-             轻量驱动流畅，安全护航开发，JadeView 以简洁接口解锁 WebView 全场景潜力，异步架构赋能无滞交互，极致性能体验，创作自在随心。
+             轻量驱动流畅，安全护航开发，JadeView 以 WebView 全场景潜力，异步架构赋能无滞交互，极致性能体验，创作自在随心。
             </p>
           </div>
         </section>

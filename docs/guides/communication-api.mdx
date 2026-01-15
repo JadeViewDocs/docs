@@ -242,14 +242,7 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 数据说明 | JSON 对象，包含页面图标相关信息 |
 | 说明     | 当页面图标改变时触发            |
 
-### favicon-updated
 
-| 属性     | 说明                             |
-| -------- | -------------------------------- |
-| 触发条件 | 页面图标更新                     |
-| 事件数据 | `{"favicon": "图标 URL"}`        |
-| 数据说明 | JSON 对象，包含页面图标的 URL    |
-| 说明     | 当页面图标改变时触发的另一个名称 |
 
 ### file-drop
 
@@ -260,14 +253,7 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 数据说明 | JSON对象，包含拖拽的文件路径数组和拖拽位置坐标 |
 | 说明     | 当文件被拖拽到WebView窗口并释放时触发。**注意**：使用此事件会接管WebView的拖拽事件处理，导致前端无法收到原生拖拽事件。如果需要前端自己处理拖拽事件，请勿注册此事件。 |
 
-### javascript-result
 
-| 属性     | 说明                                 |
-| -------- | ------------------------------------ |
-| 触发条件 | JavaScript代码执行完成               |
-| 事件数据 | `{"callbackId": 回调ID, "result": 执行结果}` |
-| 数据说明 | JSON对象，包含回调ID和JavaScript执行结果 |
-| 说明     | 当execute_javascript函数执行完成并提供了回调函数时触发 |
 
 ## 主题事件
 
