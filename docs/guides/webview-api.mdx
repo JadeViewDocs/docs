@@ -56,17 +56,18 @@ int execute_javascript(uint32_t window_id, const char* script);
 ```
 
 **功能描述**
-在指定窗口的 WebView 中执行 JavaScript 代码。
-
+在指定窗口的 WebView 中执行 JavaScript 代码，并返回一个唯一 ID。
+支持版本： 0.3.2+
 **参数**
 - `window_id`：窗口 ID
 - `script`：要执行的 JavaScript 代码
 
 **返回值**
-- 0：当前未实现
+- 执行请求的唯一 ID，用于匹配后续的 `javascript-result` 事件
 
 **说明**
-- 该功能目前尚未实现
+- 执行完成后会触发 `javascript-result` 事件，返回执行结果
+- 事件数据中包含该函数返回的 ID，用于匹配请求和结果
 
 ## 数据结构
 

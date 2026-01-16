@@ -246,6 +246,16 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 阻止     | 可返回 1 来阻止下载                   |
 | 支持版本 | 0.3+                                 |
 
+### javascript-result
+
+| 属性     | 说明                                  |
+| -------- | ------------------------------------- |
+| 触发条件 | JavaScript 执行完成                   |
+| 事件数据 | `{"id": 123, "result": "执行结果"}` |
+| 数据说明 | JSON 对象，包含执行请求的 ID 和执行结果 |
+| 说明     | 当 `execute_javascript` 函数执行完成时触发 |
+| 支持版本 | 0.3.2+                                 |
+
 ### file-drop
 
 | 属性     | 说明                                 |
