@@ -22,6 +22,7 @@ const sidebars = {
       items: [
         'index',
         'behavior',
+        'compatibility',
         'changelog/index'
       ]
     },

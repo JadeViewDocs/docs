@@ -1,0 +1,94 @@
+---
+title: 兼容性报告
+sidebar_position: 6
+---
+
+# 兼容性报告
+
+JadeView 经过全面测试，确保在各种 Windows 环境下稳定运行。以下是详细的兼容性报告。
+
+## 系统要求
+
+### 最低配置
+
+| 组件     | 要求                                             |
+| -------- | ------------------------------------------------ |
+| 操作系统 | Windows 10 版本 1809 或更高版本 (64位)           |
+| 处理器   | Intel Pentium 4 或 AMD Athlon 64 处理器 (或更高) |
+| 内存     | 2 GB RAM                                         |
+| 显卡     | 支持 DirectX 11 的显卡                           |
+| 存储空间 | 50 MB 可用空间                                   |
+
+### 推荐配置
+
+| 组件     | 要求                                |
+| -------- | ----------------------------------- |
+| 操作系统 | Windows 11 64位                     |
+| 处理器   | Intel Core i5 或 AMD Ryzen 5 处理器 |
+| 内存     | 8 GB RAM                            |
+| 显卡     | 支持 DirectX 12 的显卡              |
+| 存储空间 | 100 MB 可用空间                     |
+
+## 已测试的操作系统
+
+| 操作系统版本 | 架构 | WebView2 Runtime | 测试结果 |
+| ------------ | ---- | ---------------- | -------- |
+| Windows 10 1809 | x64 | 91+ | ✅ 兼容 |
+| Windows 10 2004 | x64 | 92+ | ✅ 兼容 |
+| Windows 10 21H2 | x64 | 95+ | ✅ 兼容 |
+| Windows 10 22H2 | x64 | 96+ | ✅ 兼容 |
+| Windows 11 21H2 | x64 | 97+ | ✅ 兼容 |
+| Windows 11 22H2 | x64 | 98+ | ✅ 兼容 |
+| Windows 11 23H2 | x64 | 100+ | ✅ 兼容 |
+| Windows 11 24H2 | x64 | 120+ | ✅ 兼容 |
+| Windows 11 25H2 | x64 |  140 + | ✅ 兼容 |
+
+## 浏览器兼容性
+
+JadeView 使用 Microsoft Edge WebView2 作为渲染引擎，因此与 Edge 浏览器具有相同的兼容性特性。
+
+| 功能 | 支持情况 |
+| --- | --- |
+| HTML5 | ✅ 完全支持 |
+| CSS3 | ✅ 完全支持 |
+| JavaScript ES6+ | ✅ 完全支持 |
+| WebGL | ✅ 支持 |
+| WebRTC | ✅ 支持 |
+| WebSocket | ✅ 支持 |
+| Service Worker | ✅ 支持 |
+| PWA 特性 | ✅ 部分支持 |
+
+
+## 常见问题
+
+### Q: 为什么在 Windows 7 上无法运行？
+A: JadeView 基于 WebView2 技术，该技术仅支持 Windows 10 1809 及以上版本。
+
+### Q: 如何检查 WebView2 Runtime 版本？
+A: 可以通过以下命令检查：
+```bash
+reg query "HKLM\SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" /v pv
+```
+
+### Q: 无法下载 WebView2 Runtime 怎么办？
+A: 可以手动下载并安装：
+1. 访问 [WebView2 Runtime 下载页面](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)
+2. 下载最新版本的 Evergreen Bootstrapper
+3. 运行安装程序
+
+## 兼容性测试工具
+
+我们使用以下工具和方法进行兼容性测试：
+
+- **自动化测试**：使用 Selenium 和 Playwright 进行 UI 自动化测试
+- **手动测试**：在多台物理设备和虚拟机上进行手动测试
+- **性能测试**：使用 Lighthouse 和 Chrome DevTools 进行性能分析
+- **稳定性测试**：进行 24/7 持续运行测试
+
+## 获取支持
+
+如果您遇到兼容性问题，请：
+1. 检查您的系统是否满足最低配置要求
+2. 确保已安装最新版本的 WebView2 Runtime
+3. 查看 [常见问题解答](/faq)
+4. 提交 [GitHub Issue](https://github.com/JadeViewDocs/library/issues)
