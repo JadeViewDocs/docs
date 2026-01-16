@@ -493,6 +493,7 @@ Window 类提供两种事件监听方式：**类型化装饰器**（推荐）和
 | `@window.on_page_loaded` | `(url: str)` | 页面加载完成 |
 | `@window.on_title_updated` | `(title: str)` | 页面标题更新 |
 | `@window.on_new_window` | `(url: str, frame_name: str) -> bool` | 新窗口请求，返回 True 阻止 |
+| `@window.on_download_started` | `(url: str, filename: str) -> bool` | 下载开始，返回 True 阻止 (需 0.3.1+) |
 
 **示例**：
 
@@ -544,6 +545,7 @@ window.show()
 | `Events.WEBVIEW_NEW_WINDOW` | webview-new-window | `(url, frame_name)` | 新窗口请求 |
 | `Events.WEBVIEW_PAGE_TITLE_UPDATED` | webview-page-title-updated | `(title,)` | 标题更新 |
 | `Events.FAVICON_UPDATED` | favicon-updated | `(favicon,)` | 图标更新 |
+| `Events.WEBVIEW_DOWNLOAD_STARTED` | webview-download-started | `(url, filename)` | 下载开始 (需 0.3.1+) |
 
 **示例**：
 
@@ -603,6 +605,51 @@ window.show()
 :::warning 注意
 使用 `file-drop` 事件会接管 WebView 的拖拽事件处理，**导致前端无法收到原生拖拽事件**。如果您需要在前端处理拖拽事件，请不要注册此事件。
 :::
+
+#### download-started 事件详解
+
+`webview-download-started` 事件在 WebView 中开始下载文件时触发。
+
+:::note 版本要求
+此事件需要 JadeView DLL 0.3.1 或更高版本。
+:::
+
+**回调参数**：
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| url | str | 下载文件的 URL |
+| filename | str | 建议的文件名 |
+
+**返回值**：
+- 返回 `True` 或 `1`：阻止下载
+- 返回 `False`、`0` 或 `None`：允许下载（默认行为）
+
+**示例**：
+
+```python
+from jadeui import Window
+
+window = Window(title="下载事件示例")
+
+@window.on_download_started
+def on_download(url: str, filename: str):
+    print(f"下载请求: {filename}")
+    print(f"来源: {url}")
+    
+    # 阻止可执行文件下载
+    if filename.endswith((".exe", ".msi", ".bat")):
+        print("已阻止可执行文件下载")
+        return True
+    
+    # 阻止来自不信任域名的下载
+    if "untrusted-site.com" in url:
+        return True
+    
+    return False  # 允许下载
+
+window.show()
+```
 
 ---
 
@@ -971,6 +1018,7 @@ Events.WEBVIEW_PAGE_TITLE_UPDATED # "webview-page-title-updated"
 Events.WEBVIEW_PAGE_ICON_UPDATED  # "webview-page-icon-updated"
 Events.FAVICON_UPDATED            # "favicon-updated"
 Events.JAVASCRIPT_RESULT          # "javascript-result"
+Events.WEBVIEW_DOWNLOAD_STARTED   # "webview-download-started" (需 0.3.1+)
 
 # 文件事件
 Events.FILE_DROP          # "file-drop"
@@ -1022,6 +1070,14 @@ def on_new_window(url: str, frame_name: str):
     print(f"拦截新窗口: {url}")
     window.navigate(url)  # 在当前窗口打开
     return True  # 阻止打开新窗口
+
+# 监听文件下载事件 (需 0.3.1+)
+@window.on_download_started
+def on_download(url: str, filename: str):
+    print(f"下载请求: {filename} from {url}")
+    if filename.endswith(".exe"):
+        return True  # 阻止 exe 文件下载
+    return False
 
 window.show()
 ```
