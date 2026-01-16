@@ -293,6 +293,17 @@ def on_file_drop(files: list, x: int, y: int):
     for path in files:
         print(f"  - {path}")
 
+# 监听文件下载事件（需要 JadeView 0.3.1+）
+@window.on_download_started
+def on_download(url: str, filename: str):
+    print(f"开始下载: {filename}")
+    print(f"下载地址: {url}")
+    # 返回 True 可阻止下载
+    if filename.endswith(".exe"):
+        print("阻止下载可执行文件")
+        return True
+    return False
+
 window.show()
 ```
 
@@ -317,6 +328,49 @@ window.show()
 
 :::warning file-drop 事件注意
 使用 `file-drop` 事件会接管 WebView 的拖拽事件处理，**导致前端无法收到原生拖拽事件**。如果您需要在前端使用 JavaScript 处理拖拽事件（如 `ondrop`），请不要注册此事件。
+:::
+
+### 文件下载事件
+
+使用 `on_download_started` 装饰器监听 WebView 中的文件下载事件（需要 JadeView 0.3.1+）：
+
+```python
+from jadeui import Window
+
+window = Window(title="Download Demo")
+
+@window.on_download_started
+def on_download(url: str, filename: str):
+    """
+    下载开始时触发
+    
+    参数:
+        url: 下载文件的 URL
+        filename: 建议的文件名
+    
+    返回:
+        True/1: 阻止下载
+        False/0/None: 允许下载（默认行为）
+    """
+    print(f"下载请求: {filename}")
+    print(f"来源: {url}")
+    
+    # 示例：阻止可执行文件下载
+    if filename.endswith((".exe", ".msi", ".bat")):
+        print("已阻止可执行文件下载")
+        return True
+    
+    # 示例：阻止来自不信任域名的下载
+    if "untrusted-site.com" in url:
+        return True
+    
+    return False  # 允许下载
+
+window.show()
+```
+
+:::tip 版本要求
+`on_download_started` 事件需要 JadeView DLL 0.3.1 或更高版本。请确保您的 DLL 版本符合要求。
 :::
 
 ## 窗口操作
