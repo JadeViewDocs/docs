@@ -152,7 +152,7 @@ export default function Homepage() {
             </p>
             <div className="mt-8 flex gap-4">
               <a 
-                href="https://github.com/JadeViewDocs/library/releases" 
+                href="https://github.com/JadeViewDocs/library" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary/90 font-medium transition-colors"
@@ -160,7 +160,7 @@ export default function Homepage() {
                 获取(GitHub)
               </a>
               <a 
-                href="https://gitee.com/ilinxuan/JadeView_library/releases" 
+                href="https://gitee.com/ilinxuan/JadeView_library" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-gray-700 text-white rounded-md hover:bg-gray-600 font-medium transition-colors"
