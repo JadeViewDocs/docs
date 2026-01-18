@@ -6,6 +6,26 @@ sidebar_position: 4
 # 通信 API（事件与 IPC）
 
 ## 事件系统
+## IPC 通信
+
+### 发送 IPC 消息
+
+**函数签名**
+```c
+int send_ipc_message(uint32_t window_id, const char* message_type, const char* message_content);
+```
+
+**功能描述**
+向前端发送 IPC 消息。
+
+**参数**
+- `window_id`：窗口 ID
+- `message_type`：消息类型
+- `message_content`：消息内容
+
+**返回值**
+- 1：成功
+- 0：失败
 
 ### 注册事件回调
 
@@ -16,6 +36,8 @@ uint32_t jade_on(const char* event_name, IpcCallback callback);
 
 **功能描述**
 注册一个事件处理器，当指定事件触发时，回调函数将被调用。
+
+
 
 **参数**
 - `event_name`：事件名称
@@ -48,12 +70,14 @@ int jade_off(const char* event_name, uint32_t callback_id);
 ```c
 int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 ```
-
-**功能**，用于注册 IPC 通道的回调处理器。
+**功能**，用于注册 IPC 通道的回调处理器
+:::tip 重要变更
+1.0版本开始，回调函数允许直接返回文本作为事件数据。
+:::
 
 **参数**
 - `channel`：IPC 通道名称
-- `ipc_cb`：[WindowEventCallback](/guides/reference/data-structures#windoweventcallback)，IPC 回调函数
+- `ipc_cb`：[WindowEventCallback](#windoweventcallback)，IPC 回调函数
 
 **返回值**
 - 1：成功
@@ -289,45 +313,8 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 数据说明 | JSON 对象，包含需要更新图标的窗口 ID |
 | 说明     | 当需要更新窗口图标时触发             |
 
-## IPC 通信
 
-### 发送 IPC 消息
 
-**函数签名**
-```c
-int send_ipc_message(uint32_t window_id, const char* message_type, const char* message_content);
-```
-
-**功能描述**
-向前端发送 IPC 消息。
-
-**参数**
-- `window_id`：窗口 ID
-- `message_type`：消息类型
-- `message_content`：消息内容
-
-**返回值**
-- 1：成功
-- 0：失败
-
-## 消息循环
-
-### 运行消息循环
-
-**函数签名**
-```c
-int run_message_loop();
-```
-
-**功能描述**
-运行消息循环，阻塞等待应用程序退出。
-
-**返回值**
-- 1：消息循环正常退出
-
-**说明**
-- 在 DLL 模式下，此函数通常不需要宿主调用，因为已在 `JadeView_init` 中创建了 GUI 线程
-- 此函数用于阻塞等待，直到 `cleanup_all_windows` 被调用
 
 ## 数据结构
 
@@ -339,6 +326,7 @@ int run_message_loop();
 ```c
 typedef int (*IpcCallback)(uint32_t window_id, const char* event_data);
 ```
+
 
 **参数说明**
 | 参数 | 类型 | 说明 |
@@ -355,6 +343,9 @@ typedef int (*IpcCallback)(uint32_t window_id, const char* event_data);
 #### WindowEventCallback
 
 全局通用事件回调函数类型定义，无论是IPC事件还是程序事件，都可以使用此回调函数。
+:::tip 重要变更
+1.0版本开始，回调函数允许直接返回文本作为事件数据。
+:::
 
 **定义**
 ```c
@@ -373,3 +364,4 @@ typedef int (*WindowEventCallback)(uint32_t window_id, const char* event_type, c
 |------|------|
 | `0` | 允许操作 |
 | `1` | 阻止操作 |
+|  const char*| 前端通讯可以直接返回文本 |

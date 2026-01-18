@@ -39,6 +39,11 @@ const sidebars = {
       label: '创建本地服务',
       id: 'local-server-api',
     },
+    {
+      type: 'doc',
+      label: '前端通信',
+      id: 'JavaScript-API',
+    },
   ],
 };
 
