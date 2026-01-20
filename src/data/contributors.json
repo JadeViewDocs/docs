@@ -341,12 +341,12 @@
   ],
   "docs/spec/local-web-resources.mdx": [
     {
-      "login": "HG-ha",
-      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
-    },
-    {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    },
+    {
+      "login": "HG-ha",
+      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
     }
   ],
   "docs/spec/quickstart.mdx": [
