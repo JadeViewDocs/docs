@@ -307,7 +307,9 @@ int app_ready_callback(int success, const char* reason) {
         WebViewSettings settings = {
             .autoplay = 0,
             .background_throttling = 0,
-            .disable_right_click = 0
+            .disable_right_click = 0,
+            .allow_fullscreen = 0,
+            .postmessage_whitelist = NULL
         };
         
         uint32_t window_id = create_webview_window(

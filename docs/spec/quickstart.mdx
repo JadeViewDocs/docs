@@ -92,7 +92,9 @@ int app_ready_callback(int success, const char* reason) {
             .background_throttling = 0, // 背景限速策略，0=默认（启用背景限速），1=禁用背景限速。在Windows11下，**只有当该功能开启时**，窗口不可见时自动为WebView开启效能模式
                                         // 背景限速是浏览器的性能优化机制，当页面在后台时会降低 JavaScript 执行速度
                                         // 某些场景下（如后台持续运行计算）需要禁用此功能
-            .disable_right_click = 0 // 是否禁用右键菜单，0=启用，1=禁用
+            .disable_right_click = 0, // 是否禁用右键菜单，0=启用，1=禁用
+            .allow_fullscreen = 0, // 是否允许页面全屏，0=false，1=true
+            .postmessage_whitelist = NULL // PostMessage 白名单，单个域名字符串，用于限制可接收的 PostMessage 来源
         };
         
         // 创建窗口

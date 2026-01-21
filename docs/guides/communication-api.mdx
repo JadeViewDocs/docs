@@ -289,7 +289,14 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 数据说明 | JSON对象，包含拖拽的文件路径数组和拖拽位置坐标 |
 | 说明     | 当文件被拖拽到WebView窗口并释放时触发。**注意**：使用此事件会接管WebView的拖拽事件处理，导致前端无法收到原生拖拽事件。如果需要前端自己处理拖拽事件，请勿注册此事件。 |
 
+### postmessage-received
 
+| 属性     | 说明                                 |
+| -------- | ------------------------------------ |
+| 触发条件 |1.0.2开始支持， 接收PostMessage消息                  |
+| 事件数据 | `data` |
+| 数据说明 | JSON对象，包含PostMessage的消息内容、来源和消息源 |
+| 说明     | 当WebView接收到PostMessage消息时触发，仅当消息来源在postmessage_whitelist中时才会触发 |
 
 ## 主题事件
 

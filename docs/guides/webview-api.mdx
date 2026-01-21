@@ -84,6 +84,7 @@ typedef struct {
     const char* ua;
     const char* preload_js;
     int allow_fullscreen;
+    const char* postmessage_whitelist;
 } WebViewSettings;
 ```
 
@@ -96,6 +97,7 @@ typedef struct {
 | `ua` | const char* | 自定义 User-Agent 字符串指针，NULL 表示使用默认 UA |
 | `preload_js` | const char* | 预载 JavaScript 代码字符串指针，NULL 表示不预载 JS |
 | `allow_fullscreen` | int | 是否允许页面全屏，0=false，1=true（版本支持：JadeView 0.2.1+） |
+| `postmessage_whitelist` | const char* | PostMessage 白名单，单个域名字符串，用于限制可接收的 PostMessage 来源 |
 
 **功能描述**
 用于设置 WebView 的高级选项。

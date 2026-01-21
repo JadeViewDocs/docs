@@ -81,7 +81,8 @@ int app_ready_callback(int success, const char* reason) {
                 .autoplay = 0,
                 .background_throttling = 0,
                 .disable_right_click = 0,
-                .remove_titlebar = 1
+                .allow_fullscreen = 0,
+                .postmessage_whitelist = NULL
             };
             
             // 创建 WebView 窗口，加载本地服务器上的资源
