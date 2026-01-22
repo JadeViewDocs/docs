@@ -43,7 +43,8 @@ const sidebars = {
       items: [
         'local-web-resources',
         'ipc-communication',
-        'javascript-execution'
+        'javascript-execution',
+        'cache-directory-cleanup'
       ]
     },
     {
