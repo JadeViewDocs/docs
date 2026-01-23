@@ -349,7 +349,7 @@ typedef int (*IpcCallback)(uint32_t window_id, const char* event_data);
 |------|------|
 | `0` | 允许操作 |
 | `1` | 阻止操作 |
-|  const char*| 前端通讯可以直接返回文本 |
+|  const char*| 前端通讯可以直接返回文本，或推荐`jade_text_create` 创建的安全文本指针 |
 
 
 

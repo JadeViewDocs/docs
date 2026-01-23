@@ -264,8 +264,8 @@ const char* frontend_message_callback(uint32_t window_id, const char* event_data
     
     send_event(window_id, "backend-message", event_data_str);
     
-    // 返回结果给 invoke 调用
-    return reply_data;
+    // 返回结果给 invoke 调用 - 使用 jade_text_create 创建安全文本指针
+    return jade_text_create(reply_data);
 }
 
 // 页面加载完成处理回调
@@ -282,8 +282,8 @@ const char* page_loaded_callback(uint32_t window_id, const char* event_data) {
     
     send_event(window_id, "backend-message", welcome_msg);
     
-    // 返回确认结果
-    return "{\"status\": \"success\", \"message\": \"页面加载确认"};
+    // 返回确认结果 - 使用 jade_text_create 创建安全文本指针
+    return jade_text_create("{\"status\": \"success\", \"message\": \"页面加载确认\"}");
 }
 
 // app-ready 事件处理器

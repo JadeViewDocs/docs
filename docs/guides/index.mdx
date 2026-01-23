@@ -95,3 +95,45 @@ int get_webview_version(char* buffer, size_t buffer_size);
 **返回值**
 - 1：成功
 - 0：失败
+
+### 创建安全的文本指针
+
+**函数签名**
+```c
+extern "system" c_char* jade_text_create(const c_char* text);
+```
+
+**功能描述**
+创建安全的文本指针，用于在 Rust 和 C 之间安全传递字符串，特别适合前端使用 invoke 通讯时后端返回文本数据。
+
+**参数**
+- `text`：要创建的文本内容，UTF-8 编码
+
+**返回值**
+- 返回创建的安全文本指针，失败返回 NULL
+
+**说明**
+- 适合任何需要在 Rust 和 C 之间频繁传递字符串的场景
+- 创建的文本指针需要使用 `jade_text_free` 释放，避免内存泄漏
+- 1.0.5 版本新增
+
+### 释放文本内存
+
+**函数签名**
+```c
+extern "system" void jade_text_free(c_char* ptr);
+```
+
+**功能描述**
+释放由 `jade_text_create` 创建的文本内存。
+
+**参数**
+- `ptr`：由 `jade_text_create` 创建的文本指针
+
+**返回值**
+- 无
+
+**说明**
+- 必须使用此函数释放由 `jade_text_create` 创建的文本指针
+- 避免直接使用 `free` 函数释放，否则可能导致内存错误
+- 1.0.5 版本新增
