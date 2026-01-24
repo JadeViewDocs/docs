@@ -318,6 +318,26 @@ int set_window_always_on_top(uint32_t window_id, int always_on_top);
 - 1：成功
 - 0：失败
 
+### 设置内容保护
+
+**函数签名**
+```c
+int set_content_protection(uint32_t window_id, int content_protection);
+```
+
+**功能描述**
+设置指定窗口的内容保护状态，启用后禁止窗口内容被截图捕获。
+
+**版本支持**：JadeView 1.1+
+
+**参数**
+- `window_id`：窗口 ID
+- `content_protection`：内容保护状态，0=关闭内容保护，1=开启内容保护
+
+**返回值**
+- 1：成功
+- 0：失败
+
 ## 窗口事件处理
 
 ### 注册窗口事件处理器
@@ -432,6 +452,7 @@ typedef struct {
     int hide_window;
     int use_page_icon;
     int borderless;
+    int content_protection;
 } WebViewWindowOptions;
 ```
 
@@ -462,6 +483,7 @@ typedef struct {
 | `hide_window` | int | 窗口是否隐藏，0=显示窗口，1=隐藏窗口，默认 0 |
 | `use_page_icon` | int | 是否使用页面图标，0=使用主进程图标，1=使用页面图标，默认 0 |
 | `borderless` | int | 无边框选项，1为无边框，去除边框和系统阴影，默认 0（版本支持：JadeView 0.2.1+） |
+| `content_protection` | int | 内容保护，禁止被截图捕获，0=关闭，1=开启，默认 0（版本支持：JadeView 1.1+） |
 
 ### 回调函数类型定义
 

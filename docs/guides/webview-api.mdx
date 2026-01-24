@@ -46,6 +46,26 @@ int reload_webview_window(uint32_t window_id);
 - 调用此方法会重新加载当前页面，相当于浏览器的刷新功能
 - **支持版本**：0.2 以上
 
+### 设置 WebView 缩放级别
+
+**函数签名**
+```c
+int set_webview_zoom(uint32_t window_id, double level);
+```
+
+**功能描述**
+设置指定窗口的 WebView 缩放级别。
+
+**支持版本**：JadeView 1.1+
+
+**参数**
+- `window_id`：窗口 ID
+- `level`：缩放级别，范围通常为 0.1 到 5.0，1.0 表示正常缩放
+
+**返回值**
+- 1：成功
+- 0：失败
+
 ##  JavaScript 交互
 
 ### 执行 JavaScript
