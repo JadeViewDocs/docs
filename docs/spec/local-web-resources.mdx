@@ -1,6 +1,12 @@
-# 使用本地 Web 资源
+# JADE:// 自定义协议：访问本地 Web 资源的非 HTTP 方式
 
-JadeView 提供了创建本地服务器的功能，允许开发者轻松地在 WebView 窗口中加载和使用本地 Web 资源。以下是一个完整的教程，展示如何使用 JadeView 创建本地服务器并加载本地 Web 资源。
+JadeView 提供了通过自定义协议访问本地 Web 资源的功能，允许开发者轻松地在 WebView 窗口中加载和使用本地 Web 资源。
+
+:::warning 重要提示
+`JADE://` 是 JadeView 特有的**自定义协议**，不是传统的 HTTP 服务器。它专门用于在 JadeView 应用中安全地访问本地资源。
+:::
+
+以下是一个完整的教程，展示如何使用 JadeView 通过自定义协议加载本地 Web 资源。
 
 ## 前提条件
 
@@ -53,20 +59,22 @@ int app_ready_callback(int success, const char* reason) {
         // 注册窗口操作 IPC 处理器（用于标题栏按钮）
         register_ipc_handler("windowAction", window_action_handler);
         
-        // 创建本地服务器
+        // 创建本地 Web 资源访问点
+        // 注意：这不会创建传统的 HTTP 服务器，而是返回一个 JADE:// 自定义协议 URL
         const char* root_path = "./web";
         const char* appname = "myapp";
         char url[128];
         
         int result = create_local_server(
             root_path,   // 本地 Web 资源根目录
-            appname,     // 应用名称
-            url,         // 输出 URL 缓冲区
+            appname,     // 应用名称，用于构造自定义协议 URL
+            url,         // 输出自定义协议 URL 缓冲区
             sizeof(url)  // 缓冲区大小
         );
         
         if (result == 1) {
-            printf("本地服务器创建成功，URL：%s\n", url);
+            printf("本地资源访问点创建成功，自定义协议 URL：%s\n", url);
+            printf("注意：这是 JADE:// 自定义协议 URL，不是 HTTP 服务器地址\n");
             
             // 窗口选项配置
             WebViewWindowOptions options = {
@@ -213,11 +221,15 @@ int main() {
         
         // 监听来自原生应用的消息
         if (window.jade) {
+            // 注意：这里的通信是通过 JADE:// 自定义协议机制，不是 HTTP 请求
+            // jade.ipcMain 用于注册接收来自原生应用的消息处理器
             window.jade.ipcMain('custom-message', (content) => {
                 console.log('收到原生应用消息:', content);
             });
             
             // 发送消息给原生应用
+            // 注意：这不是 HTTP 请求，而是通过 JadeView 内部通信机制
+            // 消息会直接传递给后端 C/C++ 回调函数，无需网络通信
             window.jade.ipcSend('page-loaded', JSON.stringify({ status: 'ready' }));
         }
     </script>
@@ -241,27 +253,87 @@ int main() {
 
 ## 自定义协议 URL
 
-创建本地服务器后，JadeView 会返回一个自定义协议 URL，格式为 `JADE://appname/`。您可以使用这个 URL 来访问本地文件：
+创建本地 Web 资源访问点后，JadeView 会返回一个 **JADE:// 自定义协议 URL**，格式为 `JADE://appname/`。
+
+### 什么是 JADE:// 自定义协议？
+
+JADE:// 是 JadeView 特有的自定义协议，用于在 WebView 中安全地访问本地资源。它不是传统的 HTTP 服务器，而是一种直接的资源访问机制。
+
+### 工作原理
+
+1. 当您调用 `create_local_server` 时，JadeView 不会启动 HTTP 服务或监听端口
+2. 相反，它会注册一个自定义协议处理器，将 `JADE://appname/` 前缀映射到本地文件系统路径
+3. 当 WebView 尝试访问 `JADE://myapp/index.html` 时，JadeView 会直接从本地文件系统加载 `./web/index.html` 文件
+4. 这个过程完全在应用内部进行，没有网络通信或端口监听
+
+### 自定义协议 URL 格式
+
+您可以使用以下格式访问本地文件：
 
 - `JADE://myapp/index.html`：访问根目录下的 index.html 文件
 - `JADE://myapp/assets/css/style.css`：访问 assets/css 目录下的 style.css 文件
 - `JADE://myapp/api/data.json`：访问 api 目录下的 data.json 文件
 
+### 与 HTTP 服务器的区别
+
+| 特性 | JADE:// 自定义协议 | HTTP 服务器 |
+|------|-------------------|-------------|
+| 网络通信 | 无（完全本地） | 需要网络通信 |
+| 端口监听 | 不需要 | 需要监听端口 |
+| 安全性 | 高（仅应用内部访问） | 需考虑网络安全 |
+| 性能 | 极高（直接文件访问） | 受网络和服务器性能影响 |
+| 配置复杂度 | 低（一行代码） | 高（需配置服务器） |
+| 跨应用访问 | 不支持 | 支持（如果暴露端口） |
+
 ## 注意事项
 
-1. 自定义协议 URL 使用 `JADE://` 作为协议头，而不是标准的 `http://` 或 `https://`
-2. appname 参数用于构造自定义协议 URL 的域名部分，如 `JADE://appname/`
-3. 本地服务器会自动处理 MIME 类型，无需手动配置
-4. 自定义协议 URL 只能在 JadeView 内部使用，外部浏览器无法访问
-5. 支持单页应用的路由处理
+1. **JADE:// 是自定义协议，不是 HTTP 服务器**：
+   - 它不会启动 HTTP 服务或监听端口
+   - 它是 JadeView 特有的本地资源访问机制
+   - 它不遵循 HTTP 协议的规则和限制
 
-## 本地服务器的优势
+2. 自定义协议 URL 使用 `JADE://` 作为协议头，而不是标准的 `http://` 或 `https://`
 
-- **安全**：自定义协议 URL 不受浏览器同源策略限制，同时避免了直接文件路径的安全风险
-- **性能**：直接访问本地文件，加载速度快
-- **方便部署**：将所有资源打包到本地目录，无需额外的 Web 服务器
-- **支持 SPA**：支持单页应用的路由处理
-- **跨平台**：在不同平台上表现一致
+3. appname 参数用于构造自定义协议 URL 的域名部分，如 `JADE://appname/`
+   - 这不是真实的域名，只是本地资源的命名空间
+   - 不同的 appname 可以映射到不同的本地资源目录
+
+4. JadeView 会自动处理 MIME 类型，无需手动配置
+
+5. 自定义协议 URL 只能在 JadeView 内部使用，外部浏览器无法访问
+   - 这提供了更高的安全性，防止外部访问本地资源
+   - 只能通过 JadeView 创建的 WebView 窗口访问
+
+6. 支持单页应用的路由处理
+   - 适合构建现代化的单页应用
+   - 支持客户端路由，无需服务器端配置
+
+## 自定义协议的优势
+
+- **高安全性**：
+  - 不受浏览器同源策略限制，同时避免了直接文件路径的安全风险
+  - 仅允许应用内部访问，防止外部恶意访问本地资源
+  - 不需要开放网络端口，减少安全漏洞
+
+- **极致性能**：
+  - 直接访问本地文件，加载速度极快
+  - 无网络通信开销，延迟几乎为零
+  - 无需 HTTP 服务器处理，资源消耗极低
+
+- **部署便捷**：
+  - 将所有资源打包到本地目录，无需额外的 Web 服务器软件
+  - 无需配置服务器，一行代码即可完成资源访问点创建
+  - 跨平台兼容，在不同操作系统上表现一致
+
+- **现代应用支持**：
+  - 完美支持单页应用（SPA）的路由处理
+  - 兼容现代 Web 技术栈（HTML5, CSS3, ES6+）
+  - 支持前端框架（React, Vue, Angular 等）
+
+- **开发友好**：
+  - 简化开发流程，无需搭建本地 HTTP 服务器
+  - 支持热重载（在开发环境中）
+  - 提供与 Web 标准兼容的 API
 
 ## 最佳实践
 
