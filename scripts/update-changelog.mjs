@@ -101,16 +101,20 @@ sidebar_position: 1
     return processedBody;
   }
 
-  // 遍历所有发布版本
-  for (const release of releases) {
+  // 遍历所有正式发布版本（过滤预发布版本）
+  for (const release of releases.filter(release => !release.prerelease)) {
     // 解析发布日期
     const releaseDate = new Date(release.published_at).toISOString().split('T')[0];
     
     // 生成版本部分，使用容器包裹，防止内部标题污染全局目录
-    content += `### ${release.tag_name} (${releaseDate})\n\n`;
+    content += `### ${release.tag_name} (${releaseDate})
+
+`;
     
-    // 添加 GitHub 发布链接
-    content += `[查看发布页面](${release.html_url})\n\n`;
+    // 添加 GitHub 和 Gitee 发布链接
+    content += `[GitHub 发布页面](${release.html_url}) | [Gitee 发布页面](https://gitee.com/ilinxuan/JadeView_library/releases/tag/${release.tag_name})
+
+`;
     
     // 添加发布说明，使用容器包裹
     content += `<div className="changelog-version-container">
