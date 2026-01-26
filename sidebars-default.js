@@ -20,6 +20,11 @@ const sidebars = {
       label: '核心Api',
     },
     {
+      type: 'doc',
+      id: 'tools-api',
+      label: '工具Api',
+    },
+    {
       type: 'category',
       label: '窗口相关',
       items: ['window-api', 'theme-management'],
