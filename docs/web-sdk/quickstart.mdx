@@ -26,33 +26,56 @@ yarn add --dev jadeview-ipc-types
 
 JadeView Web SDK 提供了与 JadeView WebView 进行 IPC 通信的 API，主要包括以下功能：
 
-### 订阅消息
+### 调用后端 API
 
-使用 `window.jade?.ipcMain` 方法订阅消息：
+使用 `window.jade?.invoke` 方法调用后端 API 并获取结果：
 
 ```javascript
-// 订阅消息类型
-const callbackId = window.jade?.ipcMain('messageType', (content) => {
-  console.log('Received message:', content);
+// 调用后端 API
+async function sendMessage() {
+  try {
+    const messageData = {
+      timestamp: Date.now(),
+      data: '测试消息',
+    };
+    const result = await window.jade?.invoke('message', messageData);
+    console.log('Backend return result:', result);
+  } catch (error) {
+    console.error('Call failed:', error);
+  }
+}
+
+// 设置窗口背景
+async function setBackdrop(backdropType) {
+  try {
+    await window.jade?.invoke('setBackdrop', backdropType);
+    console.log('Backdrop set successfully:', backdropType);
+  } catch (error) {
+    console.error('Set backdrop failed:', error);
+  }
+}
+```
+
+### 订阅事件
+
+使用 `window.jade?.on` 方法订阅后端事件：
+
+```javascript
+// 订阅主题变化事件
+const unsubscribeTheme = window.jade?.on('setTheme', (payload) => {
+  console.log('Theme change event:', payload);
+  // 处理主题变化逻辑
 });
-```
 
-### 发送消息
+// 订阅窗口状态变化事件
+const unsubscribeWindowState = window.jade?.on('window-state-changed', (payload) => {
+  console.log('Window state changed:', payload);
+  // 处理窗口状态变化逻辑
+});
 
-使用 `window.jade?.ipcSend` 方法发送消息：
-
-```javascript
-// 发送消息
-window.jade?.ipcSend('channelName', JSON.stringify({ key: 'value' }));
-```
-
-### 取消订阅
-
-使用 `window.jade?.ipcRemove` 方法取消订阅：
-
-```javascript
 // 取消订阅
-window.jade?.ipcRemove('messageType', callbackId);
+// unsubscribeTheme();
+// unsubscribeWindowState();
 ```
 
 ## 类型导入
@@ -60,12 +83,15 @@ window.jade?.ipcRemove('messageType', callbackId);
 您也可以导入特定类型：
 
 ```typescript
-import type { JadeView, JadeViewMessage, JadeViewCallback } from 'jadeview-ipc-types';
+import type { JadeView } from 'jadeview-ipc-types';
 
 // 使用导入的类型
-const handleMessage = (message: JadeViewMessage) => {
-  console.log('Message type:', message.type);
-  console.log('Message content:', message.content);
+const handleInvoke = async () => {
+  const jadeInstance = window.jade as JadeView;
+  if (jadeInstance) {
+    const result = await jadeInstance.invoke('testCommand', { key: 'value' });
+    console.log('Invoke result:', result);
+  }
 };
 ```
 
@@ -73,7 +99,7 @@ const handleMessage = (message: JadeViewMessage) => {
 
 1. **可选链使用**：`window.jade` 对象可能在某些环境中未定义，因此建议使用可选链 `?.` 访问其方法
 2. **异步初始化**：确保 JadeView IPC 系统在使用前已初始化
-3. **字符串内容**：发送的消息内容必须是字符串，复杂数据结构需要使用 `JSON.stringify` 转换
+3. **类型安全**：使用 TypeScript 获得完整的类型安全和 IntelliSense 支持
 4. **回调管理**：妥善管理订阅的回调，避免内存泄漏
 
 ## 完整示例
@@ -81,7 +107,7 @@ const handleMessage = (message: JadeViewMessage) => {
 以下是一个完整的示例，展示了如何使用 JadeView Web SDK 进行通信：
 
 ```typescript
-import type { JadeViewMessage } from 'jadeview-ipc-types';
+import type { JadeView } from 'jadeview-ipc-types';
 
 // 应用初始化
 function initApp() {
@@ -91,34 +117,39 @@ function initApp() {
     return;
   }
 
-  // 订阅消息
-  const callbackId = window.jade.ipcMain('app-ready', (content) => {
-    console.log('App ready:', content);
+  // 订阅应用就绪事件
+  const unsubscribeAppReady = window.jade.on('app-ready', (payload) => {
+    console.log('App ready:', payload);
     
     // 发送初始化完成消息
-    window.jade?.ipcSend('app-init', JSON.stringify({ status: 'ready' }));
+    window.jade?.invoke('app-init', { status: 'ready' })
+      .then(result => {
+        console.log('Init result:', result);
+      })
+      .catch(error => {
+        console.error('Init failed:', error);
+      });
   });
 
   // 订阅主题变化消息
-  window.jade.ipcMain('theme-changed', (content) => {
-    const themeData = JSON.parse(content);
-    console.log('Theme changed:', themeData);
+  const unsubscribeTheme = window.jade.on('setTheme', (payload) => {
+    console.log('Theme changed:', payload);
     // 处理主题变化
-    document.body.className = themeData.theme;
+    document.body.className = payload.theme;
   });
 
   // 订阅窗口状态变化消息
-  window.jade.ipcMain('window-state-changed', (content) => {
-    const stateData = JSON.parse(content);
-    console.log('Window state changed:', stateData);
+  const unsubscribeWindowState = window.jade.on('window-state-changed', (payload) => {
+    console.log('Window state changed:', payload);
     // 处理窗口状态变化
   });
 
   // 清理函数
   return () => {
     // 取消订阅
-    window.jade?.ipcRemove('app-ready', callbackId);
-    // 取消其他订阅...
+    unsubscribeAppReady?.();
+    unsubscribeTheme?.();
+    unsubscribeWindowState?.();
   };
 }
 

@@ -2,69 +2,63 @@
 
 JadeView Web SDK 提供了与 JadeView WebView 进行 IPC 通信的 API，主要包括以下方法：
 
-## window.jade.ipcMain
+## window.jade.invoke
 
-**函数签名**：`ipcMain(type: string, callback: (content: string) => void): number`
+**函数签名**：`<T = any>(command: string, payload?: any): Promise<T>`
 
 **参数**：
 | 参数名 | 类型 | 描述 |
 |-------|------|------|
-| type | string | 消息类型 |
-| callback | (content: string) => void | 回调函数，当收到指定类型的消息时调用 |
+| command | string | 后端命令名称 |
+| payload | any | 传递给后端的数据（可选） |
 
-**返回值**：number - 回调 ID，用于取消订阅
+**返回值**：`Promise<T>` - 后端返回结果的 Promise
 
-**描述**：订阅指定类型的消息，当收到该类型的消息时，调用提供的回调函数。
+**描述**：调用后端 API 并获取返回结果，支持异步操作。
 
 **示例代码**：
 
 ```javascript
-// 订阅消息类型
-const callbackId = window.jade?.ipcMain('messageType', (content) => {
-  console.log('Received message:', content);
+// 调用后端 API
+async function sendMessage() {
+  try {
+    const messageData = {
+      timestamp: Date.now(),
+      data: '测试消息',
+    };
+    const result = await window.jade?.invoke('message', messageData);
+    console.log('Backend return result:', result);
+  } catch (error) {
+    console.error('Call failed:', error);
+  }
+}
+```
+
+## window.jade.on
+
+**函数签名**：`(eventName: string, callback: (payload: any) => void) => () => void`
+
+**参数**：
+| 参数名 | 类型 | 描述 |
+|-------|------|------|
+| eventName | string | 事件名称 |
+| callback | (payload: any) => void | 事件触发时的回调函数 |
+
+**返回值**：`() => void` - 取消订阅的函数
+
+**描述**：订阅后端事件，当事件触发时调用提供的回调函数。返回一个函数用于取消订阅。
+
+**示例代码**：
+
+```javascript
+// 订阅事件
+const unsubscribe = window.jade?.on('setTheme', (payload) => {
+  console.log('Theme change event:', payload);
+  // 处理主题变化逻辑
 });
-```
 
-## window.jade.ipcRemove
-
-**函数签名**：`ipcRemove(type: string, callbackId: number): boolean`
-
-**参数**：
-| 参数名 | 类型 | 描述 |
-|-------|------|------|
-| type | string | 消息类型 |
-| callbackId | number | 回调 ID，由 `ipcMain` 返回 |
-
-**返回值**：boolean - 是否成功取消订阅
-
-**描述**：取消订阅指定类型的消息和回调。
-
-**示例代码**：
-
-```javascript
 // 取消订阅
-window.jade?.ipcRemove('messageType', callbackId);
-```
-
-## window.jade.ipcSend
-
-**函数签名**：`ipcSend(channel: string, content: string): void`
-
-**参数**：
-| 参数名 | 类型 | 描述 |
-|-------|------|------|
-| channel | string | 消息通道名称 |
-| content | string | 消息内容，必须是字符串 |
-
-**返回值**：无
-
-**描述**：向原生应用发送消息。
-
-**示例代码**：
-
-```javascript
-// 发送消息
-window.jade?.ipcSend('channelName', JSON.stringify({ key: 'value' }));
+// unsubscribe();
 ```
 
 ## 类型定义
@@ -78,62 +72,18 @@ JadeView Web SDK 提供了以下类型定义：
 **描述**：JadeView 主接口，代表 `window.jade` 对象。
 
 **方法**：
-- `ipcMain(type: string, callback: (content: string) => void): number`
-- `ipcRemove(type: string, callbackId: number): boolean`
-- `ipcSend(channel: string, content: string): void`
-
-### JadeViewMessage
-
-**接口签名**：`interface JadeViewMessage`
-
-**属性**：
-| 属性名 | 类型 | 描述 |
-|-------|------|------|
-| type | string | 消息类型 |
-| content | string | 消息内容 |
-
-**描述**：代表 JadeView 消息的接口。
-
-**示例**：
-
-```typescript
-const message: JadeViewMessage = {
-  type: 'messageType',
-  content: JSON.stringify({ key: 'value' })
-};
-```
-
-### JadeViewCallback
-
-**接口签名**：`interface JadeViewCallback`
-
-**描述**：代表 JadeView 回调函数的接口。
-
-**属性**：
-| 属性名 | 类型 | 描述 |
-|-------|------|------|
-| (content: string) | function | 回调函数 |
-| _jadeCallbackId | number | 回调 ID |
-
-**示例**：
-
-```typescript
-const callback: JadeViewCallback = (content: string) => {
-  console.log('Received message:', content);
-};
-callback._jadeCallbackId = 123;
-```
-
-
+- `invoke: <T = any>(command: string, payload?: any) => Promise<T>` - 调用后端 API
+- `on: (eventName: string, callback: (payload: any) => void) => () => void` - 订阅后端事件
 
 ## 最佳实践
 
 1. **检查可用性**：在使用 `window.jade` 对象之前，始终检查其是否可用
 2. **使用可选链**：使用可选链 `?.` 访问 `window.jade` 的方法，避免运行时错误
-3. **字符串化数据**：发送复杂数据结构时，使用 `JSON.stringify` 转换为字符串
+3. **异步处理**：使用 `async/await` 或 Promise 处理 `invoke` 方法的异步返回值
 4. **妥善管理回调**：及时取消不再需要的订阅，避免内存泄漏
 5. **处理异步初始化**：考虑 JadeView IPC 系统的异步初始化特性
 6. **错误处理**：添加适当的错误处理，提高应用的健壮性
+7. **类型安全**：使用 TypeScript 获得完整的类型安全和 IntelliSense 支持
 
 ## 注意事项
 
@@ -149,10 +99,10 @@ callback._jadeCallbackId = 123;
 A: 确保您的应用运行在 JadeView WebView 环境中，并检查 JadeView IPC 系统是否已初始化。
 
 ### Q: 如何处理复杂数据结构？
-A: 使用 `JSON.stringify` 将复杂数据结构转换为字符串，接收时使用 `JSON.parse` 转换回对象。
+A: 新的 API 支持直接传递复杂数据结构，无需使用 `JSON.stringify` 转换。
 
 ### Q: 如何避免内存泄漏？
-A: 及时取消不再需要的订阅，使用 `ipcRemove` 方法移除回调。
+A: 及时取消不再需要的订阅，使用 `on` 方法返回的取消订阅函数。
 
 ### Q: 如何调试 IPC 通信？
 A: 使用浏览器开发者工具的控制台，打印发送和接收的消息。
