@@ -103,7 +103,52 @@
     @apply box-border;
   }
 }
+.changelog-date-tag {
+  display: inline-block;
+  padding: 0.3em 0.6em;
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(253, 253, 253, 0.12);
+  border-radius: 4px;
+  font-weight: 500;
+}
 
+/* 调整更新日志版本标题的间距 */
+.markdown h3 {
+  margin-bottom: 0.5em;
+}
+
+/* 更新日志元信息容器 */
+.changelog-meta {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 1em;
+}
+
+/* 更新日志链接样式 */
+.changelog-links {
+  font-size: 0.9em;
+}
+
+/* 深色模式适配 */
+html[data-theme='dark'] .changelog-date-tag {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .changelog-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5em;
+  }
+  
+  .changelog-links {
+    font-size: 0.85em;
+  }
+}
 .accordion-content *:last-child {
   @apply mb-0;
 }
@@ -251,9 +296,9 @@ pre.prism-code {
 .menu__link {
   font-size: 14px;
 }
-.navbar__item.navbar__link.navbar__link--active{
-    background: #c6cdd32e;
-      @apply rounded-md border-secondary-700;
+.navbar__item.navbar__link.navbar__link--active {
+  background: #c6cdd32e;
+  @apply rounded-md border-secondary-700;
 }
 .menu__link {
   border-radius: 4px 0 0 4px;
@@ -1200,7 +1245,6 @@ html[data-theme='dark'] .video_sidebar_header > div > a::before {
 .guides-top-header {
   @apply ml-6 mr-2 rounded-md border-secondary-700;
   border-width: 1px;
-
 }
 
 .pagination-nav__sublabel {
@@ -1611,7 +1655,9 @@ h3.anchor > code {
 }
 
 /* Dark theme adjustments */
-html[data-theme='dark'] .contributors-avatars :global(.ant-avatar-group .ant-avatar) {
+html[data-theme='dark']
+  .contributors-avatars
+  :global(.ant-avatar-group .ant-avatar) {
   border-color: var(--docs-color-secondary-900);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -1622,11 +1668,11 @@ html[data-theme='dark'] .contributors-avatars :global(.ant-avatar-group .ant-ava
     margin-top: 2rem;
     padding-top: 1.5rem;
   }
-  
+
   .contributors-title {
     font-size: 1rem;
   }
-  
+
   .contributors-avatars :global(.ant-avatar-group .ant-avatar) {
     width: 32px;
     height: 32px;
@@ -1640,8 +1686,6 @@ html[data-theme='dark'] .contributors-avatars :global(.ant-avatar-group .ant-ava
   align-items: center;
 }
 
-
-
 html[data-theme='dark'] .changelog-nav-item::after {
   background-color: #1a90ff;
   color: white;
@@ -1650,4 +1694,3 @@ html[data-theme='dark'] .changelog-nav-item::after {
 .changelog-nav-item:hover::after {
   transform: scale(1.05);
 }
-

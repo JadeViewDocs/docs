@@ -90,9 +90,17 @@ sidebar_position: 1
   function processReleaseBody(body) {
     if (!body) return body;
     
+    // 清理文本中的特殊字符和乱码，但保留换行符
+    let processedBody = body.replace(/[\x00-\x09\x0B-\x1F\x7F]/g, ''); // 移除控制字符，保留换行符
+    processedBody = processedBody.replace(/[\u0080-\u00FF]/g, ''); // 移除扩展ASCII
+    
+    // 确保换行符统一为\n
+    processedBody = processedBody.replace(/\r\n/g, '\n');
+    processedBody = processedBody.replace(/\r/g, '\n');
+    
     // 将#123转换为GitHub Issue链接，避免被解析为标题
     // 匹配#后面跟数字，前面不是:，避免匹配URL中的#片段
-    let processedBody = body.replace(/(^|[^:])#(\d+)(?![\d])/g, '$1[#$2](https://github.com/JadeViewDocs/library/issues/$2)');
+    processedBody = processedBody.replace(/(^|[^:])#(\d+)(?![\d])/g, '$1[#$2](https://github.com/JadeViewDocs/library/issues/$2)');
     
     // 将内部标题转换为粗体文本，避免出现在目录中
     processedBody = processedBody.replace(/^##\s+(.*)$/gm, '**$1**');
@@ -107,12 +115,18 @@ sidebar_position: 1
     const releaseDate = new Date(release.published_at).toISOString().split('T')[0];
     
     // 生成版本部分，使用容器包裹，防止内部标题污染全局目录
-    content += `### ${release.tag_name} (${releaseDate})
+    content += `### ${release.tag_name}
 
 `;
     
-    // 添加 GitHub 和 Gitee 发布链接
-    content += `[GitHub 发布页面](${release.html_url}) | [Gitee 发布页面](https://gitee.com/ilinxuan/JadeView_library/releases/tag/${release.tag_name})
+    // 添加发布日期标签和链接，放在同一行
+    content += `<div class="changelog-meta">
+`;
+    content += `  <span class="changelog-date-tag">${releaseDate}</span>
+`;
+    content += `  <span class="changelog-links">[GitHub 发布页面](${release.html_url}) | [Gitee 发布页面](https://gitee.com/ilinxuan/JadeView_library/releases/tag/${release.tag_name})</span>
+`;
+    content += `</div>
 
 `;
     
