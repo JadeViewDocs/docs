@@ -1,0 +1,143 @@
+---
+title: 窗口交互控制
+sidebar_position: 9
+---
+
+
+## 窗口拖动区域控制 (app-region)
+
+### 概述
+
+`app-region` 是一个 CSS 属性（简写形式），用于控制窗口的可拖动区域和交互行为。在 JadeView 中，您可以使用此属性或其完整形式 `-webkit-app-region` 来定义窗口的哪些部分可以拖动，哪些部分不可以拖动。两者功能相同，可根据个人偏好选择使用。
+
+
+### 基本用法
+
+```css
+/* 可拖动区域 */
+.title-bar {
+  -webkit-app-region: drag;
+  /* 或使用简写形式 */
+  app-region: drag;
+}
+
+/* 不可拖动区域（如按钮） */
+.title-bar button {
+  -webkit-app-region: no-drag;
+  /* 或使用简写形式 */
+  app-region: no-drag;
+}
+```
+
+### 属性值
+
+| 值 | 描述 |
+|-----|------|
+| `drag` | 定义元素为可拖动区域 |
+| `no-drag` | 定义元素为不可拖动区域 |
+
+### 最佳实践
+
+1. **仅在标题栏使用**：通常只在窗口标题栏使用 `app-region: drag`
+2. **排除交互元素**：确保按钮、输入框等交互元素使用 `app-region: no-drag`
+3. **避免嵌套**：避免在 `drag` 区域内嵌套其他 `drag` 区域
+4. **性能考虑**：过多的 `app-region` 区域可能会影响窗口拖动性能
+
+### 示例
+
+```html
+<div class="title-bar" style="-webkit-app-region: drag; app-region: drag;">
+  <h1>我的应用</h1>
+  <div class="title-bar-buttons">
+    <button style="-webkit-app-region: no-drag; app-region: no-drag;">最小化</button>
+    <button style="-webkit-app-region: no-drag; app-region: no-drag;">最大化</button>
+    <button style="-webkit-app-region: no-drag; app-region: no-drag;">关闭</button>
+  </div>
+</div>
+```
+
+## 右键菜单控制 (jade-allow-contextmenu)
+
+### 概述
+
+`jade-allow-contextmenu` 用于控制元素是否允许弹出右键菜单。
+:::warning 注意
+`jade-allow-contextmenu` 仅在 JadeView 1.2及以上版本中可用。
+:::
+### 注意事项
+
+1. **优先级**：如果元素设置了 `jade-allow-contextmenu` 但同时设置了 `disabled` 属性，右键菜单也无法弹出
+2. **全局设置优先级**：如果在 `WebViewSettings` 中设置了 `right_click=1`（开启全局右键菜单），则 `jade-allow-contextmenu` 属性会被忽略，页面可以任意弹出右键菜单
+3. **版本要求**：仅在 JadeView 1.2+ 版本支持
+4. **默认行为**：未设置此属性的元素默认不允许弹出右键菜单
+
+### 基本用法
+
+```html
+<!-- 允许弹出右键菜单的元素 -->
+<button jade-allow-contextmenu>右键我</button>
+
+<!-- 不允许弹出右键菜单的元素（默认） -->
+<button>右键我也没用</button>
+```
+
+### 示例
+
+```html
+<!-- 允许弹出右键菜单 -->
+<div jade-allow-contextmenu>
+  <p>右键此区域可以弹出菜单</p>
+</div>
+
+<!-- 不允许弹出右键菜单（因为设置了 disabled） -->
+<button jade-allow-contextmenu disabled>虽然设置了允许，但我被禁用了</button>
+
+<!-- 不允许弹出右键菜单（默认） -->
+<div>
+  <p>右键此区域不会弹出菜单</p>
+</div>
+```
+
+### 与 JavaScript 结合
+
+您可以通过 JavaScript 动态添加或移除此属性：
+
+```javascript
+// 允许右键菜单
+const element = document.getElementById('myElement');
+element.setAttribute('jade-allow-contextmenu', '');
+
+// 禁用右键菜单
+element.removeAttribute('jade-allow-contextmenu');
+```
+
+## 兼容性
+
+### 浏览器兼容性
+
+| 功能 | 支持情况 |
+|------|----------|
+| `app-region` | 仅在 JadeView WebView 中支持 |
+| `jade-allow-contextmenu` | 仅在 JadeView v1.2+ 中支持 |
+
+### 注意事项
+
+1. **仅适用于 JadeView**：这些属性仅在 JadeView WebView 环境中有效，在普通浏览器中不会产生任何效果
+2. **版本差异**：请确保您的应用运行在支持相应功能的 JadeView 版本上
+
+## 故障排除
+
+### 常见问题
+
+1. **拖动区域不工作**
+   - 确保使用了正确的属性名称：`-webkit-app-region`
+   - 检查是否有嵌套的 `no-drag` 元素覆盖了 `drag` 区域
+
+2. **右键菜单不弹出**
+   - 确保您使用的是 JadeView v1.2+ 版本
+   - 检查元素是否同时设置了 `disabled` 属性
+   - 验证 `jade-allow-contextmenu` 属性是否正确添加到元素上
+
+3. **性能问题**
+   - 减少 `app-region` 的使用范围，仅在必要的区域使用
+   - 避免在复杂的嵌套结构中使用这些属性

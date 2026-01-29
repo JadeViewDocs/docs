@@ -1,5 +1,5 @@
 ---
-title: 通信 API（事件与 IPC）
+title: 通信 API与事件列表
 sidebar_position: 4
 ---
 
@@ -161,6 +161,16 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 事件数据 | `{"isMaximized": 布尔值}`             |
 | 数据说明 | JSON 对象，包含窗口是否最大化的布尔值 |
 | 说明     | 当窗口最大化或从最大化状态还原时触发  |
+
+### window-fullscreen
+
+| 属性     | 说明                                  |
+| -------- | ------------------------------------- |
+| 触发条件 | 窗口全屏状态改变                      |
+| 事件数据 | `{"fullscreen": 布尔值}`              |
+| 数据说明 | JSON 对象，包含窗口是否处于全屏状态的布尔值 |
+| 说明     | 当窗口进入或退出全屏状态时触发        |
+| 支持版本 | v1.2+                               |
 
 ### window-moved
 

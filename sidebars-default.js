@@ -45,9 +45,9 @@ const sidebars = {
       id: 'local-server-api',
     },
     {
-      type: 'doc',
-      label: '前端通信',
-      id: 'JavaScript-API',
+      type: 'category',
+      label: '前端API',
+      items: ['JavaScript-API', 'window-styling'],
     },
   ],
 };
