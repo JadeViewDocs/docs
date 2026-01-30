@@ -229,8 +229,17 @@ window = Window(
     user_agent=None,          # 自定义 User-Agent
     preload_js=None,          # 预加载 JavaScript
     allow_fullscreen=True,    # 允许页面 JS 调用全屏 API (需 Jadeui 0.2.1)
+    
+    # 高级选项 (v1.1+)
+    borderless=False,         # 无边框模式 (需 0.2.1+)
+    content_protection=False, # 内容保护，防止截屏 (需 1.1+，与 minimizable/maximizable 冲突)
 )
 ```
+
+:::warning 参数冲突说明
+- `borderless=True` 不能与 `remove_titlebar` 或 `transparent` 同时使用
+- `content_protection=True` 不能与 `minimizable` 或 `maximizable` 同时使用
+:::
 
 ## 事件处理
 
@@ -303,6 +312,11 @@ def on_download(url: str, filename: str):
         print("阻止下载可执行文件")
         return True
     return False
+
+# 监听全屏状态变化（需要 JadeView 1.2+）
+@window.on_fullscreen_changed
+def on_fullscreen(is_fullscreen: bool):
+    print(f"全屏状态: {is_fullscreen}")
 
 window.show()
 ```
