@@ -61,6 +61,17 @@ if app.is_ready():
 
 **返回值**: `bool`
 
+#### get_webview_version()
+
+获取 WebView 引擎版本。
+
+```python
+version = app.get_webview_version()
+print(f"WebView 版本: {version}")  # 例如: "120.0.2210.144"
+```
+
+**返回值**: `str | None` - WebView 版本字符串，如果不可用则返回 `None`
+
 ### 装饰器
 
 #### @on_ready
@@ -139,6 +150,13 @@ window = Window(
 | user_agent | str \| None | None | 自定义 User-Agent |
 | preload_js | str \| None | None | 预加载 JavaScript |
 | allow_fullscreen | bool | True | 允许页面 JS 调用全屏 API (需 Jadeui 0.2.1) |
+| borderless | bool | False | 无边框模式，移除边框和系统阴影 (需 0.2.1+) |
+| content_protection | bool | False | 内容保护，防止截屏/录屏 (需 1.1+) |
+
+:::warning 参数冲突说明
+- **borderless**: `borderless=True` 不能与 `remove_titlebar` 或 `transparent` 同时使用，否则会抛出 `ValueError`。这是因为 `borderless` 会移除边框和系统阴影，与后两者功能冲突。
+- **content_protection**: `content_protection=True` 不能与 `minimizable` 或 `maximizable` 同时使用。启用内容保护时，窗口将无法最小化和最大化。
+:::
 
 ### 生命周期方法
 
@@ -488,6 +506,7 @@ Window 类提供两种事件监听方式：**类型化装饰器**（推荐）和
 | `@window.on_blurred` | `()` | 窗口失去焦点 |
 | `@window.on_closing` | `() -> bool` | 窗口即将关闭，返回 True 阻止 |
 | `@window.on_state_changed` | `(is_maximized: bool)` | 窗口状态改变 |
+| `@window.on_fullscreen_changed` | `(is_fullscreen: bool)` | 全屏状态改变 (需 1.2+) |
 | `@window.on_file_dropped` | `(files: List[str], x: int, y: int)` | 文件拖放 |
 | `@window.on_navigate` | `(url: str) -> bool` | 即将导航，返回 True 阻止 |
 | `@window.on_page_loaded` | `(url: str)` | 页面加载完成 |
@@ -539,6 +558,7 @@ window.show()
 | `Events.WINDOW_BLURRED` | window-blurred | `()` | 失去焦点 |
 | `Events.WINDOW_CLOSING` | window-closing | `()` | 即将关闭（返回 1 可阻止） |
 | `Events.WINDOW_STATE_CHANGED` | window-state-changed | `(is_maximized,)` | 状态改变 |
+| `Events.WINDOW_FULLSCREEN` | window-fullscreen | `(is_fullscreen,)` | 全屏状态改变 (需 1.2+) |
 | `Events.FILE_DROP` | file-drop | `(files, x, y)` | 文件拖放 |
 | `Events.WEBVIEW_WILL_NAVIGATE` | webview-will-navigate | `(url,)` | 即将导航 |
 | `Events.WEBVIEW_DID_FINISH_LOAD` | webview-did-finish-load | `(url,)` | 加载完成 |
@@ -1003,6 +1023,7 @@ Events.WINDOW_CLOSED          # "window-closed"
 Events.WINDOW_CLOSING         # "window-closing"
 Events.WINDOW_RESIZED         # "window-resized"
 Events.WINDOW_STATE_CHANGED   # "window-state-changed"
+Events.WINDOW_FULLSCREEN      # "window-fullscreen" (需 1.2+)
 Events.WINDOW_MOVED           # "window-moved"
 Events.WINDOW_FOCUSED         # "window-focused"
 Events.WINDOW_BLURRED         # "window-blurred"
@@ -1019,6 +1040,7 @@ Events.WEBVIEW_PAGE_ICON_UPDATED  # "webview-page-icon-updated"
 Events.FAVICON_UPDATED            # "favicon-updated"
 Events.JAVASCRIPT_RESULT          # "javascript-result"
 Events.WEBVIEW_DOWNLOAD_STARTED   # "webview-download-started" (需 0.3.1+)
+Events.POSTMESSAGE_RECEIVED       # "postmessage-received" (需 1.0.2+)
 
 # 文件事件
 Events.FILE_DROP          # "file-drop"
@@ -1078,6 +1100,11 @@ def on_download(url: str, filename: str):
     if filename.endswith(".exe"):
         return True  # 阻止 exe 文件下载
     return False
+
+# 监听全屏状态改变 (需 1.2+)
+@window.on_fullscreen_changed
+def on_fullscreen(is_fullscreen: bool):
+    print(f"全屏状态: {is_fullscreen}")
 
 window.show()
 ```
