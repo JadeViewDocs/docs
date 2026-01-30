@@ -35,9 +35,7 @@ uint32_t jade_on(const char* event_name, IpcCallback callback);
 ```
 
 **功能描述**
-注册一个事件处理器，当指定事件触发时，回调函数将被调用。
-
-
+注册一个事件处理器，用于接收 JadeView 发出的通知（如窗口状态变化、WebView 事件等各种系统事件）。当指定事件触发时，回调函数将被调用。
 
 **参数**
 - `event_name`：事件名称
@@ -70,7 +68,10 @@ int jade_off(const char* event_name, uint32_t callback_id);
 ```c
 int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 ```
-**功能**，用于注册 IPC 通道的回调处理器
+
+**功能描述**
+注册一个 IPC 通道的回调处理器，用于接收前端通过 `jade.invoke` 发出的通知。当前端调用 `jade.invoke(channel, data)` 时，对应的回调函数将被触发。
+
 :::tip 重要变更
 1.0版本开始，回调函数允许直接返回文本作为事件数据。
 :::
