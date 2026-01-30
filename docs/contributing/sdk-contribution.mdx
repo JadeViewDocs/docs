@@ -1,0 +1,228 @@
+---
+title: SDK 贡献指南
+sidebar_position: 1
+---
+
+# SDK 贡献指南
+
+本指南将帮助您了解如何为 JadeView 贡献自己编写的 SDK 文档，使更多开发者能够受益于您的工作。
+
+## 为什么贡献 SDK 文档？
+
+- **帮助社区**：分享您的 SDK 实现，帮助其他开发者快速上手
+- **获得反馈**：通过社区反馈改进您的 SDK
+- **建立声誉**：展示您的技术能力和贡献精神
+- **共同进步**：与其他开发者一起完善 JadeView 生态系统
+
+## 准备工作
+
+在开始贡献之前，请确保您：
+
+1. **了解 JadeView 核心概念**：熟悉 JadeView 的基本架构和 API
+2. **已实现 SDK**：有一个功能完整的 SDK 实现
+3. **熟悉 Markdown**：能够编写清晰的 Markdown 文档
+4. **了解 Git 和 GitHub**：能够提交 Pull Request
+
+## SDK 实现参考
+
+在实现您的 SDK 时，建议参考官方提供的 DemoWeb 实现作为参考：
+
+- **参考实现**：[https://github.com/JadeViewDocs/library/tree/main/DemoWeb](https://github.com/JadeViewDocs/library/tree/main/DemoWeb)
+- **主要特点**：
+  - 完整的前端与后端通信示例
+  - 标准的项目结构
+  - 规范的 API 设计
+  - 详细的注释和文档
+
+## 文档结构
+
+### 1. 基本信息
+
+每个 SDK 文档应包含以下基本信息：
+
+- **SDK 名称**：清晰的 SDK 名称
+- **适用平台**：支持的操作系统/编程语言
+- **版本要求**：依赖的 JadeView 版本
+- **作者信息**：您的名称和联系方式
+- **许可证**：使用的开源许可证
+
+### 2. 安装指南
+
+提供详细的安装步骤：
+
+- **安装命令**：包管理器命令或下载链接
+- **依赖项**：所需的其他依赖
+- **环境要求**：硬件/软件环境要求
+
+### 3. 快速开始
+
+提供一个简单的示例，帮助开发者快速上手：
+
+- **基本用法**：最小化的代码示例
+- **常见用例**：典型的使用场景
+- **运行步骤**：如何运行示例
+
+### 4. API 参考
+
+详细的 API 文档：
+
+- **核心类/函数**：主要的类和函数
+- **参数说明**：每个参数的类型和用途
+- **返回值**：函数返回的结果
+- **错误处理**：可能的错误和处理方法
+
+### 5. 高级功能
+
+- **高级用法**：复杂场景的解决方案
+- **性能优化**：提高性能的技巧
+- **最佳实践**：推荐的使用方式
+
+### 6. 示例代码
+
+- **完整示例**：功能完整的示例应用
+- **代码注释**：详细的代码注释
+- **运行说明**：如何运行示例
+
+## 文档格式
+
+### Markdown 规范
+
+- 使用标准 Markdown 语法
+- 保持一致的标题层级
+- 使用代码块展示代码
+- 添加适当的链接和引用
+
+### 代码示例
+
+- 提供完整、可运行的代码
+- 添加详细的注释
+- 包含错误处理
+- 展示最佳实践
+
+### 视觉风格
+
+- 使用一致的格式
+- 添加适当的空行和缩进
+- 使用强调和列表提高可读性
+- 包含必要的警告和提示
+
+## 提交流程
+
+### 1. Fork 仓库
+
+1. 访问 [JadeViewDocs/docs](https://github.com/JadeViewDocs/docs)
+2. 点击 "Fork" 按钮创建您自己的副本
+
+### 2. 克隆仓库
+
+```bash
+git clone https://github.com/your-username/docs.git
+cd docs
+```
+
+### 3. 创建分支
+
+```bash
+git checkout -b sdk-contribution/your-sdk-name
+```
+
+### 4. 添加文档
+
+1. 在 `docs/sdk` 目录下创建您的 SDK 文档文件夹
+2. 按照文档结构编写内容
+3. 确保文档格式正确
+
+### 5. 更新侧边栏
+
+修改 `sidebars.js` 文件，将您的 SDK 文档添加到侧边栏中：
+
+```javascript
+// 在 appropriate section 添加
+{
+  type: 'category',
+  label: '第三方 SDK',
+  items: [
+    // 其他 SDK...
+    'sdk/your-sdk-name/index',
+  ],
+},
+```
+
+### 6. 提交更改
+
+```bash
+git add .
+git commit -m "Add SDK documentation for your-sdk-name"
+git push origin sdk-contribution/your-sdk-name
+```
+
+### 7. 创建 Pull Request
+
+1. 访问您的 fork 仓库
+2. 点击 "Pull request" 按钮
+3. 填写详细的描述，说明您的贡献
+4. 提交 Pull Request
+
+## 审核流程
+
+1. **初步审核**：维护者会检查您的提交是否符合基本要求
+2. **内容审核**：审核文档内容的准确性和完整性
+3. **格式审核**：检查文档格式是否符合规范
+4. **测试验证**：可能会测试您的 SDK 实现
+5. **反馈与修改**：根据审核意见进行修改
+6. **合并**：通过审核后，您的贡献会被合并到主分支
+
+## 最佳实践
+
+### 文档编写
+
+- **清晰简洁**：使用简单明了的语言
+- **结构合理**：遵循推荐的文档结构
+- **示例丰富**：提供足够的代码示例
+- **及时更新**：保持文档与 SDK 同步更新
+
+### SDK 实现
+
+- **参考 DemoWeb**：参考官方 DemoWeb 实现
+- **遵循规范**：使用标准的命名和结构
+- **错误处理**：完善的错误处理机制
+- **性能优化**：考虑性能因素
+
+### 社区互动
+
+- **回应反馈**：及时回应社区的问题和反馈
+- **持续改进**：根据用户反馈改进 SDK
+- **分享经验**：在社区中分享您的开发经验
+
+## 常见问题
+
+### Q: 我的 SDK 应该支持哪些平台？
+
+A: 建议至少支持主流平台，如 Windows、macOS 和 Linux。如果资源有限，可以先支持一个主要平台，然后逐步扩展。
+
+### Q: 如何测试我的 SDK？
+
+A: 建议编写单元测试和集成测试，确保 SDK 的稳定性和可靠性。
+
+### Q: 我的 SDK 可以使用哪些许可证？
+
+A: 建议使用与 JadeView 相同的许可证（MIT），以保持一致性。
+
+### Q: 如何获得更多帮助？
+
+A: 可以在 GitHub Issues 中提问，或加入 JadeView 社区寻求帮助。
+
+## 资源链接
+
+- **JadeView 官方仓库**：[https://github.com/JadeViewDocs/library](https://github.com/JadeViewDocs/library)
+- **DemoWeb 实现**：[https://github.com/JadeViewDocs/library/tree/main/DemoWeb](https://github.com/JadeViewDocs/library/tree/main/DemoWeb)
+- **API 文档**：[https://jade.run/guides](https://jade.run/guides)
+- **社区论坛**：[https://github.com/JadeViewDocs/library/discussions](https://github.com/JadeViewDocs/library/discussions)
+
+## 结语
+
+感谢您考虑为 JadeView 贡献 SDK 文档！您的贡献将帮助更多开发者了解和使用 JadeView，推动整个生态系统的发展。
+
+如果您有任何问题或需要帮助，请随时在社区中提问，我们会尽力支持您的工作。
+
+祝您贡献愉快！

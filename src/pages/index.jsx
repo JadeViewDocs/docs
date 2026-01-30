@@ -219,13 +219,13 @@ export default function Homepage() {
                 </div>
               </Link>
               <Link
-                to="/spec/custom-titlebar"
+                to="/spec/contributing-sdk"
                 className="group flex cursor-pointer items-start gap-2 rounded-lg border-2 border-transparent p-3 text-inherit transition-colors hover:border-primary hover:text-primary"
               >
                 <ReactIcon />
                 <div className="flex flex-col">
-                  <h4 className="mb-1 font-semibold">自定义标题栏</h4>
-                  <p className="mb-0 text-sm text-text-400">快速自定义窗口标题栏</p>
+                  <h4 className="mb-1 font-semibold">贡献Sdk</h4>
+                  <p className="mb-0 text-sm text-text-400">指导您如何贡献您的SDK</p>
                 </div>
               </Link>
             </div>

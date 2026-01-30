@@ -23,7 +23,7 @@ const sidebars = {
         'index',
         'behavior',
         'compatibility',
-        'changelog/index'
+        'changelog/index',
       ]
     },
     {
@@ -33,7 +33,8 @@ const sidebars = {
       items: [
         'quickstart',
         'webview2-installation',
-        'custom-titlebar'
+        'custom-titlebar',
+        'contributing-sdk'
       ]
     },
     {
