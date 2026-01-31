@@ -147,7 +147,7 @@ sidebar_position: 1
 **WebViewSettings 结构体增强**
 
 - 在 [WebViewSettings ](https://jade.run/guides/webview-api#webviewsettings-%E7%BB%93%E6%9E%84%E4%BD%93)结构体中添加了 postmessage_whitelist 字段
->说明 ：用于限制可接收的 [PostMessage ](https://jade.run/guides/communication-api#postmessage-received)消息来源，提高安全性
+>说明 ：用于限制可接收的 [PostMessage ](https://jade.run/guides/event-types#postmessage-received)消息来源，提高安全性
 
 - 新增 [Postmessage-received](Postmessage-received) 事件
 >��� WebView 接收到 PostMessage 消息时触发，仅当消息来源在白名单中时才会触发
@@ -233,7 +233,7 @@ sidebar_position: 1
 
 **事件优化**
 
-- [#webview-download-started](https://jade.run/guides/communication-api#webview-download-started)默认阻止，可返回 0允许
+- [#webview-download-started](https://jade.run/guides/event-types#webview-download-started)默认阻止，可返回 0允许
 
 </div>
 
@@ -269,7 +269,7 @@ sidebar_position: 1
 
 **Api增强**
 
-- 增加 [webview-download-started](https://jade.run/guides/communication-api#webview-download-started)事件，可返回1阻止
+- 增加 [webview-download-started](https://jade.run/guides/event-types#webview-download-started)事件，可返回1阻止
 
 
 **修复**

@@ -1,0 +1,194 @@
+---
+title: 通知功能
+sidebar_position: 5
+---
+
+# 通知功能
+
+## 概述
+
+JadeView 提供了桌面通知功能，允许应用程序向用户显示系统通知，支持自定义标题、内容、图标、按钮等。**该功能从 v1.3 开始支持**，目前仅在 Windows 平台上可用。
+
+通知功能基于 Windows 原生通知系统，支持 Windows 10 和 Windows 11 的通知样式。
+
+## 核心函数
+
+### 显示通知
+
+`show_notification` 函数用于显示桌面通知，支持自定义各种通知属性。
+
+#### 函数签名
+```c
+int show_notification(const NotificationParams* params);
+```
+
+#### 参数说明
+- `params`: 通知参数结构体，包含以下字段：
+  - `summary`: 通知标题（必填字段，不能为空）
+  - `body`: 通知内容（可选）
+  - `icon`: 通知图标路径（绝对路径，可选）
+  - `timeout`: 超时时间（毫秒，&lt;= 0 时使用默认超时）
+  - `button1`: 第一个按钮文本（可选）
+  - `button2`: 第二个按钮文本（可选）
+  - `text3`: 第三行文本（可选）
+  - `action`: 动作参数（可选，会以 arguments 传参）
+
+#### 返回值
+- `1`: 通知成功显示
+- `0`: 显示失败或当前非 Windows 平台
+
+### 注册通知应用
+
+`set_notification_app_registry` 函数用于将应用注册到 Windows 注册表，以便通知系统能够正确识别应用。
+
+#### 函数签名
+```c
+int set_notification_app_registry(const char* app_name, const char* icon_path);
+```
+
+#### 参数说明
+- `app_name`: 应用显示名称
+- `icon_path`: 应用图标路径（绝对路径）
+
+#### 返回值
+- `1`: 注册成功
+- `0`: 注册失败或当前非 Windows 平台
+
+## 数据结构
+
+### 通知参数结构体
+
+```c
+#[repr(C)]
+pub struct NotificationParams {
+    pub summary: *const c_char,  // 通知标题
+    pub body: *const c_char,     // 通知内容
+    pub icon: *const c_char,     // 图标路径
+    pub timeout: i32,            // 超时时间（毫秒）
+    pub button1: *const c_char,  // 第一个按钮文本
+    pub button2: *const c_char,  // 第二个按钮文本
+    pub text3: *const c_char,    // 第三行文本
+    pub action: *const c_char,   // 动作参数，会以 arguments 传参
+}
+```
+
+## 事件系统
+
+通知功能会触发多种事件，详细的事件列表和数据格式请参考 [事件类型文档](./event-types.mdx#通知事件)。
+
+主要事件包括：
+- `notification-action` - 用户点击通知按钮时触发
+- `notification-dismissed` - 通知被关闭时触发
+- `notification-failed` - 通知显示失败时触发
+- `notification-shown` - 通知成功显示时触发
+
+**支持版本**：v1.3+
+
+## 使用指南
+
+### 基本使用流程
+
+1. **注册通知应用**（首次使用时）
+2. **创建通知参数**
+3. **调用显示通知函数**
+4. **注册事件监听器**（可选，用于处理通知交互）
+
+### 示例代码
+
+#### 注册通知应用
+
+```c
+// 注册通知应用到 Windows 注册表
+set_notification_app_registry(
+    "示例应用",                 // 应用名称
+    "C:\\path\\to\\app.ico"    // 应用图标路径
+);
+```
+
+#### 显示通知
+
+```c
+// 准备通知参数
+NotificationParams params;
+params.summary = "新消息";
+params.body = "您有一条新的系统通知";
+params.icon = "C:\path\to\notification.ico";
+params.timeout = 10000;  // 10秒后自动关闭
+params.button1 = "查看";
+params.button2 = "忽略";
+params.text3 = "点击查看详情";
+params.action = "notification_id_123";  // 动作参数，会以 arguments 传参
+
+// 显示通知
+int result = show_notification(&params);
+if (result == 1) {
+    // 通知显示成功
+} else {
+    // 通知显示失败
+}
+```
+
+#### 监听通知事件
+
+```c
+// 注册通知动作事件监听器
+// 具体实现取决于应用程序的事件处理机制
+// 例如，使用 jade_on 函数注册事件处理
+```
+
+## 最佳实践
+
+### 图标使用
+- 使用绝对路径指定图标
+- 推荐使用 ICO 格式图标，确保在所有 Windows 版本上显示正常
+- 图标大小建议为 64x64 或 128x128
+
+### 通知内容
+- 标题简洁明了，不超过 25 个字符
+- 内容清晰易懂，不超过 100 个字符
+- 避免发送过于频繁的通知，以免打扰用户
+
+### 事件处理
+- 及时响应通知交互事件
+- 处理通知失败情况，确保应用稳定性
+- 合理管理事件监听器，避免内存泄漏
+
+## 限制与兼容性
+
+### 平台限制
+- 仅支持 Windows 平台
+- 在 Windows 7 上可能功能受限
+
+### 功能限制
+- 最多支持两个按钮
+- 通知内容长度有限制
+
+### 版本要求
+- **JadeView 版本**: v1.3+
+- **Windows 版本**: Windows 10 或更高版本
+
+## 故障排除
+
+### 通知不显示
+1. 检查 Windows 通知设置是否允许显示通知
+2. 确认应用已通过 `set_notification_app_registry` 注册
+3. 验证函数调用是否成功（返回值为 1）
+4. 检查当前是否为 Windows 平台
+
+### 图标不显示
+1. 确保图标路径为绝对路径
+2. 确认图标文件存在且格式正确
+3. 检查应用是否已正确注册
+
+### 事件不触发
+1. 确认通知应用已正确注册
+2. 检查事件监听器是否正确注册
+3. 验证事件处理函数是否正确实现
+
+## 技术实现
+
+- 使用 `winrt-toast-reborn` 库与 Windows 通知系统交互
+- 采用 Windows 原生通知 API，提供一致的用户体验
+- 通过 IPC 系统传递通知事件，实现完整的事件处理机制
+- 支持自定义通知外观，包括图标、按钮和文本内容
+- 调用 `cleanup_all_windows` 函数时，会自动注销通知服务

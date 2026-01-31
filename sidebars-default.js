@@ -35,19 +35,19 @@ const sidebars = {
       id: 'webview-api',
     },
     {
-      type: 'doc',
-      label: '通信与服务',
-      id: 'communication-api',
+      type: 'category',
+      label: '通信与事件',
+      items: ['ipc-api', 'event-types'],
     },
     {
-      type: 'doc',
-      label: '创建本地服务',
-      id: 'local-server-api',
+      type: 'category',
+      label: '插件',
+      items: ['local-server-api', 'notification', 'dialog-api'],
     },
     {
       type: 'category',
       label: '前端API',
-      items: ['JavaScript-API', 'window-styling'],
+      items: ['JavaScript-API', 'window-styling', 'dialog-frontend-api'],
     },
   ],
 };

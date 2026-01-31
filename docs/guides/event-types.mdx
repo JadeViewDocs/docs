@@ -1,90 +1,9 @@
 ---
-title: 通信 API与事件列表
-sidebar_position: 4
+title: 事件类型
+sidebar_position: 5
 ---
 
-# 通信 API（事件与 IPC）
-
-## 事件系统
-## IPC 通信
-
-### 发送 IPC 消息
-
-**函数签名**
-```c
-int send_ipc_message(uint32_t window_id, const char* message_type, const char* message_content);
-```
-
-**功能描述**
-向前端发送 IPC 消息。
-
-**参数**
-- `window_id`：窗口 ID
-- `message_type`：消息类型
-- `message_content`：消息内容
-
-**返回值**
-- 1：成功
-- 0：失败
-
-### 注册事件回调
-
-**函数签名**
-```c
-uint32_t jade_on(const char* event_name, IpcCallback callback);
-```
-
-**功能描述**
-注册一个事件处理器，用于接收 JadeView 发出的通知（如窗口状态变化、WebView 事件等各种系统事件）。当指定事件触发时，回调函数将被调用。
-
-**参数**
-- `event_name`：事件名称
-- `callback`：事件回调函数
-
-**返回值**
-- 返回注册的回调 ID，如果注册失败返回 0
-
-### 注销事件回调
-
-**函数签名**
-```c
-int jade_off(const char* event_name, uint32_t callback_id);
-```
-
-**功能描述**
-注销指定事件的指定回调处理器。
-
-**参数**
-- `event_name`：事件名称
-- `callback_id`：要注销的回调 ID
-
-**返回值**
-- 1：成功
-- 0：失败
-
-### 注册 IPC 消息处理器
-
-**函数签名**
-```c
-int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
-```
-
-**功能描述**
-注册一个 IPC 通道的回调处理器，用于接收前端通过 `jade.invoke` 发出的通知。当前端调用 `jade.invoke(channel, data)` 时，对应的回调函数将被触发。
-
-:::tip 重要变更
-1.0版本开始，回调函数允许直接返回文本作为事件数据。
-:::
-
-**参数**
-- `channel`：IPC 通道名称
-- `ipc_cb`：[IpcCallback](#ipccallback)，IPC 回调函数
-
-**返回值**
-- 1：成功
-- 0：失败
-
-### 事件类型
+# 事件类型
 
 ## 核心事件
 
@@ -209,8 +128,6 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 数据说明 | JSON 对象，无额外数据 |
 | 说明     | 当窗口被销毁时触发    |
 
-
-
 ## WebView 事件
 
 ### webview-will-navigate
@@ -277,8 +194,7 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 触发条件 | 开始下载                             |
 | 事件数据 | `{"url": "", "filename": ""}` |
 | 数据说明 | JSON 对象，包含下载的 URL、文件名 |
-| 说明     | 当 WebView 开始下载文件时触发 ，0.3.3 后默认阻止下载|
-| 阻止     | 可返回 1 来阻止下载 ，0 表示允许下载 |
+| 说明     | 当 WebView 开始下载文件时触发 ，0.3.3 后默认阻止下载| | 阻止     | 可返回 1 来阻止下载 ，0 表示允许下载 |
 | 支持版本 | 0.3+                                 |
 
 ### javascript-result
@@ -331,37 +247,44 @@ int register_ipc_handler(const char* channel, IpcCallback ipc_cb);
 | 数据说明 | JSON 对象，包含需要更新图标的窗口 ID |
 | 说明     | 当需要更新窗口图标时触发             |
 
+## 通知事件
 
+### notification-action
 
+| 属性     | 说明                  |
+| -------- | --------------------- |
+| 触发条件 | 用户点击通知按钮或卡片      |
+| 事件数据 | `{"action": "action_0", "title": "确定", "arguments": ""}` |
+| 数据说明 | JSON 对象，包含以下字段：<br/> `action`：动作标识符，具体含义如下：<br/>   `clicked`：点击通知卡片本身<br/>  `action_0`：点击第一个按钮<br/>  `action_1`：点击第二个按钮<br/>`title`：按钮文本<br/>`arguments`：动作参数，来自于 NotificationParams 结构体中的 action 字段 |
+| 说明     | 当用户点击通知上的按钮或卡片时触发 |
+| 支持版本 | v1.3+ |
 
-## 数据结构
+### notification-dismissed
 
-### 回调函数类型定义
+| 属性     | 说明                  |
+| -------- | --------------------- |
+| 触发条件 | 通知被关闭            |
+| 事件数据 | `{"reason": "dismissed"}` |
+| 数据说明 | JSON 对象，包含关闭原因 |
+| 说明     | 当通知被用户关闭或自动超时关闭时触发 |
+| 支持版本 | v1.3+ |
 
-#### IpcCallback
+### notification-failed
 
-**定义**
-```c
-typedef int (*IpcCallback)(uint32_t window_id, const char* event_data);
-```
-全局通用事件回调函数类型定义，无论是IPC事件还是程序事件，都可以使用此回调函数。
-:::tip 重要变更
-1.0版本开始，回调函数允许直接返回文本作为事件数据。
-:::
+| 属性     | 说明                  |
+| -------- | --------------------- |
+| 触发条件 | 通知显示失败          |
+| 事件数据 | `{"error": "错误信息"}` |
+| 数据说明 | JSON 对象，包含错误信息 |
+| 说明     | 当通知显示失败时触发 |
+| 支持版本 | v1.3+ |
 
-**参数说明**
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `window_id` | uint32_t | 窗口 ID |
-| `event_data` | const char* | 事件数据，UTF-8 字符串 |
+### notification-shown
 
-**返回值说明**
-| 返回值 | 说明 |
-|------|------|
-| `0` | 允许操作 |
-| `1` | 阻止操作 |
-|  const char*| 前端通讯可以直接返回文本，或推荐`jade_text_create` 创建的安全文本指针 |
-
-
-
-
+| 属性     | 说明                  |
+| -------- | --------------------- |
+| 触发条件 | 通知成功显示          |
+| 事件数据 | `{"title": "通知标题", "body": "通知内容", "text3": "第三行文本"}` |
+| 数据说明 | JSON 对象，包含通知标题、内容和第三行文本 |
+| 说明     | 当通知成功显示时触发 |
+| 支持版本 | v1.3+

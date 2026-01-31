@@ -55,12 +55,6 @@ const docs = [
     sidebarPath: require.resolve('./sidebars-spec.js'),
   },
   {
-    id: 'community-packages',
-    path: 'docs/community-packages',
-    routeBasePath: 'community-packages',
-    sidebarPath: require.resolve('./sidebars-community-packages.js'),
-  },
-  {
     id: 'changelog',
     path: 'docs/changelog',
     routeBasePath: 'changelog',

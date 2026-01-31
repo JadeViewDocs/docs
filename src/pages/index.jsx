@@ -123,7 +123,7 @@ const guides = [
     title: '事件系统',
     icon: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>,
     text: '了解事件处理机制和回调函数',
-    link: '/guides/communication-api',
+    link: '/guides/event-types',
   },
 ];
 
@@ -583,6 +583,38 @@ export default function Homepage() {
           text-decoration: none !important;
         }
       `}</style>
+      <div className="lantern">
+        <div className="lantern-left">
+          <div className="lantern-container">
+            <div className="lantern-top-rope"></div>
+            <div className="lantern-top"></div>
+            <div className="lantern-center">
+              <div className="lantern-line">
+                <div className="lantern-text-wrap">
+                  <div className="lantern-text">新年</div>
+                </div>
+              </div>
+            </div>
+            <div className="lantern-bottom"></div>
+            <div className="lantern-bottom-rope"></div>
+          </div>
+        </div>
+        <div className="lantern-right">
+          <div className="lantern-container">
+            <div className="lantern-top-rope"></div>
+            <div className="lantern-top"></div>
+            <div className="lantern-center">
+              <div className="lantern-line">
+                <div className="lantern-text-wrap">
+                  <div className="lantern-text">快乐</div>
+                </div>
+              </div>
+            </div>
+            <div className="lantern-bottom"></div>
+            <div className="lantern-bottom-rope"></div>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 }
