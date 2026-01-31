@@ -7,6 +7,84 @@ sidebar_position: 1
 
 ## 版本历史
 
+### v1.3.0
+
+<div class="changelog-meta">
+  <span class="changelog-date-tag">2026-01-31</span>
+  <span class="changelog-links">[GitHub 发布页面](https://github.com/JadeViewDocs/library/releases/tag/v1.3.0) | [Gitee 发布页面](https://gitee.com/ilinxuan/JadeView_library/releases/tag/v1.3.0)</span>
+</div>
+
+<div className="changelog-version-container">
+
+**年终更新！**
+>本次更新为本年度最后一次更新，如果你对26年度有什么想法可以提交问卷：
+https://wj.qq.com/s2/25628138/c3fd/
+
+**新增功能**
+
+#### 对话框 API
+
+新增了对话框 API，该 API 类似于 Electron 的 dialog 模块，支持在前端��� C 代码中使用，用于显示文件选择、保存文件、消息提示等对话框。
+
+**前端 API**：
+- [showOpenDialog](https://jade.run/guides/dialog-frontend-api#showopendialog) - 显示打开文件对话框
+- [showSaveDialog](https://jade.run/guides/dialog-frontend-api#showsavedialog) - 显示保存文件对话框
+- [showMessageBox](https://jade.run/guides/dialog-frontend-api#showmessagebox) - 显示消息框
+- [showErrorBox](https://jade.run/guides/dialog-frontend-api#showerrorbox) - 显示错误框
+
+**C API**：
+- [OpenDialogParams](https://jade.run/guides/dialog-api#结构体定义) - 打开文件对话框参数结构体
+- [SaveDialogParams](https://jade.run/guides/dialog-api#结构体定义) - 保存文件对话框参数结构体
+- [MessageBoxParams](https://jade.run/guides/dialog-api#结构体定义) - 消息框参数结构体
+- [jade_dialog_show_open_dialog](https://jade.run/guides/dialog-api#jade_dialog_show_open_dialog) - 显示打开文件对话框
+- [jade_dialog_show_save_dialog](https://jade.run/guides/dialog-api#jade_dialog_show_save_dialog) - 显示保存文件对话框
+- [jade_dialog_show_message_box](https://jade.run/guides/dialog-api#jade_dialog_show_message_box) - 显示消息框
+- [jade_dialog_show_error_box](https://jade.run/guides/dialog-api#jade_dialog_show_error_box) - 显示错误框
+
+#### 通知功能
+
+新增了桌面通知功能，允许应用程序向用户显示系统通知，支持自定义标题、内容、图标、按钮等。目前仅在 Windows 平台上可用。
+
+**C API**：
+- [set_notification_app_registry](https://jade.run/guides/notification#注册通知应用) - 注册通知应用到 Windows 注册表
+- [show_notification](https://jade.run/guides/notification#显示通知) - 显示桌面通知
+- [NotificationParams](https://jade.run/guides/notification#通知参数结构体) - 通知参数结构体
+
+**改进与修复**
+
+- 改进了错误处理机制
+
+
+</div>
+
+### v1.2.0
+
+<div class="changelog-meta">
+  <span class="changelog-date-tag">2026-01-29</span>
+  <span class="changelog-links">[GitHub 发布页面](https://github.com/JadeViewDocs/library/releases/tag/v1.2.0) | [Gitee 发布页面](https://gitee.com/ilinxuan/JadeView_library/releases/tag/v1.2.0)</span>
+</div>
+
+<div className="changelog-version-container">
+
+**重要改进！**
+不再只是简单的为编辑框元素放行右键菜单
+* 右键菜单控制增强：
+  * 前端引入自定义属性[ jade-allow-contextmenu](https://jade.run/guides/window-styling#%E5%8F%B3%E9%94%AE%E8%8F%9C%E5%8D%95%E6%8E%A7%E5%88%B6-jade-allow-contextmenu)，可以为特定元素启用右键菜单
+  * 修改 [disable\_right\_click](https://jade.run/guides/window-api#webviewsettings-%E7%BB%93%E6%9E%84%E4%BD%93) 策略，从本版本开始，默认不再允许右键菜单！
+
+**新事件**
+
+* 增加窗口事件：新增 [window-fullscreen](https://jade.run/guides/communication-api#window-fullscreen) 事件，当窗口全屏状态改变时触发，可用于监听和响应全屏状态变化
+
+**修复**
+
+* 修复了前端无法全屏的问题
+* 修复以及优化一���已知问题
+
+
+
+</div>
+
 ### v1.1.3
 
 <div class="changelog-meta">
@@ -42,7 +120,7 @@ sidebar_position: 1
 2. **窗口标题同步**
 窗口标题未设置的情况下自动跟随页面标题
    - 修复了页面多次更新标题时窗口标题不同步的问题
-   - 确保窗口标题始终与页面标题保持一致
+   - 确保窗口标题���终与页面标题保持一致
 
 
 </div>
@@ -147,10 +225,10 @@ sidebar_position: 1
 **WebViewSettings 结构体增强**
 
 - 在 [WebViewSettings ](https://jade.run/guides/webview-api#webviewsettings-%E7%BB%93%E6%9E%84%E4%BD%93)结构体中添加了 postmessage_whitelist 字段
->说明 ：用于限制可接收的 [PostMessage ](https://jade.run/guides/event-types#postmessage-received)消息来源，提高安全性
+>说明 ：用于限制可接收的 [PostMessage ](https://jade.run/guides/communication-api#postmessage-received)消息来源，提高安全性
 
 - 新增 [Postmessage-received](Postmessage-received) 事件
->��� WebView 接收到 PostMessage 消息时触发，仅当消息来源在白名单中时才会触发
+>当 WebView 接收到 PostMessage 消息时触发，仅当消息来源在白名单中时才会触发
 
 **兼容性警告！**
 通讯Api发生变更，以前的前端Api不再支持，请使用[新的Api](https://jade.run/guides/JavaScript-API)
@@ -169,7 +247,7 @@ sidebar_position: 1
 - **提升幅度**：**200%-400%** 的吞吐量提升
 
 **3. **资源消耗降低****
-- **CPU利用率**：减少了事件循环调度和消息序列���/反序列化的开销，CPU消耗降低约 **30%-50%**
+- **CPU利用率**：减少了��件循环调度和消息序列化/反序列化的开销，CPU消耗降低约 **30%-50%**
 - **内存占用**：简化了中间层数据结构，内存占用降低约 **20%-40%**
 - **GC压力**：减少了临时对象创建，垃圾回收频率降低约 **40%-60%**
 
@@ -206,7 +284,7 @@ sidebar_position: 1
 优化后是多车道  + 智能交通灯 + 小客车 + 批量安检，整体通行效率大幅提升。
 
 1. **通道优化**： 减少线程切换开销，提升约30%-50%
-2. **消息批处理**：1ms延迟合并多��消息，减少系统调用次数，高并发下提升约40%-60%
+2. **消息批处理**：1ms延迟合并多条消息，减少系统调用次数，高并发下提升约40%-60%
 3. **序列化优化**：序列化速度提升约2-3倍，数据体积减小约50%
 4. **锁机制优化**：全局锁拆分为细粒度锁，减少锁竞争，提升约30%-40%
 5. **前后端通讯提升**：提升约20%-30%，由原来的`6-10ms`降低至`5-2ms`
@@ -233,7 +311,7 @@ sidebar_position: 1
 
 **事件优化**
 
-- [#webview-download-started](https://jade.run/guides/event-types#webview-download-started)默认阻止，可返回 0允许
+- [#webview-download-started](https://jade.run/guides/communication-api#webview-download-started)默认阻止，可返回 0允许
 
 </div>
 
@@ -269,7 +347,7 @@ sidebar_position: 1
 
 **Api增强**
 
-- 增加 [webview-download-started](https://jade.run/guides/event-types#webview-download-started)事件，可返回1阻止
+- 增加 [webview-download-started](https://jade.run/guides/communication-api#webview-download-started)事件，可返回1阻止
 
 
 **修复**
