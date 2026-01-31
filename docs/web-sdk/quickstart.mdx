@@ -78,6 +78,85 @@ const unsubscribeWindowState = window.jade?.on('window-state-changed', (payload)
 // unsubscribeWindowState();
 ```
 
+### 使用 Dialog API
+
+JadeView Web SDK 提供了原生对话框 API，用于显示文件选择、保存文件、消息框等：
+
+```javascript
+// 打开文件对话框
+async function openFile() {
+  try {
+    const result = await window.jade?.dialog.showOpenDialog({
+      title: '选择文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: 'Text Files', extensions: ['txt', 'md'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (!result?.canceled) {
+      console.log('Selected files:', result.filePaths);
+    }
+  } catch (error) {
+    console.error('Open file dialog failed:', error);
+  }
+}
+
+// 保存文件对话框
+async function saveFile() {
+  try {
+    const result = await window.jade?.dialog.showSaveDialog({
+      title: '保存文件',
+      defaultPath: 'document.txt',
+      filters: [
+        { name: 'Text File', extensions: ['txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (!result?.canceled) {
+      console.log('Save path:', result.filePath);
+    }
+  } catch (error) {
+    console.error('Save file dialog failed:', error);
+  }
+}
+
+// 显示消息框
+async function showConfirm() {
+  try {
+    const result = await window.jade?.dialog.showMessageBox({
+      title: '确认操作',
+      message: '确定要删除此文件吗？',
+      detail: '此操作不可撤销',
+      buttons: ['删除', '取消'],
+      defaultId: 1,
+      cancelId: 1,
+      type: 'warning'
+    });
+
+    if (result?.response === 0) {
+      console.log('User confirmed deletion');
+    } else {
+      console.log('User canceled deletion');
+    }
+  } catch (error) {
+    console.error('Show message box failed:', error);
+  }
+}
+
+// 显示错误框
+async function showError() {
+  try {
+    await window.jade?.dialog.showErrorBox('错误', '操作失败，请重试');
+    console.log('Error box closed');
+  } catch (error) {
+    console.error('Show error box failed:', error);
+  }
+}
+```
+
 ## 类型导入
 
 您也可以导入特定类型：
@@ -92,6 +171,40 @@ const handleInvoke = async () => {
     const result = await jadeInstance.invoke('testCommand', { key: 'value' });
     console.log('Invoke result:', result);
   }
+};
+```
+
+### Dialog 相关类型导入
+
+```typescript
+import type {
+  JadeView,
+  DialogAPI,
+  OpenDialogOptions,
+  SaveDialogOptions,
+  MessageBoxOptions,
+  FileFilter,
+  DialogProperty,
+  MessageBoxType
+} from 'jadeview-ipc-types';
+
+// 使用导入的类型
+const handleInvoke = async () => {
+  const jadeInstance = window.jade as JadeView;
+  if (jadeInstance) {
+    const result = await jadeInstance.invoke('testCommand', { key: 'value' });
+    console.log('Invoke result:', result);
+  }
+};
+
+// 定义对话框选项，获得类型安全
+const openDialogOptions: OpenDialogOptions = {
+  title: '选择图片',
+  properties: ['openFile', 'multiSelections'],
+  filters: [
+    { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+    { name: 'All Files', extensions: ['*'] }
+  ]
 };
 ```
 
