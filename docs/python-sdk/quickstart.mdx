@@ -233,6 +233,9 @@ window = Window(
     # 高级选项 (v1.1+)
     borderless=False,         # 无边框模式 (需 0.2.1+)
     content_protection=False, # 内容保护，防止截屏 (需 1.1+，与 minimizable/maximizable 冲突)
+    
+    # PostMessage 通信 (需 1.0.2+)
+    postmessage_whitelist="https://example.com,https://trusted.com",  # 允许接收 PostMessage 的源
 )
 ```
 
@@ -495,6 +498,80 @@ def on_ready():
 if __name__ == "__main__":
     app.initialize()
     app.run()
+```
+
+## 对话框 API
+
+使用 `Dialog` 类显示系统对话框（需要 JadeView 1.3.0+）：
+
+```python
+from jadeui import Dialog
+
+# 显示消息框
+Dialog.show_message_box(
+    window_id=1,
+    title="确认",
+    message="确定要删除吗？",
+    type_="warning",
+    buttons=["删除", "取消"]
+)
+
+# 打开文件对话框
+Dialog.show_open_dialog(
+    window_id=1,
+    title="选择图片",
+    filters=[{"name": "图片", "extensions": ["png", "jpg", "gif"]}],
+    properties=["openFile", "multiSelections"]
+)
+
+# 保存文件对话框
+Dialog.show_save_dialog(
+    window_id=1,
+    title="保存文档",
+    default_path="document.txt",
+    filters=[{"name": "文本文件", "extensions": ["txt"]}]
+)
+
+# 便捷方法
+Dialog.confirm("确定要退出吗？")
+Dialog.alert("操作成功！")
+Dialog.error("文件保存失败！")
+```
+
+## 系统通知
+
+使用 `Notification` 类显示系统通知（需要 JadeView 1.3.0+，仅 Windows 10+）：
+
+```python
+from jadeui import Notification, Events
+
+# 配置应用信息（可选）
+Notification.config(app_name="我的应用", icon="C:/app/icon.ico")
+
+# 监听按钮点击事件
+@Notification.on(Events.NOTIFICATION_ACTION)
+def on_action(data):
+    action_id = data.get("arguments")  # 你传入的 action 参数
+    button = data.get("action")        # 按钮索引
+    print(f"按钮点击: {button}, 动作: {action_id}")
+
+# 显示简单通知
+Notification.show("提示", "操作已完成")
+
+# 显示带按钮的通知
+Notification.with_buttons(
+    "下载完成",
+    "video.mp4 已下载",
+    "打开",
+    "忽略",
+    action="download_123"  # 用于在回调中识别
+)
+
+# 便捷方法
+Notification.info("标题", "内容")
+Notification.success("标题", "内容")
+Notification.warning("标题", "内容")
+Notification.error("标题", "内容")
 ```
 
 ## 下一步

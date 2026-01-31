@@ -152,6 +152,7 @@ window = Window(
 | allow_fullscreen | bool | True | 允许页面 JS 调用全屏 API (需 Jadeui 0.2.1) |
 | borderless | bool | False | 无边框模式，移除边框和系统阴影 (需 0.2.1+) |
 | content_protection | bool | False | 内容保护，防止截屏/录屏 (需 1.1+) |
+| postmessage_whitelist | str \| None | None | PostMessage 白名单，逗号分隔的源地址 (需 1.0.2+) |
 
 :::warning 参数冲突说明
 - **borderless**: `borderless=True` 不能与 `remove_titlebar` 或 `transparent` 同时使用，否则会抛出 `ValueError`。这是因为 `borderless` 会移除边框和系统阴影，与后两者功能冲突。
@@ -902,6 +903,328 @@ router.set_backdrop("mica")  # mica, micaAlt, acrylic
 
 ---
 
+## Dialog
+
+对话框 API，提供文件选择、保存和消息框功能。
+
+:::note 版本要求
+Dialog API 需要 JadeView DLL 1.3.0 或更高版本。
+:::
+
+### 方法
+
+#### show_open_dialog()
+
+显示打开文件对话框。
+
+```python
+from jadeui import Dialog
+
+# 阻塞模式（默认）
+Dialog.show_open_dialog(
+    window_id=1,
+    title="选择图片",
+    default_path="C:/",
+    filters=[
+        {"name": "图片", "extensions": ["png", "jpg", "gif"]},
+        {"name": "所有文件", "extensions": ["*"]}
+    ],
+    properties=["openFile", "multiSelections"]
+)
+
+# 非阻塞模式 + 回调
+def on_result(result):
+    print(f"选中: {result}")
+
+Dialog.show_open_dialog(
+    window_id=1,
+    title="选择文件",
+    properties=["openFile"],
+    blocking=False,
+    callback=on_result
+)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| window_id | int | 父窗口 ID |
+| title | str \| None | 对话框标题 |
+| default_path | str \| None | 默认打开路径 |
+| button_label | str \| None | 确认按钮的自定义标签 |
+| filters | list \| None | 文件过滤器，如 `[{"name": "图片", "extensions": ["png", "jpg"]}]` |
+| properties | list \| None | 对话框属性：`openFile`, `openDirectory`, `multiSelections`, `showHiddenFiles` |
+| blocking | bool | 是否阻塞（默认 True） |
+| callback | Callable | 回调函数（非阻塞模式使用） |
+
+**返回值**: `int` - 1 成功，0 失败
+
+#### show_save_dialog()
+
+显示保存文件对话框。
+
+```python
+Dialog.show_save_dialog(
+    window_id=1,
+    title="保存文档",
+    default_path="document.txt",
+    filters=[{"name": "文本文件", "extensions": ["txt"]}]
+)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| window_id | int | 父窗口 ID |
+| title | str \| None | 对话框标题 |
+| default_path | str \| None | 默认保存路径/文件名 |
+| button_label | str \| None | 确认按钮的自定义标签 |
+| filters | list \| None | 文件过滤器 |
+| blocking | bool | 是否阻塞（默认 True） |
+| callback | Callable | 回调函数（非阻塞模式使用） |
+
+**返回值**: `int` - 1 成功，0 失败
+
+#### show_message_box()
+
+显示消息框。
+
+```python
+Dialog.show_message_box(
+    window_id=1,
+    title="确认删除",
+    message="确定要删除这个文件吗？",
+    detail="此操作不可撤销",
+    type_="warning",
+    buttons=["删除", "取消"],
+    default_id=1,
+    cancel_id=1
+)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| window_id | int | 父窗口 ID |
+| title | str \| None | 消息框标题 |
+| message | str \| None | 消息内容 |
+| detail | str \| None | 详细信息 |
+| buttons | list \| None | 按钮文本列表，如 `["确定", "取消"]` |
+| default_id | int | 默认选中的按钮索引 |
+| cancel_id | int | 取消按钮的索引（按 ESC 时触发） |
+| type_ | str | 消息类型：`none`, `info`, `error`, `warning`, `question` |
+| blocking | bool | 是否阻塞（默认 True） |
+| callback | Callable | 回调函数（非阻塞模式使用） |
+
+**返回值**: `int` - 1 成功，0 失败
+
+#### show_error_box()
+
+显示错误框（简化版）。
+
+```python
+Dialog.show_error_box(1, "错误", "文件读取失败！")
+```
+
+### 便捷方法
+
+#### confirm()
+
+显示确认对话框。
+
+```python
+Dialog.confirm("确定要退出吗？")
+Dialog.confirm("删除文件？", title="确认", ok_label="删除", cancel_label="取消")
+```
+
+#### alert()
+
+显示提示对话框。
+
+```python
+Dialog.alert("操作成功！")
+Dialog.alert("请注意！", type_="warning")
+```
+
+#### error()
+
+显示错误对话框。
+
+```python
+Dialog.error("文件保存失败！")
+```
+
+### 常量
+
+#### MessageBoxType
+
+消息框类型常量。
+
+```python
+from jadeui import MessageBoxType
+
+MessageBoxType.NONE      # "none"
+MessageBoxType.INFO      # "info"
+MessageBoxType.WARNING   # "warning"
+MessageBoxType.ERROR     # "error"
+MessageBoxType.QUESTION  # "question"
+```
+
+#### OpenDialogProperties
+
+打开对话框属性常量。
+
+```python
+from jadeui import OpenDialogProperties
+
+OpenDialogProperties.OPEN_FILE         # "openFile"
+OpenDialogProperties.OPEN_DIRECTORY    # "openDirectory"
+OpenDialogProperties.MULTI_SELECTIONS  # "multiSelections"
+OpenDialogProperties.SHOW_HIDDEN_FILES # "showHiddenFiles"
+```
+
+---
+
+## Notification
+
+桌面通知 API，支持 Windows 系统通知。
+
+:::note 版本要求
+Notification API 需要 JadeView DLL 1.3.0 或更高版本。仅支持 Windows 10+。
+:::
+
+### 方法
+
+#### config()
+
+配置通知应用信息（可选，有默认值）。
+
+```python
+from jadeui import Notification
+
+Notification.config(
+    app_name="我的应用",
+    icon="C:/path/to/icon.ico"  # 绝对路径
+)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| app_name | str \| None | 应用显示名称（默认 "JadeUI App"） |
+| icon | str \| None | 应用图标路径（绝对路径） |
+
+#### show()
+
+显示简单通知（无按钮）。
+
+```python
+Notification.show("提示", "操作已完成")
+Notification.show("下载中", "正在下载文件...", timeout=5000)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| title | str | 通知标题（必填） |
+| body | str \| None | 通知内容 |
+| icon | str \| None | 图标路径（覆盖 config 设置） |
+| timeout | int | 超时时间（毫秒，<= 0 使用默认） |
+
+**返回值**: `bool` - 显示成功返回 True
+
+#### with_buttons()
+
+显示带按钮的通知（最多两个按钮）。
+
+```python
+Notification.with_buttons(
+    "下载完成",
+    "video.mp4 已下载",
+    "打开",       # 第一个按钮
+    "忽略",       # 第二个按钮（可选）
+    action="download_123"  # 动作标识符
+)
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| title | str | 通知标题 |
+| body | str | 通知内容 |
+| button1 | str | 第一个按钮文本 |
+| button2 | str \| None | 第二个按钮文本（可选） |
+| icon | str \| None | 图标路径 |
+| timeout | int | 超时时间 |
+| action | str \| None | 动作标识符，用于在回调中识别通知 |
+
+**返回值**: `bool` - 显示成功返回 True
+
+#### on()
+
+注册通知事件监听器。
+
+```python
+from jadeui import Notification, Events
+
+@Notification.on(Events.NOTIFICATION_ACTION)
+def on_action(data):
+    # data = {
+    #     "action": "action_0",      # 按钮索引
+    #     "title": "打开",           # 按钮文本
+    #     "arguments": "download_123" # 你传入的 action 参数
+    # }
+    print(f"按钮点击: {data}")
+
+@Notification.on(Events.NOTIFICATION_DISMISSED)
+def on_dismissed(data):
+    print("通知被关闭")
+```
+
+支持的事件：
+
+| 事件 | 描述 |
+|------|------|
+| `Events.NOTIFICATION_ACTION` | 用户点击通知按钮 |
+| `Events.NOTIFICATION_SHOWN` | 通知成功显示 |
+| `Events.NOTIFICATION_DISMISSED` | 通知被关闭 |
+| `Events.NOTIFICATION_FAILED` | 通知显示失败 |
+
+### 便捷方法
+
+```python
+Notification.info("标题", "内容")
+Notification.success("标题", "内容")
+Notification.warning("标题", "内容")
+Notification.error("标题", "内容")
+```
+
+### 完整示例
+
+```python
+from jadeui import Notification, Events
+
+# 1. 配置应用信息
+Notification.config(app_name="我的应用", icon="C:/app/icon.ico")
+
+# 2. 监听按钮点击事件
+@Notification.on(Events.NOTIFICATION_ACTION)
+def on_action(data):
+    action_id = data.get("arguments")  # 获取 action 参数
+    button = data.get("action")        # 按钮索引
+
+    if action_id == "download_123":
+        if button == "action_0":
+            print("用户点击了「打开」")
+        elif button == "action_1":
+            print("用户点击了「忽略」")
+
+# 3. 发送通知
+Notification.with_buttons(
+    "下载完成",
+    "video.mp4 已下载",
+    "打开",
+    "忽略",
+    action="download_123"
+)
+```
+
+---
+
 ## EventEmitter
 
 事件发射器基类，提供事件订阅和发布功能。
@@ -1047,6 +1370,12 @@ Events.FILE_DROP          # "file-drop"
 
 # 主题事件
 Events.THEME_CHANGED      # "theme-changed"
+
+# 通知事件 (需 1.3.0+)
+Events.NOTIFICATION_ACTION    # "notification-action" (用户点击按钮)
+Events.NOTIFICATION_SHOWN     # "notification-shown" (通知成功显示)
+Events.NOTIFICATION_DISMISSED # "notification-dismissed" (通知被关闭)
+Events.NOTIFICATION_FAILED    # "notification-failed" (通知显示失败)
 
 # 其他事件
 Events.UPDATE_WINDOW_ICON # "update-window-icon"
