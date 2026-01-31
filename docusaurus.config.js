@@ -52,14 +52,8 @@ const docs = [
     id: 'spec',
     path: 'docs/spec',
     routeBasePath: 'spec',
-    sidebarPath: require.resolve('./sidebars-spec.js'),
-  },
-  {
-    id: 'changelog',
-    path: 'docs/changelog',
-    routeBasePath: 'changelog',
-    sidebarPath: false,
-  },
+    sidebarPath: require.resolve('./sidebars-spec.js')
+  }
 ];
 
 /** @type {import('@docusaurus/plugin-content-docs').Options} */
