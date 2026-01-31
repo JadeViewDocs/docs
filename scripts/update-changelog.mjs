@@ -19,9 +19,8 @@ const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases`;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 更新两个位置的 changelog
+// 更新 changelog
 const CHANGELOG_PATHS = [
-  path.join(__dirname, '../docs/changelog/index.mdx'),
   path.join(__dirname, '../docs/spec/changelog/index.mdx'),
 ];
 
