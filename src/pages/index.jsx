@@ -591,7 +591,7 @@ export default function Homepage() {
             <div className="lantern-center">
               <div className="lantern-line">
                 <div className="lantern-text-wrap">
-                  <div className="lantern-text">新年</div>
+                  <div className="lantern-text">一马当先</div>
                 </div>
               </div>
             </div>
@@ -606,7 +606,7 @@ export default function Homepage() {
             <div className="lantern-center">
               <div className="lantern-line">
                 <div className="lantern-text-wrap">
-                  <div className="lantern-text">快乐</div>
+                  <div className="lantern-text">代码如仙</div>
                 </div>
               </div>
             </div>
