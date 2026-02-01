@@ -1743,12 +1743,13 @@ html[data-theme='dark'] .changelog-nav-item::after {
     justify-content: center;
     align-items: center;
     font-family: 'AiDianGanFengXingKai', cursive;
-    font-size: 20px;
+    font-size: 24px;
   /*   font-weight: 600; */
     color: #ffd600;
     writing-mode: vertical-lr;
     text-align: center;
     transform-origin: center;
+    letter-spacing: -3px;
     /* 增强发光效果，突出鱼眼感 */
     text-shadow: 
         0 0 3px rgba(255, 213, 0, 0.58),
