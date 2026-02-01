@@ -20,7 +20,7 @@ const sidebars = {
       type: 'category',
       label: 'API 参考',
       items: [
-        'reference/methods',
+        'methods',
       ],
     },
   ],

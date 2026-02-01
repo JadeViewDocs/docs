@@ -255,7 +255,7 @@ sidebar_position: 5
 | -------- | --------------------- |
 | 触发条件 | 用户点击通知按钮或卡片      |
 | 事件数据 | `{"action": "action_0", "title": "确定", "arguments": ""}` |
-| 数据说明 | JSON 对象，包含以下字段：<br/> `action`：动作标识符，具体含义如下：<br/>   `clicked`：点击通知卡片本身<br/>  `action_0`：点击第一个按钮<br/>  `action_1`：点击第二个按钮<br/>`title`：按钮文本<br/>`arguments`：动作参数，来自于 NotificationParams 结构体中的 action 字段 |
+| 数据说明 | JSON 对象，包含以下字段：<br/> `action`：动作标识符，具体含义如下：<br/>   - `clicked`：点击通知卡片本身<br/> - `action_0`：点击第一个按钮<br/> - `action_1`：点击第二个按钮<br/>`title`：按钮文本<br/>`arguments`：动作参数，来自于 NotificationParams 结构体中的 action 字段 |
 | 说明     | 当用户点击通知上的按钮或卡片时触发 |
 | 支持版本 | v1.3+ |
 
