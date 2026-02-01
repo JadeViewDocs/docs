@@ -144,7 +144,7 @@ html[data-theme='dark'] .changelog-date-tag {
     align-items: flex-start;
     gap: 0.5em;
   }
-  
+
   .changelog-links {
     font-size: 0.85em;
   }
@@ -284,11 +284,14 @@ html[data-theme='dark'] {
   --docusaurus-highlighted-code-line-bg: rgba(105, 105, 105, 0.3);
 }
 
-
 nav.navbar {
   border-bottom: 1px solid var(--ifm-toc-border-color);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
+  padding: 0;
+}
+nav.navbar .navbar__inner {
+      padding: var(--ifm-navbar-padding-vertical) var(--ifm-navbar-padding-horizontal);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
 }
 
 pre.prism-code {
@@ -463,7 +466,10 @@ nav.menu {
   --ifm-navbar-link-hover-color: theme('colors.primary.100');
   background-color: transparent;
 }
-
+.navbar-sidebar {
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
 .navbar-sidebar .dev-portal-link {
   padding: 0.75rem;
   margin-top: 1rem;
@@ -1699,72 +1705,285 @@ html[data-theme='dark'] .changelog-nav-item::after {
 }
 
 /* Lantern Effect */
-[class^=lantern],[class^=lantern]:before,[class^=lantern]:after{-webkit-box-sizing:border-box;box-sizing:border-box}
-.lantern-left,.lantern-right{position:fixed;top:0;z-index:99;pointer-events:none}
-.lantern-left{left: 150px;}
-.lantern-right{right: 150px;}
-.lantern-container {
-    width: 150px;
-    height: 112px;
-    position: relative;
-    line-height: 0;
-    animation: lantern 5s infinite ease-in-out;
-    transform-origin: 50% -100px;
+[class^='lantern'],
+[class^='lantern']:before,
+[class^='lantern']:after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
-.lantern-center{position:relative;height:100%;background-color:red;border-radius:120px;-webkit-box-shadow:0 0 80px -10px #f00;box-shadow:0 0 80px -10px red}
-.lantern-line{height:100%;text-align:center}
-.lantern-line:before,.lantern-line:after{content:"";position:absolute;top:0;left:50%;border:2px solid #ecaa2f;border-radius:50%;-webkit-transform:translate(-50%,0);transform:translate(-50%)}
-.lantern-line:before{width:75%;height:100%}
-.lantern-line:after{width:35%;height:100%}
-.lantern-text-wrap{display:inline-block;vertical-align:top;height:100%}
+.lantern-left,
+.lantern-right {
+  position: fixed;
+  top: 0;
+  z-index: 99;
+  pointer-events: none;
+}
+.lantern-left {
+  left: 150px;
+}
+.lantern-right {
+  right: 150px;
+}
+.lantern-container {
+  width: 150px;
+  height: 112px;
+  position: relative;
+  line-height: 0;
+  animation: lantern 5s infinite ease-in-out;
+  transform-origin: 50% -100px;
+}
+.lantern-center {
+  position: relative;
+  height: 100%;
+  background-color: red;
+  border-radius: 120px;
+  -webkit-box-shadow: 0 0 80px -10px #f00;
+  box-shadow: 0 0 80px -10px red;
+}
+.lantern-line {
+  height: 100%;
+  text-align: center;
+}
+.lantern-line:before,
+.lantern-line:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border: 2px solid #ecaa2f;
+  border-radius: 50%;
+  -webkit-transform: translate(-50%, 0);
+  transform: translate(-50%);
+}
+.lantern-line:before {
+  width: 75%;
+  height: 100%;
+}
+.lantern-line:after {
+  width: 35%;
+  height: 100%;
+}
+.lantern-text-wrap {
+  display: inline-block;
+  vertical-align: top;
+  height: 100%;
+}
 /* 引入灯笼字体 */
 @font-face {
-    font-family: 'AiDianGanFengXingKai';
-    src: url('/assets/fonts/AiDianGanFengXingKai-2.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  font-family: 'AiDianGanFengXingKai';
+  src: url('/assets/fonts/AiDianGanFengXingKai-2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 .lantern-text-wrap {
-    /* 为父容器添加透视效果，实现鱼眼 */
-    perspective: 80px;
-    /* 限制容器大小，增强鱼眼效果 */
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  /* 为父容器添加透视效果，实现鱼眼 */
+  perspective: 80px;
+  /* 限制容器大小，增强鱼眼效果 */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .lantern-text {
-    height: 90%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'AiDianGanFengXingKai', cursive;
-    font-size: 24px;
+  height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'AiDianGanFengXingKai', cursive;
+  font-size: 24px;
   /*   font-weight: 600; */
-    color: #ffd600;
-    writing-mode: vertical-lr;
-    text-align: center;
-    transform-origin: center;
-    letter-spacing: -3px;
-    /* 增强发光效果，突出鱼眼感 */
-    text-shadow: 
-        0 0 3px rgba(255, 213, 0, 0.58),
-        0 0 6px rgba(255, 214, 0, 0.42),
-        0 0 9px rgba(255, 214, 0, 0.3),
-        0 0 12px rgba(255, 214, 0, 0.15);
+  color: #ffd600;
+  writing-mode: vertical-lr;
+  text-align: center;
+  transform-origin: center;
+  letter-spacing: -3px;
+  /* 增强发光效果，突出鱼眼感 */
+  text-shadow:
+    0 0 3px rgba(255, 213, 0, 0.58),
+    0 0 6px rgba(255, 214, 0, 0.42),
+    0 0 9px rgba(255, 214, 0, 0.3),
+    0 0 12px rgba(255, 214, 0, 0.15);
 }
-.lantern-top,.lantern-bottom{width:40%;height:8px;background-color:#ecaa2f;position:relative;z-index:1}
-.lantern-top{margin:0 auto -2px;border-radius:5px 5px 0 0}
-.lantern-bottom{margin:-2px auto 0;border-radius:0 0 5px 5px}
-.lantern-top-rope,.lantern-bottom-rope{width:4px;background-color:#ecaa2f;margin:0 auto}
-.lantern-top-rope{height: 92px;}
-.lantern-bottom-rope{position:relative;height:20px;-webkit-animation:lantern 3s infinite ease-in-out;animation:lantern 3s infinite ease-in-out;-webkit-transform-origin:50% -45px;transform-origin:50% -45px}
-.lantern-bottom-rope:after{content:"";position:absolute;top:100%;left:-4px;width:12px;height:50px;background:linear-gradient(#f00,#e36d00 3px,#fbd342 5px,#e36d00 8px,#e36d00 12px,#f00 16px,rgba(255,0,0,.8) 26px,rgba(255,0,0,.6));border-radius:5px 5px 0 0}
-@-webkit-keyframes lantern{0%{-webkit-transform:rotate(-10deg);transform:rotate(-10deg)}50%{-webkit-transform:rotate(10deg);transform:rotate(10deg)}to{-webkit-transform:rotate(-10deg);transform:rotate(-10deg)}}
-@keyframes lantern{0%{-webkit-transform:rotate(-10deg);transform:rotate(-10deg)}50%{-webkit-transform:rotate(10deg);transform:rotate(10deg)}to{-webkit-transform:rotate(-10deg);transform:rotate(-10deg)}}
-@media screen and (max-width: 720px){.lantern-left{left:30px}.lantern-right{right:30px}.lantern-container{width:100px;height:60px}.lantern-top-rope{width:3px;height: 85px;}.lantern-center{-webkit-box-shadow:0 0 40px -10px #f00;box-shadow:0 0 40px -10px red}.lantern-top,.lantern-bottom{width:35%;height:6px}.lantern-top{margin-bottom:-.5px}.lantern-bottom{margin-top:-.5px}.lantern-bottom-rope{width:2px}.lantern-bottom-rope:after{left:-2px;width:6px;height:25px}.lantern-text{font-size:14px;letter-spacing:2px}}
-@media screen and (max-width: 420px){.lantern-left{left:30px}.lantern-right{right:30px}.lantern-container{width:80px;height:50px}.lantern-top-rope{width:3px;height: 82px;}.lantern-center{-webkit-box-shadow:0 0 40px -10px #f00;box-shadow:0 0 40px -10px red}.lantern-top,.lantern-bottom{width:35%;height:4px}.lantern-top{margin-bottom:0}.lantern-bottom{margin-top:0}.lantern-bottom-rope{width:2px}.lantern-bottom-rope:after{left:-2px;width:6px;height:25px}.lantern-text{font-size:14px;letter-spacing:2px}.lantern-line:before,.lantern-line:after{border-width:1px}}
+.lantern-top,
+.lantern-bottom {
+  width: 40%;
+  height: 8px;
+  background-color: #ecaa2f;
+  position: relative;
+  z-index: 1;
+}
+
+.lantern-top {
+  margin: 0 auto -2px;
+  border-radius: 5px 5px 0 0;
+}
+
+.lantern-bottom {
+  margin: -2px auto 0;
+  border-radius: 0 0 5px 5px;
+}
+
+.lantern-top-rope,
+.lantern-bottom-rope {
+  width: 4px;
+  background-color: #ecaa2f;
+  margin: 0 auto;
+}
+
+.lantern-top-rope {
+  height: 92px;
+}
+
+.lantern-bottom-rope {
+  position: relative;
+  height: 20px;
+  -webkit-animation: lantern 3s infinite ease-in-out;
+  animation: lantern 3s infinite ease-in-out;
+  -webkit-transform-origin: 50% -45px;
+  transform-origin: 50% -45px;
+}
+
+.lantern-bottom-rope:after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -4px;
+  width: 12px;
+  height: 50px;
+  background: linear-gradient(
+    #f00,
+    #e36d00 3px,
+    #fbd342 5px,
+    #e36d00 8px,
+    #e36d00 12px,
+    #f00 16px,
+    rgba(255, 0, 0, 0.8) 26px,
+    rgba(255, 0, 0, 0.6)
+  );
+  border-radius: 5px 5px 0 0;
+}
+
+@-webkit-keyframes lantern {
+  0% {
+    -webkit-transform: rotate(-10deg);
+    transform: rotate(-10deg);
+  }
+  50% {
+    -webkit-transform: rotate(10deg);
+    transform: rotate(10deg);
+  }
+  to {
+    -webkit-transform: rotate(-10deg);
+    transform: rotate(-10deg);
+  }
+}
+
+@keyframes lantern {
+  0% {
+    -webkit-transform: rotate(-10deg);
+    transform: rotate(-10deg);
+  }
+  50% {
+    -webkit-transform: rotate(10deg);
+    transform: rotate(10deg);
+  }
+  to {
+    -webkit-transform: rotate(-10deg);
+    transform: rotate(-10deg);
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .lantern-left {
+    left: 30px;
+  }
+  .lantern-right {
+    right: 30px;
+  }
+  .lantern-container {
+    width: 100px;
+    height: 60px;
+  }
+  .lantern-top-rope {
+    width: 3px;
+    height: 85px;
+  }
+  .lantern-center {
+    -webkit-box-shadow: 0 0 40px -10px #f00;
+    box-shadow: 0 0 40px -10px red;
+  }
+  .lantern-top,
+  .lantern-bottom {
+    width: 35%;
+    height: 6px;
+  }
+  .lantern-top {
+    margin-bottom: -0.5px;
+  }
+  .lantern-bottom {
+    margin-top: -0.5px;
+  }
+  .lantern-bottom-rope {
+    width: 2px;
+  }
+  .lantern-bottom-rope:after {
+    left: -2px;
+    width: 6px;
+    height: 25px;
+  }
+  .lantern-text {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  .lantern-left {
+    left: 30px;
+  }
+  .lantern-right {
+    right: 30px;
+  }
+  .lantern-container {
+    width: 80px;
+    height: 50px;
+  }
+  .lantern-top-rope {
+    width: 3px;
+    height: 82px;
+  }
+  .lantern-center {
+    -webkit-box-shadow: 0 0 40px -10px #f00;
+    box-shadow: 0 0 40px -10px red;
+  }
+  .lantern-top,
+  .lantern-bottom {
+    width: 35%;
+    height: 4px;
+  }
+  .lantern-top {
+    margin-bottom: 0;
+  }
+  .lantern-bottom {
+    margin-top: 0;
+  }
+  .lantern-bottom-rope {
+    width: 2px;
+  }
+  .lantern-bottom-rope:after {
+    left: -2px;
+    width: 6px;
+    height: 25px;
+  }
+  .lantern-text {
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  .lantern-line:before,
+  .lantern-line:after {
+    border-width: 1px;
+  }
+}
