@@ -493,8 +493,8 @@
   border-radius: 12px;
   border: 1px solid var(--jv-glass-border);
   cursor: pointer;
-  backdrop-filter: var(--jv-glass-blur);
   -webkit-backdrop-filter: var(--jv-glass-blur);
+  backdrop-filter: var(--jv-glass-blur);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
 }
@@ -564,8 +564,8 @@ nav.navbar .navbar__inner {
   padding: var(--ifm-navbar-padding-vertical)
     var(--ifm-navbar-padding-horizontal);
   background: var(--jv-glass-bg);
-  backdrop-filter: var(--jv-glass-blur-strong);
   -webkit-backdrop-filter: var(--jv-glass-blur-strong);
+    backdrop-filter: var(--jv-glass-blur-strong);
   border-bottom: 1px solid var(--jv-glass-border);
 }
 
@@ -863,8 +863,8 @@ nav.menu {
 
 .navbar-sidebar {
   background: var(--jv-glass-bg);
-  backdrop-filter: var(--jv-glass-blur-strong);
   -webkit-backdrop-filter: var(--jv-glass-blur-strong);
+  backdrop-filter: var(--jv-glass-blur-strong);
 }
 
 .navbar-sidebar .dev-portal-link {
@@ -893,6 +893,7 @@ aside.theme-doc-sidebar-container {
   background-repeat: no-repeat;
   background-color: var(--jv-glass-bg);
   border: 1px solid var(--jv-glass-border);
+  -webkit-backdrop-filter: var(--jv-glass-blur);
   backdrop-filter: var(--jv-glass-blur);
 
   background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' fill='none' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15.707 4.293a1 1 0 0 1 0 1.414L9.414 12l6.293 6.293a1 1 0 0 1-1.414 1.414l-7-7a1 1 0 0 1 0-1.414l7-7a1 1 0 0 1 1.414 0Z' fill='%2310B981'/%3E%3C/svg%3E");
@@ -937,6 +938,7 @@ html[data-theme='dark']
   cursor: pointer;
   box-sizing: border-box;
   border: 1px solid var(--jv-glass-border);
+  -webkit-backdrop-filter: var(--jv-glass-blur);
   backdrop-filter: var(--jv-glass-blur);
 }
 
@@ -1007,6 +1009,7 @@ html[data-theme='dark']
 .sections-menu-content {
   box-sizing: border-box;
   background-color: var(--jv-glass-bg);
+  -webkit-backdrop-filter: var(--jv-glass-blur-strong);
   backdrop-filter: var(--jv-glass-blur-strong);
   border-radius: 6px;
   padding: 6px 0;
@@ -1576,6 +1579,7 @@ details p {
 .DocSearch-Modal {
   margin-top: 80px !important;
   background: var(--jv-glass-bg) !important;
+  -webkit-backdrop-filter: var(--jv-glass-blur-strong);
   backdrop-filter: var(--jv-glass-blur-strong);
   border: 1px solid var(--jv-glass-border);
 }
@@ -1914,6 +1918,7 @@ h3.anchor > code {
 /* CSS for hello bar */
 .hello-bar {
   background: var(--jv-glass-bg);
+  -webkit-backdrop-filter: var(--jv-glass-blur);
   backdrop-filter: var(--jv-glass-blur);
   border-bottom: 1px solid var(--jv-glass-border);
   padding-top: 12px;
@@ -2428,7 +2433,7 @@ html[data-theme='dark'] .changelog-nav-item::after {
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #60a5fa 50%, #3b82f6 100%);
+  background: linear-gradient(135deg, #07a7c1 0%, #60c1fa 50%, #0061ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2464,8 +2469,8 @@ html[data-theme='dark'] .changelog-nav-item::after {
 
 .jv-feature-card {
   background: var(--jv-glass-bg);
-  backdrop-filter: var(--jv-glass-blur);
   -webkit-backdrop-filter: var(--jv-glass-blur);
+  backdrop-filter: var(--jv-glass-blur);
   border: 1px solid var(--jv-glass-border);
   border-radius: 16px;
   padding: 2rem;
@@ -2544,8 +2549,8 @@ html[data-theme='dark'] .changelog-nav-item::after {
   gap: 1rem;
   padding: 1.25rem;
   background: var(--jv-glass-bg);
-  backdrop-filter: var(--jv-glass-blur);
   -webkit-backdrop-filter: var(--jv-glass-blur);
+  backdrop-filter: var(--jv-glass-blur);
   border: 1px solid var(--jv-glass-border);
   border-radius: 12px;
   text-decoration: none;
@@ -2599,6 +2604,7 @@ html[data-theme='dark'] .changelog-nav-item::after {
   padding: 3rem 1rem;
   margin-top: 4rem;
   background: var(--jv-glass-bg);
+  -webkit-backdrop-filter: var(--jv-glass-blur);
   backdrop-filter: var(--jv-glass-blur);
 }
 

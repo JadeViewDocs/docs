@@ -27,7 +27,7 @@ export default function APIReferenceSection() {
             让你能够轻松地在各种编程语言和框架中集成 WebView 功能。
           </p>
           <Link
-            href="/api"
+            href="/spec"
             className="inline-block rounded-lg border border-primary bg-primary/10 px-4 py-2 font-medium text-primary transition-colors hover:bg-primary hover:text-white"
           >
             开始使用 JadeView API &rarr;
