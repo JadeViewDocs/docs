@@ -158,7 +158,8 @@ const config = {
     ({
       image: '/img/dyte-docs-card.png',
       colorMode: {
-        defaultMode: 'light',
+        defaultMode: 'dark',
+        respectPrefersColorScheme: true,
       },
       docs: {
         sidebar: {
@@ -204,10 +205,6 @@ const config = {
           {
             label: 'Api',
             to: 'guides',
-          },
-          {
-            label: 'FAQ',
-            to: '/faq',
           },
           // 更新日志已移至设计页面，从导航栏移除
           {
