@@ -1,0 +1,222 @@
+---
+title: 窗口 API
+sidebar_position: 3
+---
+
+# 窗口 API
+
+以下函数都针对某个 **`window_id`**（创建窗口时返回的整数）。没有特殊说明时，成功多为 `1`，失败为 `0`。
+
+---
+
+## `create_webview_window`
+
+**用途**：创建一个带 **系统标题栏/边框样式可配** 的浏览器窗口，里面跑 WebView。这是最常用的主窗口创建方式。
+
+```c
+uint32_t create_webview_window(
+  const char* url,
+  uint32_t parent_window_id,
+  const WebViewWindowOptions* options,
+  const WebViewSettings* webview_settings
+);
+```
+
+| 参数 | 说明 |
+|------|------|
+| `url` | 第一次打开的网址或本地协议地址。 |
+| `parent_window_id` | 父窗口；`0` 表示顶层窗口。 |
+| `options` / `webview_settings` | 外观与网页行为；可传 `NULL` 用默认。 |
+
+| 返回值 | 含义 |
+|--------|------|
+| `> 0` | 窗口 id；真正画出来可能稍晚，可结合 `window-created` 等事件。 |
+| `0` | 失败（例如在 **`app-ready` 之前**就调用了）。 |
+
+选项结构体字段见 [核心 API](/api-2-preview/index#webview-window-options)。
+
+---
+
+## `create_borderless_webview_window`
+
+**用途**：创建一个**没有系统标题栏**的 WebView 窗口，适合自绘标题栏、悬浮工具窗。不能在这里调边框样式，固定就是无边框承载。
+
+```c
+uint32_t create_borderless_webview_window(
+  const char* url,
+  const WebViewSettings* webview_settings
+);
+```
+
+返回非 `0` 即 `window_id`。导航、IPC、执行 JS 和普通窗口一样用这个 id。
+
+---
+
+## `get_window_hwnd`
+
+**用途**：在 **C/C++ 里要把窗口交给别的 Win32 API**（例如 SetWindowPos、子控件挂靠）时，需要 HWND。**只有**用 `create_borderless_webview_window` 创建的窗口才会返回有效句柄数值；普通 `create_webview_window` 一律返回 `0`（库故意不暴露）。
+
+```c
+size_t get_window_hwnd(uint32_t window_id);
+```
+
+---
+
+## 导航与脚本
+
+### `navigate_to_url`
+
+**用途**：让指定窗口里的网页**打开另一个地址**（http、file、自定义协议等）。
+
+```c
+int32_t navigate_to_url(uint32_t window_id, const char* url);
+```
+
+### `reload_webview_window`
+
+**用途**：**刷新**当前页，和用户按 F5 类似。
+
+```c
+int32_t reload_webview_window(uint32_t window_id);
+```
+
+### `execute_javascript`
+
+**用途**：往页面里**注入并执行一段 JavaScript**。若需要执行结果，通过事件 **`javascript-result`** 等取回（见 [事件类型](/api-2-preview/event-types#javascript-result)）。返回值只表示「请求有没有提交成功」，不是 JS 的返回值。
+
+```c
+int32_t execute_javascript(uint32_t window_id, const char* script);
+```
+
+### `set_webview_zoom`
+
+**用途**：整页缩放，例如 `1.0` 为 100%，`1.5` 为 150%。
+
+```c
+int32_t set_webview_zoom(uint32_t window_id, double level);
+```
+
+---
+
+## 标题、位置、大小、显示
+
+### `set_window_title`
+
+**用途**：改窗口**标题栏上显示的文字**（和 HTML 里的 `<title>` 可以不同）。
+
+### 窗口大小与位置 {#window-size-position}
+
+对应 API：**`set_window_size`**、**`set_window_position`**。**用途**：按像素改窗口**宽高**或**在屏幕上的位置**。
+
+### `set_window_visible`
+
+**用途**：**显示或隐藏**窗口（最小化以外的显隐）。
+
+### `set_window_focus`
+
+**用途**：让该窗口**拿到键盘焦点**。
+
+### `set_window_always_on_top`
+
+**用途**：是否**置顶**，不被其它普通窗口挡住。
+
+### `request_redraw`
+
+**用途**：通知系统**重画**客户区（一般很少需要手动调）。
+
+```c
+int32_t set_window_title(uint32_t window_id, const char* title);
+int32_t set_window_size(uint32_t window_id, int32_t width, int32_t height);
+int32_t set_window_position(uint32_t window_id, int32_t x, int32_t y);
+int32_t set_window_visible(uint32_t window_id, int32_t visible);
+int32_t set_window_focus(uint32_t window_id);
+int32_t set_window_always_on_top(uint32_t window_id, int32_t always_on_top);
+int32_t request_redraw(uint32_t window_id);
+```
+
+`set_window_visible` 里：非 `0` 显示，`0` 隐藏。
+
+---
+
+## 最大化、全屏、是否可点
+
+### `minimize_window`
+
+**用途**：把窗口**收到任务栏**。
+
+### `toggle_maximize_window`
+
+**用途**：在**最大化和还原**之间切一下。
+
+### `is_window_maximized`
+
+**用途**：查询当前是不是最大化状态。
+
+### `set_window_fullscreen`
+
+**用途**：进入或退出**全屏**（铺满显示器，不是单纯最大化）。请求会异步生效；也可听 **`window-fullscreen`** 事件。
+
+```c
+int32_t set_window_fullscreen(uint32_t window_id, int32_t fullscreen);
+```
+
+非 `0` 进入全屏，`0` 退出。
+
+### `set_window_enabled`
+
+**用途**：**禁用**窗口时用户点不了上面控件（像模态对话框背后的灰窗）；传非 `0` 恢复。
+
+```c
+int32_t minimize_window(uint32_t window_id);
+int32_t toggle_maximize_window(uint32_t window_id);
+int32_t is_window_maximized(uint32_t window_id);
+int32_t set_window_enabled(uint32_t window_id, int32_t enabled);
+```
+
+---
+
+## 主题、背景、防录屏
+
+### 窗口明暗主题 {#window-theme-ops}
+
+对应 API：**`set_window_theme`**、**`get_window_theme`**。**用途**：控制窗口/ WebView **浅色、深色还是跟随系统**。更细的说明见 [主题管理](/api-2-preview/theme-management)。
+
+### `set_window_backdrop`
+
+**用途**：Windows 11 下设置**云母、亚克力**等系统背景材质（可用字符串见 [主题管理](/api-2-preview/theme-management)）。
+
+### `set_window_background_color`
+
+**用途**：设置窗口**背景色**（十六进制字符串）。
+
+### `set_content_protection`
+
+**用途**：打开后，部分截屏/录屏软件**较难采到窗口内容**（效果因系统和采集方式而异）。
+
+```c
+int32_t set_window_theme(uint32_t window_id, const char* theme);
+int32_t get_window_theme(uint32_t window_id);
+int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);
+int32_t set_window_background_color(uint32_t window_id, const char* background_color_hex);
+int32_t set_content_protection(uint32_t window_id, int32_t content_protection);
+```
+
+---
+
+## `close_window`
+
+**用途**：发起**关闭**；若页面注册了 **`beforeunload`** 且用户选择留下，关闭可能被推迟或取消，具体以 WebView 与页面脚本为准。
+
+```c
+int32_t close_window(uint32_t window_id);
+```
+
+---
+
+## `get_window_count`
+
+**用途**：当前 JadeView 里**还有几个窗口**没关。
+
+```c
+uint32_t get_window_count(void);
+```

@@ -1,0 +1,138 @@
+---
+title: 核心 API
+sidebar_position: 1
+---
+
+# 核心 API
+
+说明如何**启动 JadeView**、以及创建窗口时用到的两个结构体各字段**分别控制什么**。其它函数分栏见左侧。
+
+---
+
+## `JadeView_init`
+
+**用途**：启动库内部的 **GUI 线程和事件循环**，并登记你的应用叫什么、数据放哪、要不要单实例。调用成功后，你还需等 **`app-ready`** 事件，再创建窗口或走本地协议。
+
+```c
+int32_t JadeView_init(
+  int32_t enable_devmod,
+  const char* log_path,
+  const char* data_directory,
+  const char* app_name,
+  const char* app_signature,
+  int32_t single_instance
+);
+```
+
+| 参数 | 说明 |
+|------|------|
+| `enable_devmod` | 是否打开**开发向能力**（如 DevTools、调试快捷键）。正式发布一般传 `0`。 |
+| `log_path` | 日志写到哪个文件；传 `NULL` 表示不写文件（是否打控制台由实现决定）。 |
+| `data_directory` | 数据根路径；`NULL` 或空则用系统默认（如 `%LOCALAPPDATA%`）。真正给 WebView 用的目录还会拼上 `app_signature` 相关子目录。 |
+| `app_name` | **应用显示名**，必填，给协议、通知等场景用。 |
+| `app_signature` | **应用唯一标识**，必填，至少 6 个字符，用来生成数据目录名、单实例管道名等；写错会导致初始化失败。 |
+| `single_instance` | 非 `0` 时：**整台机器只允许一个你的进程**；再开一次会把命令行发给第一次启动的进程，当前这次 `JadeView_init` 会返回 `0`。 |
+
+| 返回值 | 含义 |
+|--------|------|
+| `1` | 已去启动 GUI，**但还没就绪**，必须等 `app-ready`。 |
+| `0` | 没启动起来（参数错、或作为第二实例被踢掉等）。 |
+
+### `app-ready` 里你会收到什么
+
+| 情况 | `window_id` | `event_data` 大致长什么样 |
+|------|-------------|---------------------------|
+| 正常启动完成 | `1` | 文本 `success` |
+| `app_name` / `app_signature` 校验失败 | `0` | JSON：`{"ok":false,"code":"...","message":"..."}` |
+| GUI 线程崩溃 | `0` | 一段纯文字错误说明 |
+
+请在 **`JadeView_init` 之前** 就 `jade_on("app-ready", ...)`，否则会漏掉第一条通知。
+
+---
+
+## `run_message_loop`
+
+**用途**：在「exe 自己跑消息循环」的旧集成方式里可能用到。常见 **DLL 嵌入**场景下，循环已在 `JadeView_init` 里起的线程中跑，**一般不用调**。
+
+```c
+int32_t run_message_loop(void);
+```
+
+---
+
+## `cleanup_all_windows`
+
+**用途**：关掉所有 JadeView 窗口、收尾资源、让事件循环结束。相当于应用退出前的清理。
+
+```c
+int32_t cleanup_all_windows(void);
+```
+
+| 返回值 | 含义 |
+|--------|------|
+| `1` | 已发起关闭与清理。 |
+| `0` | 失败（例如尚未完成初始化）。 |
+
+---
+
+## 2.0 新增与换名接口（相对旧版）
+
+| 符号 | 是干什么的 |
+|------|------------|
+| `create_borderless_webview_window` | 做一个**没有系统标题栏**的 WebView 窗口。 |
+| `get_window_hwnd` | 只有上面这种窗口才能拿到 **HWND** 给别的 Win32 API 用。 |
+| `set_protocol_service_path` | 把本地文件夹挂成内置协议根，页面用生成的基地址加载静态资源（替代旧的 `create_local_server`）。 |
+| `yaml_set` / `yaml_get` | 在数据目录里读写 YAML 配置。 |
+| `getPath` / `getLocale` / `get_displays_info` | 常用路径、系统界面语言、多显示器信息。 |
+| `clear_data_directory` | 清空本应用数据目录（要带确认令牌）。 |
+| `jadeview_version` | 读 JadeView 自身版本串。 |
+| `register_url_scheme` 等 | 自定义协议、文件关联。 |
+| `register_global_hotkey` 等 | 全局热键（收到 `global-hotkey` 事件）。 |
+| 托盘相关 | 见 [系统托盘](/api-2-preview/tray-api)。 |
+
+---
+
+## `WebViewWindowOptions`（创建窗口时） {#webview-window-options}
+
+**用途**：描述**第一个画面长什么样、能不能拖大小、在屏幕哪出现**。字段顺序必须与 **`JadeView.h` 中结构体声明**一致，少填、多填或类型错位都会导致**静默读错内存**。
+
+| 字段 | 控制什么 |
+|------|----------|
+| `title` | 窗口标题栏上的文字。 |
+| `width` / `height` | 初始宽高（像素）。 |
+| `resizable` | 用户能不能用鼠标拖边缘改大小。 |
+| `frame_style` | 要系统边框+标题栏、只要边框不要标题栏、还是完全无边框（`normal` / `no-titlebar` / `borderless`）。 |
+| `transparent` | 是否透明背景（和 WebView、系统能力有关）。 |
+| `background_color` | 窗口背景色字符串（如带 `#` 的十六进制）。 |
+| `always_on_top` | 是否总在最前。 |
+| `theme` | 浅色 / 深色 / 跟随系统（`Light`、`Dark`、`System`）。 |
+| `maximized` | 打开时是否最大化。 |
+| `maximizable` / `minimizable` | 标题栏上是否允许最大/最小化按钮生效。 |
+| `x` / `y` | 窗口左上角坐标；**两个都是 -1 表示让系统帮你居中**。 |
+| `min_*` / `max_*` | 允许的最小、最大尺寸；`0` 通常表示不限制。 |
+| `fullscreen` | 打开时是否全屏。 |
+| `focus` | 打开后是否抢键盘焦点。 |
+| `hide_window` | 非 0 时先创建但不显示（适合先加载再 `show`）。 |
+| `use_page_icon` | 是否用网页 favicon 当初步窗口图标。 |
+| `content_protection` | 是否开启防录屏/截屏类保护。 |
+| `auto_save_state` | 非 `0`：在**数据目录**下的 `window_state.yaml` 里按 **`window_id`** 记录窗口**最后一次有效的物理左上角坐标**；下次用同一 `window_id` 创建时，若该位置仍落在某块屏的工作区内，则**恢复位置**（**宽高、是否最大化仍以本次创建参数为准**）。移动停止约 **450ms** 后防抖落盘；关闭时也会再存一次。 |
+
+:::warning
+2.0 已删掉旧版的 `remove_titlebar`、`borderless`、`no_center` 等字段，必须用 `frame_style` 和 `x/y=-1` 居中，否则结构体对不上会**静默错位**。
+:::
+
+---
+
+## `WebViewSettings`（页面行为） {#webview-settings}
+
+**用途**：控制 **WebView 里网页的行为**（自动播放、右键、UA 等）。传 `NULL` 表示全用默认。
+
+| 字段 | 控制什么 |
+|------|----------|
+| `autoplay` | 媒体能不能自动播放。 |
+| `background_throttling` | 窗口在后台时是否降低定时器/动画频率省资源。 |
+| `disable_right_click` | 是否禁用网页右键菜单。 |
+| `ua` | 自定义 User-Agent。 |
+| `preload_js` | 页面加载前要注入的一段 JS。 |
+| `allow_fullscreen` | 网页里全屏 API 是否允许。 |
+| `postmessage_whitelist` | **页面 `postMessage` 是否转发给宿主**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收。 |

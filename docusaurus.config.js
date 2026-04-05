@@ -53,7 +53,13 @@ const docs = [
     path: 'docs/spec',
     routeBasePath: 'spec',
     sidebarPath: require.resolve('./sidebars-spec.js')
-  }
+  },
+  {
+    id: 'api-2-preview',
+    path: 'docs/api-2-preview',
+    routeBasePath: 'api-2-preview',
+    sidebarPath: require.resolve('./sidebars-api-2-preview.js'),
+  },
 ];
 
 /** @type {import('@docusaurus/plugin-content-docs').Options} */
@@ -205,6 +211,12 @@ const config = {
           {
             label: 'Api',
             to: 'guides',
+          },
+          {
+            to: '/api-2-preview',
+            label: '2.0API',
+            activeBasePath: '/api-2-preview',
+            className: 'jv-nav-2api-link',
           },
           // 更新日志已移至设计页面，从导航栏移除
           {

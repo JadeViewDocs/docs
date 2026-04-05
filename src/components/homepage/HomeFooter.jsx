@@ -3,111 +3,101 @@ import Link from '@docusaurus/Link';
 import { Github } from '@styled-icons/boxicons-logos';
 import ThemedImage from '@theme/ThemedImage';
 
-// 友情链接
 const products = [
-  {
-    name: '镜芯API',
-    href: 'https://api2.wer.plus',
-  },
-  {
-    name: '小维API',
-    href: 'https://openapi.52vmy.cn',
-  },
-  {
-    name: '科利特尔网',
-    href: 'https://www.colithel.com',
-  },
+  { name: '镜芯API', href: 'https://api2.wer.plus' },
+  { name: '小维API', href: 'https://openapi.52vmy.cn' },
+  { name: '科利特尔网', href: 'https://www.colithel.com' },
 ];
 
-// 开发者链接
 const developers = [
-  {
-    name: '文档',
-    href: '/guides',
-  },
-  {
-    name: '更新日志',
-    href: '/spec/changelog',
-  },
-  {
-    name: '快速开始',
-    href: '/spec/quickstart',
-  },
+  { name: '文档', href: '/guides' },
+  { name: '更新日志', href: '/spec/changelog' },
+  { name: '快速开始', href: '/spec/quickstart' },
 ];
 
-// 社群链接
 const community = [
-  {
-    name: 'QQ群: 703623743',
-    href: 'https://qm.qq.com/q/MVsl5VWokC',
-  },
-  {
-    name: 'issues',
-    href: 'https://github.com/JadeViewDocs/library/issues',
-  },
-  {
-    name: '邮箱',
-    href: 'mailto:ihanlong@qq.com',
-  },
+  { name: 'QQ群: 703623743', href: 'https://qm.qq.com/q/MVsl5VWokC' },
+  { name: 'issues', href: 'https://github.com/JadeViewDocs/library/issues' },
+  { name: '邮箱', href: 'mailto:ihanlong@qq.com' },
 ];
 
-function Links({ name, links }) {
-  return (
-    <div>
-      <h3 className="font-jakarta text-base font-semibold uppercase text-gray-400 dark:text-[#fff]">
+function FooterLink({ name, href }) {
+  const isInternal = href.startsWith('/') && !href.startsWith('//');
+  const className = 'jv-home-footer__link';
+  if (isInternal) {
+    return (
+      <Link to={href} className={className}>
         {name}
-      </h3>
-      <div className="flex flex-col gap-3">
-        {links.map(({ name, href }) => (
-          <Link
-            key={name}
-            href={href}
-            className="text-base text-gray-700 hover:text-primary hover:no-underline dark:text-[#f9f9f9]"
-          >
-            {name}
-          </Link>
+      </Link>
+    );
+  }
+  return (
+    <a
+      href={href}
+      className={className}
+      {...(href.startsWith('http')
+        ? { target: '_blank', rel: 'noopener noreferrer' }
+        : {})}
+    >
+      {name}
+    </a>
+  );
+}
+
+function FooterColumn({ title, links }) {
+  return (
+    <div className="jv-home-footer__col">
+      <h3 className="jv-home-footer__col-title">{title}</h3>
+      <nav className="jv-home-footer__nav" aria-label={title}>
+        {links.map((item) => (
+          <FooterLink key={item.name} {...item} />
         ))}
-      </div>
+      </nav>
     </div>
   );
 }
 
-export default function Footer() {
+export default function HomeFooter() {
+  const year = new Date().getFullYear();
   return (
-    <footer className="bg-[#F4F7FF] dark:bg-[#191919]">
-      <div className="mx-auto flex w-full max-w-[1080px] flex-col px-6 py-12">
-        <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <ThemedImage
-            alt="JadeView"
-            className="h-9 w-fit lg:h-12"
-            sources={{
-              light: '/logo/light.svg',
-              dark: '/logo/dark.svg',
-            }}
-          />
+    <footer className="jv-home-footer">
+      <div className="jv-home-footer__accent" aria-hidden />
+      <div className="jv-home-footer__inner">
+        <div className="jv-home-footer__top">
+          <Link to="/" className="jv-home-footer__brand">
+            <ThemedImage
+              alt="JadeView"
+              className="jv-home-footer__logo"
+              sources={{
+                light: '/logo/light.svg',
+                dark: '/logo/dark.svg',
+              }}
+            />
+          </Link>
+          <p className="jv-home-footer__tagline">
+            Windows WebView 宿主 · Rust 与 WebView2 · C 语言 API
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 gap-y-12 md:grid-cols-3 lg:grid-cols-3">
-          <Links name="友情链接" links={products} />
-          <Links name="开发者" links={developers} />
-          <Links name="社群" links={community} />
+        <div className="jv-home-footer__grid">
+          <FooterColumn title="友情链接" links={products} />
+          <FooterColumn title="开发者" links={developers} />
+          <FooterColumn title="社群" links={community} />
         </div>
 
-        <hr className="my-12 !bg-gray-300 dark:!bg-[#999]" />
+        <div className="jv-home-footer__divider" role="presentation" />
 
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
-          <div className="flex flex-wrap gap-2 text-sm text-gray-500">
-            <span className="text-inherit dark:text-[#999]">
-              &copy; {new Date().getFullYear()} JadeView. 保留所有权利。
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
+        <div className="jv-home-footer__bottom">
+          <p className="jv-home-footer__copy">
+            &copy; {year} JadeView. 保留所有权利。
+          </p>
+          <div className="jv-home-footer__social">
             <Link
               href="https://github.com/JadeViewDocs/docs"
-              aria-label="JadeView's GitHub Repository"
+              className="jv-home-footer__social-btn"
+              aria-label="JadeView 文档仓库 GitHub"
             >
-              <Github className="h-7 w-7 text-zinc-400 hover:text-primary" />
+              <Github className="jv-home-footer__social-icon" />
             </Link>
           </div>
         </div>

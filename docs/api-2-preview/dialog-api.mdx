@@ -1,0 +1,113 @@
+---
+title: 对话框 API
+sidebar_position: 10
+---
+
+# 对话框 API
+
+**用途**：在 C 里弹出 **Windows 原生**的「选文件」「另存为」「提示框」「错误框」，不用自己画 UI。选完路径或按了哪个按钮，通过 **`callback`** 把结果以字符串（多为 JSON）告诉你。
+
+---
+
+## 公共约定
+
+| 项 | 含义 |
+|----|------|
+| `window_id` | 作为**父窗口**，决定对话框模态挂在谁上面。 |
+| `blocking` | 非 `0`：在回调返回前**卡住当前线程**（容易死锁，慎用）；`0`：纯异步，点完按钮再调 `callback`。 |
+| `callback` | 用户操作结束后调用，参数是结果字符串。 |
+| `filters` | 文件对话框里「文件类型」下拉框：值为 **JSON 数组的字符串**，元素形如 `{"name":"分组名","extensions":["jpg","png"]}`；`extensions` 里可用 `"*"` 表示所有文件。 |
+| `properties` | 打开对话框行为：**逗号分隔**的特性名，如 `openFile`、`openDirectory`、`multiSelections`、`showHiddenFiles`（与 [对话框前端 API](/api-2-preview/dialog-frontend-api) 中 `properties` 数组写法对应）。 |
+
+---
+
+## `jade_dialog_show_open_dialog`
+
+**用途**：弹出**打开文件**对话框，让用户选一个或多个文件，路径在回调的 JSON 里。
+
+```c
+typedef struct OpenDialogParams {
+  uint32_t window_id;
+  const char *title;
+  const char *default_path;
+  const char *button_label;
+  const char *filters;
+  const char *properties;
+  int32_t blocking;
+  void (*callback)(const char*);
+} OpenDialogParams;
+
+int32_t jade_dialog_show_open_dialog(const OpenDialogParams* params);
+```
+
+`title` 窗口标题，`default_path` 默认目录，`button_label` 确认键文字。返回 `1` 表示已弹出请求，`0` 表示参数错误等。
+
+---
+
+## `jade_dialog_show_save_dialog`
+
+**用途**：弹出**另存为**对话框，让用户输入要保存的文件名和位置。
+
+```c
+typedef struct SaveDialogParams {
+  uint32_t window_id;
+  const char *title;
+  const char *default_path;
+  const char *button_label;
+  const char *filters;
+  const char *properties;
+  int32_t blocking;
+  void (*callback)(const char*);
+} SaveDialogParams;
+
+int32_t jade_dialog_show_save_dialog(const SaveDialogParams* params);
+```
+
+字段含义与打开对话框相同，回调里是保存路径等 JSON。
+
+---
+
+## `jade_dialog_show_message_box`
+
+**用途**：弹出**带图标的提示框**（信息、警告、错误等），几个按钮任选，适合「确定 / 取消」类确认。
+
+```c
+typedef struct MessageBoxParams {
+  uint32_t window_id;
+  const char *title;
+  const char *message;
+  const char *detail;
+  const char *buttons;
+  int32_t default_id;
+  int32_t cancel_id;
+  const char *type_;
+  int32_t blocking;
+  void (*callback)(const char*);
+} MessageBoxParams;
+
+int32_t jade_dialog_show_message_box(const MessageBoxParams* params);
+```
+
+| 字段 | 用途 |
+|------|------|
+| `message` | 主提示文字。 |
+| `detail` | 下面小字补充说明。 |
+| `buttons` | 用 `\|` 隔开多个按钮名，如 `确定\|取消`。 |
+| `default_id` / `cancel_id` | 默认焦点在哪个按钮、哪个算取消。 |
+| `type_` | `none`、`info`、`warning`、`error` 等，控制图标风格。 |
+
+---
+
+## `jade_dialog_show_error_box`
+
+**用途**：快速弹一个**错误提示**，标题 + 内容，一般用于严重错误、不用用户选多个按钮的场景。
+
+```c
+int32_t jade_dialog_show_error_box(uint32_t window_id, const char* title, const char* content);
+```
+
+---
+
+## 网页里调用
+
+页面用 **`jade.dialog.*`**，返回 Promise，见 [对话框前端 API](/api-2-preview/dialog-frontend-api)。

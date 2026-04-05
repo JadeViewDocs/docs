@@ -1,11 +1,15 @@
 :root {
-  --docs-sections-menu-background-color: #efefef;
-  --docs-sections-menu-active-background-color: #2549aa;
-  --docs-sections-menu-active-color: #fff;
+  --docs-sections-menu-background-color: rgba(255, 255, 255, 0.06);
+  --docs-sections-menu-active-background-color: rgba(59, 130, 246, 0.18);
+  --docs-sections-menu-active-color: #f4f4f5;
+  --docs-sections-menu-border: rgba(255, 255, 255, 0.08);
 }
 
-html[data-theme='dark'] {
-  --docs-sections-menu-background-color: #3f3f3f;
+html[data-theme='light'] {
+  --docs-sections-menu-background-color: rgba(255, 255, 255, 0.85);
+  --docs-sections-menu-active-background-color: rgba(59, 130, 246, 0.12);
+  --docs-sections-menu-active-color: #1e293b;
+  --docs-sections-menu-border: rgba(0, 0, 0, 0.08);
 }
 
 .container {
@@ -30,25 +34,38 @@ html[data-theme='dark'] {
   padding: 0.75rem;
   cursor: pointer;
   background-color: var(--docs-sections-menu-background-color);
+  border: 1px solid var(--docs-sections-menu-border);
+  border-bottom: none;
   --ifm-navbar-link-color: var(--docs-sections-menu-active-color);
   --ifm-navbar-link-hover-color: var(--docs-sections-menu-active-color);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.section:hover {
+  background-color: var(--docs-sections-menu-active-background-color);
 }
 
 .sectionActive {
   background-color: var(--docs-sections-menu-active-background-color);
   color: var(--docs-sections-menu-active-color);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.12);
 }
 
 .section:first-child {
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--jv-radius-md, 10px) var(--jv-radius-md, 10px) 0 0;
 }
 
 .section:last-child {
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--jv-radius-md, 10px) var(--jv-radius-md, 10px);
+  border-bottom: 1px solid var(--docs-sections-menu-border);
 }
 
 .section:only-child {
-  border-radius: 8px;
+  border-radius: var(--jv-radius-md, 10px);
+  border-bottom: 1px solid var(--docs-sections-menu-border);
 }
 
 .label {

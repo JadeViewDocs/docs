@@ -1,0 +1,37 @@
+---
+title: 窗口交互控制
+sidebar_position: 12
+---
+
+## 窗口拖动区域（`app-region`）
+
+**用途**：自己做**自定义标题栏**时，要告诉系统「这一块区域可以用鼠标拖动窗口」，而按钮区域不要拖动。用 CSS 的 **`app-region`** 或 **`-webkit-app-region`**（二者等价，选一种即可）。
+
+**常用写法**：标题条设为 `drag`，上面的按钮设为 `no-drag`。
+
+```css
+.title-bar {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+.title-bar button {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+```
+
+```html
+<div class="title-bar" style="-webkit-app-region: drag; app-region: drag;">
+  <h1>我的应用</h1>
+  <div class="title-bar-buttons">
+    <button type="button" style="-webkit-app-region: no-drag; app-region: no-drag;">关闭</button>
+  </div>
+</div>
+```
+
+---
+
+## 和 2.0 创建窗口 API 的配合
+
+- 要不要系统标题栏、要不要边框，由 **`WebViewWindowOptions.frame_style`** 决定（`normal` / `no-titlebar` / `borderless`），不要再填已删除的旧字段。
+- 需要**整块无边框 WebView 壳子**时，用 **`create_borderless_webview_window`**，见 [窗口 API](/api-2-preview/window-api)。

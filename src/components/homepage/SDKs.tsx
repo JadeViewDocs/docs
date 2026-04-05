@@ -9,18 +9,17 @@ interface SDKItem {
 }
 
 function SDK({ icon, to, name, bgColor }: SDKItem) {
+  const iconFg =
+    bgColor === '#F7DF1E' ? '#0f172a' : '#ffffff';
   return (
-    <Link
-      to={to}
-      className="flex cursor-pointer items-center rounded-lg border border-secondary-700 p-2.5 text-inherit hover:border-primary hover:text-primary hover:no-underline"
-    >
-      <div 
-        className="mr-2 flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white"
-        style={{ backgroundColor: bgColor }}
+    <Link to={to} className="jv-home-tile">
+      <div
+        className="jv-home-tile__icon"
+        style={{ backgroundColor: bgColor, color: iconFg }}
       >
         {icon}
       </div>
-      <span className="font-medium">{name}</span>
+      <span className="jv-home-tile__name">{name}</span>
     </Link>
   );
 }
@@ -51,55 +50,95 @@ export default function SDKs() {
     {
       name: '快速开始',
       to: '/spec/quickstart',
-      icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
-      bgColor: '#10B981',
+      icon: (
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
+        </svg>
+      ),
+      bgColor: '#3b82f6',
     },
     {
       name: 'IPC 通信',
       to: '/guides/ipc-api',
-      icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>,
-      bgColor: '#8B5CF6',
+      icon: (
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+          />
+        </svg>
+      ),
+      bgColor: '#2563eb',
     },
     {
       name: '更新日志',
       to: '/spec/changelog',
-      icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-      bgColor: '#06B6D4',
+      icon: (
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+      bgColor: '#1d4ed8',
     },
   ];
 
   return (
-    <section className="mx-auto mb-32 flex w-full max-w-5xl flex-col p-4 py-0">
-      <span className="mb-2 uppercase tracking-wider text-text-400">
-        SDK 文档
-      </span>
-
-      <h3 className="mb-12 text-4xl">
-        选择你需要的 SDK，开始构建应用
-      </h3>
-
-      <div className="mb-10">
-        <h4 className="mb-2 text-2xl">核心 SDK</h4>
-
-        <p className="mb-6 text-text-400">
-          JadeView 提供多语言 SDK 支持，方便不同技术栈的开发者集成
+    <section className="jv-home-section" aria-labelledby="jv-home-sdk-heading">
+      <header className="jv-home-section__header">
+        <p className="jv-home-section__eyebrow">文档</p>
+        <h2 id="jv-home-sdk-heading" className="jv-home-section__title">
+          选择 SDK，开始集成
+        </h2>
+        <p className="jv-home-section__lead">
+          多语言封装共享同一套原生能力，按你的技术栈选型即可。
         </p>
+      </header>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+      <div className="jv-home-subsection">
+        <h3 className="jv-home-subsection__title">核心 SDK</h3>
+        <p className="jv-home-subsection__desc">
+          面向脚本与桌面应用的官方封装与示例。
+        </p>
+        <div className="jv-home-tile-grid">
           {coreSDKs.map((sdk) => (
             <SDK key={sdk.name} {...sdk} />
           ))}
         </div>
       </div>
 
-      <div>
-        <h4 className="mb-2 text-2xl">快速开始</h4>
-
-        <p className="mb-6 text-text-400">
-          查看快速入门指南，了解如何在项目中使用 JadeView
+      <div className="jv-home-subsection">
+        <h3 className="jv-home-subsection__title">指南与动态</h3>
+        <p className="jv-home-subsection__desc">
+          入门路径、通信方式与版本变更，按需查阅。
         </p>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="jv-home-tile-grid">
           {quickStart.map((sdk) => (
             <SDK key={sdk.name} {...sdk} />
           ))}

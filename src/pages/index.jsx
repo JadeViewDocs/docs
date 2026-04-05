@@ -1,30 +1,13 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import Head from '@docusaurus/Head';
-import Link from '@docusaurus/Link';
-import clsx from 'clsx';
-import HomeFooter from '@site/src/components/homepage/HomeFooter';
 import HeroSection from '@site/src/components/homepage/HeroSection';
 import SDKs from '@site/src/components/homepage/SDKs';
-import GuidesAndSamples from '@site/src/components/homepage/GuidesAndSamples';
 import APIReferenceSection from '@site/src/components/homepage/APIReferenceSection';
-import ResourcesSection from '@site/src/components/homepage/ResourcesSection';
-import CommunitySection from '@site/src/components/homepage/CommunitySection';
-import HelpSection from '@site/src/components/homepage/HelpSection';
 
-// Ambient Background Blobs Component - Enhanced with more visual interest
+/** 首页背景柔光（轻量漂移动效，见 custom.css，尊重 prefers-reduced-motion） */
 function AmbientBackground() {
-  return (
-    <div className="jv-ambient-bg">
-      <div className="jv-blob jv-blob-1" />
-      <div className="jv-blob jv-blob-2" />
-      <div className="jv-blob jv-blob-3" />
-      <div className="jv-blob jv-blob-4" />
-      <div className="jv-blob jv-blob-5" />
-      {/* Grid pattern overlay */}
-      <div className="jv-grid-overlay" />
-    </div>
-  );
+  return <div className="jv-ambient-bg" aria-hidden />;
 }
 
 export default function Homepage() {
@@ -59,40 +42,6 @@ export default function Homepage() {
           
           {/* Help Section - 帮助 */}
 
-        </div>
-      </div>
-
-      {/* Lantern Effect */}
-      <div className="lantern">
-        <div className="lantern-left">
-          <div className="lantern-container">
-            <div className="lantern-top-rope"></div>
-            <div className="lantern-top"></div>
-            <div className="lantern-center">
-              <div className="lantern-line">
-                <div className="lantern-text-wrap">
-                  <div className="lantern-text">一马当先</div>
-                </div>
-              </div>
-            </div>
-            <div className="lantern-bottom"></div>
-            <div className="lantern-bottom-rope"></div>
-          </div>
-        </div>
-        <div className="lantern-right">
-          <div className="lantern-container">
-            <div className="lantern-top-rope"></div>
-            <div className="lantern-top"></div>
-            <div className="lantern-center">
-              <div className="lantern-line">
-                <div className="lantern-text-wrap">
-                  <div className="lantern-text">代码如仙</div>
-                </div>
-              </div>
-            </div>
-            <div className="lantern-bottom"></div>
-            <div className="lantern-bottom-rope"></div>
-          </div>
         </div>
       </div>
 

@@ -49,8 +49,11 @@ function HeroProduct({
         {title}
       </h3>
       <p className="jv-feature-card__description">{text}</p>
-      <div className="mt-4 flex items-center text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-        了解更多 <span className="ml-1">→</span>
+      <div className="jv-feature-card__cta">
+        <span>了解更多</span>
+        <span className="jv-feature-card__cta-arrow" aria-hidden>
+          →
+        </span>
       </div>
     </Link>
   );
@@ -58,48 +61,79 @@ function HeroProduct({
 
 export default function HeroSection() {
   return (
-    <div className="pb-14">
-      <section className="no-underline-links px-4 pt-16 lg:py-0">
-        <div className="flex flex-col items-center justify-between py-14">
-          <h1 className="jv-hero__title mb-6">
-            JadeView
-          </h1>
-          <p className="max-w-2xl text-center text-lg text-text-400">
-            一个通用 Webview 库，专为 Web 界面而生：轻量、高性能、接口简单。
-            <br />
-            让程序流畅又美观，开发效率直线提升。
+    <div className="jv-home-hero">
+      <section className="jv-home-hero__intro no-underline-links">
+        <div className="jv-home-hero__inner jv-home-hero__inner--enter">
+          <p className="jv-home-hero__eyebrow">Rust · WebView2 · C 语言 API</p>
+          <h1 className="jv-hero__title">JadeView</h1>
+          <p className="jv-hero__subtitle">
+            面向 Windows 的通用 WebView 宿主库：轻量、高性能、接口清晰。
+            <span className="jv-hero__subtitle-break">
+              用熟悉的前端技术做出流畅、现代的桌面界面。
+            </span>
           </p>
-          <div className="jv-hero__actions mt-8">
-            <a 
-              href="https://github.com/JadeViewDocs/library" 
-              target="_blank" 
+          <div className="jv-hero__actions">
+            <a
+              href="https://github.com/JadeViewDocs/library"
+              target="_blank"
               rel="noopener noreferrer"
               className="jv-cta-button"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="jv-hero__btn-icon"
+                aria-hidden
+              >
                 <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
               </svg>
-              获取 (GitHub)
+              GitHub 获取源码
             </a>
-            <a 
-              href="https://gitee.com/ilinxuan/JadeView_library" 
-              target="_blank" 
+            <a
+              href="https://gitee.com/ilinxuan/JadeView_library"
+              target="_blank"
               rel="noopener noreferrer"
               className="jv-btn-secondary"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="jv-hero__btn-icon"
+                aria-hidden
+              >
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
-              获取 (Gitee)
+              Gitee 镜像
             </a>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto flex w-full max-w-7xl flex-wrap justify-center gap-6 px-4">
-        {PRODUCTS.map((product) => (
-          <HeroProduct {...product} key={product.title} />
-        ))}
+      <section
+        className="jv-home-hero__features jv-home-hero__features--enter"
+        aria-labelledby="jv-home-features-heading"
+      >
+        <div className="jv-home-hero__features-head">
+          <h2 id="jv-home-features-heading" className="jv-home-section-label">
+            核心能力
+          </h2>
+          <p className="jv-home-hero__features-desc">
+            窗口、事件与样式一站集成，文档与示例对齐维护。
+          </p>
+        </div>
+        <div className="jv-home-hero__features-grid">
+          {PRODUCTS.map((product) => (
+            <HeroProduct {...product} key={product.title} />
+          ))}
+        </div>
       </section>
     </div>
   );

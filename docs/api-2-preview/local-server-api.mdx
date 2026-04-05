@@ -1,0 +1,34 @@
+---
+title: 本地协议服务
+sidebar_position: 8
+---
+
+# 本地协议服务
+
+## `set_protocol_service_path`
+
+**用途**：把你的**本地磁盘上的一个文件夹**注册成 JadeView 内置访问的根目录，并得到一个 **http 形式的基地址**。页面里可以用这个地址加载 JS/CSS/图片，就像小型静态站点，而不必再自己起 Node 或 IIS。
+
+```c
+int32_t set_protocol_service_path(
+  const char* root_path,
+  char* url_buffer,
+  size_t buffer_size
+);
+```
+
+| 参数 | 说明 |
+|------|------|
+| `root_path` | 静态文件所在的文件夹绝对路径。 |
+| `url_buffer` | 输出：库写好的**基 URL**（你把它拼在路径前给 `navigate` 或写进 HTML）。 |
+| `buffer_size` | 缓冲区字节数，要留够 `\0`。 |
+
+成功 `1`，失败 `0`（路径无效、缓冲太小、尚未初始化等）。
+
+须在 **`app-ready` 成功之后**再调。
+
+**与旧版 `create_local_server` 的差异**：过去要在参数里单独传 **`appname`**，用来拼内置主机名（如 `http://jade.{appname}/...`）。**2.0** 改为由 **`JadeView_init` 已登记的 `app_name` / `app_signature`** 推导协议身份，因此 C API **少一个参数**，避免与初始化信息不一致。
+
+| 旧 API | 2.0 |
+|--------|-----|
+| `create_local_server(root_path, appname, url_buffer, buffer_size)` | `set_protocol_service_path(root_path, url_buffer, buffer_size)` |

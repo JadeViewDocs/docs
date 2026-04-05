@@ -1,0 +1,162 @@
+---
+title: 事件类型
+sidebar_position: 7
+---
+
+# 事件类型
+
+本页列出宿主通过 **`jade_on`** 订阅后，库可能派发的事件：**`event_data` 一般是 UTF-8 的 JSON 字符串**（少数为纯文本，如 `app-ready` 成功时的 `success`）。`jade_on` 回调的第一个参数 **`window_id`** 标明是哪个窗口（与具体事件无关的全局事件多为 `0`，以各节为准）。
+
+**`IpcCallback` 的返回值**在「拦截类」事件与 **`register_ipc_handler`** 中含义不同，务必先看下文 **速查表**。[IPC 通信 API](/api-2-preview/ipc-api) 中有与 `jade.invoke` 配套的补充说明。
+
+---
+
+## `IpcCallback` 返回值（速查）{#ipc-callback-returns}
+
+类型是 **`const char*`**，但多数场景把它当**哨兵**用，不必指向真实字符串。
+
+### `jade_on`：需要「阻止」时
+
+对 **`window-closing`**、**`webview-will-navigate`**、**`webview-new-window`**：
+
+- 返回 **`NULL`**：**不阻止**（允许关窗 / 导航 / 新开窗口）。
+- 返回 **指针值 `1`**（推荐写法 **`return (const char*)(uintptr_t)1;`**）：**阻止**。实现上**任意非 `NULL` 都算阻止**，用 `1` 可避免误把栈上字符串当哨兵。
+
+对 **`webview-download-started`**（默认**拦下载**）：
+
+- 返回 **`NULL`**：**允许**本次下载。
+- 返回 **指针值 `1` 或其它非 `NULL`**：**继续拦截**（不允许下载）。
+
+### `register_ipc_handler`（`jade.invoke`）：例外
+
+这里 **`(const char*)1` 不是「阻止」**：与 **`NULL`** 等一起被当成**特殊占位**，库映射为**默认成功 JSON**，且**不会** `jade_text_free`。自定义应答正文须用 **`jade_text_create`** 分配并由库释放。详见 [IPC 通信 API](/api-2-preview/ipc-api)。
+
+---
+
+## 窗口事件 {#window-events}
+
+| 事件名 | 触发时机 | `event_data` |
+|--------|----------|----------------|
+| `window-created` | 窗口创建完成 | `{}` |
+| `app-window-created` | 与上一项同类，别名 | `{}` |
+| `window-closed` | 窗口已关闭 | `{}` |
+| `window-all-closed` | 所有窗口都关了 | `{}` |
+| `window-closing` | 用户点关闭，**尚未销毁** | `{}`；可 [拦截](#ipc-callback-returns) |
+| `window-resized` | 尺寸变化 | `{"width": 整数, "height": 整数}` |
+| `window-state-changed` | 最大化状态变化 | `{"isMaximized": true/false}` |
+| `window-fullscreen` | 全屏状态变化 | `{"fullscreen": true/false}` |
+| `window-moved` | 位置变化 | `{"x": 整数, "y": 整数}` |
+| `window-focused` / `window-blurred` | 得/失焦点 | `{}` |
+| `window-destroyed` | 窗口销毁 | `{}` |
+
+---
+
+## WebView 与页面事件 {#webview-events}
+
+| 事件名 | 触发时机 | `event_data` |
+|--------|----------|----------------|
+| `webview-will-navigate` | 即将导航到新 URL | `{"url": "...", "window_id": 整数}`；可 [拦截](#ipc-callback-returns) |
+| `webview-did-start-loading` | 开始加载 | `{"url": "...", "window_id": 整数}` |
+| `webview-did-finish-load` | 加载完成 | `{"url": "...", "window_id": 整数}` |
+| `webview-new-window` | 页面请求新窗口 | `{"url": "...", "frame_name": "_blank"}` 等；可 [拦截](#ipc-callback-returns) |
+| `webview-page-title-updated` | 标题变化 | `{"title": "...", "window_id": 整数}` |
+| `webview-page-icon-updated` | 图标变化 | JSON，含图标相关信息 |
+| `webview-download-started` | 开始下载 | `{"url": "...", "filename": "..."}`；**默认拦截**，见 [返回值表](#ipc-callback-returns) |
+| `javascript-result` | `execute_javascript` 执行完 | 见下节 |
+| `file-drop` | 文件拖入 WebView | `{"files": ["路径1", ...], "x": 整数, "y": 整数}`（注册后会接管拖拽，前端可能收不到原生 drop） |
+| `postmessage-received` | 页面 `postMessage` | `{"origin": "来源", "message": "字符串"}`；**仅当来源通过白名单**（见 [核心 API · WebViewSettings](/api-2-preview/index#webview-settings)） |
+
+---
+
+## `javascript-result` {#javascript-result}
+
+| 项 | 说明 |
+|----|------|
+| 触发时机 | 宿主 **`execute_javascript`** 在页面里执行结束后 |
+| `event_data` | JSON，通常含请求 **`id`** 与 **`result`**（脚本返回值或错误描述） |
+| 注意 | `execute_javascript` 的返回值只表示是否入队；**脚本结果只在本事件里取** |
+
+---
+
+## 主题与其它 {#misc-events}
+
+| 事件名 | 触发时机 | `event_data` |
+|--------|----------|----------------|
+| `theme-changed` | 系统或窗口主题变化 | `{}` |
+| `update-window-icon` | 需要刷新窗口图标 | `{"window_id": 整数}` |
+
+---
+
+## 通知相关事件 {#notification-events}
+
+| 事件名 | 触发时机 | `event_data`（示例字段） |
+|--------|----------|---------------------------|
+| `notification-shown` | 通知成功显示 | `title`、`body`、`text3` 等 |
+| `notification-dismissed` | 用户关闭或超时 | 如 `{"reason": "dismissed"}` |
+| `notification-failed` | 显示失败 | `error` 等 |
+| `notification-action` | 用户点按钮或点卡片 | `action`：`clicked` / `action_0` / `action_1`；`title`（按钮文案）；`arguments`（来自 `NotificationParams.action`） |
+
+---
+
+:::note `app-ready` 多了一种失败情况（名字没变）
+
+事件名还是 **`app-ready`**，但初始化失败时也走它，方便你只监听一个事件：
+
+- **正常**：`window_id === 1`，内容是 **`success`**。
+- **`app_name` / `app_signature` 填错**：`window_id === 0`，内容是 **JSON**，例如：
+
+```json
+{ "ok": false, "code": "missing_app_name", "message": "..." }
+```
+
+常见 `code`：`missing_app_name`、`missing_app_signature`、`app_signature_too_short`。
+
+- **内部线程崩了**：`window_id === 0`，内容是**一段普通错误文字**（不是 JSON）。
+
+建议：回调里先当 JSON 解析；有 `ok === false` 按参数错误处理；否则再判断是不是 `success`。
+
+:::
+
+---
+
+## `second-instance`
+
+**用途**：你开了**单实例**后，用户又双击启动了一次 exe。第二次进程会很快退出，但**第一次打开的进程**会收到本事件，里面带着**第二次启动时的完整命令行**。这样你可以打开同一个窗口、或解析 `myapp://` 链接。
+
+**何时触发**：`JadeView_init` 里 `single_instance` 非 0，且判定为「第二个实例」时，由**首实例**在读到管道数据后发出。
+
+**`window_id`**：固定 `0`（和具体窗口无关）。
+
+**`event_data`**：UTF-8 JSON，里有一个 **`argv`** 数组，即第二次进程的命令行参数列表。
+
+---
+
+## `global-hotkey`
+
+**用途**：用户按下了你用 `register_global_hotkey` 注册的**全局快捷键**（即使焦点不在你的窗口上）。你在回调里根据 JSON 里的 id / 键码做相应逻辑。
+
+**`window_id`**：`0`。
+
+**`event_data`**：JSON，一般含 **`id`**（注册时返回的热键 id）、**`modifiers`**、**`vk`**。
+
+若某发行版里热键尚未接好，`register_global_hotkey` 可能一直返回 `0`，以随包说明为准。
+
+---
+
+## `tray-menu-command`
+
+**用途**：用户在托盘图标的**右键菜单里点了一个可点的项**（不是分隔线）。你用 JSON 里的 **`key`**（和 `TrayMenuItemDesc.key` 一致）区分是「退出」还是「设置」等。
+
+**`window_id`**：`0`。
+
+**`event_data`**：含 `tray_id`、`key`、`item_id`、`dangerous`、`timestamp` 等，业务以 **`key`** 为准。
+
+---
+
+## `tray-event`
+
+**用途**：用户在**托盘图标上**左键、右键、双击、鼠标移入移出等（**不是**点菜单里的某一行）。需要先 `jade_on("tray-event", ...)` 才会收到。为避免刷屏，**鼠标在图标上滑动**不会不停发事件。
+
+**`window_id`**：`0`。
+
+**`event_data`**：JSON，含 `tray_id`、`event`（如 `left-click`、`enter`）、坐标、`timestamp` 等。

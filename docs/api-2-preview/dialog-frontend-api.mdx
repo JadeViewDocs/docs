@@ -1,0 +1,24 @@
+---
+title: 对话框前端 API
+sidebar_position: 13
+---
+
+# 对话框前端 API
+
+**用途**：在 **HTML/JS** 里弹系统原生文件框、保存框、提示框，而不自己用 div 画。通过 **`jade.dialog`** 上的方法调用，返回 **Promise**，结果里是路径或用户点了哪个按钮。
+
+方法形态接近 **Electron `dialog` 模块**（Promise、options 对象）；C 侧对应结构体见 [对话框 API](/api-2-preview/dialog-api)。
+
+---
+
+## 常用方法（一句话）
+
+| 方法 | 干什么 |
+|------|--------|
+| `jade.dialog.showOpenDialog(options)` | 让用户**选一个或多个文件**。 |
+| `jade.dialog.showSaveDialog(options)` | 让用户选**保存路径和文件名**。 |
+| `jade.dialog.showMessageBox(options)` | **提示 / 确认**（多按钮、图标类型等）。 |
+| `jade.dialog.showErrorBox(title, content)` | **简单错误框**，只有确认。 |
+
+- **`filters`**：`{ name: string, extensions: string[] }[]`，例如 `[{ name: 'Images', extensions: ['jpg','png'] }, { name: 'All Files', extensions: ['*'] }]`。
+- **`properties`**（`showOpenDialog`）：字符串数组，如 `openFile`、`openDirectory`、`multiSelections`、`showHiddenFiles`，与 C 侧 `OpenDialogParams.properties` 逗号串一致。
