@@ -4,13 +4,17 @@ sidebar_position: 11
 description: 页面与宿主通信（jade 对象）
 ---
 
+# 前端通信 API
+
 ## 概述
 
 **用途**：网页里通过全局对象 **`jade`** 和外面 C/C++ 写的宿主互相发消息。订阅事件用 **`jade.on`**；让宿主算点东西、拿文件路径等用 **`jade.invoke`**。页面须运行在 JadeView 提供的 WebView 环境（含 **`set_protocol_service_path` 给出的内置地址** 或等价加载方式），否则没有 `jade` 对象。
 
 ---
 
-## `jade.invoke`
+## 通信方式
+
+### 调用宿主方法（`jade.invoke`）
 
 **用途**：像「**远程调用宿主函数**」：你把命令名和数据丢过去，宿主在 `register_ipc_handler` 里处理，再把结果异步还给你。适合读配置、选文件、跑耗时任务等。
 
@@ -26,7 +30,7 @@ await jade.invoke('命令名', 传给宿主的数据, { timeout: 5000 });
 
 ---
 
-## `jade.on`
+### 订阅宿主消息（`jade.on`）
 
 **用途**：监听宿主 **`send_ipc_message`** 推过来的消息，或库内约定的通知（事件名与负载格式见 [事件类型](/api-2-preview/event-types)）。
 
@@ -44,12 +48,14 @@ const off = jade.on('事件名', function (payload) {
 
 ---
 
-## 消息体积与性能
+## 使用建议
+
+### 消息体积与性能
 
 - 单次传递的数据**不要过大**；WebView2 上建议控制在约 **252MB** 以内，再大容易崩或卡死。
 - 只订阅需要的事件，用完记得 **`off()`**，避免泄漏与重复处理。
 
-## 示例
+### 示例
 
 ```javascript
 const result = await jade.invoke('message', { data: 'test' }, { timeout: 5000 });

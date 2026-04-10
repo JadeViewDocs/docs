@@ -1,0 +1,63 @@
+---
+title: 系统集成 API
+sidebar_position: 14
+---
+
+# 系统集成 API
+
+本页收录插件分类中偏**系统集成 / 扩展能力**的接口，适合在应用进入深度桌面集成阶段使用。
+
+若你只关心基础工具能力（版本、路径、语言、显示器、配置读写），请看 [工具 API](/api-2-preview/tools-api)。
+
+---
+
+## 协议与文件关联
+
+### 自定义 URL 协议（`register_url_scheme` / `unregister_url_scheme`） {#url-scheme}
+
+**用途**：在系统里登记**自定义 URL 协议**（例如 `myapp://open/...`），使用户在浏览器或其它应用里点开这类链接时，能启动你的 exe 并把 URL 传进来。卸载或关闭功能时可 `unregister` 取消登记。
+
+```c
+int32_t register_url_scheme(const char* scheme);
+int32_t unregister_url_scheme(const char* scheme);
+```
+
+须已成功 `JadeView_init`，库要知道你的 exe 路径。若开了单实例，第二次启动可能通过 **`second-instance`** 把命令行交给第一次打开的进程，便于只处理一次协议 URL。
+
+---
+
+### 文件类型关联（`register_file_association` / `unregister_file_association`） {#file-association}
+
+**用途**：让用户**双击某种扩展名**（如 `.mydata`）时，用当前应用打开。`friendly_name` 会出现在「打开方式」里给人看的名字。
+
+```c
+int32_t register_file_association(const char* extension, const char* friendly_name);
+int32_t unregister_file_association(const char* extension);
+```
+
+扩展名可带或不带前面的点，内部会规范化。同样需要已完成初始化以关联到正确 exe。
+
+---
+
+## 全局输入
+
+### 全局热键（`register_global_hotkey` / `unregister_global_hotkey`） {#global-hotkey-api}
+
+**用途**：注册**全局快捷键**（焦点不在你的窗口上也能响应），例如全局呼出主窗口、静音。按下后库会发事件 **`global-hotkey`**（负载为 JSON，含热键 id 与键值），你在 `jade_on` 里处理即可。
+
+```c
+uint32_t register_global_hotkey(uint32_t modifiers, uint32_t vk);
+int32_t unregister_global_hotkey(uint32_t hotkey_id);
+```
+
+| 参数 | 说明 |
+|------|------|
+| `modifiers` | 组合键，使用 Windows 的 `MOD_CONTROL`、`MOD_SHIFT` 等按位或。 |
+| `vk` | 主键虚拟键码，与 Win32 一致。 |
+
+| 返回值 | 含义 |
+|--------|------|
+| `> 0` | 热键 id，注销时传给 `unregister_global_hotkey`。 |
+| `0` | 注册失败；若当前发行版里该功能尚未接好，可能一直为 `0`（以实际 DLL 为准）。 |
+
+事件字段说明见 [事件类型](/api-2-preview/event-types#global-hotkey)。

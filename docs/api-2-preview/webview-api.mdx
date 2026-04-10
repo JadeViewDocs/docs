@@ -3,13 +3,15 @@ title: WebView API
 sidebar_position: 5
 ---
 
-# WebView API
+# WebView API（页面控制）
 
 所有操作都针对 **`window_id`**（没有单独的 webview 句柄）。`WebViewSettings` 在 [核心 API](/api-2-preview/index#webview-settings) 里按字段说明过，这里侧重**创建之后**还能调什么。
 
 ---
 
-## `navigate_to_url`
+## 页面导航与脚本
+
+### 导航到 URL（`navigate_to_url`）
 
 **用途**：当前窗口里的页面**跳转到新 URL**。
 
@@ -19,7 +21,7 @@ int32_t navigate_to_url(uint32_t window_id, const char* url);
 
 ---
 
-## `reload_webview_window`
+### 刷新页面（`reload_webview_window`）
 
 **用途**：**重新加载**当前页。
 
@@ -29,7 +31,7 @@ int32_t reload_webview_window(uint32_t window_id);
 
 ---
 
-## `execute_javascript`
+### 执行 JavaScript（`execute_javascript`）
 
 **用途**：在**页面环境里跑一段 JS**。返回值只表示任务有没有排队成功；真正的脚本返回值通过 **`javascript-result`** 等事件回来（见 [事件类型](/api-2-preview/event-types#javascript-result)）。
 
@@ -39,7 +41,7 @@ int32_t execute_javascript(uint32_t window_id, const char* script);
 
 ---
 
-## `set_webview_zoom`
+### 设置网页缩放（`set_webview_zoom`）
 
 **用途**：整页**缩放比例**，`1.0` = 100%。
 
@@ -49,7 +51,9 @@ int32_t set_webview_zoom(uint32_t window_id, double level);
 
 ---
 
-## `set_content_protection`
+## 安全控制
+
+### 设置内容保护（`set_content_protection`）
 
 **用途**：降低窗口被**截图、录屏**采集到的概率（取决于 Windows 版本和对方用的采集接口）。
 
@@ -59,7 +63,9 @@ int32_t set_content_protection(uint32_t window_id, int32_t content_protection);
 
 ---
 
-## `get_webview_version`
+## 运行时信息
+
+### 获取 WebView 版本（`get_webview_version`）
 
 **用途**：读出本机安装的 **Microsoft WebView2 运行时**版本号（不是 JadeView 版本）。写入 `buffer`（UTF-8 + `\0`）。
 

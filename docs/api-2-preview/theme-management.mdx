@@ -22,7 +22,7 @@ int32_t get_window_theme(uint32_t window_id);
 
 ---
 
-## `set_window_backdrop`
+## 设置窗口背景材质（`set_window_backdrop`）
 
 **用途**：在 **Windows 11** 上给窗口加上系统提供的**背景材质**（如云母、亚克力），和系统设置里「个性化」那类效果一致。`backdrop_type` 常用取值：**`mica`**、**`micaAlt`**、**`acrylic`**（小写驼峰，与系统 DWM API 一致）。
 
@@ -32,7 +32,7 @@ int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);
 
 ---
 
-## `set_window_background_color`
+## 设置窗口背景色（`set_window_background_color`）
 
 **用途**：用 **十六进制颜色**（如 `#RRGGBB`）填窗口背景，不依赖 Mica。
 

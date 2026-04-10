@@ -5,11 +5,13 @@ sidebar_position: 2
 
 # 工具 API
 
-这里的函数大多**不针对某个窗口**，而是：读版本、取系统路径、读语言和显示器信息、在数据目录里存配置、清理数据、注册协议/文件关联、注册全局热键等。下面 [其它工具函数](#misc-tools) 也一并说明。
+这里的函数大多**不针对某个窗口**，而是：读版本、取系统路径、读语言和显示器信息、在数据目录里存配置、清理数据等。
+
+与系统深度集成、偏扩展能力的接口（如 URL 协议、文件关联、全局热键）已迁移到插件分类下的 [系统集成 API](/api-2-preview/plugin-system-api)。
 
 ---
 
-## `jadeview_version`
+## 获取 JadeView 版本（`jadeview_version`）
 
 **用途**：拿到**当前这份 JadeView 动态库**的完整版本号（含构建号），用于关于页、日志头、排查问题时报版本。
 
@@ -29,7 +31,7 @@ int32_t jadeview_version(char* buffer, size_t buffer_size);
 
 ---
 
-## `getPath`
+## 获取系统路径（`getPath`）
 
 **用途**：用**固定的英文关键字**查询一类目录的**绝对路径**，避免自己在 C 里拼环境变量、处理中文用户名路径。例如要放日志、读「我的文档」、找 exe 所在目录，都可以问这个接口。
 
@@ -52,7 +54,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 
 ---
 
-## `getLocale`
+## 获取系统语言（`getLocale`）
 
 **用途**：读取 **Windows 当前用户界面语言**（区域设置），得到一个标准语言标签字符串。常见用途：决定宿主或网页用中文还是英文界面、把语言参数传给前端做 i18n。
 
@@ -66,7 +68,7 @@ int32_t getLocale(char* buffer, size_t buffer_size);
 
 ---
 
-## `get_displays_info`
+## 获取显示器信息（`get_displays_info`）
 
 **用途**：一次拿到**本机所有显示器**的布局和清晰度信息，方便你做：多显示器上决定窗口出现在哪块屏、算缩放后的逻辑坐标、判断哪块是主屏、适配高 DPI。
 
@@ -104,7 +106,7 @@ int32_t yaml_get(const char* file_name, const char* key_path, char* buffer, size
 
 ---
 
-## `clear_data_directory`
+## 清空数据目录（`clear_data_directory`）
 
 **用途**：**清空**当前 JadeView 使用的数据目录里的内容（缓存、本地配置等），相当于「重置本应用在本机的数据」。必须传对确认令牌，防止误触。
 
@@ -114,60 +116,9 @@ int32_t clear_data_directory(const char* confirm_token);
 
 `confirm_token` 必须**完全等于**字符串 `I_UNDERSTAND_CLEAR_DATA`（与源码常量一致）。
 
----
-
-## 自定义 URL 协议 {#url-scheme}
-
-对应 API：**`register_url_scheme`**、**`unregister_url_scheme`**。**用途**：在系统里登记**自定义 URL 协议**（例如 `myapp://open/...`），使用户在浏览器或其它应用里点开这类链接时，能启动你的 exe 并把 URL 传进来。卸载或关闭功能时可 `unregister` 取消登记。
-
-```c
-int32_t register_url_scheme(const char* scheme);
-int32_t unregister_url_scheme(const char* scheme);
-```
-
-须已成功 `JadeView_init`，库要知道你的 exe 路径。若开了单实例，第二次启动可能通过 **`second-instance`** 把命令行交给第一次打开的进程，便于只处理一次协议 URL。
-
----
-
-## 文件类型关联 {#file-association}
-
-对应 API：**`register_file_association`**、**`unregister_file_association`**。**用途**：让用户**双击某种扩展名**（如 `.mydata`）时，用当前应用打开。`friendly_name` 会出现在「打开方式」里给人看的名字。
-
-```c
-int32_t register_file_association(const char* extension, const char* friendly_name);
-int32_t unregister_file_association(const char* extension);
-```
-
-扩展名可带或不带前面的点，内部会规范化。同样需要已完成初始化以关联到正确 exe。
-
----
-
-## 全局热键 {#global-hotkey-api}
-
-对应 API：**`register_global_hotkey`**、**`unregister_global_hotkey`**。**用途**：注册**全局快捷键**（焦点不在你的窗口上也能响应），例如全局呼出主窗口、静音。按下后库会发事件 **`global-hotkey`**（负载为 JSON，含热键 id 与键值），你在 `jade_on` 里处理即可。
-
-```c
-uint32_t register_global_hotkey(uint32_t modifiers, uint32_t vk);
-int32_t unregister_global_hotkey(uint32_t hotkey_id);
-```
-
-| 参数 | 说明 |
-|------|------|
-| `modifiers` | 组合键，使用 Windows 的 `MOD_CONTROL`、`MOD_SHIFT` 等按位或。 |
-| `vk` | 主键虚拟键码，与 Win32 一致。 |
-
-| 返回值 | 含义 |
-|--------|------|
-| `> 0` | 热键 id，注销时传给 `unregister_global_hotkey`。 |
-| `0` | 注册失败；若当前发行版里该功能尚未接好，可能一直为 `0`（以实际 DLL 为准）。 |
-
-事件字段说明见 [事件类型](/api-2-preview/event-types#global-hotkey)。
-
----
-
 ## 其它工具函数 {#misc-tools}
 
-### `get_window_count`
+### 获取窗口数量（`get_window_count`）
 
 ```c
 uint32_t get_window_count(void);
@@ -177,7 +128,7 @@ uint32_t get_window_count(void);
 
 ---
 
-### `get_webview_version`
+### 获取 WebView 版本（`get_webview_version`）
 
 ```c
 int32_t get_webview_version(char* buffer, size_t buffer_size);
@@ -187,7 +138,7 @@ int32_t get_webview_version(char* buffer, size_t buffer_size);
 
 ---
 
-### `is_windows_11`
+### 判断是否为 Windows 11（`is_windows_11`）
 
 ```c
 int32_t is_windows_11(void);
@@ -197,7 +148,7 @@ int32_t is_windows_11(void);
 
 ---
 
-### `jade_text_create` / `jade_text_free`
+### 文本内存管理（`jade_text_create` / `jade_text_free`）
 
 ```c
 char* jade_text_create(const char* text);

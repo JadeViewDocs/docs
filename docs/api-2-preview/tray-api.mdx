@@ -11,7 +11,7 @@ sidebar_position: 8
 
 ---
 
-## `TrayMenuItemDesc`
+## 托盘菜单项结构（`TrayMenuItemDesc`）
 
 **用途**：描述**一行菜单**（普通项、子菜单、分隔线等）。很多行拼成一棵树，交给 `tray_set_menu_items` 一次性设好右键菜单。
 
@@ -39,7 +39,7 @@ typedef struct TrayMenuItemDesc {
 
 ---
 
-## `tray_create`
+## 创建托盘（`tray_create`）
 
 **用途**：**创建**托盘图标（若已有则直接返回已有 id）。
 
@@ -51,7 +51,7 @@ uint32_t tray_create(void);
 
 ---
 
-## `tray_destroy`
+## 销毁托盘（`tray_destroy`）
 
 **用途**：**去掉**托盘图标并清掉菜单状态。
 
@@ -63,7 +63,7 @@ int32_t tray_destroy(uint32_t tray_id);
 
 ---
 
-## `tray_set_visible`
+## 设置托盘可见性（`tray_set_visible`）
 
 **用途**：**显示或隐藏**托盘上的小图标（不销毁，只是看不见）。
 
@@ -75,7 +75,7 @@ int32_t tray_set_visible(uint32_t tray_id, int32_t visible);
 
 ---
 
-## `tray_set_tooltip`
+## 设置托盘提示文字（`tray_set_tooltip`）
 
 **用途**：鼠标悬停在托盘图标上时显示的**一句话提示**。
 
@@ -87,7 +87,7 @@ int32_t tray_set_tooltip(uint32_t tray_id, const char* tooltip_utf8);
 
 ---
 
-## `tray_set_icon_from_file`
+## 从文件设置托盘图标（`tray_set_icon_from_file`）
 
 **用途**：从 **.ico 等图片文件**加载托盘图标。
 
@@ -97,7 +97,7 @@ int32_t tray_set_icon_from_file(uint32_t tray_id, const char* icon_path_utf8);
 
 ---
 
-## `tray_set_menu_items`
+## 设置托盘菜单（`tray_set_menu_items`）
 
 **用途**：**整表替换**右键菜单内容。传 0 行表示清空菜单。
 

@@ -11,11 +11,11 @@ sidebar_position: 7
 
 ---
 
-## `IpcCallback` 返回值（速查）{#ipc-callback-returns}
+## 回调返回值速查（`IpcCallback`）{#ipc-callback-returns}
 
 类型是 **`const char*`**，但多数场景把它当**哨兵**用，不必指向真实字符串。
 
-### `jade_on`：需要「阻止」时
+### 事件订阅回调：需要「阻止」时（`jade_on`）
 
 对 **`window-closing`**、**`webview-will-navigate`**、**`webview-new-window`**：
 
@@ -27,7 +27,7 @@ sidebar_position: 7
 - 返回 **`NULL`**：**允许**本次下载。
 - 返回 **指针值 `1` 或其它非 `NULL`**：**继续拦截**（不允许下载）。
 
-### `register_ipc_handler`（`jade.invoke`）：例外
+### 调用处理器场景：例外（`register_ipc_handler` / `jade.invoke`）
 
 这里 **`(const char*)1` 不是「阻止」**：与 **`NULL`** 等一起被当成**特殊占位**，库映射为**默认成功 JSON**，且**不会** `jade_text_free`。自定义应答正文须用 **`jade_text_create`** 分配并由库释放。详见 [IPC 通信 API](/api-2-preview/ipc-api)。
 
@@ -68,7 +68,7 @@ sidebar_position: 7
 
 ---
 
-## `javascript-result` {#javascript-result}
+## 脚本执行结果事件（`javascript-result`） {#javascript-result}
 
 | 项 | 说明 |
 |----|------|
@@ -119,7 +119,9 @@ sidebar_position: 7
 
 ---
 
-## `second-instance`
+## 全局系统事件
+
+### 第二实例事件（`second-instance`）
 
 **用途**：你开了**单实例**后，用户又双击启动了一次 exe。第二次进程会很快退出，但**第一次打开的进程**会收到本事件，里面带着**第二次启动时的完整命令行**。这样你可以打开同一个窗口、或解析 `myapp://` 链接。
 
@@ -131,7 +133,7 @@ sidebar_position: 7
 
 ---
 
-## `global-hotkey`
+### 全局热键事件（`global-hotkey`）
 
 **用途**：用户按下了你用 `register_global_hotkey` 注册的**全局快捷键**（即使焦点不在你的窗口上）。你在回调里根据 JSON 里的 id / 键码做相应逻辑。
 
@@ -143,7 +145,7 @@ sidebar_position: 7
 
 ---
 
-## `tray-menu-command`
+### 托盘菜单命令事件（`tray-menu-command`）
 
 **用途**：用户在托盘图标的**右键菜单里点了一个可点的项**（不是分隔线）。你用 JSON 里的 **`key`**（和 `TrayMenuItemDesc.key` 一致）区分是「退出」还是「设置」等。
 
@@ -153,7 +155,7 @@ sidebar_position: 7
 
 ---
 
-## `tray-event`
+### 托盘交互事件（`tray-event`）
 
 **用途**：用户在**托盘图标上**左键、右键、双击、鼠标移入移出等（**不是**点菜单里的某一行）。需要先 `jade_on("tray-event", ...)` 才会收到。为避免刷屏，**鼠标在图标上滑动**不会不停发事件。
 

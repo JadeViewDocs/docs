@@ -9,7 +9,9 @@ sidebar_position: 1
 
 ---
 
-## `JadeView_init`
+## 生命周期与启动
+
+### 初始化运行时（`JadeView_init`）
 
 **用途**：启动库内部的 **GUI 线程和事件循环**，并登记你的应用叫什么、数据放哪、要不要单实例。调用成功后，你还需等 **`app-ready`** 事件，再创建窗口或走本地协议。
 
@@ -38,7 +40,7 @@ int32_t JadeView_init(
 | `1` | 已去启动 GUI，**但还没就绪**，必须等 `app-ready`。 |
 | `0` | 没启动起来（参数错、或作为第二实例被踢掉等）。 |
 
-### `app-ready` 里你会收到什么
+#### `app-ready` 里你会收到什么
 
 | 情况 | `window_id` | `event_data` 大致长什么样 |
 |------|-------------|---------------------------|
@@ -50,7 +52,7 @@ int32_t JadeView_init(
 
 ---
 
-## `run_message_loop`
+### 运行消息循环（`run_message_loop`）
 
 **用途**：在「exe 自己跑消息循环」的旧集成方式里可能用到。常见 **DLL 嵌入**场景下，循环已在 `JadeView_init` 里起的线程中跑，**一般不用调**。
 
@@ -60,7 +62,7 @@ int32_t run_message_loop(void);
 
 ---
 
-## `cleanup_all_windows`
+### 清理全部窗口（`cleanup_all_windows`）
 
 **用途**：关掉所有 JadeView 窗口、收尾资源、让事件循环结束。相当于应用退出前的清理。
 
@@ -75,7 +77,9 @@ int32_t cleanup_all_windows(void);
 
 ---
 
-## 2.0 新增与换名接口（相对旧版）
+## 版本变化速览
+
+### 2.0 新增与换名接口（相对旧版）
 
 | 符号 | 是干什么的 |
 |------|------------|
@@ -92,7 +96,9 @@ int32_t cleanup_all_windows(void);
 
 ---
 
-## `WebViewWindowOptions`（创建窗口时） {#webview-window-options}
+## 核心结构体
+
+### 窗口选项结构（`WebViewWindowOptions`） {#webview-window-options}
 
 **用途**：描述**第一个画面长什么样、能不能拖大小、在屏幕哪出现**。字段顺序必须与 **`JadeView.h` 中结构体声明**一致，少填、多填或类型错位都会导致**静默读错内存**。
 
@@ -123,7 +129,7 @@ int32_t cleanup_all_windows(void);
 
 ---
 
-## `WebViewSettings`（页面行为） {#webview-settings}
+### 网页行为结构（`WebViewSettings`） {#webview-settings}
 
 **用途**：控制 **WebView 里网页的行为**（自动播放、右键、UA 等）。传 `NULL` 表示全用默认。
 

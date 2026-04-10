@@ -9,7 +9,9 @@ sidebar_position: 6
 
 ---
 
-## `IpcCallback` {#ipccallback}
+## 基础类型
+
+### 回调类型（`IpcCallback`） {#ipccallback}
 
 宿主侧事件与 **`jade.invoke`** 共用同一种 C 回调类型（与 **`JadeView.h`** 一致）：
 
@@ -17,14 +19,14 @@ sidebar_position: 6
 typedef const char *(*IpcCallback)(uint32_t window_id, const char *event_data);
 ```
 
-### 参数
+#### 参数
 
 | 参数 | 说明 |
 |------|------|
 | `window_id` | **事件或请求关联的窗口**。多数窗口事件里是当前窗口 id；与所有窗口无关的全局事件（如 `app-ready`、`second-instance`、`global-hotkey`、托盘相关）多为 **`0`**，以 [事件类型](/api-2-preview/event-types) 各节为准。 |
 | `event_data` | **只读**的 **UTF-8** 字符串，**以 `\0` 结尾**。内容多为 **JSON 文本**；少数为纯文本（如 `app-ready` 成功时的 `success`）。**仅在本次回调执行期间保证有效**，回调返回后不要保存裸指针；需要留存请自行拷贝。 |
 
-### 返回值（`const char *`）
+#### 返回值（`const char *`）
 
 同一函数指针类型在两种用法下含义不同：
 
@@ -39,7 +41,9 @@ typedef const char *(*IpcCallback)(uint32_t window_id, const char *event_data);
 
 ---
 
-## `jade_on` {#jade-on}
+## 事件订阅
+
+### 订阅事件（`jade_on`） {#jade-on}
 
 **用途**：按**事件名字符串**注册一个回调；库在对应事件发生时**同步**调用你的 `IpcCallback`。
 
@@ -47,27 +51,27 @@ typedef const char *(*IpcCallback)(uint32_t window_id, const char *event_data);
 uint32_t jade_on(const char *event_name, IpcCallback callback);
 ```
 
-### 参数
+#### 参数
 
 | 参数 | 说明 |
 |------|------|
 | `event_name` | 事件名，**UTF-8**、**以 `\0` 结尾**，与文档及页面约定一致（如 `app-ready`、`window-closing`、`javascript-result`）。 |
 | `callback` | 类型为 **`IpcCallback`**；收到事件时由库调用，参数含义见上节。 |
 
-### 返回值
+#### 返回值
 
 | 返回值 | 含义 |
 |--------|------|
 | **`> 0`** | 本次注册的 **callback id**，供 **`jade_off(event_name, callback_id)`** 精确注销。 |
 | **`0`** | 注册失败（空指针、内存不足等，以实际实现为准）。 |
 
-### 调用时机与约定
+#### 调用时机与约定
 
 - **`app-ready`**：必须在 **`JadeView_init` 之前**注册，否则会漏掉第一条就绪或失败通知（见 [核心 API](/api-2-preview/index)）。
 - **其它事件**：一般在 **`app-ready` 成功**、开始创建窗口之后再注册即可；事件名与 `event_data` 形态见 [事件类型](/api-2-preview/event-types)。
 - **多次注册**：同一 `event_name` 可注册多个回调，每次 `jade_on` 返回不同 id；触发时**执行顺序以实现为准**，不要依赖顺序做互斥逻辑。
 
-### `jade_on` 与回调返回值 {#jade-on-callback-return}
+#### 回调返回值约定（`jade_on`） {#jade-on-callback-return}
 
 对 **`jade_on`** 注册的 `IpcCallback`，返回值只在**部分事件**上有语义；**多数仅通知类事件**的返回值可被库忽略，**习惯统一写 `return NULL;`** 即可。
 
@@ -80,7 +84,7 @@ uint32_t jade_on(const char *event_name, IpcCallback callback);
 
 ---
 
-## `jade_off`
+### 取消订阅（`jade_off`）
 
 **用途**：按 **`event_name` + `jade_on` 返回的 id** 取消**那一次**订阅；不会误删同事件名下的其它回调。
 
@@ -100,7 +104,9 @@ int32_t jade_off(const char *event_name, uint32_t callback_id);
 
 ---
 
-## `send_ipc_message`
+## 双向消息
+
+### 发送 IPC 消息（`send_ipc_message`）
 
 **用途**：从 C 侧**主动推一条消息给指定窗口里的页面**（类型 + 正文），页面用 **`jade.on(message_type, ...)`** 接收。
 
@@ -122,7 +128,7 @@ int32_t send_ipc_message(
 
 ---
 
-## `register_ipc_handler`
+### 注册调用处理器（`register_ipc_handler`）
 
 **用途**：把 **`channel` 名字符串**与 C 回调绑定；页面 **`await jade.invoke(channel, payload, options)`** 时会调用该 **`IpcCallback`**。
 
@@ -140,7 +146,7 @@ int32_t register_ipc_handler(const char *channel, IpcCallback ipc_cb);
 | `1` | 注册成功。 |
 | `0` | 注册失败。 |
 
-### `register_ipc_handler` 的返回值 {#register-ipc-handler-return}
+#### 返回值约定（`register_ipc_handler`） {#register-ipc-handler-return}
 
 此处 **`IpcCallback` 的返回值表示给前端的应答**，与 **`jade_on` 的「拦截」语义不同**：
 
