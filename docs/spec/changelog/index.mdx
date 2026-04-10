@@ -7,6 +7,44 @@ sidebar_position: 1
 
 ## 版本历史
 
+### v2.0.0-preview
+
+<div class="changelog-meta">
+  <span class="changelog-date-tag">2026-04-10</span>
+</div>
+
+<div className="changelog-version-container">
+
+**2.0 预览版 API 更新（面向接入方）**
+
+#### 全局热键可用性修复
+
+- `register_global_hotkey(modifiers, vk)` 已接入 Win32 `RegisterHotKey`，不再是占位实现。
+- `unregister_global_hotkey(hotkey_id)` 已接入 Win32 `UnregisterHotKey`。
+- 新增内部热键注册表管理，日志会输出注册/注销成功与失败信息。
+- `cleanup_all_windows()` 现在会自动注销当前进程已注册的所有全局热键。
+
+#### 对话框 API 重构（Breaking）
+
+- 文件对话框参数从 `OpenDialogParams` / `SaveDialogParams` 合并为 `FileDialogParams`。
+- 取消 `blocking` 选项，同步 API 默认阻塞并直接返回结果。
+- 同步函数返回值调整为 `char*`（UTF-8 JSON），使用后必须调用 `jade_text_free()`：
+  - `jade_dialog_show_open_dialog(...)`
+  - `jade_dialog_show_save_dialog(...)`
+  - `jade_dialog_show_message_box(...)`
+- 新增异步接口：
+  - `jade_dialog_show_open_dialog_async(params, callback)`
+  - `jade_dialog_show_save_dialog_async(params, callback)`
+  - `jade_dialog_show_message_box_async(params, callback)`
+
+#### 迁移建议
+
+1. 先更新 FFI 声明（结构体与函数签名）。
+2. 将“发起后等待回调”的同步流程改为“直接读取返回 JSON”。
+3. 需要非阻塞交互时改用 `*_async`。
+
+</div>
+
 ### v1.3.0
 
 <div class="changelog-meta">
