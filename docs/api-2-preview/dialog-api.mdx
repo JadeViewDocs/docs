@@ -23,7 +23,7 @@ sidebar_position: 10
 | `filters` | 文件对话框的文件类型筛选，值为 JSON 数组字符串，如 `[{"name":"图片文件","extensions":["jpg","png"]}]`；`extensions` 里可用 `"*"` 表示所有文件 |
 | `properties` | 打开对话框的行为选项，用逗号分隔的特性名，如 `openFile,openDirectory,multiSelections,showHiddenFiles` |
 | 同步返回值 | `char*`（UTF-8 JSON），使用后必须调用 `jade_text_free()` 释放 |
-| 异步回调 | `void (*callback)(const char* json_result)`，指针由库侧管理，回调返回后失效 |
+| 异步回调 | `void (JADEVIEW_CALL *callback)(const char* json_result)`，指针由库侧管理，回调返回后失效 |
 
 :::danger 重要提醒
 `jade_dialog_show_open_dialog`、`jade_dialog_show_save_dialog`、`jade_dialog_show_message_box` 的同步返回值都是 JadeView 在堆上分配的字符串。
@@ -44,9 +44,9 @@ sidebar_position: 10
 void example_sync_dialog() {
   FileDialogParams params = {};
   params.window_id = 1;
-  params.title = "选择文件";
+  params.title = "Select file";
   params.default_path = "D:/";
-  params.filters = R"([{"name":"图片","extensions":["jpg","png"]}])";
+  params.filters = R"([{"name":"Images","extensions":["jpg","png"]}])";
   params.properties = "openFile";
 
   char* json = jade_dialog_show_open_dialog(&params);
@@ -72,9 +72,9 @@ void JADEVIEW_CALL OnMessageBoxDone(const char* json_result) {
 void example_async_dialog() {
   MessageBoxParams params = {};
   params.window_id = 1;
-  params.title = "提示";
-  params.message = "是否继续？";
-  params.buttons = "确定|取消";
+  params.title = "Confirm";
+  params.message = "Continue?";
+  params.buttons = "OK|Cancel";
   params.default_id = 0;
   params.cancel_id = 1;
   params.type_ = "question";
