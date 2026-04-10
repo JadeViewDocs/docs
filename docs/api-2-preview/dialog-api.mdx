@@ -5,30 +5,39 @@ sidebar_position: 10
 
 # 对话框 API
 
-**用途**：在 C 里弹出 **Windows 原生**的「选文件」「另存为」「提示框」「错误框」，不用自己画 UI。  
-2.0 预览版对该模块做了重构：**同步接口默认阻塞并直接返回 JSON 字符串**，同时补充了 `*_async` 异步接口。
+对话框 API 提供了弹出 Windows 原生对话框的功能，包括文件选择、另存为、消息提示框等，无需自己绘制 UI。
+
+2.0 预览版对该模块做了重构：
+- 同步接口默认阻塞并直接返回 JSON 字符串
+- 补充了 `*_async` 异步接口
 
 ---
 
 ## 公共约定
 
+在使用对话框 API 之前，先了解一些通用的参数和约定：
+
 | 项 | 含义 |
 |----|------|
-| `window_id` | 作为**父窗口**，决定对话框模态挂在谁上面。 |
-| `filters` | 文件对话框里「文件类型」下拉框：值为 **JSON 数组的字符串**，元素形如 `{"name":"分组名","extensions":["jpg","png"]}`；`extensions` 里可用 `"*"` 表示所有文件。 |
-| `properties` | 打开对话框行为：**逗号分隔**的特性名，如 `openFile`、`openDirectory`、`multiSelections`、`showHiddenFiles`（与 [对话框前端 API](/api-2-preview/dialog-frontend-api) 中 `properties` 数组写法对应）。 |
-| 同步返回值 | `char*`（UTF-8 JSON）；使用后必须调用 `jade_text_free()` 释放。 |
-| 异步回调 | `void (*callback)(const char* json_result)`；指针由库侧管理，回调返回后失效。 |
+| `window_id` | 作为父窗口，决定对话框模态挂在谁上面 |
+| `filters` | 文件对话框的文件类型筛选，值为 JSON 数组字符串，如 `[{"name":"图片文件","extensions":["jpg","png"]}]`；`extensions` 里可用 `"*"` 表示所有文件 |
+| `properties` | 打开对话框的行为选项，用逗号分隔的特性名，如 `openFile,openDirectory,multiSelections,showHiddenFiles` |
+| 同步返回值 | `char*`（UTF-8 JSON），使用后必须调用 `jade_text_free()` 释放 |
+| 异步回调 | `void (*callback)(const char* json_result)`，指针由库侧管理，回调返回后失效 |
 
-> ⚠️ **必须释放（重点）**：`jade_dialog_show_open_dialog` / `jade_dialog_show_save_dialog` / `jade_dialog_show_message_box` 的同步返回值都是 JadeView 在堆上分配的字符串。  
-> 你只要拿到 `char*`，无论成功、取消还是错误返回，都应在使用完成后调用一次 `jade_text_free(ptr)`。  
-> 如果不释放，长期运行会持续泄漏内存；如果重复释放或释放非 JadeView 分配的指针，可能导致崩溃。
+:::danger 重要提醒
+`jade_dialog_show_open_dialog`、`jade_dialog_show_save_dialog`、`jade_dialog_show_message_box` 的同步返回值都是 JadeView 在堆上分配的字符串。
+
+你只要拿到 `char*`，无论成功、取消还是错误返回，都应在使用完成后调用一次 `jade_text_free(ptr)`。
+
+如果不释放，长期运行会持续泄漏内存；如果重复释放或释放非 JadeView 分配的指针，可能导致崩溃。
+:::
 
 ---
 
-## 文件对话框（统一参数结构）
+## 文件对话框参数结构
 
-2.0 预览版将旧的 `OpenDialogParams` / `SaveDialogParams` 合并为统一结构 `FileDialogParams`。
+2.0 预览版将旧的 `OpenDialogParams` 和 `SaveDialogParams` 合并为统一的 `FileDialogParams` 结构体，用于配置文件对话框的各种选项。
 
 ```c
 typedef struct FileDialogParams {
@@ -41,39 +50,138 @@ typedef struct FileDialogParams {
 } FileDialogParams;
 ```
 
+### 参数详细说明
+
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| `window_id` | **父窗口 ID**，对话框会作为该窗口的模态对话框弹出。传 `0` 表示没有特定父窗口 | `1` |
+| `title` | **对话框标题栏文字**，传 `NULL` 或空字符串使用默认标题 | `"选择图片"` |
+| `default_path` | **默认打开的路径**，对话框打开时会定位到这个目录。传 `NULL` 或空字符串使用系统默认位置 | `"D:/Documents"` |
+| `button_label` | **确认按钮的文字**，只在部分系统上生效。传 `NULL` 或空字符串使用默认文字 | `"导入"` |
+| `filters` | **文件类型筛选规则**，JSON 数组字符串，定义可以选择哪些类型的文件 | 见下方示例 |
+| `properties` | **对话框行为选项**，用逗号分隔的特性名字符串，控制对话框的功能 | 见下方示例 |
+
+### filters 参数示例
+
+```json
+[
+  {
+    "name": "图片文件",
+    "extensions": ["jpg", "jpeg", "png", "gif"]
+  },
+  {
+    "name": "所有文件",
+    "extensions": ["*"]
+  }
+]
+```
+
+### properties 参数可选值
+
+| 值 | 说明 |
+|----|------|
+| `openFile` | 允许选择文件 |
+| `openDirectory` | 允许选择文件夹 |
+| `multiSelections` | 允许选择多个文件/文件夹 |
+| `showHiddenFiles` | 显示隐藏文件 |
+| `createDirectory` | 允许创建新文件夹 |
+| `treatPackageAsDirectory` | 将包当作目录处理（macOS） |
+
+### properties 参数示例
+
+```
+openFile,multiSelections,showHiddenFiles
+```
+
 ---
 
-## `jade_dialog_show_open_dialog`（同步）
+## 打开文件对话框（同步）
 
-**用途**：弹出**打开文件**对话框。该函数为同步阻塞接口，直接返回 JSON 字符串。
+弹出"打开文件"对话框，选择一个或多个文件。该函数为同步阻塞接口，直接返回 JSON 字符串。
 
 ```c
 char* jade_dialog_show_open_dialog(const FileDialogParams* params);
 ```
 
-**返回 JSON 示例**：
-- 成功选择：`{"canceled":false,"file_paths":["D:/a.txt"]}`
-- 取消选择：`{"canceled":true,"file_paths":[]}`
+### 参数
+
+| 参数 | 说明 |
+|------|------|
+| `params` | 指向 `FileDialogParams` 结构体的指针，配置对话框选项 |
+
+### 返回值
+
+返回 UTF-8 编码的 JSON 字符串，使用后必须调用 `jade_text_free()` 释放。
+
+#### 返回 JSON 示例
+
+**成功选择单个文件：**
+```json
+{
+  "canceled": false,
+  "file_paths": ["D:/Documents/image.jpg"]
+}
+```
+
+**成功选择多个文件（需要开启 multiSelections）：**
+```json
+{
+  "canceled": false,
+  "file_paths": ["D:/a.jpg", "D:/b.png"]
+}
+```
+
+**用户取消选择：**
+```json
+{
+  "canceled": true,
+  "file_paths": []
+}
+```
 
 ---
 
-## `jade_dialog_show_save_dialog`（同步）
+## 保存文件对话框（同步）
 
-**用途**：弹出**另存为**对话框。该函数为同步阻塞接口，直接返回 JSON 字符串。
+弹出"另存为"对话框，选择文件保存位置。该函数为同步阻塞接口，直接返回 JSON 字符串。
 
 ```c
 char* jade_dialog_show_save_dialog(const FileDialogParams* params);
 ```
 
-**返回 JSON 示例**：
-- 成功保存：`{"canceled":false,"file_path":"D:/out.txt"}`
-- 取消保存：`{"canceled":true,"file_path":null}`
+### 参数
+
+| 参数 | 说明 |
+|------|------|
+| `params` | 指向 `FileDialogParams` 结构体的指针，配置对话框选项 |
+
+### 返回值
+
+返回 UTF-8 编码的 JSON 字符串，使用后必须调用 `jade_text_free()` 释放。
+
+#### 返回 JSON 示例
+
+**成功选择保存位置：**
+```json
+{
+  "canceled": false,
+  "file_path": "D:/Documents/output.txt"
+}
+```
+
+**用户取消保存：**
+```json
+{
+  "canceled": true,
+  "file_path": null
+}
+```
 
 ---
 
-## `jade_dialog_show_message_box`（同步）
+## 消息提示框（同步）
 
-**用途**：弹出**带图标的提示框**（信息、警告、错误等）。该函数为同步阻塞接口，直接返回 JSON 字符串。
+弹出带图标的提示框（信息、警告、错误等），可以自定义按钮。该函数为同步阻塞接口，直接返回 JSON 字符串。
 
 ```c
 typedef struct MessageBoxParams {
@@ -90,29 +198,77 @@ typedef struct MessageBoxParams {
 char* jade_dialog_show_message_box(const MessageBoxParams* params);
 ```
 
-| 字段 | 用途 |
+### MessageBoxParams 参数说明
+
+| 字段 | 说明 |
 |------|------|
-| `message` | 主提示文字。 |
-| `detail` | 下面小字补充说明。 |
-| `buttons` | 用 `\|` 隔开多个按钮名，如 `确定\|取消`。 |
-| `default_id` / `cancel_id` | 默认焦点在哪个按钮、哪个算取消。 |
-| `type_` | `none`、`info`、`warning`、`error` 等，控制图标风格。 |
+| `window_id` | 父窗口 ID，传 `0` 表示没有特定父窗口 |
+| `title` | 对话框标题栏文字 |
+| `message` | 主提示文字，显示在对话框上方 |
+| `detail` | 补充说明文字，显示在主提示下方，可以是多行 |
+| `buttons` | 按钮列表，用 `\|` 分隔多个按钮名，如 `"确定\|取消"` |
+| `default_id` | 默认聚焦的按钮索引，从 0 开始 |
+| `cancel_id` | 按 Esc 键或点击关闭按钮时触发的按钮索引，从 0 开始 |
+| `type_` | 对话框类型，控制图标风格 |
 
-**返回 JSON 示例**：`{"response":1}`
+### type_ 可选值
 
----
+| 值 | 说明 | 图标 |
+|----|------|------|
+| `none` | 无图标 | - |
+| `info` | 信息提示 | ℹ️ |
+| `warning` | 警告提示 | ⚠️ |
+| `error` | 错误提示 | ❌ |
+| `question` | 询问提示 | ❓ |
 
-## `jade_dialog_show_error_box`
+### 返回值
 
-**用途**：快速弹一个**错误提示**，标题 + 内容，一般用于严重错误、不用用户选多个按钮的场景。
+返回 UTF-8 编码的 JSON 字符串，使用后必须调用 `jade_text_free()` 释放。
 
-```c
-int32_t jade_dialog_show_error_box(uint32_t window_id, const char* title, const char* content);
+#### 返回 JSON 示例
+
+```json
+{
+  "response": 0
+}
 ```
 
+`response` 字段的值是用户点击的按钮索引，从 0 开始。
+
 ---
 
-## 异步对话框 API（新增）
+## 快速错误提示框
+
+快速弹出一个错误提示，只有标题和内容，一般用于严重错误、不需要用户选择多个按钮的场景。
+
+```c
+int32_t jade_dialog_show_error_box(
+  uint32_t window_id, 
+  const char* title, 
+  const char* content
+);
+```
+
+### 参数
+
+| 参数 | 说明 |
+|------|------|
+| `window_id` | 父窗口 ID，传 `0` 表示没有特定父窗口 |
+| `title` | 错误提示标题 |
+| `content` | 错误提示内容 |
+
+### 返回值
+
+| 返回值 | 含义 |
+|--------|------|
+| `1` | 成功弹出提示框 |
+| `0` | 失败 |
+
+---
+
+## 异步对话框 API
+
+如果不希望阻塞主线程，可以使用异步版本的对话框 API。
 
 ```c
 int32_t jade_dialog_show_open_dialog_async(
@@ -128,27 +284,46 @@ int32_t jade_dialog_show_message_box_async(
     void (*callback)(const char* json_result));
 ```
 
-- 返回 `1/0` 表示是否成功发起。
-- 用户操作完成后，通过 `callback` 返回 UTF-8 JSON 结果。
-- 回调参数由库侧管理；若需长期持有，请自行拷贝字符串。
+### 参数
+
+| 参数 | 说明 |
+|------|------|
+| `params` | 对话框参数结构体指针 |
+| `callback` | 用户操作完成后的回调函数，参数为 UTF-8 JSON 结果 |
+
+### 返回值
+
+| 返回值 | 含义 |
+|--------|------|
+| `1` | 成功发起对话框 |
+| `0` | 失败 |
+
+### 注意事项
+
+- 返回 `1/0` 表示是否成功发起对话框
+- 用户操作完成后，通过 `callback` 返回 UTF-8 JSON 结果
+- 回调参数由库侧管理；若需长期持有，请自行拷贝字符串
+- 回调返回后，`json_result` 指针不再有效
 
 ---
 
-## Breaking Changes（接入方必须改）
+## 破坏性变更（必须修改）
 
-- 删除 `OpenDialogParams` / `SaveDialogParams`，改用 `FileDialogParams`。
-- `MessageBoxParams` 不再包含 `blocking/callback`。
-- `jade_dialog_show_open_dialog` / `jade_dialog_show_save_dialog` / `jade_dialog_show_message_box` 从返回 `int32_t` 变为返回 `char*`。
-- 所有同步返回的字符串都必须 `jade_text_free()` 释放。
+从旧版本升级到 2.0 时，需要注意以下变更：
+
+- 删除 `OpenDialogParams` / `SaveDialogParams`，改用 `FileDialogParams`
+- `MessageBoxParams` 不再包含 `blocking/callback`
+- `jade_dialog_show_open_dialog` / `jade_dialog_show_save_dialog` / `jade_dialog_show_message_box` 从返回 `int32_t` 变为返回 `char*`
+- 所有同步返回的字符串都必须 `jade_text_free()` 释放
 
 ---
 
 ## 迁移建议（最短路径）
 
-1. 先更新 FFI 声明：结构体与 `restype/argtypes` 一并调整。
-2. 同步流程改为直接读取返回 JSON，不再依赖 `blocking` 切换与回调。
-3. 需要非阻塞行为时，改用 `*_async` 接口。
-4. 为同步接口封装统一释放习惯：**读取结果 -> 业务处理 -> `jade_text_free`**（建议用 `try/finally` 或等价机制保证释放）。
+1. 先更新 FFI 声明：结构体与 `restype/argtypes` 一并调整
+2. 同步流程改为直接读取返回 JSON，不再依赖 `blocking` 切换与回调
+3. 需要非阻塞行为时，改用 `*_async` 接口
+4. 为同步接口封装统一释放习惯：**读取结果 → 业务处理 → `jade_text_free`**（建议用 `try/finally` 或等价机制保证释放）
 
 ---
 
