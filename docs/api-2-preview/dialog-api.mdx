@@ -35,6 +35,57 @@ sidebar_position: 10
 
 ---
 
+## C++ 简单示例（同步 API）
+
+```cpp
+#include "JadeView.h"
+#include <cstdio>
+
+void example_sync_dialog() {
+  FileDialogParams params = {};
+  params.window_id = 1;
+  params.title = "选择文件";
+  params.default_path = "D:/";
+  params.filters = R"([{"name":"图片","extensions":["jpg","png"]}])";
+  params.properties = "openFile";
+
+  char* json = jade_dialog_show_open_dialog(&params);
+  if (json) {
+    std::printf("open dialog result: %s\n", json);
+    jade_text_free(json);  // 同步返回字符串必须释放
+  }
+}
+```
+
+---
+
+## C++ 简单示例（异步 API）
+
+```cpp
+#include "JadeView.h"
+#include <cstdio>
+
+void JADEVIEW_CALL OnMessageBoxDone(const char* json_result) {
+  std::printf("message box result: %s\n", json_result ? json_result : "{}");
+}
+
+void example_async_dialog() {
+  MessageBoxParams params = {};
+  params.window_id = 1;
+  params.title = "提示";
+  params.message = "是否继续？";
+  params.buttons = "确定|取消";
+  params.default_id = 0;
+  params.cancel_id = 1;
+  params.type_ = "question";
+
+  int32_t ok = jade_dialog_show_message_box_async(&params, OnMessageBoxDone);
+  std::printf("launch async dialog: %d\n", ok);
+}
+```
+
+---
+
 ## 文件对话框参数结构
 
 2.0 预览版将旧的 `OpenDialogParams` 和 `SaveDialogParams` 合并为统一的 `FileDialogParams` 结构体，用于配置文件对话框的各种选项。
@@ -271,17 +322,19 @@ int32_t jade_dialog_show_error_box(
 如果不希望阻塞主线程，可以使用异步版本的对话框 API。
 
 ```c
+typedef void (JADEVIEW_CALL *DialogAsyncCallback)(const char* json_result);
+
 int32_t jade_dialog_show_open_dialog_async(
     const FileDialogParams* params,
-    void (*callback)(const char* json_result));
+    DialogAsyncCallback callback);
 
 int32_t jade_dialog_show_save_dialog_async(
     const FileDialogParams* params,
-    void (*callback)(const char* json_result));
+    DialogAsyncCallback callback);
 
-int32_t jade_dialog_show_message_box_async(
+int32_t JADEVIEW_CALL jade_dialog_show_message_box_async(
     const MessageBoxParams* params,
-    void (*callback)(const char* json_result));
+    DialogAsyncCallback callback);
 ```
 
 ### 参数
@@ -289,7 +342,7 @@ int32_t jade_dialog_show_message_box_async(
 | 参数 | 说明 |
 |------|------|
 | `params` | 对话框参数结构体指针 |
-| `callback` | 用户操作完成后的回调函数，参数为 UTF-8 JSON 结果 |
+| `callback` | 异步回调，函数签名为 `void (JADEVIEW_CALL *)(const char* json_result)`，参数是 UTF-8 JSON 结果 |
 
 ### 返回值
 
@@ -304,8 +357,6 @@ int32_t jade_dialog_show_message_box_async(
 - 用户操作完成后，通过 `callback` 返回 UTF-8 JSON 结果
 - 回调参数由库侧管理；若需长期持有，请自行拷贝字符串
 - 回调返回后，`json_result` 指针不再有效
-
----
 
 ## 破坏性变更（必须修改）
 
