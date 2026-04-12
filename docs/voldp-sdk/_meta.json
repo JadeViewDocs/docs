@@ -1,0 +1,10 @@
+{
+  "index": "概览",
+  "quickstart": "快速开始",
+  "methods": "方法总览",
+  "reference": {
+    "label": "参考",
+    "type": "page"
+  },
+  "faq": "常见问题"
+}
