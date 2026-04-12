@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JadeView WinUI Demo</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+
+<body>
+    <div class="custom-title-bar" style="
+  app-region: drag; 
+">
+        <div class="title-left">
+            <img class="title-bar-icon" src="./favicon.png" alt="Logo">
+            JadeView WinUI Demo
+        </div>
+        <div class="title-right">
+           <button type="button" class="window-btn btn-doc" onclick="window.open('https://jade.run/', '_blank')"
+                title="开发文档"><i></i></button>
+            <button type="button" class="window-btn btn-minimize" onclick="sendWindowAction('minimize')"
+                title="最小化窗口"><i></i></button>
+            <button type="button" class="window-btn btn-maximize" onclick="sendWindowAction('maximize')"
+                title="最大化窗口"><i></i></button>
+            <button type="button" class="window-btn btn-close" onclick="sendWindowAction('close')"
+                title="关闭窗口"><i></i></button> 
+        </div>
+    </div>
+    <div class="app-window">
+        <!-- 左侧聊天区域 -->
+        <div class="left-panel">
+            <div class="chat-area" id="chatContainer">
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="msgInput" placeholder="发送IPC消息" autocomplete="off">
+                <div class="loop-controls">
+                    <input type="number"  placeholder="循环次数:"  id="loopCount" min="1" value="1" style="width: 60px;">
+                    <label style="display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:12px;">
+                        <input type="checkbox" id="perfOnlyMode">
+                        纯性能模式
+                    </label>
+                </div>
+                <button type="button" id="sendBtn" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+
+        <!-- 右侧设置区域 -->
+        <div class="right-panel">
+            <div class="header">
+                <h3>仿WinUI3 的设置界面</h3>
+
+                <span class="section-title">设置背景材料</span>
+                <div class="btn-group" id="backdropGroup">
+                    <button type="button" data-backdrop="default" onclick="setBackdrop('default')" class="theme-active" title="关闭 Mica/Acrylic，按当前主题使用纯色窗口底">默认</button>
+                    <button type="button" data-backdrop="mica" onclick="setBackdrop('mica')">Mica</button>
+                    <button type="button" data-backdrop="micaAlt" onclick="setBackdrop('micaAlt')">Mica Alt</button>
+                    <button type="button" data-backdrop="acrylic" onclick="setBackdrop('acrylic')">Acrylic</button>
+                </div>
+
+                <span class="section-title">主题设置</span>
+                <div class="btn-group" id="themeGroup">
+                    <button type="button" onclick="setTheme('Light')">浅色</button>
+                    <button type="button" onclick="setTheme('Dark')">暗色</button>
+                    <button type="button" onclick="setTheme('System')" class="theme-active">跟随系统</button>
+                </div>
+
+            </div>
+
+            <!-- 文档链接卡片 -->
+            <div class="doc-cards">
+                <span class="section-title">文档链接</span>
+                <div class="cards-grid">
+                    <a href="https://jade.run/spec/quickstart" class="doc-card" target="_blank">
+                        <div class="card-icon">📖</div>
+                        <div class="card-content">
+                            <div class="card-title">快速入门</div>
+                            <div class="card-desc">开始使用 JadeView</div>
+                        </div>
+                    </a>
+
+                    <a href="https://jade.run/guidesi" class="doc-card" target="_blank">
+                        <div class="card-icon">⚙️</div>
+                        <div class="card-content">
+                            <div class="card-title">Api文档</div>
+                            <div class="card-desc">事件类型，方法，属性等等</div>
+                        </div>
+                    </a>
+
+                    <a href="https://qm.qq.com/q/pL3Lo2kAgg" class="doc-card" target="_blank">
+                        <div class="card-icon">⭐</div>
+                        <div class="card-content">
+                            <div class="card-title">QQ群</div>
+                            <div class="card-desc">交流反馈和讨论</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 宿主→前端：大数据测试 -->
+            <div class="doc-cards">
+                <span class="section-title">宿主 → 前端大数据（Bulk Pull）</span>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:10px;">
+                    <input type="number" id="bigMb" min="1" max="252" value="5" style="width:90px;" />
+                    <button type="button" id="bigSendBtn" onclick="requestBigPayload()">让后端发送 (MB)</button>
+                    <span id="bigStatus" style="opacity:.8; font-size:12px;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /** 当前选中的背景模式（与 data-backdrop 一致的小写），用于主题切换后是否重新套用「默认」纯色底 */
+        window.__currentBackdropKey = 'default';
+
+        // 使用新的invoke API调用后端方法
+        async function setTheme(theme) {
+            try {
+                // 这个 demo 的 test_dll.py 默认不会注册 setTheme/setBackdrop 的 invoke 回调，
+                // 因此这里即使 invoke 失败，也不要阻止 UI 更新。
+                await jade.invoke('setTheme', theme);
+            } catch (error) {
+                console.error('设置主题失败:', error);
+            } finally {
+                if (typeof window.setThemeFromNative === 'function') {
+                    window.setThemeFromNative(theme);
+                } else {
+                    activateThemeButton(theme);
+                }
+
+                if (window.__currentBackdropKey === 'default') {
+                    // backdrop 同样可能在 demo 中未实现，所以也要忽略失败
+                    setBackdrop('default').catch(() => {});
+                }
+            }
+        }
+
+        async function setBackdrop(backdropType) {
+            const requestedKey = String(backdropType).toLowerCase();
+            try {
+                const newBackdropType = await jade.invoke('setBackdrop', backdropType);
+                console.log('设置背景材料:', newBackdropType);
+                // 后端通常返回 success 结果对象，而不是背景类型；避免把 {"success":true} 误当成 key
+                let key = requestedKey;
+                if (newBackdropType && typeof newBackdropType === 'object') {
+                    if (typeof newBackdropType.backdrop === 'string') {
+                        key = newBackdropType.backdrop.toLowerCase();
+                    } else if (typeof newBackdropType.type === 'string') {
+                        key = newBackdropType.type.toLowerCase();
+                    }
+                }
+                window.__currentBackdropKey = key;
+                // 激活对应的背景材料按钮
+                activateBackdropButton(key);
+                applyWindowBackground();
+            } catch (error) {
+                console.error('设置背景材料失败:', error);
+                // demo 未注册 setBackdrop invoke 时，仍然更新 UI 状态
+                window.__currentBackdropKey = requestedKey;
+                activateBackdropButton(requestedKey);
+                applyWindowBackground();
+            }
+        }
+        // ========================        // 1. 发送消息功能 (优化版)        // ========================        
+        // 定义全局变量，确保事件监听器可以访问
+        const input = document.getElementById('msgInput');
+        const chatContainer = document.getElementById('chatContainer');
+
+        async function sendMessage() {
+            const text = input.value.trim();
+            if (!text) return;
+
+            // 获取循环次数
+            const loopCount = parseInt(document.getElementById('loopCount').value) || 1;
+            const perfOnlyMode = !!document.getElementById('perfOnlyMode')?.checked;
+
+            // 1. UI 立即反馈：显示“正在发送”状态
+            const sentMsgDiv = document.createElement('div');
+            sentMsgDiv.classList.add('message', 'sent');
+            const now = new Date();
+            sentMsgDiv.innerHTML = `
+                    <div class="msg-content">${text}</div>
+                    <div class="msg-info">⏱️ 测试开始... 计划循环 ${loopCount} 次</div>
+                    <div class="msg-time">${now.toLocaleTimeString()}.${now.getMilliseconds().toString().padStart(3, '0')}</div>
+                `;
+            chatContainer.appendChild(sentMsgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // 禁用按钮防止重复点击
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = "测试中...";
+
+            try {
+                // 数据容器
+                const timings = [];
+                const results = [];
+                let lastResult = null;
+
+                // 2. 核心测试循环 (纯逻辑，无DOM操作)
+                // 记录总开始时间
+                const totalStartTime = performance.now();
+
+                for (let i = 0; i < loopCount; i++) {
+                    // 记录单次开始时间
+                    const tickStart = performance.now();
+                    
+                    // 执行 invoke 调用（双段式异步）
+                    const result = await jade.invoke('message', { content: text }, { timeout: 3000 });
+                    
+                    // 记录单次结束时间
+                    const tickEnd = performance.now();
+                    
+                    // 收集数据
+                    timings.push(tickEnd - tickStart);
+                    results.push(
+                        typeof result === 'string'
+                            ? result
+                            : (result && result.data
+                                ? result.data
+                                : JSON.stringify(result))
+                    );
+                    lastResult = result;
+                }
+
+                // 记录总结束时间
+                const totalEndTime = performance.now();
+
+                // 3. 数据分析与计算
+                const totalTime = totalEndTime - totalStartTime; // 包含JS循环开销的总挂钟时间
+                const sumApiTime = timings.reduce((a, b) => a + b, 0); // 纯API耗时总和
+                const avgTime = sumApiTime / loopCount;
+                const minTime = Math.min(...timings);
+                const maxTime = Math.max(...timings);
+                
+                // 处理最后一次的返回结果用于展示
+                const displayResult = lastResult ? 
+                    (typeof lastResult === 'string' ? lastResult : 
+                     lastResult.data ? lastResult.data : 
+                     JSON.stringify(lastResult)) : '无返回数据';
+
+                // 4. 批量渲染结果 (使用 DocumentFragment 减少重绘)
+                const fragment = document.createDocumentFragment();
+
+                // 4.1 明细渲染：纯性能模式下跳过，避免 DOM 影响测试结果
+                if (!perfOnlyMode && loopCount <= 50) {
+                    timings.forEach((time, index) => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.classList.add('message', 'received');
+                        // 仅显示简略信息以节省空间
+                        itemDiv.innerHTML = `
+                            <div class="msg-content" style="font-size: 12px; padding: 4px 8px; opacity: 0.8;">
+                               #${index + 1}: 耗时 ${time.toFixed(3)} ms<br>
+                               返回: ${results[index] ?? '无返回数据'}
+                            </div>
+                        `;
+                        fragment.appendChild(itemDiv);
+                    });
+                } else if (!perfOnlyMode) {
+                     const skipDiv = document.createElement('div');
+                     skipDiv.classList.add('message', 'received');
+                     skipDiv.innerHTML = `
+                        <div class="msg-content" style="background:var(--surface-bg)">
+                           ℹ️ 由于数据量较大 (${loopCount} 次)，隐藏详细列表，仅显示统计结果。
+                           <br>最后一次返回: ${displayResult}
+                        </div>`;
+                     fragment.appendChild(skipDiv);
+                } else {
+                    const perfHintDiv = document.createElement('div');
+                    perfHintDiv.classList.add('message', 'received');
+                    perfHintDiv.innerHTML = `
+                       <div class="msg-content" style="background:var(--surface-bg)">
+                          ⚡ 纯性能模式：已跳过逐条结果渲染，仅展示统计信息。
+                          <br>最后一次返回: ${displayResult}
+                       </div>`;
+                    fragment.appendChild(perfHintDiv);
+                }
+
+                // 4.2 显示统计卡片 (高亮显示)
+                const statsMsgDiv = document.createElement('div');
+                statsMsgDiv.classList.add('message', 'received');
+                statsMsgDiv.innerHTML = `
+                    <div class="msg-content" style="border-left: 4px solid var(--accent-color);">
+                        <strong>📊 测试报告 (${loopCount} 次)</strong>
+                        <hr style="margin: 8px 0; opacity: 0.2;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: monospace;">
+                            <span>总耗时:</span> <span>${totalTime.toFixed(2)} ms</span>
+                            <span>API总耗时:</span> <span>${sumApiTime.toFixed(2)} ms</span>
+                            <span>平均耗时:</span> <span style="color:${avgTime > 16 ? '#ff4757' : 'inherit'}">${avgTime.toFixed(3)} ms</span>
+                            <span>最快 (Min):</span> <span style="color:#2ecc71">${minTime.toFixed(3)} ms</span>
+                            <span>最慢 (Max):</span> <span style="color:#ff4757">${maxTime.toFixed(3)} ms</span>
+                            <span>吞吐量:</span> <span>${(loopCount / (totalTime / 1000)).toFixed(0)} req/s</span>
+                        </div>
+                        <div class="msg-info" style="margin-top:5px; text-align:right">
+                            API纯耗时占比: ${((sumApiTime / totalTime) * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                    <div class="msg-time">${new Date().toLocaleTimeString()}</div>
+                `;
+                fragment.appendChild(statsMsgDiv);
+
+                // 一次性插入 DOM
+                chatContainer.appendChild(fragment);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                input.focus();
+
+            } catch (error) {
+                console.error('发送消息失败:', error);
+                const errorMsgDiv = document.createElement('div');
+                errorMsgDiv.classList.add('message', 'error');
+                errorMsgDiv.innerHTML = `
+                    <div class="msg-content">发送失败: ${error.message || error}</div>
+                    <div class="msg-time">${new Date().toLocaleTimeString()}</div>
+                `;
+                chatContainer.appendChild(errorMsgDiv);
+            } finally {
+                // 恢复按钮状态
+                const sendBtn = document.getElementById('sendBtn');
+                sendBtn.disabled = false;
+                sendBtn.textContent = "发送";
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        // 回车发送
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // ========================
+        // 宿主→前端：大数据交互测试
+        // ========================
+        async function requestBigPayload() {
+            const btn = document.getElementById('bigSendBtn');
+            const status = document.getElementById('bigStatus');
+            const mbEl = document.getElementById('bigMb');
+            const mb = Math.max(1, Math.min(252, parseInt(mbEl.value || '5', 10) || 5));
+
+            btn.disabled = true;
+            status.textContent = `请求中… ${mb} MB`;
+            const t0 = performance.now();
+            try {
+                let r;
+                // 统一使用 invoke（双段式异步）
+                r = await jade.invoke('sendBigPayload', { mb }, { timeout: 600000 });
+                const dt = performance.now() - t0;
+                status.textContent = `已请求：${dt.toFixed(1)}ms，返回=${typeof r === 'string' ? r : JSON.stringify(r)}`;
+            } catch (e) {
+                status.textContent = `请求失败：${e && e.message ? e.message : e}`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ========================
+        // 2. 主题按钮激活功能
+        // ========================
+        function activateThemeButton(theme) {
+            const themeGroup = document.getElementById('themeGroup');
+            if (!themeGroup) return;
+
+            // 移除所有按钮的激活状态
+            const buttons = themeGroup.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('theme-active');
+            });
+
+            // 激活对应的按钮
+            const targetButton = Array.from(buttons).find(btn =>
+                btn.textContent.toLowerCase() === theme.toLowerCase() ||
+                btn.getAttribute('onclick')?.includes(theme)
+            );
+
+            if (targetButton) {
+                targetButton.classList.add('theme-active');
+            }
+        }
+
+        /** 由宿主原生菜单等调用：与 setTheme 一致，同步按钮与 data-theme */
+        window.setThemeFromNative = function (theme) {
+            activateThemeButton(theme);
+            let resolved = 'light';
+            if (theme === 'System') {
+                resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            } else {
+                resolved = theme === 'Dark' ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', resolved);
+            applyWindowBackground(resolved);
+        };
+
+        // ========================
+        // 3. 背景材料按钮激活功能
+        // ========================
+        function activateBackdropButton(backdropType) {
+            const backdropGroup = document.getElementById('backdropGroup');
+            if (!backdropGroup) return;
+
+            const k = String(backdropType ?? '').toLowerCase();
+
+            // 移除所有按钮的激活状态
+            const buttons = backdropGroup.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('theme-active');
+            });
+
+            const targetButton = Array.from(buttons).find(btn => {
+                const d = (btn.dataset.backdrop || '').toLowerCase();
+                return d === k;
+            });
+
+            if (targetButton) {
+                targetButton.classList.add('theme-active');
+            }
+        }
+
+        // 检测是否为Windows 11
+        async function isWindows11() {
+            // 方法1：使用navigator.userAgentData（现代浏览器）
+            if (navigator.userAgentData) {
+                try {
+                    const uaData = await navigator.userAgentData.getHighEntropyValues(['platformVersion']);
+                    console.log('UA Data:', uaData);
+                    if (uaData.platform === 'Windows') {
+                        const platformVersion = uaData.platformVersion;
+                        const build = parseInt(platformVersion.split('.')[0]);
+                        console.log('Windows Build:', build);
+                        if (build >= 22000) {
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    console.error('获取平台版本失败:', e);
+                }
+            }
+
+            // 方法2：使用传统的userAgent字符串（兼容性更好）
+            const userAgent = navigator.userAgent;
+            console.log('User Agent:', userAgent);
+            if (userAgent.includes('Windows NT 10.0;')) {
+                // Windows 10或11都使用Windows NT 10.0作为基础版本
+                // 检查是否有Win64或x64标识，以及可能的其他Windows 11特征
+                // 或者直接假设现代Windows 10系统都支持背景材料
+                return true;
+            }
+
+            // 方法3：检查是否支持backdrop-filter属性
+            const isBackdropSupported = CSS.supports('backdrop-filter', 'blur(10px)');
+            console.log('Backdrop Filter Supported:', isBackdropSupported);
+
+            return isBackdropSupported;
+        }
+
+        // 更新页面背景色
+        function updatePageBackground(theme) {
+            const appWindow = document.querySelector('.app-window');
+            if (!appWindow) return;
+
+            if (theme === 'dark') {
+                appWindow.style.backgroundColor = '#1e1e1e';
+            } else {
+                appWindow.style.backgroundColor = '#f3f3f3';
+            }
+        }
+
+        // 规则：背景材料不是 default 时，前端背景保持透明
+        function applyWindowBackground(theme) {
+            const appWindow = document.querySelector('.app-window');
+            if (!appWindow) return;
+            const backdropKey = String(window.__currentBackdropKey || 'default').toLowerCase();
+            if (backdropKey !== 'default') {
+                appWindow.style.setProperty('background-color', 'transparent', 'important');
+                return;
+            }
+            const resolvedTheme = theme || document.documentElement.getAttribute('data-theme') || 'light';
+            const defaultColor = resolvedTheme === 'dark' ? '#1e1e1e' : '#f3f3f3';
+            appWindow.style.setProperty('background-color', defaultColor, 'important');
+        }
+
+        // 初始化页面设置
+        async function initPage() {
+            const isWin11 = await isWindows11();
+            const backdropGroup = document.getElementById('backdropGroup');
+
+            if (!isWin11) {
+                // 非 Windows 11：仅禁用 Mica/Acrylic；「默认」仍可用（纯色底）
+                if (backdropGroup) {
+                    backdropGroup.querySelectorAll('button[data-backdrop]').forEach(btn => {
+                        if (btn.dataset.backdrop !== 'default') {
+                            btn.disabled = true;
+                            btn.classList.add('disabled');
+                        }
+                    });
+                }
+
+                // 设置初始背景色
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                applyWindowBackground(currentTheme);
+            }
+        }
+
+        // 监听主题设置消息========================开始
+        function updateSystemTheme() {
+            const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            const theme = isDark ? "dark" : "light";
+            document.documentElement.setAttribute('data-theme', theme);
+            console.log('系统主题已更新为:', theme);
+            applyWindowBackground(theme);
+        }
+
+        // 初始检测
+        updateSystemTheme();
+        // 初始化页面
+        initPage();
+
+        // 示例：宿主→前端大数据（Bulk Pull）监听
+        // 会在 Python demo 触发 send_ipc_message("big-payload", <~5MB JSON>) 时输出结果
+        (function () {
+            const s = document.createElement('script');
+            s.src = '/big_payload_demo.js';
+            document.head.appendChild(s);
+        })();
+        // 监听系统主题变化
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateSystemTheme);
+        //监听主题设置消息===================结束
+
+
+
+        // 标题栏按钮功能实现 - 使用新的invoke API
+        async function sendWindowAction(action) {
+            try {
+                await jade.invoke('windowAction', action);
+                console.log(`发送窗口操作消息: ${action}`);
+            } catch (error) {
+                console.error(`发送窗口操作消息失败: ${action}`, error);
+            }
+        }
+
+        // 监听窗口状态变化事件，用于更新最大化/还原按钮（使用新的on API）
+        jade.on('window-state-changed', function (payload) {
+            const btnMaximize = document.querySelector('.btn-maximize') || document.querySelector('.btn-restore');
+            if (btnMaximize) {
+                if (payload.isMaximized) {
+                    // 窗口已最大化，显示还原图标
+                    btnMaximize.classList.add('btn-restore');
+                    btnMaximize.classList.remove('btn-maximize');
+                } else {
+                    // 窗口未最大化，显示最大化图标
+                    btnMaximize.classList.add('btn-maximize');
+                    btnMaximize.classList.remove('btn-restore');
+                }
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>
