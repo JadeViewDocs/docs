@@ -1,0 +1,74 @@
+---
+title: JadeView 火山 SDK
+---
+
+# JadeView 火山 SDK
+
+JadeView 火山 SDK 是一个面向火山视窗项目的模块封装，用于在火山程序中直接调用 JadeView 提供的窗口、WebView、IPC、托盘、通知、对话框与系统集成功能。
+
+## 模块安装与使用
+
+使用方式很简单：
+
+1. 下载 JadeView 火山模块安装包
+2. 在火山环境中安装模块
+3. 在项目中引用 `火山.JadeView` 包
+4. 按文档调用类、方法、事件和常量
+
+使用模块时，无需关注模块内部引用的：
+
+- `lib`
+- `cpp`
+- 头文件
+- 桥接层实现
+
+## 推荐阅读顺序
+
+- `main.wsv`
+- [快速开始](./quickstart.mdx)
+- [JadeView 类](./reference/jadeview-class.mdx)
+- [JadeView_托盘 类](./reference/tray-class.mdx)
+- [高级用法](./advanced.mdx)
+- [常见问题](./faq.mdx)
+
+## 模块能力
+
+- 初始化 JadeView 运行时并启动消息循环
+- 创建普通窗口与无边框窗口
+- 导航页面、执行脚本、发送页面消息、处理 WebView 事件
+- 订阅窗口、视图、通知、系统与托盘事件
+- 注册和处理 IPC 通道
+- 显示系统通知、文件对话框、消息框、错误框
+- 注册全局热键、文件关联、自定义协议
+- 管理托盘图标与托盘菜单
+
+## 推荐示例工程
+
+当前推荐优先阅读的完整示例工程是 `main.wsv`。
+
+这份示例工程体现了当前模块的推荐用法：
+
+- 在 `启动方法` 中先设置 IPC 回调，再注册频道，再补充特殊事件订阅
+- 在 `初始化()` 成功后，通过 `应用就绪` 事件创建主窗口
+- IPC 采用“对象 + 输出名”方式绑定回调
+- 托盘通过 `JadeView_托盘` 独立管理，并在事件中处理菜单命令
+- 通知、托盘、窗口与视图事件都在同一工程内串联验证
+
+## 文档导航
+
+- [快速开始](./quickstart.mdx)
+- [API 参考](./api-reference.mdx)
+- [常量](./reference/constants.mdx)
+- [数据类型](./reference/types.mdx)
+- [JadeView 类](./reference/jadeview-class.mdx)
+- [JadeView_托盘 类](./reference/tray-class.mdx)
+- [独立方法与辅助能力](./reference/standalone-methods.mdx)
+- [高级用法](./advanced.mdx)
+- [示例代码](./examples.mdx)
+- [常见问题](./faq.mdx)
+
+## 说明
+
+- 文档中的“自动订阅”指 `JadeView.初始化()` 和 `JadeView_托盘.创建()` 内已经默认完成的事件注册
+- 文档中的“可拦截事件”指火山回调返回 `1` 时会阻止底层继续执行默认行为
+- 文档中的“非静态回调”主要指 IPC 和异步对话框这类推荐用对象方法承接的回调方式
