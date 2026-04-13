@@ -51,6 +51,23 @@
           <div class="text-base font-semibold">易语言 SDK</div>
         </div>
       </a>
+      <a data-dropdown-sdks-menu="voldp" onfocus="document.body.setAttribute('data-sdk-menu', 'voldp')"
+        onmouseover="document.body.setAttribute('data-sdk-menu', 'voldp')"
+        class="flex cursor-pointer items-start justify-start gap-2 border-none bg-transparent text-black dark:text-white"
+        href="/voldp-sdk">
+        <div
+          class="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-pink-500 text-white">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+        </div>
+        <div class="flex flex-col items-start justify-start gap-1">
+          <div class="text-base font-semibold">火山视窗 SDK</div>
+        </div>
+      </a>
     </div>
     <div class="flex-1 p-6">
       <div class="flex flex-col gap-4" data-dropdown-sdks="web">
@@ -85,7 +102,20 @@
           <p class="mb-4 text-sm text-text-400">
             专为易语言开发者设计，方便在易语言环境中调用 JadeView 功能
           </p>
-          <a href="/web-sdk"
+          <a href="/easy-language-sdk"
+            class="navbar__item navbar__link get-button py-2 px-4 bg-primary text-white  rounded-md hover:bg-primary/90 font-medium">
+            查看文档 →
+          </a>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4" data-dropdown-sdks="voldp">
+        <div class="flex flex-1 flex-col">
+          <h3 class="!mb-2 text-lg font-semibold">火山视窗 SDK</h3>
+          <p class="mb-4 text-sm text-text-400">
+            火山视窗平台封装，提供窗口、WebView、IPC、托盘、通知和对话框等完整能力
+          </p>
+          <a href="/voldp-sdk"
             class="navbar__item navbar__link get-button py-2 px-4 bg-primary text-white  rounded-md hover:bg-primary/90 font-medium">
             查看文档 →
           </a>
