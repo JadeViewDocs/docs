@@ -44,6 +44,12 @@ export default function SDKs() {
       icon: '易',
       bgColor: '#E74C3C',
     },
+    {
+      name: '火山视窗 SDK',
+      to: '/voldp-sdk',
+      icon: '火',
+      bgColor: '#DB2777',
+    },
   ];
 
   const quickStart: SDKItem[] = [
