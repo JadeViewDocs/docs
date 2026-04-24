@@ -1,0 +1,88 @@
+# 快速开始
+
+## 环境要求
+
+- Windows 10 / Windows 11
+- Python 3.11+
+- WebView2 Runtime
+
+## 安装
+
+```bash
+# 使用 uv（推荐）
+uv add jadeview
+
+# 或使用 pip
+pip install jadeview
+```
+
+## 最小示例
+
+以下是一个最简单的 JadeView Python 应用：
+
+```python
+import jadeview
+from jadeview import events
+
+def on_ready(window_id, data):
+    """应用就绪后创建窗口"""
+    win_id = jadeview.window.create_webview_window(
+        "https://example.com",
+        title="我的第一个 JadeView 应用",
+        width=1024,
+        height=768,
+    )
+    print(f"窗口已创建: {win_id}")
+
+def on_all_closed(window_id, data):
+    """所有窗口关闭后退出"""
+    jadeview.cleanup()
+
+# 1. 注册事件（必须在 init 之前）
+jadeview.ipc.on(events.APP_READY, on_ready)
+jadeview.ipc.on(events.WINDOW_ALL_CLOSED, on_all_closed)
+
+# 2. 初始化应用
+jadeview.init("MyApp", "myapp1", enable_devmod=True)
+
+# 3. 启动消息循环（阻塞）
+jadeview.run()
+```
+
+## 应用生命周期
+
+1. **注册事件回调** — 使用 `jadeview.ipc.on()` 注册 `app-ready` 等生命周期事件
+2. **初始化** — 调用 `jadeview.init()` 启动 JadeView 引擎
+3. **创建窗口** — 在 `app-ready` 回调中调用 `jadeview.window.create_webview_window()`
+4. **消息循环** — 调用 `jadeview.run()` 进入阻塞消息循环
+5. **退出** — 在 `window-all-closed` 回调中调用 `jadeview.cleanup()` 退出
+
+## 加载本地 HTML
+
+您可以使用协议服务加载本地 HTML 文件，而非远程 URL：
+
+```python
+def on_ready(window_id, data):
+    # 设置本地文件服务路径
+    base_url = jadeview.tools.set_protocol_service_path("C:/myapp/web")
+
+    # 创建窗口并加载本地页面
+    jadeview.window.create_webview_window(
+        f"{base_url}index.html",
+        title="本地应用",
+    )
+```
+
+## 模块总览
+
+| 模块 | 导入方式 | 功能 |
+|------|---------|------|
+| `jadeview` | `import jadeview` | 初始化、消息循环、清理 |
+| `jadeview.window` | `from jadeview import window` | 窗口创建与管理 |
+| `jadeview.webview` | `from jadeview import webview` | 导航、JS 执行、缩放 |
+| `jadeview.ipc` | `from jadeview import ipc` | 事件订阅、IPC 通信 |
+| `jadeview.dialog` | `from jadeview import dialog` | 系统对话框 |
+| `jadeview.tray` | `from jadeview import tray` | 系统托盘 |
+| `jadeview.notification` | `from jadeview import notification` | 系统通知 |
+| `jadeview.tools` | `from jadeview import tools` | 工具函数 |
+| `jadeview.events` | `from jadeview import events` | 事件名称常量 |

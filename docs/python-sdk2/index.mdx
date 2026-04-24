@@ -1,0 +1,94 @@
+# 介绍
+
+Python SDK2 是 JadeView 2.0 的 Python 绑定库，基于 ctypes 封装 JadeView DLL，让您可以使用 Python 快速构建基于 WebView2 的 Windows 桌面应用程序。
+
+SDK 的 API 命名风格与 JadeView 前端 JS API 保持一致，降低跨语言使用的学习成本。
+
+## 核心特性
+
+- **窗口管理**：创建标准/无边框 WebView 窗口，控制窗口大小、位置、全屏、置顶等
+- **IPC 通信**：事件订阅（on/off）、IPC 通道处理器（register_ipc_handler）、主动推送消息（send_ipc_message）
+- **对话框**：打开/保存文件对话框、消息框、错误框，支持同步与异步两种模式
+- **系统托盘**：创建托盘图标，设置右键菜单、提示文字、图标
+- **系统通知**：Windows 原生通知，支持按钮和自定义动作
+- **WebView 操作**：导航、重载、执行 JavaScript、缩放、防截屏
+- **工具函数**：版本信息、系统路径、显示器信息、YAML 配置存储、全局热键、URL Scheme 注册、文件关联
+- **自动适配**：根据 Python 位数自动加载 x64/x86 DLL
+
+## 适用场景
+
+- 使用 Python 开发 Windows 桌面应用（前端用 HTML/CSS/JS，后端用 Python）
+- 需要 WebView2 渲染能力的工具类/效率类应用
+- 快速原型开发和内部工具
+
+## 技术架构
+
+```
+┌─────────────────────────────────────────┐
+│              Python 后端                 │
+│  ┌─────────┐  ┌──────────┐  ┌────────┐ │
+│  │ window  │  │   ipc    │  │ dialog │ │
+│  │ webview │  │  events  │  │  tray  │ │
+│  │ tools   │  │          │  │ notify │ │
+│  └─────────┘  └──────────┘  └────────┘ │
+└─────────────────┬───────────────────────┘
+                  │ ctypes / WinDLL
+┌─────────────────┴───────────────────────┐
+│       JadeView DLL (x64 / x86)         │
+└─────────────────┬───────────────────────┘
+                  │
+┌─────────────────┴───────────────────────┐
+│        WebView2 / 系统 WebView          │
+│  ┌───────────────────────────────────┐  │
+│  │       HTML / CSS / JavaScript      │  │
+│  │            (前端 UI)               │  │
+│  └───────────────────────────────────┘  │
+└─────────────────────────────────────────┘
+```
+
+## 系统要求
+
+- **Python 版本**：Python 3.11+
+- **操作系统**：Windows 10 / Windows 11
+- **运行时**：WebView2 Runtime（Windows 11 已内置，Windows 10 需单独安装）
+- **依赖管理**：推荐使用 [uv](https://github.com/astral-sh/uv)
+- **外部依赖**：无（仅使用 Python 标准库）
+
+## 安装方式
+
+```bash
+# 使用 uv（推荐）
+uv add jadeview
+
+# 或使用 pip
+pip install jadeview
+```
+
+## 快速示例
+
+```python
+import jadeview
+from jadeview import events
+
+def on_ready(window_id, data):
+    jadeview.window.create_webview_window(
+        "https://example.com",
+        title="Hello JadeView",
+        width=1024,
+        height=768,
+    )
+
+def on_all_closed(window_id, data):
+    jadeview.cleanup()
+
+jadeview.ipc.on(events.APP_READY, on_ready)
+jadeview.ipc.on(events.WINDOW_ALL_CLOSED, on_all_closed)
+jadeview.init("MyApp", "myapp1")
+jadeview.run()
+```
+
+## 项目信息
+
+- **版本**：2.0.0
+- **许可证**：遵循 JadeView 项目许可证
+- **源码**：[GitHub](https://github.com/lazyso/jade-py-2-sdk)

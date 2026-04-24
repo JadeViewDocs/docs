@@ -1,0 +1,192 @@
+# 高级用法
+
+## 窗口关闭拦截
+
+通过监听 `window-closing` 事件，您可以拦截窗口关闭行为，例如弹出确认对话框：
+
+```python
+from jadeview import events, ipc, dialog
+
+def on_window_closing(window_id, data):
+    result = dialog.show_message_box(
+        window_id,
+        title="确认",
+        message="确定要关闭窗口吗？",
+        buttons="确定|取消",
+        type_="question",
+    )
+    if result and result["response"] == 1:
+        return True  # 返回 True 拦截关闭
+    return None      # 返回 None 允许关闭
+
+ipc.on(events.WINDOW_CLOSING, on_window_closing)
+```
+
+## IPC 双向通信
+
+### Python → 前端
+
+使用 `send_ipc_message` 向前端推送消息：
+
+```python
+# Python 端
+ipc.send_ipc_message(window_id, "update-data", {"count": 42})
+```
+
+```javascript
+// 前端 JS
+jade.on("update-data", (data) => {
+    console.log(data.count); // 42
+});
+```
+
+### 前端 → Python
+
+前端使用 `jade.invoke()`，Python 端使用 `register_ipc_handler` 接收：
+
+```python
+# Python 端
+def handle_get_user(window_id, payload):
+    return {"name": "张三", "age": 30}  # dict 自动序列化为 JSON
+
+ipc.register_ipc_handler("get-user", handle_get_user)
+```
+
+```javascript
+// 前端 JS
+const user = await jade.invoke("get-user", "some-payload");
+console.log(user.name); // "张三"
+```
+
+## 本地文件服务（协议服务）
+
+JadeView 提供内置的协议服务，将本地目录映射为可访问的 URL：
+
+```python
+from jadeview import tools, window
+
+def on_ready(window_id, data):
+    base_url = tools.set_protocol_service_path("C:/myapp/web")
+    # base_url 类似 "http://jade.myapp/base/"
+
+    window.create_webview_window(
+        f"{base_url}index.html",
+        title="本地应用",
+    )
+```
+
+这种方式比 `file://` 协议更安全，避免了跨域限制问题。
+
+## 系统托盘与菜单
+
+```python
+from jadeview import tray, ipc, events
+
+tray_id = 0
+
+def on_ready(window_id, data):
+    global tray_id
+    tray_id = tray.tray_create()
+    tray.tray_set_tooltip(tray_id, "我的应用 - 运行中")
+    tray.tray_set_icon_from_file(tray_id, "C:/myapp/icon.ico")
+    tray.tray_set_menu_items(tray_id, [
+        {"item_type": 0, "key": "show", "label": "显示窗口"},
+        {"item_type": 1, "key": "theme", "label": "主题"},
+        {"item_type": 0, "key": "light", "label": "亮色", "parent_key": "theme"},
+        {"item_type": 0, "key": "dark", "label": "暗色", "parent_key": "theme"},
+        {"item_type": 2, "key": "sep", "label": ""},
+        {"item_type": 0, "key": "quit", "label": "退出", "dangerous": 1},
+    ])
+
+def on_tray_menu(window_id, data):
+    # data 为 JSON 字符串，包含被点击的菜单项 key
+    print(f"托盘菜单被点击: {data}")
+
+ipc.on(events.TRAY_MENU_COMMAND, on_tray_menu)
+```
+
+## 全局热键
+
+```python
+from jadeview import tools, ipc, events, window
+
+hotkey_id = 0
+main_win_id = 0
+
+def on_ready(window_id, data):
+    global hotkey_id
+    # 注册 Ctrl+Alt+K
+    hotkey_id = tools.register_global_hotkey("CTRL+ALT", "K")
+
+def on_hotkey(window_id, data):
+    print("热键被触发！")
+    # 例如：将窗口置前
+    if main_win_id:
+        window.set_window_focus(main_win_id)
+
+ipc.on(events.GLOBAL_HOTKEY, on_hotkey)
+```
+
+修饰键支持多种写法：
+- 字符串：`"CTRL+ALT"`、`"CTRL+SHIFT"`
+- 列表：`["CTRL", "ALT"]`
+- 整数：`MOD_CONTROL | MOD_ALT`
+
+主键支持：
+- 字母：`"A"` - `"Z"`
+- 功能键：`"F1"` - `"F24"`
+- 特殊键：`"Enter"`、`"Space"`、`"ESC"` 等
+
+## YAML 配置持久化
+
+SDK 内置了 YAML 配置存储功能，适合保存用户偏好：
+
+```python
+from jadeview import tools
+
+# 写入配置
+tools.yaml_set("settings.yaml", "ui.theme", "dark")
+tools.yaml_set("settings.yaml", "ui.language", "zh-CN")
+
+# 读取配置
+theme = tools.yaml_get("settings.yaml", "ui.theme")    # "dark"
+lang = tools.yaml_get("settings.yaml", "ui.language")   # "zh-CN"
+```
+
+配置文件自动保存在应用数据目录中。
+
+## 窗口背景效果（Windows 11）
+
+在 Windows 11 上，您可以使用 Mica/Acrylic 等背景效果：
+
+```python
+from jadeview import window, tools
+
+def on_ready(window_id, data):
+    win_id = window.create_webview_window(
+        "https://example.com",
+        title="Mica 效果演示",
+        transparent=1,  # 必须启用透明
+    )
+
+    if tools.is_windows_11():
+        window.set_window_backdrop(win_id, "mica")     # Mica 效果
+        # window.set_window_backdrop(win_id, "micaAlt")  # Mica Alt
+        # window.set_window_backdrop(win_id, "acrylic")  # Acrylic 毛玻璃
+```
+
+## URL Scheme 与文件关联
+
+```python
+from jadeview import tools
+
+# 注册自定义协议 myapp://
+tools.register_url_scheme("myapp")
+
+# 注册文件关联 .mydata
+tools.register_file_association("mydata", "My Data File")
+
+# 取消注册
+tools.unregister_url_scheme("myapp")
+tools.unregister_file_association("mydata")
+```

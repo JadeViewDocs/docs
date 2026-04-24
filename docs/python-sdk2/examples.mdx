@@ -1,0 +1,207 @@
+# 示例代码
+
+## 完整桌面应用示例
+
+一个包含窗口管理、IPC 通信、托盘、通知的完整应用：
+
+```python
+import jadeview
+from jadeview import events, ipc, window, tray, notification, tools
+
+main_win_id = 0
+tray_id = 0
+
+def on_ready(window_id, data):
+    global main_win_id, tray_id
+
+    print(f"JadeView {tools.jadeview_version()}")
+
+    # 设置本地文件服务
+    base_url = tools.set_protocol_service_path("C:/myapp/web")
+
+    # 创建主窗口
+    main_win_id = window.create_webview_window(
+        f"{base_url}index.html",
+        title="我的应用",
+        width=1100, height=800,
+        theme="System",
+        min_width=800, min_height=600,
+    )
+
+    # 创建托盘
+    tray_id = tray.tray_create()
+    tray.tray_set_tooltip(tray_id, "我的应用")
+    tray.tray_set_menu_items(tray_id, [
+        {"item_type": 0, "key": "show", "label": "显示窗口"},
+        {"item_type": 2, "key": "sep", "label": ""},
+        {"item_type": 0, "key": "quit", "label": "退出", "dangerous": 1},
+    ])
+
+    # 显示通知
+    notification.show_notification("应用已启动", body="欢迎使用我的应用")
+
+def on_window_closing(window_id, data):
+    return None  # 允许关闭
+
+def on_all_closed(window_id, data):
+    if tray_id:
+        tray.tray_destroy(tray_id)
+    jadeview.cleanup()
+
+# 注册 IPC handler
+def handle_get_info(window_id, payload):
+    return {
+        "version": tools.jadeview_version(),
+        "locale": tools.get_locale(),
+        "window_count": tools.get_window_count(),
+    }
+
+# 设置
+ipc.on(events.APP_READY, on_ready)
+ipc.on(events.WINDOW_CLOSING, on_window_closing)
+ipc.on(events.WINDOW_ALL_CLOSED, on_all_closed)
+ipc.register_ipc_handler("get-info", handle_get_info)
+
+# 启动
+jadeview.init("MyApp", "myapp1", enable_devmod=True)
+jadeview.run()
+```
+
+## 文件对话框示例
+
+```python
+from jadeview import dialog
+
+# 选择单个文件
+result = dialog.show_open_dialog(
+    window_id,
+    title="选择图片",
+    filters='[{"name":"图片","extensions":["jpg","png","gif"]}]',
+    properties="openFile",
+)
+if result and not result["canceled"]:
+    print(f"选择的文件: {result['file_paths']}")
+
+# 选择多个文件
+result = dialog.show_open_dialog(
+    window_id,
+    title="选择多个文件",
+    properties="openFile,multiSelections",
+)
+
+# 选择文件夹
+result = dialog.show_open_dialog(
+    window_id,
+    title="选择文件夹",
+    properties="openDirectory",
+)
+
+# 保存文件
+result = dialog.show_save_dialog(
+    window_id,
+    title="保存文件",
+    default_path="report.txt",
+    filters='[{"name":"文本文件","extensions":["txt","md"]},{"name":"所有文件","extensions":["*"]}]',
+)
+if result and not result["canceled"]:
+    print(f"保存路径: {result['file_path']}")
+```
+
+## 异步对话框示例
+
+```python
+from jadeview import dialog
+
+def on_file_selected(result):
+    if result and not result["canceled"]:
+        print(f"异步选择: {result['file_paths']}")
+    else:
+        print("用户取消了选择")
+
+dialog.show_open_dialog_async(
+    on_file_selected,
+    window_id,
+    title="异步选择文件",
+    properties="openFile,multiSelections",
+)
+```
+
+## 多窗口管理示例
+
+```python
+import jadeview
+from jadeview import window, ipc, events
+
+main_win = 0
+child_windows = []
+
+def on_ready(window_id, data):
+    global main_win
+    base_url = jadeview.tools.set_protocol_service_path("C:/myapp/web")
+    main_win = window.create_webview_window(
+        f"{base_url}index.html",
+        title="主窗口",
+    )
+
+def create_child():
+    """创建子窗口"""
+    base_url = jadeview.tools.set_protocol_service_path("C:/myapp/web")
+    child_id = window.create_webview_window(
+        f"{base_url}child.html",
+        parent_window_id=main_win,
+        title=f"子窗口 #{len(child_windows) + 1}",
+        width=640, height=480,
+    )
+    if child_id:
+        child_windows.append(child_id)
+    return child_id
+
+def on_window_closing(window_id, data):
+    if window_id in child_windows:
+        child_windows.remove(window_id)
+    return None
+
+ipc.on(events.APP_READY, on_ready)
+ipc.on(events.WINDOW_CLOSING, on_window_closing)
+ipc.on(events.WINDOW_ALL_CLOSED, lambda w, d: jadeview.cleanup())
+ipc.register_ipc_handler("create-child", lambda w, p: {"id": create_child()})
+
+jadeview.init("MultiWinApp", "multiwin1")
+jadeview.run()
+```
+
+## 全局热键 + 系统通知示例
+
+```python
+import jadeview
+from jadeview import tools, notification, ipc, events, window
+
+hotkey_id = 0
+main_win_id = 0
+
+def on_ready(window_id, data):
+    global hotkey_id, main_win_id
+    main_win_id = window.create_webview_window(
+        "https://example.com",
+        title="热键演示",
+    )
+    hotkey_id = tools.register_global_hotkey("CTRL+ALT", "J")
+    print(f"热键注册: id={hotkey_id}")
+
+def on_hotkey(window_id, data):
+    notification.show_notification(
+        "快捷键触发",
+        body="您按下了 Ctrl+Alt+J",
+        button1="打开窗口",
+        action="show_window",
+    )
+    if main_win_id:
+        window.set_window_focus(main_win_id)
+
+ipc.on(events.APP_READY, on_ready)
+ipc.on(events.GLOBAL_HOTKEY, on_hotkey)
+ipc.on(events.WINDOW_ALL_CLOSED, lambda w, d: jadeview.cleanup())
+
+jadeview.init("HotkeyApp", "hotkey1")
+jadeview.run()
+```
