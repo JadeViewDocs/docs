@@ -190,3 +190,81 @@ tools.register_file_association("mydata", "My Data File")
 tools.unregister_url_scheme("myapp")
 tools.unregister_file_association("mydata")
 ```
+
+## 应用打包
+
+SDK 支持主流 Python 打包工具，打包时需要手动将 JadeView DLL 包含到输出中。
+
+### DLL 搜索机制
+
+SDK 按以下优先级自动搜索 DLL 文件：
+
+1. **环境变量** `JADEVIEW_DLL_PATH` — 用户手动指定的目录（最高优先）
+2. **PyInstaller 解压目录** — `sys._MEIPASS`（PyInstaller 专用）
+3. **exe 所在目录** — `sys.executable` 的父目录（Nuitka / cx_Freeze 等）
+4. **当前工作目录** — `os.getcwd()`
+5. **SDK 包内部** — `jadeview/dll/`（开发模式）
+
+每个目录下会检查三种文件布局：
+- `{dir}/x64/JadeView_x64.dll`
+- `{dir}/dll/x64/JadeView_x64.dll`
+- `{dir}/JadeView_x64.dll`
+
+### PyInstaller
+
+```bash
+pyinstaller --add-binary "jadeview/dll/x64/JadeView_x64.dll;." --noconsole main.py
+```
+
+或在 `.spec` 文件中：
+
+```python
+a = Analysis(...)
+a.binaries += [('JadeView_x64.dll', 'jadeview/dll/x64/JadeView_x64.dll', 'BINARY')]
+```
+
+### Nuitka
+
+```bash
+nuitka --include-data-files=jadeview/dll/x64/JadeView_x64.dll=JadeView_x64.dll --windows-console-mode=disable main.py
+```
+
+如果需要保留子目录结构：
+
+```bash
+nuitka --include-data-dir=jadeview/dll=dll main.py
+```
+
+### cx_Freeze
+
+在 `setup.py` 中：
+
+```python
+from cx_Freeze import setup, Executable
+
+setup(
+    executables=[Executable("main.py")],
+    options={
+        "build_exe": {
+            "include_files": [
+                ("jadeview/dll/x64/JadeView_x64.dll", "JadeView_x64.dll"),
+            ],
+        }
+    },
+)
+```
+
+### 自定义 DLL 路径
+
+如果以上自动搜索都不满足需求，可通过环境变量指定：
+
+```python
+import os
+os.environ["JADEVIEW_DLL_PATH"] = "C:/myapp/libs"
+
+import jadeview  # 会从 C:/myapp/libs 加载 DLL
+```
+
+:::tip
+32 位 Python 会自动加载 `JadeView_x86.dll`，64 位 Python 加载 `JadeView_x64.dll`，无需手动选择。
+:::

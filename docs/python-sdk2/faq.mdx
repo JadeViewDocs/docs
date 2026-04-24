@@ -102,11 +102,51 @@ JSON 字符串，格式为：
 
 ---
 
+## 打包相关
+
+### 支持哪些打包工具？
+
+SDK 支持所有主流 Python 打包工具：
+- **PyInstaller** — 使用 `--add-binary` 参数包含 DLL
+- **Nuitka** — 使用 `--include-data-files` 参数包含 DLL
+- **cx_Freeze** — 在 `include_files` 中添加 DLL
+
+详细用法请参考 [高级用法 - 应用打包](./advanced#应用打包)。
+
+### 为什么打包后找不到 DLL？
+
+打包工具只会自动分析 Python 的 `import` 依赖链。SDK 通过 `ctypes.WinDLL()` 动态加载 DLL，打包工具**无法自动检测**这个依赖，必须手动将 DLL 添加到打包配置中。
+
+### 打包后 DLL 应该放在哪里？
+
+SDK 会自动搜索多个位置，最简单的做法是**把 DLL 放在 exe 同目录**下。SDK 会按优先级搜索：
+
+1. 环境变量 `JADEVIEW_DLL_PATH` 指定的目录
+2. PyInstaller 的 `sys._MEIPASS` 目录
+3. exe 所在目录
+4. 当前工作目录
+5. SDK 包内部
+
+### 可以自定义 DLL 加载路径吗？
+
+可以，在 `import jadeview` **之前**设置环境变量：
+
+```python
+import os
+os.environ["JADEVIEW_DLL_PATH"] = "C:/myapp/libs"
+import jadeview
+```
+
+---
+
 ## 错误排查
 
 ### 提示"找不到 JadeView DLL"
 
-确保 `jadeview/dll/x64/JadeView_x64.dll` 和 `jadeview/dll/x86/JadeView_x86.dll` 文件存在。
+SDK 会在错误信息中列出所有搜索过的目录。请检查：
+- DLL 文件是否存在于列出的任一目录中
+- 文件名是否正确（64 位 Python 需要 `JadeView_x64.dll`，32 位需要 `JadeView_x86.dll`）
+- 如果是打包后运行，确认已将 DLL 添加到打包配置中
 
 ### init() 返回 False
 
