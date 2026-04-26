@@ -1,0 +1,167 @@
+# 常见问题
+
+## 安装与环境
+
+### Python SDK2 支持哪些操作系统？
+
+仅支持 **Windows 10** 和 **Windows 11**。SDK 基于 WebView2 和 Win32 API，不支持 macOS 和 Linux。
+
+### Python 版本要求是什么？
+
+需要 **Python 3.11** 或更高版本。SDK 使用了 `str | None` 等新语法特性。
+
+### 需要安装 WebView2 Runtime 吗？
+
+- **Windows 11**：已内置，无需额外安装
+- **Windows 10**：需要安装 [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
+
+### SDK 有额外的 Python 依赖吗？
+
+没有。SDK 仅使用 Python 标准库（ctypes、json、threading），零额外依赖。
+
+---
+
+## 初始化与生命周期
+
+### 为什么必须先注册事件再调用 init()？
+
+`jadeview.init()` 内部会触发 `app-ready` 事件。如果在 `init()` 之后才注册监听器，您将错过此事件，无法收到就绪通知。
+
+### 为什么 run() 会阻塞？
+
+`jadeview.run()` 启动的是 Windows 消息循环（Message Loop），它是桌面应用的核心。所有窗口事件、用户交互都通过消息循环分发。程序会阻塞在此处，直到所有窗口关闭。
+
+### 如何正确退出应用？
+
+在 `window-all-closed` 事件回调中调用 `jadeview.cleanup()`：
+
+```python
+def on_all_closed(window_id, data):
+    jadeview.cleanup()  # 这会让 run() 返回
+
+jadeview.ipc.on(events.WINDOW_ALL_CLOSED, on_all_closed)
+```
+
+---
+
+## 窗口相关
+
+### x64 和 x86 DLL 如何选择？
+
+SDK 会自动检测当前 Python 解释器的位数，加载对应的 DLL。您无需手动选择。
+
+### 如何创建无标题栏窗口？
+
+使用 `frame_style` 参数：
+
+```python
+window.create_webview_window(
+    url,
+    frame_style="no-titlebar",  # 无标题栏
+    # 或 frame_style="borderless"  # 完全无边框
+)
+```
+
+### 窗口位置 x=-1, y=-1 是什么意思？
+
+当 `x` 和 `y` 均为 -1 时，窗口会自动居中显示。
+
+---
+
+## IPC 通信
+
+### on() 回调中返回不同值有什么区别？
+
+| 返回值 | 效果 |
+|-------|------|
+| `None` | 放行/默认处理 |
+| `True` | 拦截事件（如阻止窗口关闭） |
+| `str` | 返回字符串数据给调用方 |
+
+### register_ipc_handler 和 on 有什么区别？
+
+- `on()`：监听系统事件（如窗口创建、关闭等），一个事件可以有多个监听器
+- `register_ipc_handler()`：注册 IPC 通道处理器，响应前端的 `jade.invoke()` 调用，每个通道只有一个处理器
+
+---
+
+## 对话框
+
+### 同步对话框和异步对话框怎么选？
+
+- **同步**（`show_open_dialog`）：会阻塞当前线程直到用户操作完成，代码更简单直观
+- **异步**（`show_open_dialog_async`）：不阻塞，通过回调返回结果，适合不希望阻塞消息处理的场景
+
+### filters 参数的格式是什么？
+
+JSON 字符串，格式为：
+
+```python
+'[{"name":"图片文件","extensions":["jpg","png","gif"]},{"name":"所有文件","extensions":["*"]}]'
+```
+
+---
+
+## 打包相关
+
+### 支持哪些打包工具？
+
+SDK 支持所有主流 Python 打包工具：
+- **PyInstaller** — 使用 `--add-binary` 参数包含 DLL
+- **Nuitka** — 使用 `--include-data-files` 参数包含 DLL
+- **cx_Freeze** — 在 `include_files` 中添加 DLL
+
+详细用法请参考 [高级用法 - 应用打包](./advanced#应用打包)。
+
+### 为什么打包后找不到 DLL？
+
+打包工具只会自动分析 Python 的 `import` 依赖链。SDK 通过 `ctypes.WinDLL()` 动态加载 DLL，打包工具**无法自动检测**这个依赖，必须手动将 DLL 添加到打包配置中。
+
+### 打包后 DLL 应该放在哪里？
+
+SDK 会自动搜索多个位置，最简单的做法是**把 DLL 放在 exe 同目录**下。SDK 会按优先级搜索：
+
+1. 环境变量 `JADEVIEW_DLL_PATH` 指定的目录
+2. PyInstaller 的 `sys._MEIPASS` 目录
+3. exe 所在目录
+4. 当前工作目录
+5. SDK 包内部
+
+### 可以自定义 DLL 加载路径吗？
+
+可以，在 `import jadeview` **之前**设置环境变量：
+
+```python
+import os
+os.environ["JADEVIEW_DLL_PATH"] = "C:/myapp/libs"
+import jadeview
+```
+
+---
+
+## 错误排查
+
+### 提示"找不到 JadeView DLL"
+
+SDK 会在错误信息中列出所有搜索过的目录。请检查：
+- DLL 文件是否存在于列出的任一目录中
+- 文件名是否正确（64 位 Python 需要 `JadeView_x64.dll`，32 位需要 `JadeView_x86.dll`）
+- 如果是打包后运行，确认已将 DLL 添加到打包配置中
+
+### init() 返回 False
+
+- 检查 `app_signature` 是否 >= 6 个字符
+- 检查是否已有相同签名的实例在运行（单实例模式）
+- 确保 WebView2 Runtime 已安装
+
+### 回调函数没有被触发
+
+确保在调用 `jadeview.init()` **之前**注册了事件监听器。
+
+---
+
+## 版本信息
+
+- **SDK 版本**：2.0.0
+- **兼容 JadeView**：2.0.x
+- **Python**：3.11+
