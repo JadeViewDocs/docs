@@ -49,6 +49,18 @@ const docs = [
     sidebarPath: require.resolve('./sidebars-easy-language-sdk.js'),
   },
   {
+    id: 'voldp-sdk',
+    path: 'docs/voldp-sdk',
+    routeBasePath: 'voldp-sdk',
+    sidebarPath: require.resolve('./sidebars-voldp-sdk.js'),
+  },
+  {
+    id: 'python-sdk2',
+    path: 'docs/python-sdk2',
+    routeBasePath: 'python-sdk2',
+    sidebarPath: require.resolve('./sidebars-python-sdk2.js'),
+  },
+  {
     id: 'spec',
     path: 'docs/spec',
     routeBasePath: 'spec',

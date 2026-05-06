@@ -51,6 +51,23 @@ body[data-sdk-menu="easy-language"] .sdks-dropdown [data-dropdown-sdks="easy-lan
   display: block;
 }
 
+/* 火山视窗 SDK 选中状态 */
+body[data-sdk-menu="voldp"] .sdks-dropdown [data-dropdown-sdks="web"] {
+  display: none;
+}
+
+body[data-sdk-menu="voldp"] .sdks-dropdown [data-dropdown-sdks="python"] {
+  display: none;
+}
+
+body[data-sdk-menu="voldp"] .sdks-dropdown [data-dropdown-sdks="easy-language"] {
+  display: none;
+}
+
+body[data-sdk-menu="voldp"] .sdks-dropdown [data-dropdown-sdks="voldp"] {
+  display: block;
+}
+
 .sdks-dropdown a {
   text-decoration: none !important;
 }

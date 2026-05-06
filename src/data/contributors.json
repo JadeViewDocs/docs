@@ -345,6 +345,42 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
+  "docs/python-sdk2/advanced.mdx": [
+    {
+      "login": "lazyso",
+      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+    }
+  ],
+  "docs/python-sdk2/api-reference.mdx": [
+    {
+      "login": "lazyso",
+      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+    }
+  ],
+  "docs/python-sdk2/examples.mdx": [
+    {
+      "login": "lazyso",
+      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+    }
+  ],
+  "docs/python-sdk2/faq.mdx": [
+    {
+      "login": "lazyso",
+      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+    }
+  ],
+  "docs/python-sdk2/index.mdx": [
+    {
+      "login": "lazyso",
+      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+    }
+  ],
+  "docs/python-sdk2/quickstart.mdx": [
+    {
+      "login": "lazyso",
+      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+    }
+  ],
   "docs/spec/behavior.mdx": [
     {
       "login": "tuyangJs",
@@ -425,6 +461,60 @@
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
+  "docs/voldp-sdk/faq.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/index.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/methods.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/quickstart.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/reference/constants.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/reference/jadeview-class.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/reference/standalone-methods.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/reference/tray-class.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/reference/types.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
     }
   ],
   "docs/web-sdk/index.mdx": [
