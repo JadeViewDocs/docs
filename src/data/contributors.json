@@ -35,6 +35,12 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
+  "docs/api-2-preview/local-server-api.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
   "docs/api-2-preview/notification.mdx": [
     {
       "login": "tuyangJs",
@@ -101,12 +107,6 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/easy-language-sdk/reference/data-types.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
   "docs/easy-language-sdk/reference/methods.mdx": [
     {
       "login": "tuyangJs",
@@ -126,12 +126,6 @@
     }
   ],
   "docs/guides/custom-titlebar.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/dialog-api.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -180,12 +174,6 @@
     }
   ],
   "docs/guides/tools-api.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/guides/webview-api.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -245,6 +233,12 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
+  "docs/plugin-sdk/setup/develop.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
   "docs/plugin-sdk/setup/manage.mdx": [
     {
       "login": "tuyangJs",
@@ -258,12 +252,6 @@
     }
   ],
   "docs/plugin-sdk/usage/basic/events.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/plugin-sdk/usage/basic/initialize.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -294,12 +282,6 @@
     }
   ],
   "docs/plugin-sdk/usage/stores-api/introduction.mdx": [
-    {
-      "login": "tuyangJs",
-      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    }
-  ],
-  "docs/plugin-sdk/usage/stores-api/manage-stores.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -470,6 +452,12 @@
     }
   ],
   "docs/voldp-sdk/quickstart.mdx": [
+    {
+      "login": "luoxueyousheng",
+      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+    }
+  ],
+  "docs/voldp-sdk/reference/constants.mdx": [
     {
       "login": "luoxueyousheng",
       "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
