@@ -77,16 +77,12 @@ set_window_frame_style(window_id, "title-overlay");
 通过 `set_titlebar_overlay_style` 可自定义按钮外观：
 
 ```c
-// 自定义按钮尺寸和颜色
+// 自定义按钮高度和颜色
 set_titlebar_overlay_style(
     window_id,
-    45,     // 按钮宽度
-    32,     // 按钮高度
-    0,      // 正常背景色（0 = 透明）
-    0xFF333333,  // 悬浮背景色（深灰色）
-    0xFFE81123,  // 关闭按钮悬浮背景色（红色）
-    0xFF000000,  // 图标颜色（黑色）
-    0xFFFFFFFF   // 关闭按钮悬浮图标颜色（白色）
+    32,          // 按钮高度（像素）
+    "#FFFFFF",   // 图标颜色（白色）
+    "#333333"    // 悬浮背景色（深灰色）
 );
 ```
 
