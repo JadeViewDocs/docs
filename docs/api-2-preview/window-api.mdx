@@ -352,6 +352,90 @@ int32_t set_content_protection(uint32_t window_id, int32_t content_protection);
 
 ---
 
+## 边框样式
+
+### 运行时修改窗口边框样式
+
+动态修改窗口的边框样式，无需重新创建窗口。
+
+```c
+int32_t set_window_frame_style(uint32_t window_id, const char* frame_style);
+```
+
+#### 参数说明
+
+| 参数 | 说明 |
+|------|------|
+| `window_id` | 目标窗口 id || `frame_style` | 边框样式字符串，可选值：`normal`（有边框+标题栏）、`no-titlebar`（有边框+无标题栏）、`borderless`（无边框+无标题栏）、`title-overlay`（有边框+无标题栏+内置标题栏按钮） |
+
+
+---
+
+### 自定义标题栏覆盖层样式（Windows 专属）
+
+自定义 `title-overlay` 样式窗口的标题栏按钮覆盖层外观。
+
+```c
+int32_t set_titlebar_overlay_style(
+    uint32_t window_id,
+    int32_t button_width,
+    int32_t button_height,
+    uint32_t normal_bg_color,
+    uint32_t hover_bg_color,
+    uint32_t close_hover_bg_color,
+    uint32_t normal_icon_color,
+    uint32_t close_hover_icon_color
+);
+```
+
+#### 参数说明
+
+| 参数 | 说明 |
+|------|------|
+| `window_id` | 目标窗口 id |
+| `button_width` | 按钮宽度（像素），传 `0` 使用默认值 45 |
+| `button_height` | 按钮高度（像素），传 `0` 使用默认值 32 |
+| `normal_bg_color` | 按钮正常状态背景色（ARGB 格式），传 `0` 使用默认透明 |
+| `hover_bg_color` | 按钮悬浮状态背景色（ARGB 格式），传 `0` 使用默认深灰色 |
+| `close_hover_bg_color` | 关闭按钮悬浮状态背景色（ARGB 格式），传 `0` 使用默认红色 |
+| `normal_icon_color` | 按钮图标颜色（ARGB 格式），传 `0` 使用系统默认 |
+| `close_hover_icon_color` | 关闭按钮悬浮状态图标颜色（ARGB 格式），传 `0` 使用白色 |
+
+:::info
+颜色格式为 ARGB（32 位整数），如 `0xFF333333` 为不透明深灰色。Windows GDI 使用 BGR 顺序，内部会自动转换。
+:::
+
+---
+
+## 打印
+
+### 打印 WebView 内容
+
+打开 Windows 标准打印对话框，打印当前 WebView 内容。
+
+```c
+int32_t jade_print(uint32_t window_id);
+```
+
+#### 参数说明
+
+| 参数 | 说明 |
+|------|------|
+| `window_id` | 目标窗口 id |
+
+#### 返回值
+
+| 返回值 | 含义 |
+|--------|------|
+| `1` | 打印对话框已打开 |
+| `0` | 失败（窗口不存在或不支持打印） |
+
+:::warning
+此功能仅 Windows 平台支持。
+:::
+
+---
+
 ## 关闭窗口
 
 发起关闭；若页面注册了 `beforeunload` 且用户选择留下，关闭可能被推迟或取消，具体以 WebView 与页面脚本为准。

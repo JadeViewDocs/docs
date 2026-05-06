@@ -107,7 +107,7 @@ int32_t cleanup_all_windows(void);
 | `title` | 窗口标题栏上的文字。 |
 | `width` / `height` | 初始宽高（像素）。 |
 | `resizable` | 用户能不能用鼠标拖边缘改大小。 |
-| `frame_style` | 要系统边框+标题栏、只要边框不要标题栏、还是完全无边框（`normal` / `no-titlebar` / `borderless`）。 |
+| `frame_style` | 要系统边框+标题栏、只要边框不要标题栏、完全无边框、还是无边框+内置标题栏按钮覆盖层（`normal` / `no-titlebar` / `borderless` / `title-overlay`）。`title-overlay` 为 Windows 专属，提供有边框+无标题栏+右上角内置标题栏按钮，无需自行实现窗口控制按钮功能。 |
 | `transparent` | 是否透明背景（和 WebView、系统能力有关）。 |
 | `background_color` | 窗口背景色字符串（如带 `#` 的十六进制）。 |
 | `always_on_top` | 是否总在最前。 |
