@@ -51,7 +51,7 @@ window.create_webview_window(
     width: int = 800,                  # 宽度（像素）
     height: int = 600,                 # 高度（像素）
     resizable: int = 1,                # 是否可调整大小
-    frame_style: str | None = None,    # 边框样式："normal"/"no-titlebar"/"borderless"
+    frame_style: str | None = None,    # 边框样式："normal"/"no-titlebar"/"borderless"/"title-overlay"
     transparent: int = 0,              # 透明背景
     background_color: str | None = None,  # 背景色 "#RRGGBB"
     always_on_top: int = 0,            # 窗口置顶
@@ -114,6 +114,14 @@ window.create_borderless_webview_window(url: str, **webview_settings) -> int
 | `set_window_backdrop(window_id, backdrop_type)` | 设置背景效果："mica"/"micaAlt"/"acrylic" |
 | `set_window_background_color(window_id, color)` | 设置背景颜色 "#RRGGBB" |
 
+### 边框样式
+
+| 函数 | 说明 |
+|------|------|
+| `set_window_frame_style(window_id, frame_style)` | 运行时修改边框样式："normal"/"no-titlebar"/"borderless"/"title-overlay" |
+| `set_titlebar_overlay_style(window_id, height, icon_color_hex, hover_bg_hex)` | 自定义 title-overlay 按钮覆盖层外观 |
+| `jade_print(window_id)` | 打印 WebView 内容（打开系统打印对话框） |
+
 ---
 
 ## jadeview.ipc — 事件与 IPC 通信
@@ -173,6 +181,10 @@ ipc.send_ipc_message(
 | `execute_javascript(window_id, script)` | 执行 JS（结果通过 `javascript-result` 事件返回） |
 | `set_zoom(window_id, level)` | 设置缩放级别（1.0 = 100%） |
 | `set_content_protection(window_id, enabled)` | 启用/禁用防截屏 |
+
+:::tip
+打印功能 `jade_print(window_id)` 位于 `jadeview.window` 模块中。
+:::
 
 ---
 
@@ -290,6 +302,10 @@ tools.yaml_get(file_name, key_path) -> str | None    # 读取
 ```python
 tools.set_protocol_service_path(root_path) -> str | None  # 返回 base URL
 ```
+
+`root_path` 支持两种形式：
+- **目录路径**：指向包含 `index.html` 等前端产物的文件夹
+- **`.japk` 文件路径**：指向 JAPK 资源包文件（JadeView 直接从包内读取，无需解压）
 
 ### URL Scheme 与文件关联
 

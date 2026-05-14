@@ -1,5 +1,79 @@
 # 高级用法
 
+## 边框样式与 Title Overlay
+
+### 运行时切换边框样式
+
+您可以在窗口创建后动态切换边框样式，无需重新创建窗口：
+
+```python
+from jadeview import window
+
+# 切换到 title-overlay 模式（Windows 专属）
+window.set_window_frame_style(win_id, "title-overlay")
+
+# 切换回标准模式
+window.set_window_frame_style(win_id, "normal")
+```
+
+可选值：
+- `"normal"` — 系统标准边框 + 标题栏
+- `"no-titlebar"` — 有边框但无标题栏
+- `"borderless"` — 完全无边框无标题栏
+- `"title-overlay"` — 有边框 + 无标题栏 + 右上角内置最小化/最大化/关闭按钮（Windows 专属）
+
+### Title Overlay 模式
+
+`title-overlay` 是 Windows 专属的边框样式，提供系统原生的窗口控制按钮（最小化、最大化、关闭），同时允许网页内容延伸到标题栏区域。适合需要自定义标题栏外观但不想自己实现窗口控制按钮的场景。
+
+```python
+from jadeview import window
+
+# 创建 title-overlay 窗口
+win_id = window.create_webview_window(
+    url,
+    title="My App",
+    frame_style="title-overlay",
+    background_color="#f3f3f3",
+)
+
+# 自定义覆盖层按钮外观
+window.set_titlebar_overlay_style(
+    win_id,
+    height=40,                  # 按钮区域高度（像素）
+    icon_color_hex="#333333",    # 按钮图标颜色
+    hover_bg_hex="#00000020",    # 悬浮背景色（支持 #RRGGBBAA 透明度）
+)
+```
+
+:::info
+关闭按钮的悬浮背景色固定为红色（`#E81123`），图标固定为白色，不受 `set_titlebar_overlay_style` 影响。
+:::
+
+### 前端配合
+
+在 `title-overlay` 模式下，网页需要设置拖动区域让用户可以拖动窗口：
+
+```html
+<div class="titlebar" style="-webkit-app-region: drag; height: 40px;">
+    <span>我的应用</span>
+</div>
+<div class="content" style="-webkit-app-region: no-drag;">
+    <!-- 正常内容 -->
+</div>
+```
+
+### 打印 WebView 内容
+
+```python
+from jadeview import window
+
+# 打开系统打印对话框
+window.jade_print(win_id)
+```
+
+---
+
 ## 窗口关闭拦截
 
 通过监听 `window-closing` 事件，您可以拦截窗口关闭行为，例如弹出确认对话框：
@@ -60,14 +134,17 @@ console.log(user.name); // "张三"
 
 ## 本地文件服务（协议服务）
 
-JadeView 提供内置的协议服务，将本地目录映射为可访问的 URL：
+JadeView 提供内置的协议服务，将本地目录或 JAPK 资源包映射为可访问的 URL：
 
 ```python
 from jadeview import tools, window
 
 def on_ready(window_id, data):
+    # 加载本地目录
     base_url = tools.set_protocol_service_path("C:/myapp/web")
-    # base_url 类似 "http://jade.myapp/base/"
+
+    # 或加载 JAPK 资源包（无需解压）
+    # base_url = tools.set_protocol_service_path("C:/myapp/app.japk")
 
     window.create_webview_window(
         f"{base_url}index.html",
