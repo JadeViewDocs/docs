@@ -35,6 +35,12 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
+  "docs/api-2-preview/japk.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
   "docs/api-2-preview/local-server-api.mdx": [
     {
       "login": "tuyangJs",
@@ -319,27 +325,23 @@
   ],
   "docs/python-sdk/index.mdx": [
     {
-      "login": "HG-ha",
-      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk/packaging.mdx": [
     {
-      "login": "HG-ha",
-      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk/quickstart.mdx": [
     {
-      "login": "HG-ha",
-      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk/reference/methods.mdx": [
-    {
-      "login": "HG-ha",
-      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
-    },
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
@@ -347,38 +349,38 @@
   ],
   "docs/python-sdk2/advanced.mdx": [
     {
-      "login": "lazyso",
-      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk2/api-reference.mdx": [
     {
-      "login": "lazyso",
-      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk2/examples.mdx": [
     {
-      "login": "lazyso",
-      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk2/faq.mdx": [
     {
-      "login": "lazyso",
-      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk2/index.mdx": [
     {
-      "login": "lazyso",
-      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/python-sdk2/quickstart.mdx": [
     {
-      "login": "lazyso",
-      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/spec/behavior.mdx": [
@@ -439,10 +441,6 @@
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
-    },
-    {
-      "login": "HG-ha",
-      "avatar": "https://avatars.githubusercontent.com/u/60115106?s=100&u=88a1ee1798cd56424321ce8501dc2bc524240dc0&v=4"
     }
   ],
   "docs/spec/quickstart.mdx": [
@@ -465,56 +463,56 @@
   ],
   "docs/voldp-sdk/faq.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/index.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/methods.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/quickstart.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/reference/constants.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/reference/jadeview-class.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/reference/standalone-methods.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/reference/tray-class.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/voldp-sdk/reference/types.mdx": [
     {
-      "login": "luoxueyousheng",
-      "avatar": "https://avatars.githubusercontent.com/u/42996153?s=100&u=8af50d2f139942a46e75ed0aac12515e2d783178&v=4"
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
   "docs/web-sdk/index.mdx": [
