@@ -3,6 +3,7 @@ import Layout from '@theme/Layout';
 import Head from '@docusaurus/Head';
 import HeroSection from '@site/src/components/homepage/HeroSection';
 import SDKs from '@site/src/components/homepage/SDKs';
+import LovedTools from '@site/src/components/homepage/LovedTools';
 import APIReferenceSection from '@site/src/components/homepage/APIReferenceSection';
 
 /** 首页背景柔光（轻量漂移动效，见 custom.css，尊重 prefers-reduced-motion） */
@@ -34,11 +35,13 @@ export default function Homepage() {
           {/* SDKs Section - SDK 选择 */}
           <SDKs />
 
+          {/* Loved Tools Section - 技术栈展示 */}
+          <LovedTools />
           
           {/* API Reference Section - API 文档 */}
           <APIReferenceSection />
           
-
+          
           
           {/* Help Section - 帮助 */}
 

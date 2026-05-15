@@ -21,10 +21,10 @@ const PRODUCTS = [
     text: '完善的事件处理机制，支持窗口事件、导航事件和自定义事件，实现灵活的交互控制',
   },
   {
-    title: '窗口样式',
-    link: '/guides/window-styling',
+    title: '自定义标题栏',
+    link: '/spec/custom-titlebar',
     icon: PaintBrushRegular,
-    text: '丰富的样式配置选项，支持自定义窗口大小、位置、标题栏、主题等各种属性',
+    text: '两种方式：内置 title-overlay 或完全自定义，支持 Windows Snap Layout',
   },
 ];
 
