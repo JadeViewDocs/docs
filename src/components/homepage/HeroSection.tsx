@@ -16,9 +16,9 @@ const PRODUCTS = [
   },
   {
     title: '事件系统',
-    link: '/guides/event-types',
+    link: '/v2api/event-types',
     icon: CodeRegular,
-    text: '完善的事件处理机制，支持窗口事件、导航事件和自定义事件，实现灵活的交互控制',
+    text: '通过 jade_on 订阅窗口、导航、IPC 等事件，IpcCallback 返回值控制拦截行为',
   },
   {
     title: '自定义标题栏',

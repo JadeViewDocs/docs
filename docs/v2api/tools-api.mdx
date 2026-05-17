@@ -7,7 +7,7 @@ sidebar_position: 2
 
 这里的函数大多**不针对某个窗口**，而是：读版本、取系统路径、读语言和显示器信息、在数据目录里存配置、清理数据等。
 
-与系统深度集成、偏扩展能力的接口（如 URL 协议、文件关联、全局热键）已迁移到插件分类下的 [系统集成 API](/api-2-preview/plugin-system-api)。
+与系统深度集成、偏扩展能力的接口（如 URL 协议、文件关联、全局热键）已迁移到插件分类下的 [系统集成 API](/v2api/plugin-system-api)。
 
 ---
 
@@ -158,4 +158,4 @@ void jade_text_free(char* ptr);
 - **`jade_text_create`**：把一段 **UTF-8** 文本拷到堆上，返回指针，供 **`register_ipc_handler`** 等返回**动态长度**应答；库读完应答后会 **`jade_text_free`**，与手动 `malloc`+`free` 混用易出错，请成对使用本 API。
 - **`jade_text_free`**：释放由 **`jade_text_create`** 分配的指针；**不要**对栈内存、`malloc` 其它路径的指针调用。
 
-若 `invoke` 只需**默认成功**、无自定义 JSON，可返回 **`NULL`** 或 **`(const char*)(uintptr_t)1`** 等占位（**不是**「阻止」；见 [IPC 通信 API](/api-2-preview/ipc-api)）。
+若 `invoke` 只需**默认成功**、无自定义 JSON，可返回 **`NULL`** 或 **`(const char*)(uintptr_t)1`** 等占位（**不是**「阻止」；见 [IPC 通信 API](/v2api/ipc-api)）。

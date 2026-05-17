@@ -64,13 +64,13 @@ const docs = [
     id: 'spec',
     path: 'docs/spec',
     routeBasePath: 'spec',
-    sidebarPath: require.resolve('./sidebars-spec.js')
+    sidebarPath: require.resolve('./sidebars-spec.js'),
   },
   {
-    id: 'api-2-preview',
-    path: 'docs/api-2-preview',
-    routeBasePath: 'api-2-preview',
-    sidebarPath: require.resolve('./sidebars-api-2-preview.js'),
+    id: 'v2api',
+    path: 'docs/v2api',
+    routeBasePath: 'v2api',
+    sidebarPath: require.resolve('./sidebars-v2api.js'),
   },
 ];
 
@@ -83,7 +83,7 @@ const defaultSettings = {
   remarkPlugins: [
     [require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }],
   ],
-  sidebarPath: require.resolve('./sidebars-default.js'),
+  sidebarPath: require.resolve('./sidebars-v1api.js'),
 };
 
 /**
@@ -91,7 +91,7 @@ const defaultSettings = {
  * @param {import('@docusaurus/plugin-content-docs').Options} options
  */
 function create_doc_plugin({
-  sidebarPath = require.resolve('./sidebars-default.js'),
+  sidebarPath = require.resolve('./sidebars-v1api.js'),
   ...options
 }) {
   return [
@@ -109,11 +109,7 @@ const { webpackPlugin } = require('./plugins/webpack-plugin.cjs');
 const tailwindPlugin = require('./plugins/tailwind-plugin.cjs');
 const docs_plugins = docs.map((doc) => create_doc_plugin(doc));
 
-const plugins = [
-  tailwindPlugin,
-  ...docs_plugins,
-  webpackPlugin,
-];
+const plugins = [tailwindPlugin, ...docs_plugins, webpackPlugin];
 
 // 移除本地搜索插件，使用Algolia DocSearch
 
@@ -146,10 +142,10 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          path: 'docs/guides',
+          path: 'docs/v1api',
           id: 'default',
-          routeBasePath: 'guides',
-          sidebarPath: require.resolve('./sidebars-default.js'),
+          routeBasePath: 'v1api',
+          sidebarPath: require.resolve('./sidebars-v1api.js'),
           ...defaultSettings,
         },
         blog: false,
@@ -221,15 +217,15 @@ const config = {
             ],
           },
           {
-            label: 'Api',
-            to: 'guides',
+            to: '/v2api',
+            label: 'API',
+            activeBasePath: '/v2api',
           },
           {
-            to: '/api-2-preview',
-            label: '2.0API',
-            activeBasePath: '/api-2-preview',
-            className: 'jv-nav-2api-link',
+            label: 'Api v1',
+            to: 'v1api',
           },
+
           // 更新日志已移至设计页面，从导航栏移除
           {
             type: 'search',
@@ -238,7 +234,8 @@ const config = {
           {
             label: '获取',
             href: 'https://github.com/JadeViewDocs/library/releases',
-            className: 'get-button bg-primary text-white  rounded-md hover:bg-primary/90 font-medium',
+            className:
+              'get-button bg-primary text-white  rounded-md hover:bg-primary/90 font-medium',
             position: 'right',
           },
         ],
@@ -257,7 +254,7 @@ const config = {
             items: [
               {
                 label: '文档',
-                href: '/guides',
+                href: '/v1api',
               },
               {
                 label: 'SDKs',

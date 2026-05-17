@@ -24,16 +24,16 @@ const guides: Guide[] = [
     link: '/spec/quickstart',
   },
   {
-    title: '窗口管理指南',
+    title: '窗口 API',
     icon: WindowRegular,
-    text: '学习如何创建和管理 WebView 窗口。',
-    link: '/guides/window-api',
+    text: '创建和管理 WebView 窗口：普通窗口、无边框窗口、导航、主题、位置控制。',
+    link: '/v2api/window-api',
   },
   {
-    title: '事件处理指南',
+    title: '事件类型',
     icon: CodeRegular,
-    text: '掌握事件系统，实现灵活的交互控制。',
-    link: '/guides/event-types',
+    text: 'jade_on 可订阅的全部事件：窗口生命周期、导航、IPC 回调、通知、热键等。',
+    link: '/v2api/event-types',
   },
 ];
 
@@ -123,7 +123,7 @@ export default function GuidesAndSamples() {
         <div className="mb-8 flex items-center justify-between">
           <h3 className="m-0">热门指南</h3>
 
-          <Link to="/guides" className="font-jakarta text-sm font-semibold transition-colors hover:text-primary">
+          <Link to="/v2api" className="font-jakarta text-sm font-semibold transition-colors hover:text-primary">
             查看更多指南 <ArrowRightFilled className="ml-1" />
           </Link>
         </div>

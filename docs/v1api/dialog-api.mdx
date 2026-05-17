@@ -1,0 +1,461 @@
+---
+title: 对话框 API
+sidebar_position: 7
+---
+
+# 对话框 API
+
+JadeView 1.3 版本新增了对话框 API，该 API 类似于 Electron 的 dialog 模块，支持在前端和 C 代码中使用，用于显示文件选择、保存文件、消息提示等对话框。
+
+## 前端 API
+
+前端 API 文档已移至单独的文件，请查看 [对话框前端 API](./dialog-frontend-api.mdx) 了解详细信息。
+
+## C API
+
+C 代码可以通过以下函数访问对话框 API，使用结构体参数而不是 JSON 字符串。
+
+### 结构体定义
+
+```c
+// 打开文件对话框参数结构体
+typedef struct {
+    u32 window_id;            // 窗口 ID
+    const char* title;        // 对话框标题
+    const char* default_path; // 默认打开路径
+    const char* button_label; // 确认按钮的自定义标签
+    const char* filters;      // 文件过滤器（JSON格式）
+    const char* properties;   // 对话框特性（逗号分隔）
+    int blocking;             // 是否阻塞进程
+    void (*callback)(const char*); // 回调函数
+} OpenDialogParams;
+
+// 保存文件对话框参数结构体
+typedef struct {
+    u32 window_id;            // 窗口 ID
+    const char* title;        // 对话框标题
+    const char* default_path; // 默认保存路径
+    const char* button_label; // 确认按钮的自定义标签
+    const char* filters;      // 文件过滤器（JSON格式）
+    int blocking;             // 是否阻塞进程
+    void (*callback)(const char*); // 回调函数
+} SaveDialogParams;
+
+// 消息框参数结构体
+typedef struct {
+    u32 window_id;            // 窗口 ID
+    const char* title;        // 消息框标题
+    const char* message;      // 消息框内容
+    const char* detail;       // 详细信息
+    const char* buttons;      // 按钮列表（使用|分隔，如"确定|取消"）
+    int default_id;           // 默认选中的按钮索引
+    int cancel_id;            // 取消按钮的索引
+    const char* type_;        // 消息框类型
+    int blocking;             // 是否阻塞进程
+    void (*callback)(const char*); // 回调函数
+} MessageBoxParams;
+```
+
+### type 类型定义（C API）
+
+| 值 | 说明 |
+|----|------|
+| `"none"` | 无图标 |
+| `"info"` | 信息图标 |
+| `"error"` | 错误图标 |
+| `"warning"` | 警告图标 |
+| `"question"` | 问题图标 |
+
+### properties 属性定义（C API）
+
+| 属性值 | 说明 |
+|--------|------|
+| `"openFile"` | 允许选择文件 |
+| `"openDirectory"` | 允许选择文件夹 |
+| `"multiSelections"` | 允许多选 |
+| `"showHiddenFiles"` | 显示隐藏文件 |
+
+#### 使用示例
+
+```c
+// 选择单个文件
+OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择文件",
+    .properties = "openFile",
+    .blocking = 1
+};
+jade_dialog_show_open_dialog(&params);
+
+// 选择多个文件
+OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择多个文件",
+    .properties = "openFile,multiSelections",
+    .blocking = 1
+};
+jade_dialog_show_open_dialog(&params);
+
+// 选择文件夹
+OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择文件夹",
+    .properties = "openDirectory",
+    .blocking = 1
+};
+jade_dialog_show_open_dialog(&params);
+
+// 带过滤器的文件选择
+OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择图片",
+    .filters = "[{\"name\": \"Images\", \"extensions\": [\"jpg\", \"png\", \"gif\"]},{\"name\": \"All Files\", \"extensions\": [\"*\"]}]",
+    .properties = "openFile",
+    .blocking = 1
+};
+jade_dialog_show_open_dialog(&params);
+```
+
+### jade_dialog_show_open_dialog
+
+显示打开文件对话框。
+
+#### 原型
+
+```c
+int jade_dialog_show_open_dialog(const OpenDialogParams* params);
+```
+
+#### 参数
+
+- `params` (const OpenDialogParams*): 对话框参数结构体指针
+
+#### 返回值
+
+- `int`: 1 表示成功，0 表示失败
+
+#### 示例
+
+```c
+// 基本用法
+OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择文件",
+    .properties = "openFile,multiSelections",
+    .blocking = 1
+};
+jade_dialog_show_open_dialog(&params);
+
+// 使用过滤器
+OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择图片",
+    .filters = "[{\"name\": \"Images\", \"extensions\": [\"jpg\", \"png\", \"gif\"]}, {\"name\": \"All Files\", \"extensions\": [\"*\"]}]",
+    .properties = "openFile",
+    .blocking = 1
+};
+jade_dialog_show_open_dialog(&params);
+
+// 使用回调
+void onOpenDialogComplete(const char* result) {
+    printf("Open dialog result: %s\n", result);
+}
+
+OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择文件",
+    .properties = "openFile",
+    .blocking = 0,
+    .callback = onOpenDialogComplete
+};
+jade_dialog_show_open_dialog(&params);
+```
+
+### jade_dialog_show_save_dialog
+
+显示保存文件对话框。
+
+#### 原型
+
+```c
+int jade_dialog_show_save_dialog(const SaveDialogParams* params);
+```
+
+#### 参数
+
+- `params` (const SaveDialogParams*): 对话框参数结构体指针
+
+#### 返回值
+
+- `int`: 1 表示成功，0 表示失败
+
+#### 示例
+
+```c
+// 基本用法
+SaveDialogParams params = {
+    .window_id = window_id,
+    .title = "保存文件",
+    .default_path = "document.txt",
+    .blocking = 1
+};
+jade_dialog_show_save_dialog(&params);
+
+// 使用过滤器
+SaveDialogParams params = {
+    .window_id = window_id,
+    .title = "保存图片",
+    .default_path = "image.png",
+    .filters = "[{\"name\": \"PNG Image\", \"extensions\": [\"png\"]}, {\"name\": \"JPEG Image\", \"extensions\": [\"jpg\"]}]",
+    .blocking = 1
+};
+jade_dialog_show_save_dialog(&params);
+```
+
+### jade_dialog_show_message_box
+
+显示消息框。
+
+#### 原型
+
+```c
+int jade_dialog_show_message_box(const MessageBoxParams* params);
+```
+
+#### 参数
+
+- `params` (const MessageBoxParams*): 消息框参数结构体指针
+
+#### 返回值
+
+- `int`: 1 表示成功，0 表示失败
+
+#### 示例
+
+```c
+// 基本用法
+MessageBoxParams params = {
+    .window_id = window_id,
+    .title = "提示",
+    .message = "确定要执行此操作吗？",
+    .buttons = "确定|取消",
+    .default_id = 0,
+    .cancel_id = 1,
+    .blocking = 1
+};
+jade_dialog_show_message_box(&params);
+
+// 带详细信息和类型
+MessageBoxParams params = {
+    .window_id = window_id,
+    .title = "警告",
+    .message = "文件不存在",
+    .detail = "请检查文件路径是否正确",
+    .buttons = "确定",
+    .type_ = "warning",
+    .blocking = 1
+};
+jade_dialog_show_message_box(&params);
+```
+
+### jade_dialog_show_error_box
+
+显示错误框。
+
+#### 原型
+
+```c
+int jade_dialog_show_error_box(u32 window_id, const char* title, const char* content);
+```
+
+#### 参数
+
+- `window_id` (u32): 窗口 ID
+- `title` (const char*): 错误框标题
+- `content` (const char*): 错误信息内容
+
+#### 返回值
+
+- `int`: 1 表示成功，0 表示失败
+
+#### 示例
+
+```c
+// 基本用法
+jade_dialog_show_error_box(window_id, "错误", "操作失败，请重试");
+
+// 显示网络错误
+jade_dialog_show_error_box(window_id, "网络错误", "无法连接到服务器，请检查网络连接后重试");
+```
+
+### C 代码完整示例
+
+```c
+// 对话框回调函数
+void onOpenDialogComplete(const char* result) {
+  printf("Open dialog result: %s\n", result);
+}
+
+void onSaveDialogComplete(const char* result) {
+  printf("Save dialog result: %s\n", result);
+}
+
+void onMessageBoxComplete(const char* result) {
+  printf("MessageBox result: %s\n", result);
+}
+
+// 显示打开文件对话框
+void showOpenFileDialog(u32 window_id) {
+  // 基本用法
+  OpenDialogParams params = {
+    .window_id = window_id,
+    .title = "选择文件",
+    .properties = "openFile,multiSelections",
+    .filters = "[{\"name\": \"Text Files\", \"extensions\": [\"txt\", \"md\"]}, {\"name\": \"All Files\", \"extensions\": [\"*\"]}]",
+    .blocking = 1
+  };
+  jade_dialog_show_open_dialog(&params);
+  
+  // 非阻塞模式带回调
+  OpenDialogParams paramsAsync = {
+    .window_id = window_id,
+    .title = "选择文件 (异步)",
+    .properties = "openFile",
+    .blocking = 0,
+    .callback = onOpenDialogComplete
+  };
+  // jade_dialog_show_open_dialog(&paramsAsync);
+}
+
+// 显示保存文件对话框
+void showSaveFileDialog(u32 window_id) {
+  SaveDialogParams params = {
+    .window_id = window_id,
+    .title = "保存文件",
+    .default_path = "document.txt",
+    .filters = "[{\"name\": \"Text File\", \"extensions\": [\"txt\"]}]",
+    .blocking = 1
+  };
+  jade_dialog_show_save_dialog(&params);
+  
+  // 非阻塞模式带回调
+  SaveDialogParams paramsAsync = {
+    .window_id = window_id,
+    .title = "保存文件 (异步)",
+    .default_path = "document.txt",
+    .blocking = 0,
+    .callback = onSaveDialogComplete
+  };
+  // jade_dialog_show_save_dialog(&paramsAsync);
+}
+
+// 显示消息框
+void showMessageBox(u32 window_id) {
+  // 基本用法
+  MessageBoxParams params = {
+    .window_id = window_id,
+    .title = "确认操作",
+    .message = "确定要退出吗？",
+    .buttons = "退出|取消",
+    .default_id = 1,
+    .cancel_id = 1,
+    .type_ = "question",
+    .blocking = 1
+  };
+  jade_dialog_show_message_box(&params);
+  
+  // 非阻塞模式带回调
+  MessageBoxParams paramsAsync = {
+    .window_id = window_id,
+    .title = "确认操作 (异步)",
+    .message = "确定要退出吗？",
+    .buttons = "退出|取消",
+    .default_id = 1,
+    .cancel_id = 1,
+    .type_ = "question",
+    .blocking = 0,
+    .callback = onMessageBoxComplete
+  };
+  // jade_dialog_show_message_box(&paramsAsync);
+}
+
+// 显示错误框
+void showErrorBox(u32 window_id) {
+  jade_dialog_show_error_box(window_id, "错误", "无法加载配置文件");
+}
+
+// 注册事件监听器
+void registerEventListeners() {
+  jade_on("dialog-open-file-completed", handleDialogComplete);
+  jade_on("dialog-save-file-completed", handleDialogComplete);
+  jade_on("dialog-message-box-completed", handleDialogComplete);
+  jade_on("dialog-error-box-completed", handleDialogComplete);
+}
+
+// 事件处理函数
+int handleDialogComplete(u32 window_id, const char* data) {
+  printf("Dialog completed: window_id=%u, data=%s\n", window_id, data);
+  return 0;
+}
+```
+
+## 注意事项
+
+1. **阻塞选项**: 使用 `blocking: true` 时，对话框会阻塞进程直到用户关闭对话框；使用 `blocking: false` 时，对话框会异步显示，不会阻塞进程。
+
+2. **过滤器格式**: 过滤器数组中的每个对象必须包含 `name` 和 `extensions` 属性，其中 `extensions` 是文件扩展名数组，不包含点号。
+
+3. **路径格式**: Windows 系统中，文件路径使用双反斜杠 (`\\`) 或正斜杠 (`/`)。
+
+4. **事件监听**: 对话框操作完成后会触发相应的事件，可以通过 `jade.on` 监听这些事件来获取操作结果。
+
+5. **错误处理**: 前端 API 返回 Promise，建议使用 try/catch 或 .catch() 处理可能的错误。
+
+6. **properties 组合**: 
+   - `openFile` 和 `openDirectory` 可以同时使用，允许用户选择文件或文件夹
+   - `multiSelections` 可以与任何其他属性组合使用
+   - 某些属性是平台特定的（如 `createDirectory` 仅在 macOS 有效）
+
+7. **type 类型选择**:
+   - 使用 `info` 显示一般信息
+   - 使用 `warning` 显示警告信息
+   - 使用 `error` 显示错误信息
+   - 使用 `question` 询问用户确认
+   - 使用 `none` 不显示任何图标
+
+## 平台差异
+
+- **Windows**: 完全支持所有对话框功能
+- **macOS**: 部分属性可能行为略有不同（如 `createDirectory`）
+- **Linux**: 取决于桌面环境，部分功能可能受限
+
+## 故障排除
+
+### 对话框不显示
+
+- 检查窗口 ID 是否正确
+- 检查是否有其他模态窗口阻塞了对话框
+- 检查是否在非 UI 线程中调用了对话框 API
+
+### 事件不触发
+
+- 确保正确注册了事件监听器
+- 确保监听器函数签名正确
+- 检查是否在对话框显示前注册了监听器
+
+### 参数错误
+
+- 确保传递的参数格式正确
+- 确保 JSON 格式正确，特别是转义字符
+- 检查文件路径是否存在且可访问
+
+### 过滤器不生效
+
+- 确保 `extensions` 数组中的扩展名不包含点号（如使用 `png` 而不是 `.png`）
+- 确保 JSON 格式正确，特别是转义字符
+
+### 返回 undefined
+
+- 确保 `blocking` 选项设置正确
+- 检查 Promise 是否正确处理
+- 查看控制台是否有错误信息

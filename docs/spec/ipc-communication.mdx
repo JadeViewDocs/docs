@@ -40,7 +40,7 @@ JadeView 使用高效的自定义协议实现前后端通信：
 
 在前端 JavaScript 中，可以通过 `jade.invoke()` 方法调用后端 API：
 
-有关前端 API 的详细信息，请查看 [前端 API 文档](/guides/JavaScript-API)。
+有关前端 API 的详细信息，请查看 [前端 API 文档](/v1api/JavaScript-API)。
 
 ```javascript
 // 调用后端 API，发送简单数据
@@ -77,7 +77,7 @@ async function updateUser() {
 
 在后端 C/C++ 代码中，使用回调函数处理前端请求：
 
-有关 C API 的详细信息，请查看 [C API 文档](/guides/reference/c-api)。
+有关 C API 的详细信息，请查看 [C API 文档](/v1api/reference/c-api)。
 
 ```c
 #include "jadeview.h"
@@ -120,7 +120,7 @@ int app_ready_callback(int success, const char* reason) {
 
 在后端 C/C++ 代码中，使用 `send_event()` 函数向前端发送事件：
 
-有关 C API 的详细信息，请查看 [C API 文档](/guides/reference/c-api)。
+有关 C API 的详细信息，请查看 [C API 文档](/v1api/reference/c-api)。
 
 ```c
 #include "jadeview.h"
@@ -163,7 +163,7 @@ void send_system_update() {
 
 在前端 JavaScript 中，使用 `jade.on()` 方法注册事件处理器：
 
-有关前端 API 的详细信息，请查看 [前端 API 文档](/guides/JavaScript-API)。
+有关前端 API 的详细信息，请查看 [前端 API 文档](/v1api/JavaScript-API)。
 
 ```javascript
 // 接收简单事件

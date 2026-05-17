@@ -153,7 +153,7 @@ int32_t reload_webview_window(uint32_t window_id);
 
 往页面里注入并执行一段 JavaScript。
 
-若需要执行结果，通过事件 `javascript-result` 等取回（见 [事件类型](/api-2-preview/event-types#javascript-result)）。
+若需要执行结果，通过事件 `javascript-result` 等取回（见 [事件类型](/v2api/event-types#javascript-result)）。
 
 返回值只表示「请求有没有提交成功」，不是 JS 的返回值。
 
@@ -375,7 +375,7 @@ int32_t set_window_enabled(uint32_t window_id, int32_t enabled);
 
 控制窗口和 WebView 使用浅色、深色还是跟随系统主题。
 
-更细的说明见 [主题管理](/api-2-preview/theme-management)。
+更细的说明见 [主题管理](/v2api/theme-management)。
 
 ```c
 int32_t set_window_theme(uint32_t window_id, const char* theme);
@@ -406,7 +406,7 @@ int32_t get_window_theme(uint32_t window_id);
 
 Windows 11 下设置云母、亚克力等系统背景材质。
 
-可用字符串见 [主题管理](/api-2-preview/theme-management)。
+可用字符串见 [主题管理](/v2api/theme-management)。
 
 ```c
 int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);

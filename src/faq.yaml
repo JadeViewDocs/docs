@@ -32,7 +32,7 @@
     4. 运行消息循环：调用 `run_message_loop` 运行消息循环
     5. 清理资源：应用程序退出前调用 `cleanup_all_windows` 清理所有资源
 
-    详细的快速开始指南请参考 [快速开始](/guides/quickstart)。
+    详细的快速开始指南请参考 [快速开始](/v1api/quickstart)。
 
 - question: JadeView 的内存管理机制是怎样的？
   tags: ['JadeView', 'Memory Management']
@@ -65,7 +65,7 @@
     );
     ```
 
-    详细的窗口创建指南请参考 [创建窗口](/guides/quickstart)。
+    详细的窗口创建指南请参考 [创建窗口](/v1api/quickstart)。
 
 - question: 如何关闭窗口？
   tags: ['JadeView', 'Window Management']
@@ -93,7 +93,7 @@
     1. **使用 `set_window_event_handlers`**：（将在 0.2.1 版本移除）设置全局窗口事件处理器
     2. **使用 `jade_on`**：注册特定事件处理器
 
-    详细的事件处理指南请参考 [注册事件](/guides/events/register-events)。
+    详细的事件处理指南请参考 [注册事件](/v1api/events/register-events)。
 
 - question: JadeView 支持哪些事件类型？
   tags: ['JadeView', 'Events']
@@ -106,7 +106,7 @@
     - **主题事件**：theme-changed
     - **其他事件**：update-window-icon
 
-    详细的事件类型列表请参考 [事件类型](/guides/events/event-types)。
+    详细的事件类型列表请参考 [事件类型](/v1api/events/event-types)。
 
 - question: 如何注销事件处理器？
   tags: ['JadeView', 'Events']
@@ -131,7 +131,7 @@
     - "Dark"：深色主题
     - "System"：跟随系统主题
 
-    详细的主题设置请参考 [设置主题](/guides/theme/set-theme)。
+    详细的主题设置请参考 [设置主题](/v1api/theme/set-theme)。
 
 - question: 如何设置背景材料？
   tags: ['JadeView', 'Theme']
@@ -147,7 +147,7 @@
     - "micaalt"：Mica Alt 效果
     - "acrylic"：Acrylic 效果
 
-    详细的背景材料设置请参考 [背景材料](/guides/theme/backdrop)。
+    详细的背景材料设置请参考 [背景材料](/v1api/theme/backdrop)。
 
 - question: 如何使用 IPC 通信？
   tags: ['JadeView', 'IPC']
@@ -181,7 +181,7 @@
     create_webview_window(url, 0, NULL, NULL);
     ```
 
-    详细的本地服务器使用请参考 [创建服务器](/guides/local-server/create-server)。
+    详细的本地服务器使用请参考 [创建服务器](/v1api/local-server/create-server)。
 
 - question: 本地服务器的优势是什么？
   tags: ['JadeView', 'Local Server']

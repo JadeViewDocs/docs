@@ -7,7 +7,7 @@ sidebar_position: 14
 
 本页收录插件分类中偏**系统集成 / 扩展能力**的接口，适合在应用进入深度桌面集成阶段使用。
 
-若你只关心基础工具能力（版本、路径、语言、显示器、配置读写），请看 [工具 API](/api-2-preview/tools-api)。
+若你只关心基础工具能力（版本、路径、语言、显示器、配置读写），请看 [工具 API](/v2api/tools-api)。
 
 ---
 
@@ -60,4 +60,4 @@ int32_t unregister_global_hotkey(uint32_t hotkey_id);
 | `> 0` | 热键 id，注销时传给 `unregister_global_hotkey`。 |
 | `0` | 注册失败；若当前发行版里该功能尚未接好，可能一直为 `0`（以实际 DLL 为准）。 |
 
-事件字段说明见 [事件类型](/api-2-preview/event-types#global-hotkey)。
+事件字段说明见 [事件类型](/v2api/event-types#global-hotkey)。
