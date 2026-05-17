@@ -84,7 +84,7 @@ export const getContributors = async (filePath) => {
 export const getAllContributors = async () => {
   try {
     // 使用默认文件路径获取所有贡献者
-    const defaultFilePath = 'docs/guides/index.mdx';
+    const defaultFilePath = 'docs/v1api/index.mdx';
     return await getContributors(defaultFilePath);
   } catch (error) {
     console.error('获取所有贡献者信息失败:', error);

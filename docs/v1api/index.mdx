@@ -1,0 +1,68 @@
+---
+title: 核心 API
+sidebar_position: 7
+---
+
+# 核心 API
+
+## 初始化与清理
+
+### 初始化 DLL
+
+**函数签名**
+```c
+int JadeView_init(int enable_devtools, const char* log_path, const char* data_directory);
+```
+
+**功能描述**
+初始化 JadeView DLL，启动 GUI 线程。
+
+**参数**
+- `enable_devtools`：是否启用开发者工具（0=禁用，1=启用）
+- `log_path`：日志文件路径，NULL 表示不输出日志到文件
+- `data_directory`：WebView 数据目录，NULL 表示使用默认值
+
+**返回值**
+- 1：初始化成功
+- 0：初始化失败
+
+**说明**
+- 此函数会启动一个新的 GUI 线程，所有窗口操作都在该线程中执行
+- 初始化完成后会发送 "app-ready" 事件
+
+### 清理所有窗口
+
+**函数签名**
+```c
+int cleanup_all_windows();
+```
+
+**功能描述**
+清理所有窗口资源并结束事件循环。
+
+**返回值**
+- 1：成功
+- 0：失败
+
+## 消息循环
+
+### 运行消息循环
+
+**函数签名**
+```c
+int run_message_loop();
+```
+
+**功能描述**
+运行消息循环，阻塞等待应用程序退出。
+
+**返回值**
+- 1：消息循环正常退出
+
+**说明**
+- 在 DLL 模式下，此函数通常不需要宿主调用，因为已在 `JadeView_init` 中创建了 GUI 线程
+- 此函数用于阻塞等待，直到 `cleanup_all_windows` 被调用
+
+## 工具 API
+
+有关工具 API 的详细文档，请查看 [工具 API](./tools-api.mdx) 页面。

@@ -36,7 +36,7 @@ sidebar_position: 12
 ## 和 2.0 创建窗口 API 的配合
 
 - 要不要系统标题栏、要不要边框，由 **`WebViewWindowOptions.frame_style`** 决定（`normal` / `no-titlebar` / `borderless` / `title-overlay`），不要再填已删除的旧字段。
-- 需要**整块无边框 WebView 壳子**时，用 **`create_borderless_webview_window`**，见 [窗口 API](/api-2-preview/window-api)。
+- 需要**整块无边框 WebView 壳子**时，用 **`create_borderless_webview_window`**，见 [窗口 API](/v2api/window-api)。
 
 ---
 
@@ -89,3 +89,48 @@ set_titlebar_overlay_style(
 :::info
 `title-overlay` 样式仅 Windows 平台支持。在其他平台上会回退到 `no-titlebar` 样式。
 :::
+
+---
+
+## 右键菜单控制（`jade-allow-contextmenu`）
+
+**用途**：按元素粒度控制右键菜单是否允许弹出。当 `WebViewSettings.disable_right_click` 全局禁用右键时，可通过此属性为特定元素单独放行。
+
+### 基本用法
+
+```html
+<!-- 允许弹出右键菜单 -->
+<button jade-allow-contextmenu>右键我</button>
+
+<!-- 禁止弹出右键菜单（默认行为） -->
+<button>右键我也没用</button>
+```
+
+### 注意事项
+
+- **优先级**：元素同时设置了 `disabled` 属性时，`jade-allow-contextmenu` 不生效
+- **全局设置**：`WebViewSettings` 中 `disable_right_click=0`（不全局禁用）时，此属性被忽略，页面任意处都可弹出右键
+- **默认行为**：未设置此属性的元素默认不允许弹出右键菜单
+
+### 动态控制
+
+```javascript
+const el = document.getElementById('my-element');
+el.setAttribute('jade-allow-contextmenu', '');     // 允许
+el.removeAttribute('jade-allow-contextmenu');      // 禁止
+```
+
+---
+
+## 故障排除
+
+### 拖动区域不工作
+
+- 确保属性名正确：`-webkit-app-region` 或 `app-region`
+- 检查按钮区域是否正确设置了 `no-drag`，避免嵌套覆盖
+
+### 右键菜单不弹出
+
+- 检查元素是否设置了 `disabled` 属性
+- 确认 `WebViewSettings.disable_right_click` 为 `1`（全局禁用右键），否则 `jade-allow-contextmenu` 无意义
+- 确保 `jade-allow-contextmenu` 属性已正确添加到目标元素

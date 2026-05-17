@@ -80,8 +80,8 @@ export default function SDKs() {
       bgColor: '#3b82f6',
     },
     {
-      name: 'IPC 通信',
-      to: '/guides/ipc-api',
+      name: 'IPC 通信 API',
+      to: '/v2api/ipc-api',
       icon: (
         <svg
           className="h-4 w-4"

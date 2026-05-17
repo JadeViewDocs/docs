@@ -1,5 +1,5 @@
 /**
- * api-2-preview 文档侧栏。
+ * v2api 文档侧栏。
  */
 
 // @ts-check
@@ -33,9 +33,9 @@ const sidebars = {
       items: ['ipc-api', 'event-types'],
     },
     {
-      type: 'doc',
-      id: 'japk',
-      label: 'JAPK',
+      type: 'category',
+      label: 'JAPK 资源包',
+      items: ['japk', 'jadepack', 'japk-load-memory'],
     },
     {
       type: 'category',

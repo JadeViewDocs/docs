@@ -21,7 +21,7 @@ int32_t show_notification(const NotificationParams* params);
 | `body` | 正文说明。 |
 | `icon` | 小图标的**磁盘绝对路径**。 |
 | `timeout` | 停留多久（毫秒）；`<= 0` 用系统默认。 |
-| `button1` / `button2` | 通知上的按钮文字；用户点击会触发 **`notification-action`** 等（见 [事件类型](/api-2-preview/event-types#notification-events)）。 |
+| `button1` / `button2` | 通知上的按钮文字；用户点击会触发 **`notification-action`** 等（见 [事件类型](/v2api/event-types#notification-events)）。 |
 | `text3` | 多一行辅助文字。 |
 | `action` | 跟通知动作相关的参数，会进系统回调数据。 |
 
@@ -29,7 +29,7 @@ int32_t show_notification(const NotificationParams* params);
 
 ### 行为说明
 
-不再需要单独调「注册应用」：**第一次显示通知时库会在内部完成注册**。用户点击、关闭或显示失败时，宿主通过 **`jade_on`** 收到的事件名见 [事件类型 · 通知相关事件](/api-2-preview/event-types#notification-events)。
+不再需要单独调「注册应用」：**第一次显示通知时库会在内部完成注册**。用户点击、关闭或显示失败时，宿主通过 **`jade_on`** 收到的事件名见 [事件类型 · 通知相关事件](/v2api/event-types#notification-events)。
 
 **示例**（C 侧调用后，在回调里处理结果）：
 

@@ -37,7 +37,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
     // 从URL中提取更准确的文档路径
     const pathname = window.location.pathname;
-    let docPath = 'docs/guides/index.mdx'; // 默认路径
+    let docPath = 'docs/v1api/index.mdx'; // 默认路径
     
     // 通用路径匹配逻辑：从URL中提取文档路径并尝试多种匹配方式
     const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
@@ -56,7 +56,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     }
     
     // 3. 处理根路径情况
-    possiblePaths.push('docs/guides/index.mdx');
+    possiblePaths.push('docs/v1api/index.mdx');
     
     // 4. 尝试移除文件扩展名（如果有）
     if (cleanPath && cleanPath.endsWith('.mdx')) {

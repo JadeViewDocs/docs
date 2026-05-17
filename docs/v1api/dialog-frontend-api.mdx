@@ -1,0 +1,375 @@
+---
+title: 对话框前端 API
+sidebar_position: 8
+---
+
+# 对话框前端 API
+
+JadeView 1.3 版本新增了对话框 API，该 API 类似于 Electron 的 dialog 模块，支持在前端使用，用于显示文件选择、保存文件、消息提示等对话框。
+
+## 基本用法
+
+前端可以通过 `jade.dialog` 对象访问对话框 API，所有方法都返回 Promise。
+
+### showOpenDialog
+
+显示打开文件对话框，用于选择一个或多个文件。
+
+#### 参数
+
+- `options` (Object): 对话框选项
+  - `title` (String, 可选): 对话框标题
+  - `defaultPath` (String, 可选): 默认打开路径
+  - `buttonLabel` (String, 可选): 确认按钮的自定义标签
+  - `filters` (Array, 可选): 文件过滤器数组
+  - `properties` (Array, 可选): 对话框特性数组
+  - `blocking` (Boolean, 可选): 是否阻塞进程，默认为 true
+
+#### 返回值
+
+- `Promise<Object>`: 包含以下属性的对象
+  - `canceled` (Boolean): 是否取消了对话框
+  - `filePaths` (Array&lt;String&gt;): 选择的文件路径数组
+
+#### 示例
+
+```javascript
+// 基本用法
+const result = await jade.dialog.showOpenDialog({
+  title: '选择文件',
+  properties: ['openFile', 'multiSelections']
+});
+
+if (!result.canceled) {
+  console.log('选择的文件:', result.filePaths);
+}
+
+// 使用过滤器
+const result = await jade.dialog.showOpenDialog({
+  title: '选择图片',
+  filters: [
+    { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+    { name: 'All Files', extensions: ['*'] }
+  ],
+  properties: ['openFile']
+});
+```
+
+### showSaveDialog
+
+显示保存文件对话框，用于选择保存文件的路径。
+
+#### 参数
+
+- `options` (Object): 对话框选项
+  - `title` (String, 可选): 对话框标题
+  - `defaultPath` (String, 可选): 默认保存路径
+  - `buttonLabel` (String, 可选): 确认按钮的自定义标签
+  - `filters` (Array, 可选): 文件过滤器数组
+  - `blocking` (Boolean, 可选): 是否阻塞进程，默认为 true
+
+#### 返回值
+
+- `Promise<Object>`: 包含以下属性的对象
+  - `canceled` (Boolean): 是否取消了对话框
+  - `filePath` (String, 可选): 选择的保存文件路径
+
+#### 示例
+
+```javascript
+// 基本用法
+const result = await jade.dialog.showSaveDialog({
+  title: '保存文件',
+  defaultPath: 'document.txt'
+});
+
+if (!result.canceled) {
+  console.log('保存路径:', result.filePath);
+}
+```
+
+### showMessageBox
+
+显示消息框，用于显示信息、警告或错误，并获取用户的选择。
+
+#### 参数
+
+- `options` (Object): 消息框选项
+  - `title` (String, 可选): 消息框标题
+  - `message` (String, 可选): 消息框内容
+  - `detail` (String, 可选): 详细信息
+  - `buttons` (Array&lt;String&gt;, 可选): 按钮文本数组
+  - `defaultId` (Number, 可选): 默认选中的按钮索引
+  - `cancelId` (Number, 可选): 取消按钮的索引
+  - `type` (String, 可选): 消息框类型
+  - `blocking` (Boolean, 可选): 是否阻塞进程，默认为 true
+
+#### 返回值
+
+- `Promise<Object>`: 包含以下属性的对象
+  - `response` (Number): 用户点击的按钮索引
+
+#### 示例
+
+```javascript
+// 基本用法
+const result = await jade.dialog.showMessageBox({
+  title: '提示',
+  message: '确定要执行此操作吗？',
+  buttons: ['确定', '取消'],
+  defaultId: 0,
+  cancelId: 1
+});
+
+console.log('用户选择:', result.response);
+```
+
+### showErrorBox
+
+显示错误框，用于显示错误信息。
+
+#### 参数
+
+- `title` (String): 错误框标题
+- `content` (String): 错误信息内容
+
+#### 返回值
+
+- `Promise<void>`: 无返回值
+
+#### 示例
+
+```javascript
+// 基本用法
+await jade.dialog.showErrorBox('错误', '操作失败，请重试');
+```
+
+## 选项详细定义
+
+### type 类型定义
+
+`type` 选项用于指定消息框的图标类型，可选值如下：
+
+| 值 | 说明 | 图标 |
+|----|------|------|
+| `'none'` | 无图标 | 无 |
+| `'info'` | 信息图标 | ℹ️ 蓝色信息图标 |
+| `'error'` | 错误图标 | ❌ 红色错误图标 |
+| `'warning'` | 警告图标 | ⚠️ 黄色警告图标 |
+| `'question'` | 问题图标 | ❓ 蓝色问号图标 |
+
+### properties 属性定义
+
+`properties` 选项用于指定对话框的行为特性，是一个字符串数组，可选值如下：
+
+#### showOpenDialog 的 properties
+
+| 属性值 | 说明 |
+|--------|------|
+| `'openFile'` | 允许选择文件（默认） |
+| `'openDirectory'` | 允许选择文件夹 |
+| `'multiSelections'` | 允许多选 |
+| `'showHiddenFiles'` | 显示隐藏文件 |
+| `'createDirectory'` | 允许创建新文件夹（仅在 macOS 有效） |
+| `'promptToCreate'` | 如果文件不存在，提示创建（仅在 Windows 有效） |
+
+### filters 过滤器定义
+
+`filters` 选项用于限制可选择的文件类型，是一个对象数组，每个对象包含以下属性：
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `name` | String | 过滤器显示名称 |
+| `extensions` | Array&lt;String&gt; | 文件扩展名数组（不包含点号） |
+
+## 事件
+
+对话框操作完成后，会触发相应的事件，可以通过 `jade.on` 监听。
+
+### dialog-open-file-completed
+
+打开文件对话框操作完成时触发。
+
+#### 事件数据
+
+```javascript
+{
+  canceled: false,
+  filePaths: ["C:\\path\\to\\file1.txt", "C:\\path\\to\\file2.txt"]
+}
+```
+
+### dialog-save-file-completed
+
+保存文件对话框操作完成时触发。
+
+#### 事件数据
+
+```javascript
+{
+  canceled: false,
+  filePath: "C:\\path\\to\\save\\file.txt"
+}
+```
+
+### dialog-message-box-completed
+
+消息框操作完成时触发。
+
+#### 事件数据
+
+```javascript
+{
+  response: 0 // 用户点击的按钮索引
+}
+```
+
+### dialog-error-box-completed
+
+错误框操作完成时触发。
+
+#### 事件数据
+
+```javascript
+// 无数据
+```
+
+## 完整示例
+
+```javascript
+// 打开文件对话框
+async function openFile() {
+  try {
+    const result = await jade.dialog.showOpenDialog({
+      title: '选择文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: 'Text Files', extensions: ['txt', 'md'] },
+        { name: 'All Files', extensions: ['*'] }
+      ],
+      blocking: true
+    });
+
+    if (!result.canceled) {
+      console.log('选择的文件:', result.filePaths);
+      // 处理选择的文件
+    }
+  } catch (error) {
+    console.error('打开文件对话框失败:', error);
+  }
+}
+
+// 保存文件对话框
+async function saveFile() {
+  try {
+    const result = await jade.dialog.showSaveDialog({
+      title: '保存文件',
+      defaultPath: 'document.txt',
+      filters: [
+        { name: 'Text File', extensions: ['txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (!result.canceled) {
+      console.log('保存路径:', result.filePath);
+      // 保存文件
+    }
+  } catch (error) {
+    console.error('保存文件对话框失败:', error);
+  }
+}
+
+// 显示消息框
+async function showConfirm() {
+  try {
+    const result = await jade.dialog.showMessageBox({
+      title: '确认操作',
+      message: '确定要删除此文件吗？',
+      detail: '此操作不可撤销',
+      buttons: ['确定', '取消'],
+      defaultId: 1,
+      cancelId: 1,
+      type: 'warning'
+    });
+
+    if (result.response === 0) {
+      console.log('用户确认删除');
+      // 执行删除操作
+    } else {
+      console.log('用户取消删除');
+    }
+  } catch (error) {
+    console.error('显示消息框失败:', error);
+  }
+}
+
+// 显示错误框
+function showError() {
+  jade.dialog.showErrorBox('操作失败', '无法连接到服务器，请检查网络连接后重试');
+}
+
+// 监听对话框完成事件
+jade.on('dialog-open-file-completed', (result) => {
+  console.log('对话框完成事件:', result);
+});
+```
+
+## 注意事项
+
+1. **阻塞选项**: 使用 `blocking: true` 时，对话框会阻塞进程直到用户关闭对话框；使用 `blocking: false` 时，对话框会异步显示，不会阻塞进程。
+
+2. **过滤器格式**: 过滤器数组中的每个对象必须包含 `name` 和 `extensions` 属性，其中 `extensions` 是文件扩展名数组，不包含点号。
+
+3. **路径格式**: Windows 系统中，文件路径使用双反斜杠 (`\\`) 或正斜杠 (`/`)。
+
+4. **事件监听**: 对话框操作完成后会触发相应的事件，可以通过 `jade.on` 监听这些事件来获取操作结果。
+
+5. **错误处理**: 前端 API 返回 Promise，建议使用 try/catch 或 .catch() 处理可能的错误。
+
+6. **properties 组合**: 
+   - `openFile` 和 `openDirectory` 可以同时使用，允许用户选择文件或文件夹
+   - `multiSelections` 可以与任何其他属性组合使用
+   - 某些属性是平台特定的（如 `createDirectory` 仅在 macOS 有效）
+
+7. **type 类型选择**:
+   - 使用 `info` 显示一般信息
+   - 使用 `warning` 显示警告信息
+   - 使用 `error` 显示错误信息
+   - 使用 `question` 询问用户确认
+   - 使用 `none` 不显示任何图标
+
+## 平台差异
+
+- **Windows**: 完全支持所有对话框功能
+- **macOS**: 部分属性可能行为略有不同（如 `createDirectory`）
+- **Linux**: 取决于桌面环境，部分功能可能受限
+
+## 故障排除
+
+### 对话框不显示
+
+- 检查是否在非 UI 线程中调用了对话框 API
+
+### 事件不触发
+
+- 确保正确注册了事件监听器
+- 确保监听器函数签名正确
+- 检查是否在对话框显示前注册了监听器
+
+### 参数错误
+
+- 确保传递的参数格式正确
+- 确保 JSON 格式正确，特别是转义字符
+- 检查文件路径是否存在且可访问
+
+### 过滤器不生效
+
+- 确保 `extensions` 数组中的扩展名不包含点号（如使用 `png` 而不是 `.png`）
+- 确保 JSON 格式正确，特别是转义字符
+
+### 返回 undefined
+
+- 确保 `blocking` 选项设置正确
+- 检查 Promise 是否正确处理
+- 查看控制台是否有错误信息

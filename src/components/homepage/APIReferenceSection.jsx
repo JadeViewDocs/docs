@@ -13,7 +13,7 @@ export default function APIReferenceSection() {
 
       <div className="jv-api-spotlight">
         <Link
-          to="/guides"
+          to="/v2api"
           aria-label="打开 API 文档"
           className="jv-api-spotlight__external"
         >
@@ -39,7 +39,7 @@ export default function APIReferenceSection() {
           <p className="jv-api-spotlight__lead">
             简洁的初始化、窗口与事件模型，可在多种语言与框架中嵌入调用。
           </p>
-          <Link to="/guides" className="jv-api-spotlight__primary">
+          <Link to="/v2api" className="jv-api-spotlight__primary">
             浏览 API 文档
             <span className="jv-api-spotlight__primary-arrow" aria-hidden>
               →
@@ -49,29 +49,29 @@ export default function APIReferenceSection() {
           <ul className="jv-api-spotlight__list">
             <li>
               <Link
-                to="/guides/window-api#create-window"
+                to="/v2api/window-api#创建窗口"
                 className="jv-api-spotlight__row"
               >
                 <span className="jv-api-spotlight__row-title">创建窗口</span>
-                <span className="jv-api-spotlight__row-hint">实例化 WebView 窗口</span>
+                <span className="jv-api-spotlight__row-hint">create_webview_window 与新 frame_style</span>
               </Link>
             </li>
             <li>
               <Link
-                to="/guides/window-api#window-config"
+                to="/v2api/window-api#标题位置大小显示"
                 className="jv-api-spotlight__row"
               >
                 <span className="jv-api-spotlight__row-title">窗口配置</span>
-                <span className="jv-api-spotlight__row-hint">尺寸、位置与装饰</span>
+                <span className="jv-api-spotlight__row-hint">标题、位置、大小、显示/隐藏</span>
               </Link>
             </li>
             <li>
               <Link
-                to="/guides/window-api#event-handling"
+                to="/v2api/event-types"
                 className="jv-api-spotlight__row"
               >
-                <span className="jv-api-spotlight__row-title">事件处理</span>
-                <span className="jv-api-spotlight__row-hint">回调与自定义事件</span>
+                <span className="jv-api-spotlight__row-title">事件系统</span>
+                <span className="jv-api-spotlight__row-hint">jade_on 事件回调与返回值拦截</span>
               </Link>
             </li>
           </ul>

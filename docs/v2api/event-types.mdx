@@ -7,7 +7,7 @@ sidebar_position: 7
 
 本页列出宿主通过 **`jade_on`** 订阅后，库可能派发的事件：**`event_data` 一般是 UTF-8 的 JSON 字符串**（少数为纯文本，如 `app-ready` 成功时的 `success`）。`jade_on` 回调的第一个参数 **`window_id`** 标明是哪个窗口（与具体事件无关的全局事件多为 `0`，以各节为准）。
 
-**`IpcCallback` 的返回值**在「拦截类」事件与 **`register_ipc_handler`** 中含义不同，务必先看下文 **速查表**。[IPC 通信 API](/api-2-preview/ipc-api) 中有与 `jade.invoke` 配套的补充说明。
+**`IpcCallback` 的返回值**在「拦截类」事件与 **`register_ipc_handler`** 中含义不同，务必先看下文 **速查表**。[IPC 通信 API](/v2api/ipc-api) 中有与 `jade.invoke` 配套的补充说明。
 
 ---
 
@@ -29,7 +29,7 @@ sidebar_position: 7
 
 ### 调用处理器场景：例外（`register_ipc_handler` / `jade.invoke`）
 
-这里 **`(const char*)1` 不是「阻止」**：与 **`NULL`** 等一起被当成**特殊占位**，库映射为**默认成功 JSON**，且**不会** `jade_text_free`。自定义应答正文须用 **`jade_text_create`** 分配并由库释放。详见 [IPC 通信 API](/api-2-preview/ipc-api)。
+这里 **`(const char*)1` 不是「阻止」**：与 **`NULL`** 等一起被当成**特殊占位**，库映射为**默认成功 JSON**，且**不会** `jade_text_free`。自定义应答正文须用 **`jade_text_create`** 分配并由库释放。详见 [IPC 通信 API](/v2api/ipc-api)。
 
 ---
 
@@ -64,7 +64,7 @@ sidebar_position: 7
 | `webview-download-started` | 开始下载 | `{"url": "...", "filename": "..."}`；**默认拦截**，见 [返回值表](#ipc-callback-returns) |
 | `javascript-result` | `execute_javascript` 执行完 | 见下节 |
 | `file-drop` | 文件拖入 WebView | `{"files": ["路径1", ...], "x": 整数, "y": 整数}`（注册后会接管拖拽，前端可能收不到原生 drop） |
-| `postmessage-received` | 页面 `postMessage` | `{"origin": "来源", "message": "字符串"}`；**仅当来源通过白名单**（见 [核心 API · WebViewSettings](/api-2-preview/index#webview-settings)） |
+| `postmessage-received` | 页面 `postMessage` | `{"origin": "来源", "message": "字符串"}`；**仅当来源通过白名单**（见 [核心 API · WebViewSettings](/v2api/index#webview-settings)） |
 
 ---
 
