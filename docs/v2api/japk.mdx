@@ -155,6 +155,22 @@ asar pack my-app ./output/app.japk
 
 **推荐做法：** 使用 JadePack 的图形界面构建中心创建签名 JAPK 包，可以提供完整的安全保护、身份验证和完整性校验。
 
+### Electron ASAR 与 JadePack 对比
+
+| 特性 | Electron ASAR | JadePack 混淆包 | JadePack 签名包 |
+|------|:---:|:---:|:---:|
+| 打包工具 | `@electron/asar` CLI | JadePack 桌面客户端 | JadePack 桌面客户端 |
+| 文件格式 | ASAR（明文） | JAPK v2 混淆 | JAPK v2 签名 |
+| 内容保护 | ❌ 无 | XOR 混淆 | AES-256-GCM 加密 |
+| 签名验证 | ❌ 不支持 | ❌ 不支持 | ✅ Ed25519 |
+| 防篡改 | ❌ 无 | ❌ 弱 | ✅ 强 |
+| 源码可读 | ✅ 可直接查看 | ❌ 需解混淆 | ❌ 需解密+验签 |
+| 加载方式 | 文件路径 / 内存 | 文件路径 / [内存载入](/v2api/japk-load-memory) | 文件路径 / [内存载入](/v2api/japk-load-memory) |
+| 适用场景 | 开发调试、内部工具 | 基础保护的分发 | 生产环境、商业分发 |
+| 费用 | 免费 | 按月付费 | 按月付费 |
+
+> JadePack 下载与详情见 [JadePack](/v2api/jadepack)。
+
 ### 相关资源
 
 - [https://github.com/electron/asar](https://github.com/electron/asar)
