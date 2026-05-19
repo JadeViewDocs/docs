@@ -1,349 +1,276 @@
-# JADE:// 自定义协议：访问本地 Web 资源的非 HTTP 方式
+---
+title: JADE:// 自定义协议
+sidebar_position: 3
+---
 
-JadeView 提供了通过自定义协议访问本地 Web 资源的功能，允许开发者轻松地在 WebView 窗口中加载和使用本地 Web 资源。
+# JADE:// 自定义协议：加载本地 Web 资源
+
+JadeView 通过 `set_protocol_service_path` 注册自定义协议处理器，将 `https://{appname}.local/` 映射到本地目录或 JAPK 文件，实现安全、高效的本地资源加载。
 
 :::warning 重要提示
-`JADE://` 是 JadeView 特有的**自定义协议**，不是传统的 HTTP 服务器。它专门用于在 JadeView 应用中安全地访问本地资源。
+`https://{appname}.local/` 是 JadeView 内部的自定义协议路由，不是真实的 HTTP 服务器。它不会监听端口，完全在应用内部运行。
 :::
-
-以下是一个完整的教程，展示如何使用 JadeView 通过自定义协议加载本地 Web 资源。
 
 ## 前提条件
 
-- 从 GitHub Releases 下载 `jadeview.dll` 和 `jadeview.h`：[https://github.com/JadeViewDocs/library/releases](https://github.com/JadeViewDocs/library/releases)
+- 从 [GitHub Releases](https://github.com/JadeViewDocs/library/releases) 下载 `jadeview.dll` 和 `jadeview.h`
 - 了解 C 语言基础
 
-## 步骤 1：初始化 JadeView
+---
 
-首先，我们需要初始化 JadeView 库：
+## 步骤 1：初始化并设置协议服务
 
 ```c
+#include <stdio.h>
+#include <string.h>
 #include "jadeview.h"
 
-// 保存窗口 ID，供 IPC 回调使用
-static uint32_t g_window_id = 0;
-
-// 窗口创建成功回调
-void window_created(uint32_t window_id, int success, const char* reason) {
-    if (success == 1) {
-        printf("窗口创建成功，窗口 ID：%u\n", window_id);
-        g_window_id = window_id;
-    } else {
-        printf("窗口创建失败：%s\n", reason ? reason : "未知错误");
-    }
+// 窗口控制 IPC 回调
+const char* minimize_callback(uint32_t window_id, const char* event_data) {
+    minimize_window(window_id);
+    return jade_text_create("{\"ok\":true}");
 }
 
-// 处理标题栏按钮的 IPC 回调
-int window_action_handler(uint32_t window_id, const char* action) {
-    if (strcmp(action, "minimize") == 0) {
-        minimize_window(g_window_id);
-    } else if (strcmp(action, "maximize") == 0) {
-        toggle_maximize_window(g_window_id);
-    } else if (strcmp(action, "close") == 0) {
-        close_window(g_window_id);
-    }
-    return 1;
+const char* maximize_callback(uint32_t window_id, const char* event_data) {
+    toggle_maximize_window(window_id);
+    return jade_text_create("{\"ok\":true}");
 }
 
-// 应用初始化完成回调
-int app_ready_callback(int success, const char* reason) {
-    if (success == 1 && reason && strcmp(reason, "success") == 0) {
-        printf("JadeView 初始化成功\n");
-        
-        // 注册窗口创建完成回调
-        jade_on("window-created", (int arg1, const char* arg2) => {
-            window_created((uint32_t)arg1, arg1 > 0 ? 1 : 0, arg2);
-            return 0;
-        });
-        
-        // 注册窗口操作 IPC 处理器（用于标题栏按钮）
-        register_ipc_handler("windowAction", window_action_handler);
-        
-        // 创建本地 Web 资源访问点
-        // 注意：这不会创建传统的 HTTP 服务器，而是返回一个 JADE:// 自定义协议 URL
-        const char* root_path = "./web";
-        const char* appname = "myapp";
-        char url[128];
-        
-        int result = create_local_server(
-            root_path,   // 本地 Web 资源根目录
-            appname,     // 应用名称，用于构造自定义协议 URL
-            url,         // 输出自定义协议 URL 缓冲区
-            sizeof(url)  // 缓冲区大小
+const char* close_callback(uint32_t window_id, const char* event_data) {
+    close_window(window_id);
+    return jade_text_create("{\"ok\":true}");
+}
+
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1 && event_data
+        && strcmp(event_data, "success") == 0) {
+        printf("JadeView 准备就绪\n");
+
+        // 注册窗口控制命令
+        register_ipc_handler("minimize-window", minimize_callback);
+        register_ipc_handler("toggle-maximize", maximize_callback);
+        register_ipc_handler("close-window", close_callback);
+
+        // 设置本地协议服务 —— 将 ./web 目录映射到 https://myapp.local/
+        char url_buffer[256];
+        int result = set_protocol_service_path(
+            "./web",              // 本地资源目录
+            url_buffer,           // 输出协议 URL 缓冲区
+            sizeof(url_buffer)    // 缓冲区大小
         );
-        
+
         if (result == 1) {
-            printf("本地资源访问点创建成功，自定义协议 URL：%s\n", url);
-            printf("注意：这是 JADE:// 自定义协议 URL，不是 HTTP 服务器地址\n");
-            
-            // 窗口选项配置
+            printf("协议 URL: %s\n", url_buffer);
+            // url_buffer 内容类似: https://myapp.local/
+
             WebViewWindowOptions options = {
+                .title = "本地资源示例",
                 .width = 800,
                 .height = 600,
                 .resizable = 1,
-                .remove_titlebar = 0
+                .frame_style = "normal"
             };
-            
-            // WebView 设置配置
-            WebViewSettings settings = {
-                .autoplay = 0,
-                .background_throttling = 0,
-                .disable_right_click = 0,
-                .allow_fullscreen = 0,
-                .postmessage_whitelist = NULL
-            };
-            
-            // 创建 WebView 窗口，加载本地服务器上的资源
-            uint32_t new_window_id = create_webview_window(url, 0, &options, &settings);
-            
-            if (new_window_id == 0) {
-                printf("窗口创建失败\n");
-            }
+
+            create_webview_window(url_buffer, 0, &options, NULL);
         } else {
-            printf("创建本地服务器失败\n");
+            printf("协议服务设置失败\n");
         }
     } else {
-        printf("JadeView 初始化失败：%s\n", reason ? reason : "未知错误");
+        printf("初始化失败: %s\n", event_data ? event_data : "未知");
     }
-    return 0;
+    return NULL;
 }
 
 int main() {
-    // 注意：必须在初始化 DLL 之前注册 app-ready 事件
-    // 否则可能无法收到 app-ready 事件
+    // 必须在 JadeView_init 之前注册 app-ready
     jade_on("app-ready", app_ready_callback);
-    
-    // 初始化 JadeView DLL
-    int result = JadeView_init(1, NULL, NULL);
+
+    int result = JadeView_init(
+        1,                      // enable_devmod
+        NULL,                   // log_path
+        NULL,                   // data_directory
+        "我的应用",              // app_name (同时用作协议子域名)
+        "com.example.myapp",    // app_signature
+        0                       // single_instance
+    );
+
     if (result == 0) {
-        printf("DLL 初始化失败\n");
+        printf("初始化失败\n");
         return 1;
     }
-    
-    // 运行消息循环
-    run_message_loop();
-    
-    // 清理资源
-    cleanup_all_windows();
-    
+
+    printf("JadeView 已启动\n");
     return 0;
 }
 ```
 
-## 步骤 2：创建本地 Web 资源
+---
 
-在项目目录下创建 `web` 文件夹，并在其中创建 `index.html` 文件：
+## 步骤 2：创建前端页面
+
+在项目目录下创建 `web` 文件夹和 `index.html`：
 
 ```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>本地 Web 资源示例</title>
+    <title>本地资源示例</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            user-select: none;  /* 禁止选中，更像原生应用 */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
-        
+
         /* 自定义标题栏 */
         .titlebar {
-            -webkit-app-region: drag;
             height: 32px;
             background: #333;
-            color: white;
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding-left: 12px;
+            -webkit-app-region: drag;
+            user-select: none;
         }
         .titlebar-controls {
-            -webkit-app-region: no-drag;
             display: flex;
+            height: 100%;
         }
         .titlebar-btn {
+            -webkit-app-region: no-drag;
             width: 46px;
-            height: 32px;
+            height: 100%;
             border: none;
             background: transparent;
-            color: white;
+            color: #fff;
             cursor: pointer;
+            font-size: 14px;
         }
         .titlebar-btn:hover { background: #555; }
         .titlebar-btn.close:hover { background: #e81123; }
-        
-        .container {
-            background-color: white;
+
+        .content {
+            flex: 1;
             padding: 20px;
-            margin: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            min-height: calc(100vh - 32px - 40px);
+            background: #f5f5f5;
         }
-        h1 { color: #333; }
-        p { color: #666; margin: 8px 0; }
         .btn {
+            padding: 8px 16px;
             background: #333;
-            color: white;
+            color: #fff;
             border: none;
-            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
-            margin-top: 12px;
         }
         .btn:hover { background: #555; }
     </style>
 </head>
 <body>
     <div class="titlebar">
-        <span>本地 Web 资源示例</span>
+        <span>本地资源示例</span>
         <div class="titlebar-controls">
-            <button class="titlebar-btn" onclick="jade.ipcSend('windowAction','minimize')">─</button>
-            <button class="titlebar-btn" onclick="jade.ipcSend('windowAction','maximize')">□</button>
-            <button class="titlebar-btn close" onclick="jade.ipcSend('windowAction','close')">✕</button>
+            <button class="titlebar-btn" id="minBtn">─</button>
+            <button class="titlebar-btn" id="maxBtn">□</button>
+            <button class="titlebar-btn close" id="closeBtn">✕</button>
         </div>
     </div>
-    <div class="container">
-        <h1>欢迎使用 JadeView！</h1>
-        <p>这是一个使用本地服务器加载的 Web 页面。</p>
-        <p>您可以在此页面中使用完整的 Web 技术栈（HTML、CSS、JavaScript）来构建您的应用界面。</p>
-        <p>拖拽上方标题栏可移动窗口。</p>
-        <button class="btn" onclick="showMessage()">点击我</button>
-        <div id="message"></div>
+
+    <div class="content">
+        <h1>JadeView 本地资源</h1>
+        <p>这个页面通过自定义协议从本地文件系统加载。</p>
+        <button class="btn" id="testBtn">发送测试消息</button>
+        <pre id="result"></pre>
     </div>
-    
+
     <script>
-        function showMessage() {
-            document.getElementById('message').innerHTML = '<p>Hello from local JavaScript!</p>';
-        }
-        
-        // 监听来自原生应用的消息
-        if (window.jade) {
-            // 注意：这里的通信是通过 JADE:// 自定义协议机制，不是 HTTP 请求
-            // jade.ipcMain 用于注册接收来自原生应用的消息处理器
-            window.jade.ipcMain('custom-message', (content) => {
-                console.log('收到原生应用消息:', content);
-            });
-            
-            // 发送消息给原生应用
-            // 注意：这不是 HTTP 请求，而是通过 JadeView 内部通信机制
-            // 消息会直接传递给后端 C/C++ 回调函数，无需网络通信
-            window.jade.ipcSend('page-loaded', JSON.stringify({ status: 'ready' }));
-        }
+        // 窗口控制 —— 通过 jade.invoke 发送命令到宿主
+        document.getElementById('minBtn').onclick = () => {
+            jade.invoke('minimize-window');
+        };
+        document.getElementById('maxBtn').onclick = () => {
+            jade.invoke('toggle-maximize');
+        };
+        document.getElementById('closeBtn').onclick = () => {
+            jade.invoke('close-window');
+        };
+
+        // 测试 IPC 通信
+        document.getElementById('testBtn').onclick = async () => {
+            try {
+                const result = await jade.invoke('test-message',
+                    { text: 'Hello from page!', time: Date.now() });
+                document.getElementById('result').textContent =
+                    JSON.stringify(result, null, 2);
+            } catch (e) {
+                document.getElementById('result').textContent =
+                    '错误: ' + e.message;
+            }
+        };
+
+        // 监听宿主推送
+        jade.on('host-notify', (data) => {
+            console.log('宿主通知:', data);
+        });
     </script>
 </body>
 </html>
 ```
 
-## 步骤 3：编译和运行
+---
 
-1. 将上述代码保存为 `main.c`
-2. 将 `jadeview.h` 和 `jadeview.dll` 放在同一目录下
-3. 编译代码（以 GCC 为例）：
-   ```sh
-   gcc -o app main.c -L. -ljadeview
-   ```
-4. 创建 `web` 文件夹，并将 `index.html` 文件放入其中
-5. 运行编译后的可执行文件：
-   ```sh
-   ./app
-   ```
-
-## 自定义协议 URL
-
-创建本地 Web 资源访问点后，JadeView 会返回一个 **JADE:// 自定义协议 URL**，格式为 `JADE://appname/`。
-
-### 什么是 JADE:// 自定义协议？
-
-JADE:// 是 JadeView 特有的自定义协议，用于在 WebView 中安全地访问本地资源。它不是传统的 HTTP 服务器，而是一种直接的资源访问机制。
+## 自定义协议详解
 
 ### 工作原理
 
-1. 当您调用 `create_local_server` 时，JadeView 不会启动 HTTP 服务或监听端口
-2. 相反，它会注册一个自定义协议处理器，将 `JADE://appname/` 前缀映射到本地文件系统路径
-3. 当 WebView 尝试访问 `JADE://myapp/index.html` 时，JadeView 会直接从本地文件系统加载 `./web/index.html` 文件
-4. 这个过程完全在应用内部进行，没有网络通信或端口监听
+1. `set_protocol_service_path("./web", url_buffer, size)` 将本地目录注册到协议路由
+2. 返回的 URL 格式为 `https://{app_name}.local/`
+3. 当 WebView 访问 `https://myapp.local/index.html` 时，JadeView 直接从 `./web/index.html` 读取
+4. 整个过程无网络通信、无端口监听，完全在应用内部完成
 
-### 自定义协议 URL 格式
+### 支持的文件类型
 
-您可以使用以下格式访问本地文件：
+JadeView 自动根据扩展名设置正确的 MIME 类型，无需手动配置。支持：
 
-- `JADE://myapp/index.html`：访问根目录下的 index.html 文件
-- `JADE://myapp/assets/css/style.css`：访问 assets/css 目录下的 style.css 文件
-- `JADE://myapp/api/data.json`：访问 api 目录下的 data.json 文件
+- HTML、CSS、JavaScript
+- 图片（PNG、JPG、GIF、SVG、WebP 等）
+- 字体（WOFF、WOFF2、TTF 等）
+- JSON、XML 等数据格式
 
-### 与 HTTP 服务器的区别
+### SPA 路由支持
 
-| 特性 | JADE:// 自定义协议 | HTTP 服务器 |
-|------|-------------------|-------------|
-| 网络通信 | 无（完全本地） | 需要网络通信 |
-| 端口监听 | 不需要 | 需要监听端口 |
-| 安全性 | 高（仅应用内部访问） | 需考虑网络安全 |
-| 性能 | 极高（直接文件访问） | 受网络和服务器性能影响 |
-| 配置复杂度 | 低（一行代码） | 高（需配置服务器） |
-| 跨应用访问 | 不支持 | 支持（如果暴露端口） |
+协议服务内置了 SPA fallback：当请求的路径不匹配任何文件时，自动返回 `index.html`，完美支持前端框架的 History 模式路由。
+
+---
+
+## 与 JAPK 结合
+
+除了本地目录，`set_protocol_service_path` 同样支持 JAPK 文件：
+
+```c
+// 加载 JAPK 文件
+char url_buffer[256];
+set_protocol_service_path("app.japk", url_buffer, sizeof(url_buffer));
+// url_buffer → https://myapp.local/
+create_webview_window(url_buffer, 0, &options, NULL);
+```
+
+JAPK 内同样使用 `jade.invoke` / `jade.on` 通信，无需额外配置。
+
+> 更多信息：[JAPK 资源包](/v2api/japk) | [从内存载入](/v2api/japk-load-memory)
+
+---
 
 ## 注意事项
 
-1. **JADE:// 是自定义协议，不是 HTTP 服务器**：
-   - 它不会启动 HTTP 服务或监听端口
-   - 它是 JadeView 特有的本地资源访问机制
-   - 它不遵循 HTTP 协议的规则和限制
+1. **不是 HTTP 服务器**：`https://{appname}.local/` 不监听端口，外部浏览器无法访问
+2. **`jade.invoke` 需要 CORS 白名单**（v2.1+）：如果页面不是通过协议服务加载的，需在 `WebViewSettings.cors_whitelist` 中设置允许的来源
+3. **`app_name` 决定子域名**：`JadeView_init` 的 `app_name` 参数会用于生成协议 URL 的域名
+4. **页面路径映射**：`https://myapp.local/css/style.css` → `./web/css/style.css`
 
-2. 自定义协议 URL 使用 `JADE://` 作为协议头，而不是标准的 `http://` 或 `https://`
-
-3. appname 参数用于构造自定义协议 URL 的域名部分，如 `JADE://appname/`
-   - 这不是真实的域名，只是本地资源的命名空间
-   - 不同的 appname 可以映射到不同的本地资源目录
-
-4. JadeView 会自动处理 MIME 类型，无需手动配置
-
-5. 自定义协议 URL 只能在 JadeView 内部使用，外部浏览器无法访问
-   - 这提供了更高的安全性，防止外部访问本地资源
-   - 只能通过 JadeView 创建的 WebView 窗口访问
-
-6. 支持单页应用的路由处理
-   - 适合构建现代化的单页应用
-   - 支持客户端路由，无需服务器端配置
-
-## 自定义协议的优势
-
-- **高安全性**：
-  - 不受浏览器同源策略限制，同时避免了直接文件路径的安全风险
-  - 仅允许应用内部访问，防止外部恶意访问本地资源
-  - 不需要开放网络端口，减少安全漏洞
-
-- **极致性能**：
-  - 直接访问本地文件，加载速度极快
-  - 无网络通信开销，延迟几乎为零
-  - 无需 HTTP 服务器处理，资源消耗极低
-
-- **部署便捷**：
-  - 将所有资源打包到本地目录，无需额外的 Web 服务器软件
-  - 无需配置服务器，一行代码即可完成资源访问点创建
-  - 跨平台兼容，在不同操作系统上表现一致
-
-- **现代应用支持**：
-  - 完美支持单页应用（SPA）的路由处理
-  - 兼容现代 Web 技术栈（HTML5, CSS3, ES6+）
-  - 支持前端框架（React, Vue, Angular 等）
-
-- **开发友好**：
-  - 简化开发流程，无需搭建本地 HTTP 服务器
-  - 支持热重载（在开发环境中）
-  - 提供与 Web 标准兼容的 API
-
-## 最佳实践
-
-1. **资源组织**：将本地 Web 资源组织在一个单独的目录中，便于管理和维护
-2. **错误处理**：添加适当的错误处理和日志记录，便于调试
-3. **安全性**：在生产环境中，考虑添加适当的安全措施，如访问控制
-4. **性能优化**：对本地 Web 资源进行优化，如压缩 CSS 和 JavaScript 文件，提高加载速度
-
-## 总结
-
-通过使用 JadeView 的本地服务器功能，开发者可以轻松地在 WebView 窗口中加载和使用本地 Web 资源。这种方式结合了 Web 技术的灵活性和原生应用的性能，是构建现代化桌面应用的理想选择。
-
-JadeView 的高性能设计（16 毫秒启动时间）确保了即使使用本地服务器加载资源，应用仍然能够快速启动和运行，为用户提供流畅的体验。
+> 详细 API：[核心 API - 本地协议服务](/v2api#本地协议服务) | [前端通信 API](/v2api/JavaScript-API)

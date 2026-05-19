@@ -241,21 +241,58 @@ int main() {
   </div>
 
   <script>
-    // 窗口控制 - 通过 JavaScript API 或 IPC 调用宿主
+    // 窗口控制 - 通过 jade.invoke 发送命令到宿主
     document.getElementById('minBtn').onclick = () => {
-      window.__jadeview?.minimizeWindow?.();
+      jade.invoke('minimize-window');
     };
 
     document.getElementById('maxBtn').onclick = () => {
-      window.__jadeview?.toggleMaximize?.();
+      jade.invoke('toggle-maximize');
     };
 
     document.getElementById('closeBtn').onclick = () => {
-      window.__jadeview?.closeWindow?.();
+      jade.invoke('close-window');
     };
   </script>
 </body>
 </html>
+```
+
+### 宿主侧：注册窗口控制命令
+
+前端通过 `jade.invoke` 发送命令后，宿主需要用 `register_ipc_handler` 注册对应的回调函数：
+
+```c
+// 窗口控制回调
+const char* minimize_callback(uint32_t window_id, const char* event_data) {
+    minimize_window(window_id);
+    return jade_text_create("{\"ok\":true}");
+}
+
+const char* toggle_maximize_callback(uint32_t window_id, const char* event_data) {
+    toggle_maximize_window(window_id);
+    return jade_text_create("{\"ok\":true}");
+}
+
+const char* close_callback(uint32_t window_id, const char* event_data) {
+    close_window(window_id);
+    return jade_text_create("{\"ok\":true}");
+}
+
+// 在 app-ready 回调中注册
+int app_ready_callback(uint32_t window_id, const char* event_type,
+                       const char* event_data) {
+    if (window_id == 1 && event_data
+        && strcmp(event_data, "success") == 0) {
+        // 注册窗口控制命令
+        register_ipc_handler("minimize-window", minimize_callback);
+        register_ipc_handler("toggle-maximize", toggle_maximize_callback);
+        register_ipc_handler("close-window", close_callback);
+
+        // ... 创建窗口 ...
+    }
+    return 0;
+}
 ```
 
 ---

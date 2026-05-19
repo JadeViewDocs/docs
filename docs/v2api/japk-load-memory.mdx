@@ -208,10 +208,19 @@ void load_from_memory_example() {
         return;
     }
 
-    // 4. 检查加载状态
-    if (JadeView_is_loaded()) {
-        printf("JAPK 加载成功\n");
-    }
+    // 4. 获取协议 URL（内存加载时传入空字符串）
+    char url_buffer[256];
+    set_protocol_service_path("", url_buffer, sizeof(url_buffer));
+    // url_buffer 内容类似: https://myapp.local/
+
+    // 5. 创建窗口使用该 URL
+    WebViewWindowOptions options = {
+        .title = "JAPK 内存加载",
+        .width = 800,
+        .height = 600,
+        .frame_style = "normal"
+    };
+    create_webview_window(url_buffer, 0, &options, NULL);
 
     free(data);
 }
@@ -257,6 +266,15 @@ rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
 if rc != 0:
     raise RuntimeError(f"JadeView_load_from_bytes failed: {rc}")
 
+# 4. 获取协议 URL（内存加载时传入空字符串）
+dll.set_protocol_service_path.argtypes = [c_char_p, c_char_p, c_size_t]
+dll.set_protocol_service_path.restype = c_int
+
+url_buffer = ctypes.create_string_buffer(256)
+dll.set_protocol_service_path(b"", url_buffer, 256)
+print(f"协议 URL: {url_buffer.value.decode()}")
+
+# 5. 使用该 URL 创建窗口
 loaded = dll.JadeView_is_loaded()
 print(f"JAPK loaded: {loaded}")
 ```
@@ -289,7 +307,10 @@ rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
   │                                 │
   │  ◄── japk-load-success ────────┤ 异步事件
   │                                 │
-  ├─ create_webview_window ────────►│ 创建窗口
+  ├─ set_protocol_service_path("")─►│ 获取协议 URL
+  │  ◄── url_buffer ───────────────┤ jade://myapp.local/
+  │                                 │
+  ├─ create_webview_window(url) ───►│ 创建窗口
   │                                 │
   ├─ run_message_loop ─────────────►│ 进入事件循环
 ```

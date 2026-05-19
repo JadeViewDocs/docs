@@ -1,440 +1,208 @@
-# 前后端双向IPC通信
+---
+title: 前后端 IPC 通信
+sidebar_position: 5
+---
 
-JadeView 提供了强大的前后端双向 IPC（进程间通信）机制，允许前端 JavaScript 代码与后端 C/C++ 代码进行高效、安全的双向数据交换。本页面将详细介绍 JadeView 的 IPC 通信原理、使用方法和最佳实践。
+# 前后端双向 IPC 通信
 
-## 什么是 IPC 通信
+JadeView 2.0 提供了基于自定义协议的前后端双向 IPC 通信机制，前端通过 `jade.invoke` / `jade.on` 与宿主 C/C++ 代码高效交换数据。
 
-IPC（Inter-Process Communication，进程间通信）是指不同进程之间进行数据交换的机制。在 JadeView 中，IPC 通信主要用于：
+## 通信模型
 
-- 前端 JavaScript 代码向后端发送指令或请求数据
-- 后端 C/C++ 代码向前端推送事件或数据更新
-- 实现前后端之间的双向数据绑定
-
-## JadeView IPC 通信的技术原理
-
-JadeView 的 IPC 通信基于以下技术原理：
-
-### 1. 基于自定义协议的通信机制
-
-JadeView 使用高效的自定义协议实现前后端通信：
-
-- 前端通过 `jade.invoke()` 方法调用后端 API
-- 消息被序列化后通过本地通信通道发送到后端
-- 后端通过注册的回调函数处理请求
-- 后端可以通过发送事件向前端推送消息
-- 前端通过 `jade.on()` 方法监听后端事件
-
-### 2. 跨语言序列化与反序列化
-
-为了实现跨语言通信，JadeView 使用 JSON 作为消息序列化格式：
-
-- 前端 JavaScript 直接使用 JSON.stringify() 和 JSON.parse() 进行序列化和反序列化
-- 后端 C/C++ 使用内置的 JSON 解析库处理消息
-- 支持基本数据类型、对象、数组等复杂数据结构
-
-
-
-## 前端到后端的 IPC 通信
-
-### 1. 前端调用后端 API
-
-在前端 JavaScript 中，可以通过 `jade.invoke()` 方法调用后端 API：
-
-有关前端 API 的详细信息，请查看 [前端 API 文档](/v1api/JavaScript-API)。
-
-```javascript
-// 调用后端 API，发送简单数据
-async function callBackendAPI() {
-  try {
-    const result = await jade.invoke('message-name', { key: 'value' });
-    console.log('API 调用结果:', result);
-  } catch (error) {
-    console.error('API 调用失败:', error);
-  }
-}
-
-// 发送复杂数据
-async function updateUser() {
-  const data = {
-    user: {
-      id: 1,
-      name: 'John Doe'
-    },
-    action: 'update_user',
-    timestamp: Date.now()
-  };
-  
-  try {
-    const result = await jade.invoke('user-update', data);
-    console.log('用户更新结果:', result);
-  } catch (error) {
-    console.error('用户更新失败:', error);
-  }
-}
+```
+前端 (JavaScript)                    宿主 (C/C++)
+     │                                   │
+     ├─ jade.invoke('命令', 数据) ──────►│ register_ipc_handler 回调
+     │                                   │ → 返回 jade_text_create(...)
+     │  ◄────── Promise resolve ────────┤
+     │                                   │
+     ├─ jade.on('事件', callback) ──────►│ 注册监听
+     │  ◄── send_ipc_message(事件,数据)─┤ 主动推送
 ```
 
-### 2. 后端接收请求
+- **请求-响应**：前端 `jade.invoke` → 宿主 `register_ipc_handler` 回调 → 返回值回到前端
+- **事件推送**：宿主 `send_ipc_message` → 前端 `jade.on` 回调
 
-在后端 C/C++ 代码中，使用回调函数处理前端请求：
+---
 
-有关 C API 的详细信息，请查看 [C API 文档](/v1api/reference/c-api)。
+## 前端到宿主（jade.invoke）
+
+### 前端代码
+
+```javascript
+// 调用宿主方法，等待返回结果
+const result = await jade.invoke('get-config', { key: 'theme' });
+console.log('宿主返回:', result);
+
+// 带超时
+const data = await jade.invoke('heavy-task', payload, { timeout: 10000 });
+```
+
+### 宿主 C 代码
 
 ```c
 #include "jadeview.h"
 
-// 消息处理器回调函数
-const char* message_name_callback(uint32_t window_id, const char* event_data) {
-    printf("收到消息：类型=message-name, 数据=%s\n", event_data);
-    
-    // 解析 JSON 数据
-    // 这里可以使用你喜欢的 JSON 解析库
-    
-    // 返回结果给前端
-    return "{\"status\": \"success\", \"message\": \"消息处理成功\"}";
+// IPC 回调：处理前端 jade.invoke('get-config', ...)
+const char* get_config_callback(uint32_t window_id, const char* event_data) {
+    printf("收到 get-config，窗口: %u, 数据: %s\n", window_id, event_data);
+
+    // 处理逻辑...
+    // 返回结果给前端（必须用 jade_text_create 分配）
+    return jade_text_create("{\"theme\":\"dark\",\"lang\":\"zh\"}");
 }
 
-// 用户更新回调函数
-const char* user_update_callback(uint32_t window_id, const char* event_data) {
-    printf("收到用户更新请求，窗口ID: %u, 数据: %s\n", window_id, event_data);
-    
-    // 解析并处理用户更新数据
-    
-    // 返回结果
-    return "{\"status\": \"success\", \"message\": \"用户更新成功\"}";
-}
+// 在 app-ready 中注册
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1 && event_data
+        && strcmp(event_data, "success") == 0) {
+        // 注册 IPC 处理器
+        register_ipc_handler("get-config", get_config_callback);
 
-// 在 app-ready 事件中注册消息处理器
-int app_ready_callback(int success, const char* reason) {
-    if (success == 1 && reason && strcmp(reason, "success") == 0) {
-        // 注册消息处理器
-        // 注意：实际注册方式可能根据 API 变化而不同
-        // 这里仅展示概念
+        // 创建窗口...
     }
-    return 0;
+    return NULL;
 }
 ```
 
-## 后端到前端的 IPC 通信
+:::info
+`register_ipc_handler` 的回调返回值必须用 `jade_text_create` 分配，库会自动调用 `jade_text_free` 释放。返回 `NULL` 表示返回默认成功 JSON。
+:::
 
-### 1. 后端发送事件
+---
 
-在后端 C/C++ 代码中，使用 `send_event()` 函数向前端发送事件：
+## 宿主到前端（send_ipc_message + jade.on）
 
-有关 C API 的详细信息，请查看 [C API 文档](/v1api/reference/c-api)。
+### 宿主 C 代码
 
 ```c
-#include "jadeview.h"
-
-// 发送简单事件
-void send_event_to_frontend(uint32_t window_id) {
-    // 事件数据
-    const char* event_data = "{\"status\": \"success\", \"message\": \"操作成功\"}";
-    
-    // 发送事件到指定窗口
-    int result = send_event(window_id, "backend-message", event_data);
-    
-    if (result == 1) {
-        printf("事件发送成功\n");
-    } else {
-        printf("事件发送失败\n");
-    }
-}
-
-// 发送系统更新事件
-void send_system_update() {
-    // 构造事件数据
-    char event_data[256];
-    snprintf(event_data, sizeof(event_data), 
-             "{\"type\": \"system\", \"data\": {\"time\": %lld}}", 
-             (long long)time(NULL));
-    
-    // 发送系统更新事件到所有窗口（窗口ID为0表示广播）
-    int result = send_event(0, "system-update", event_data);
-    
-    if (result == 1) {
-        printf("系统更新事件发送成功\n");
-    } else {
-        printf("系统更新事件发送失败\n");
-    }
+// 向前端推送事件
+void notify_frontend(uint32_t window_id) {
+    send_ipc_message(window_id, "data-update",
+        "{\"status\":\"ok\",\"timestamp\":123456}");
 }
 ```
 
-### 2. 前端接收事件
-
-在前端 JavaScript 中，使用 `jade.on()` 方法注册事件处理器：
-
-有关前端 API 的详细信息，请查看 [前端 API 文档](/v1api/JavaScript-API)。
+### 前端代码
 
 ```javascript
-// 接收简单事件
-const unsubscribeBackendMsg = jade.on('backend-message', (data) => {
-    console.log('收到后端消息:', data);
-    
-    if (data.status === 'success') {
-        alert('操作成功：' + data.message);
-    }
+// 订阅宿主推送的事件
+const off = jade.on('data-update', (payload) => {
+    console.log('宿主推送:', payload);
+    // payload 已是解析后的对象
 });
 
-// 接收系统更新事件
-const unsubscribeSystemUpdate = jade.on('system-update', (data) => {
-    console.log('系统更新:', data);
-    
-    // 更新页面数据
-    document.getElementById('system-time').textContent = new Date(data.data.time).toLocaleString();
-});
-
-// 当不再需要监听事件时，取消订阅
-// unsubscribeBackendMsg();
-// unsubscribeSystemUpdate();
+// 不需要时取消订阅
+// off();
 ```
 
-## 完整的 IPC 通信示例
+---
 
-### 前端 JavaScript 代码
+## 完整示例
+
+### 前端
 
 ```javascript
-// 发送消息到后端（使用 invoke API）
-async function sendMessage(message) {
-  const data = {
-    message: message,
-    timestamp: Date.now()
-  };
-  
-  try {
-    const result = await jade.invoke('frontend-message', data);
-    console.log('API 调用结果:', result);
-  } catch (error) {
-    console.error('API 调用失败:', error);
-  }
-}
+// 1. 初始化时向宿主请求数据
+(async function() {
+    try {
+        const config = await jade.invoke('get-config', {});
+        console.log('配置:', config);
+    } catch (e) {
+        console.error('请求失败:', e);
+    }
+})();
 
-// 接收后端事件
-const unsubscribeBackendMsg = jade.on('backend-message', (data) => {
-  console.log('收到后端事件:', data);
-  // 处理后端事件，例如更新 UI
+// 2. 订阅宿主通知
+jade.on('data-update', (data) => {
+    document.getElementById('status').textContent = data.status;
 });
 
-// 接收系统事件
-const unsubscribeSystemEvent = jade.on('system-event', (data) => {
-  console.log('收到系统事件:', data);
-  // 处理系统事件
-});
-
-// 监听页面加载完成
-window.addEventListener('load', () => {
-  // 发送页面加载完成请求
-  jade.invoke('page-loaded', { status: 'ready' })
-    .then(result => {
-      console.log('页面加载确认:', result);
-    })
-    .catch(error => {
-      console.error('页面加载确认失败:', error);
-    });
-});
-
-// 示例：发送一条测试消息
-sendMessage('Hello from frontend!');
+// 3. 按钮触发宿主操作
+document.getElementById('btn').onclick = async () => {
+    const result = await jade.invoke('do-action',
+        { action: 'save', value: 'hello' });
+    console.log('结果:', result);
+};
 ```
 
-### 后端代码
+### 宿主 (C)
 
 ```c
-#include "jadeview.h"
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
+#include "jadeview.h"
 
-// 前端消息处理回调
-const char* frontend_message_callback(uint32_t window_id, const char* event_data) {
-    printf("收到前端消息，窗口ID: %u, 数据: %s\n", window_id, event_data);
-    
-    // 构造回复数据
-    char reply_data[512];
-    time_t now = time(NULL);
-    
-    snprintf(reply_data, sizeof(reply_data), 
-             "{\"status\": \"success\", \"message\": \"收到消息\", \"timestamp\": %lld}", 
-             (long long)now);
-    
-    // 发送事件回前端
-    char event_data_str[256];
-    snprintf(event_data_str, sizeof(event_data_str), 
-             "{\"message\": \"处理完成\", \"original_data\": %s, \"timestamp\": %lld}", 
-             event_data, (long long)now);
-    
-    send_event(window_id, "backend-message", event_data_str);
-    
-    // 返回结果给 invoke 调用 - 使用 jade_text_create 创建安全文本指针
-    return jade_text_create(reply_data);
+// 处理 get-config
+const char* get_config_callback(uint32_t window_id, const char* event_data) {
+    return jade_text_create("{\"theme\":\"dark\",\"version\":\"2.1\"}");
 }
 
-// 页面加载完成处理回调
-const char* page_loaded_callback(uint32_t window_id, const char* event_data) {
-    printf("页面加载完成，窗口 ID：%u\n", window_id);
-    
-    // 发送欢迎事件
-    char welcome_msg[256];
-    time_t now = time(NULL);
-    
-    snprintf(welcome_msg, sizeof(welcome_msg), 
-             "{\"message\": \"欢迎使用 JadeView IPC 通信示例\", \"timestamp\": %lld}", 
-             (long long)now);
-    
-    send_event(window_id, "backend-message", welcome_msg);
-    
-    // 返回确认结果 - 使用 jade_text_create 创建安全文本指针
-    return jade_text_create("{\"status\": \"success\", \"message\": \"页面加载确认\"}");
+// 处理 do-action
+const char* do_action_callback(uint32_t window_id, const char* event_data) {
+    printf("do-action 收到: %s\n", event_data);
+
+    // 处理完后向前端推送结果
+    send_ipc_message(window_id, "data-update",
+        "{\"status\":\"saved\"}");
+
+    return jade_text_create("{\"ok\":true}");
 }
 
-// app-ready 事件处理器
-int app_ready_callback(int success, const char* reason) {
-    if (success == 1 && reason && strcmp(reason, "success") == 0) {
-        printf("JadeView 准备就绪\n");
-        
-        // 注册消息处理器
-        // 注意：实际注册方式可能根据 API 变化而不同
-        // 这里仅展示概念
-        
-        // 创建 WebView 窗口
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1 && event_data
+        && strcmp(event_data, "success") == 0) {
+        // 注册 IPC 处理器
+        register_ipc_handler("get-config", get_config_callback);
+        register_ipc_handler("do-action", do_action_callback);
+
+        // 创建窗口
         WebViewWindowOptions options = {
-            .title = "IPC 通信示例",
+            .title = "IPC 示例",
             .width = 800,
             .height = 600,
-            .resizable = 1,
-            .remove_titlebar = 0
+            .frame_style = "normal"
         };
-        
-        WebViewSettings settings = {
-            .autoplay = 0,
-            .background_throttling = 0,
-            .disable_right_click = 0,
-            .allow_fullscreen = 0,
-            .postmessage_whitelist = NULL
-        };
-        
-        uint32_t window_id = create_webview_window(
-            "http://localhost:8080", // 本地服务器 URL
-            0,
-            &options,
-            &settings
-        );
-        
-        if (window_id == 0) {
-            printf("窗口创建失败\n");
-        }
+
+        create_webview_window("https://example.com", 0, &options, NULL);
     }
-    return 0;
+    return NULL;
 }
 
 int main() {
-    // 初始化 DLL
-    int result = JadeView_init(1, NULL, NULL);
-    
+    jade_on("app-ready", app_ready_callback);
+
+    int result = JadeView_init(
+        1, NULL, NULL,
+        "IPC 示例",
+        "com.example.ipc",
+        0
+    );
     if (result == 0) {
-        printf("DLL 初始化失败\n");
+        printf("初始化失败\n");
         return 1;
     }
-    
-    // 注册 app-ready 事件
-    // 注意：实际注册方式可能根据 API 变化而不同
-    // 这里仅展示概念
-    
-    // 运行消息循环
-    run_message_loop();
-    
-    // 清理资源
-    cleanup_all_windows();
-    
+
+    printf("JadeView 已启动\n");
     return 0;
 }
 ```
 
-## IPC 通信的最佳实践
+---
 
-### 1. 命令和事件命名规范
+## 命名建议
 
-- 使用清晰、描述性的命令和事件名称
-- 采用小写字母和连字符分隔（kebab-case）
-- 避免使用过于通用的名称
-- 为不同模块使用前缀，如 `user-`、`system-`、`ui-`
-- 命令和事件名称保持一致，便于前后端理解
+- 命令名/事件名使用 **kebab-case**：`get-config`、`data-update`
+- 前端 `jade.invoke` 第一参数与宿主 `register_ipc_handler` 第一参数**完全一致**（区分大小写）
+- 前端 `jade.on` 第一参数与宿主 `send_ipc_message` 第二参数**完全一致**
 
-### 2. 数据结构设计
+---
 
-- 保持请求和响应数据结构简单清晰
-- 使用一致的数据格式
-- 包含必要的元数据（如 timestamp）
-- 为复杂数据提供清晰的类型定义
-- 错误响应使用统一的格式，包含 code 和 message 字段
+## 注意事项
 
-### 3. 错误处理
+1. 宿主 `register_ipc_handler` 回调返回值必须用 `jade_text_create` 分配
+2. 前端 `jade.on` 返回取消函数，不需要时调用 `off()` 防止泄漏
+3. 单次传输数据建议控制在约 252MB 以内
+4. 前端 API 仅在通过 JadeView 协议加载的页面中可用（`set_protocol_service_path` 或 JAPK）
 
-- 前端使用 try/catch 捕获 API 调用错误
-- 后端向前端返回明确的错误代码和消息
-- 记录详细的错误日志
-- 避免崩溃，确保系统稳定性
-
-### 4. 性能优化
-
-- 避免频繁调用 API，合并相关请求
-- 对大数据进行分页或压缩
-- 合理使用事件推送，避免不必要的轮询
-- 及时取消不再需要的事件订阅
-- 保持 payload 简洁，只传递必要的数据
-
-### 5. 安全性考虑
-
-- 验证所有输入数据，防止恶意请求
-- 对敏感数据进行加密传输
-- 限制 API 调用频率，防止滥用
-- 严格的本地通信限制，防止外部访问
-- 只允许通过 local-server-api 创建的服务器页面使用通信 API
-
-## IPC 通信的高级特性
-
-### 1. 支持的通信模式
-
-JadeView 支持多种通信模式：
-
-- **请求-响应模式**：通过 `jade.invoke()` 发送请求并等待响应
-- **事件推送模式**：通过 `jade.on()` 监听后端事件
-- **广播事件**：发送给所有窗口的事件
-- **定向事件**：发送给特定窗口的事件
-
-### 2. 事件优先级
-
-JadeView 支持事件优先级：
-
-- **高优先级**：系统事件、紧急通知
-- **中优先级**：用户交互、数据更新
-- **低优先级**：日志、统计数据
-
-### 3. 异步处理机制
-
-JadeView 提供了完善的异步处理机制：
-
-- 基于 Promise/async-await 设计，避免 UI 阻塞
-- 自动处理异步请求的生命周期
-- 支持请求超时机制
-- 高效的事件分发系统
-
-## 与其他框架的 IPC 通信对比
-
-| 框架 | IPC 通信机制 | 性能 | 安全性 | 易用性 |
-|------|--------------|------|--------|--------|
-| JadeView | 基于自定义协议的 JSON 通信 | 高 | 高 | 简单易用 |
-| Electron | IPC 模块 | 中 | 中 | 中等复杂度 |
-| NW.js | WebSocket + IPC | 中 | 中 | 较复杂 |
-| CEF | 自定义消息传递 | 高 | 中 | 复杂 |
-
-## 总结
-
-JadeView 的前后端双向 IPC 通信机制提供了高效、安全、易用的跨语言通信解决方案。通过简单的 API，开发者可以轻松实现前后端之间的数据交换和事件驱动开发。
-
-- **高效**：基于自定义协议的设计，确保低延迟（`<1ms`往返）和高吞吐量
-- **安全**：严格的本地通信限制和验证机制
-- **易用**：基于 Web 标准的 API 设计，降低开发复杂度
-- **灵活**：支持请求-响应和事件驱动两种通信模式
-- **资源高效**：相比传统 IPC 方案，CPU 消耗降低 30%-50%，内存占用降低 20%-40%
-
-JadeView 的 IPC 通信机制是构建现代化桌面应用的重要基础，为开发者提供了强大的前后端协作能力。通过 `jade.invoke()` 和 `jade.on()` 这两个简单的 API，开发者可以轻松实现前后端之间的高效通信，构建出高性能、响应迅速的桌面应用。
+> 详细 API 参考：[前端通信 API](/v2api/JavaScript-API) | [IPC 通信 API](/v2api/ipc-api) | [事件类型](/v2api/event-types)
