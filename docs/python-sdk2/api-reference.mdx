@@ -176,6 +176,58 @@ ipc.send_ipc_message(
 
 ---
 
+## jadeview.window — 边框样式（2.1 新增）
+
+### `set_window_frame_style()`
+
+运行时修改窗口边框样式，无需重新创建窗口。
+
+```python
+window.set_window_frame_style(
+    window_id: int,
+    frame_style: str,   # "normal"/"no-titlebar"/"borderless"/"title-overlay"
+) -> bool
+```
+
+### `set_titlebar_overlay_style()`
+
+自定义 title-overlay 样式窗口的标题栏按钮覆盖层外观（Windows 专属）。
+
+仅对 `frame_style="title-overlay"` 的窗口有效。
+
+```python
+window.set_titlebar_overlay_style(
+    window_id: int,
+    height: int = 0,                    # 按钮高度(像素), 0 使用默认值 32
+    icon_color_hex: str | None = None,  # 图标颜色 "#RRGGBB"
+    hover_bg_hex: str | None = None,    # 非关闭按钮悬浮背景色 "#RRGGBB" 或 "#RRGGBBAA"
+) -> bool
+```
+
+:::note
+关闭按钮悬浮背景色固定为红色(#E81123)，图标固定为白色，不受此 API 影响。
+:::
+
+### `jade_print()`
+
+打印 WebView 内容（打开系统打印对话框）。
+
+```python
+window.jade_print(window_id: int) -> bool
+```
+
+---
+
+## jadeview.window — WebView 设置新增参数（2.1）
+
+`create_webview_window()` 和 `create_borderless_webview_window()` 新增参数：
+
+| 参数 | 说明 |
+|------|------|
+| `cors_whitelist: str \| None` | CORS 来源白名单 |
+
+---
+
 ## jadeview.dialog — 对话框
 
 ### 同步 API
@@ -332,6 +384,7 @@ tools.clear_data_directory() -> bool  # 清除应用数据目录（不可逆）
 | 常量 | 值 | 说明 |
 |------|---|------|
 | `WINDOW_CREATED` | `"window-created"` | 窗口已创建 |
+| `APP_WINDOW_CREATED` | `"app-window-created"` | 窗口已创建（别名） |
 | `WINDOW_CLOSING` | `"window-closing"` | 窗口即将关闭（可拦截） |
 | `WINDOW_CLOSED` | `"window-closed"` | 窗口已关闭 |
 | `WINDOW_DESTROYED` | `"window-destroyed"` | 窗口已销毁 |
@@ -357,10 +410,13 @@ tools.clear_data_directory() -> bool  # 清除应用数据目录（不可逆）
 | `WEBVIEW_DID_FINISH_LOAD` | `"webview-did-finish-load"` | 加载完成 |
 | `WEBVIEW_NEW_WINDOW` | `"webview-new-window"` | 新窗口请求（可拦截） |
 | `WEBVIEW_PAGE_TITLE_UPDATED` | `"webview-page-title-updated"` | 页面标题变化 |
+| `WEBVIEW_PAGE_ICON_UPDATED` | `"webview-page-icon-updated"` | 页面图标变化 |
 | `WEBVIEW_DOWNLOAD_STARTED` | `"webview-download-started"` | 下载开始 |
 | `JAVASCRIPT_RESULT` | `"javascript-result"` | JS 执行结果 |
 | `FILE_DROP` | `"file-drop"` | 文件拖放 |
 | `POSTMESSAGE_RECEIVED` | `"postmessage-received"` | 收到 postMessage |
+| `JAPK_LOAD_SUCCESS` | `"japk-load-success"` | JAPK 加载成功 |
+| `JAPK_LOAD_FAILED` | `"japk-load-failed"` | JAPK 加载失败 |
 
 ### 托盘 / 通知 / 热键 / 主题
 
@@ -374,3 +430,67 @@ tools.clear_data_directory() -> bool  # 清除应用数据目录（不可逆）
 | `NOTIFICATION_ACTION` | `"notification-action"` | 通知按钮被点击 |
 | `GLOBAL_HOTKEY` | `"global-hotkey"` | 全局热键触发 |
 | `THEME_CHANGED` | `"theme-changed"` | 主题变化 |
+| `UPDATE_WINDOW_ICON` | `"update-window-icon"` | 窗口图标需要刷新 |
+
+### 托盘菜单项类型常量
+
+| 常量 | 值 | 说明 |
+|------|---|------|
+| `TRAY_ITEM_NORMAL` | `0` | 普通菜单项 |
+| `TRAY_ITEM_SUBMENU` | `1` | 子菜单 |
+| `TRAY_ITEM_DIVIDER` | `2` | 分隔线 |
+| `TRAY_ITEM_GROUP` | `3` | 分组 |
+
+---
+
+## jadeview.japk — JAPK 资源包加载（2.1 新增）
+
+JAPK 是 JadeView 的资源打包格式，支持将前端资源打包为单个 `.japk` 文件，带 Ed25519 签名验证。
+
+### `set_public_key()`
+
+设置用于验证 JAPK 签名的 Ed25519 公钥。
+
+```python
+japk.set_public_key(public_key: str) -> int  # Base64 编码的公钥
+```
+
+### `load_from_bytes()`
+
+从内存加载 JAPK 包。加载成功后，协议服务会自动从包内提供资源。
+
+```python
+japk.load_from_bytes(data: bytes | bytearray | memoryview) -> int
+```
+
+### `is_loaded()`
+
+查询 JAPK 是否已加载。
+
+```python
+japk.is_loaded() -> bool
+```
+
+### `get_app_signature()`
+
+获取当前加载包的 app_signature。
+
+```python
+japk.get_app_signature() -> str | None
+```
+
+### `get_signature_info()`
+
+获取签名信息，返回解析后的 dict 或原始字符串。
+
+```python
+japk.get_signature_info() -> dict | str | None
+```
+
+### `unload()`
+
+卸载当前 JAPK 包并释放内存。
+
+```python
+japk.unload() -> int
+```

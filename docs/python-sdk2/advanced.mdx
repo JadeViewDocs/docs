@@ -191,6 +191,103 @@ tools.unregister_url_scheme("myapp")
 tools.unregister_file_association("mydata")
 ```
 
+## 运行时切换边框样式（2.1 新增）
+
+2.1 版本支持在运行时动态切换窗口边框样式，无需销毁重建窗口：
+
+```python
+from jadeview import window
+
+# 切换为无标题栏
+window.set_window_frame_style(win_id, "no-titlebar")
+
+# 切换为 title-overlay（Windows 专属，标题栏按钮覆盖在内容上）
+window.set_window_frame_style(win_id, "title-overlay")
+
+# 自定义 overlay 按钮样式
+window.set_titlebar_overlay_style(
+    win_id,
+    height=40,
+    icon_color_hex="#FFFFFF",
+    hover_bg_hex="#3B3B3B80",
+)
+
+# 切回标准边框
+window.set_window_frame_style(win_id, "normal")
+```
+
+可选的 `frame_style` 值：
+- `"normal"` — 有边框 + 标题栏（默认）
+- `"no-titlebar"` — 有边框 + 无标题栏
+- `"borderless"` — 无边框 + 无标题栏
+- `"title-overlay"` — 有边框 + 标题栏按钮覆盖在内容上
+
+## 打印 WebView 内容（2.1 新增）
+
+```python
+from jadeview import window
+
+# 打开系统打印对话框
+window.jade_print(win_id)
+```
+
+## JAPK 资源包加载（2.1 新增）
+
+JAPK 是 JadeView 的资源打包格式，将前端文件（HTML/CSS/JS/图片等）打包为单个 `.japk` 文件，支持 Ed25519 签名验证。
+
+### 基本用法
+
+```python
+from jadeview import japk, tools, window
+
+def on_ready(window_id, data):
+    # 1. 设置公钥（用于验证签名）
+    japk.set_public_key("你的Base64公钥")
+
+    # 2. 读取 .japk 文件并加载到内存
+    with open("app.japk", "rb") as f:
+        japk.load_from_bytes(f.read())
+
+    # 3. 检查是否加载成功
+    if japk.is_loaded():
+        print(f"已加载: {japk.get_app_signature()}")
+        print(f"签名信息: {japk.get_signature_info()}")
+
+    # 4. 设置协议服务路径（加载后自动从包内提供资源）
+    base_url = tools.set_protocol_service_path("japk://")
+
+    # 5. 创建窗口
+    window.create_webview_window(f"{base_url}index.html", title="JAPK App")
+```
+
+### 运行时切换资源源
+
+```python
+from jadeview import japk, tools, webview
+
+def switch_to_japk(window_id, japk_path):
+    """切换到 JAPK 包资源"""
+    with open(japk_path, "rb") as f:
+        japk.load_from_bytes(f.read())
+    base_url = tools.set_protocol_service_path(japk_path)
+    webview.navigate_to_url(window_id, f"{base_url}index.html")
+    webview.reload(window_id)
+
+def switch_to_directory(window_id, dir_path):
+    """切回目录模式"""
+    japk.unload()
+    base_url = tools.set_protocol_service_path(dir_path)
+    webview.navigate_to_url(window_id, f"{base_url}index.html")
+    webview.reload(window_id)
+```
+
+### 相关事件
+
+| 事件 | 说明 |
+|------|------|
+| `japk-load-success` | JAPK 加载成功时触发 |
+| `japk-load-failed` | JAPK 加载失败时触发 |
+
 ## 应用打包
 
 SDK 支持主流 Python 打包工具，打包时需要手动将 JadeView DLL 包含到输出中。
