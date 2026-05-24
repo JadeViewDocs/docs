@@ -423,9 +423,10 @@ function SdksContent() {
               if (sdkFilesRes.status === 'fulfilled' && Array.isArray(sdkFilesRes.value)) {
                 const files = sdkFilesRes.value.filter((f) => f.type === 'file');
                 if (files.length > 0) {
-                  downloadName = files[0].name;
-                  // 强制使用 gitee 下载链接（gitee 的 download_url 可能有问题，直接拼接 raw）
-                  downloadUrl = `https://gitee.com/ilinxuan/JadeView_library/raw/main/SDK/${dirName}/SDK/${downloadName}`;
+                  // 清理文件名中可能存在的引号等特殊字符
+                  downloadName = files[0].name.replace(/^['"]+|['"]+$/g, '');
+                  // 强制使用 gitee 下载链接，对文件名做 URL 编码
+                  downloadUrl = `https://gitee.com/ilinxuan/JadeView_library/raw/main/SDK/${dirName}/SDK/${encodeURIComponent(downloadName)}`;
                 }
               }
 
