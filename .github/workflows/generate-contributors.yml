@@ -46,7 +46,7 @@ jobs:
         id: check_changes
         run: |
           git status
-          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+          git diff --exit-code src/data/contributors.json || echo "changes=true" >> $GITHUB_OUTPUT
 
       # 提交更改
       - name: Commit changes
