@@ -38,6 +38,16 @@ const sidebars = {
       items: ['japk', 'jadepack', 'japk-load-memory'],
     },
     {
+      type: 'doc',
+      label: '本地协议服务',
+      id: 'local-server-api',
+    },
+    {
+      type: 'doc',
+      label: '右键菜单',
+      id: 'context-menu-api',
+    },
+    {
       type: 'category',
       label: '插件',
       items: ['plugin-system-api', 'tray-api', 'notification', 'dialog-api'],

@@ -62,7 +62,11 @@ int32_t run_message_loop(void);
 
 ---
 
-### 清理全部窗口（`cleanup_all_windows`）
+### 清理全部窗口（`cleanup_all_windows`）⚠️ 计划报废
+
+:::warning
+`cleanup_all_windows` 自 2.2 起进入计划报废阶段，请使用 [`jadeview_exit()`](#jadeview_exit) 代替。
+:::
 
 **用途**：关掉所有 JadeView 窗口、收尾资源、让事件循环结束。相当于应用退出前的清理。
 
@@ -77,40 +81,24 @@ int32_t cleanup_all_windows(void);
 
 ---
 
-## 本地协议服务
+### 退出应用（`jadeview_exit`）*(2.2 新增)*
 
-### 设置本地协议服务路径
-
-**用途**：将本地目录或 JAPK 资源包注册为 JadeView 内置访问的根目录，并生成一个协议 URL。页面里可以用这个地址加载 JS/CSS/图片，就像小型静态站点，而不必再自己起 Node 或 IIS。
+**用途**：替代 `cleanup_all_windows`，关掉所有 JadeView 窗口、收尾资源、让事件循环结束。
 
 ```c
-int32_t set_protocol_service_path(
-  const char* root_path,
-  char* url_buffer,
-  size_t buffer_size
-);
+int32_t jadeview_exit(void);
 ```
 
-**参数：**
+| 返回值 | 含义 |
+|--------|------|
+| `1` | 已发起关闭与清理。 |
+| `0` | 失败（例如尚未完成初始化）。 |
 
-- `root_path` `string` - 本地静态资源根。**两种形式**：
-  - **目录**：指向包含 `index.html` 等前端产物的文件夹路径；
-  - **`.japk` 文件**：指向磁盘上已存在的 JAPK 归档文件。JadeView 会映射该文件并在 `JADE://` 下按**包内相对路径**提供资源（不解压到临时目录）；请求未命中时同样回退到包内的 `index.html`（SPA）。扩展名匹配**不区分大小写**（如 `.JAPK`）。若归档中某些条目为「解包」存储（旁路 `.japk.unpacked` / 等价目录），实现会尝试从磁盘旁路读取对应字节。
-- `url_buffer` `char*` - 输出参数，用于存储生成的协议 URL（NUL 结尾）
-- `buffer_size` `size_t` - `url_buffer` 的字节容量（含结尾 NUL）
+---
 
-**返回值：**
+本地协议服务相关 API（`set_protocol_service_path`、`register_resource`、`unregister_resource`、`clear_window_resources`）已移至 [本地协议服务](/v2api/local-server-api) 独立文档。
 
-- `1` - 成功
-- `0` - 失败（路径无效、缓冲太小、尚未初始化等）
-
-须在 **`app-ready` 成功之后**再调。
-
-**与旧版 `create_local_server` 的差异**：过去要在参数里单独传 **`appname`**，用来拼内置主机名（如 `http://jade.{appname}/...`）。**2.0** 改为由 **`JadeView_init` 已登记的 `app_name` / `app_signature`** 推导协议身份，因此 C API **少一个参数**，避免与初始化信息不一致。
-
-| 旧 API | 2.0 |
-|--------|-----|
-| `create_local_server(root_path, appname, url_buffer, buffer_size)` | `set_protocol_service_path(root_path, url_buffer, buffer_size)` |
+右键菜单相关 API（`jade_menu_item_create` 等）已移至 [右键菜单](/v2api/context-menu-api) 独立文档。
 
 ---
 
@@ -179,3 +167,9 @@ int32_t set_protocol_service_path(
 | `preload_js` | 页面加载前要注入的一段 JS。 |
 | `allow_fullscreen` | 网页里全屏 API 是否允许。 |
 | `postmessage_whitelist` | **页面 `postMessage` 是否转发给宿主**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收。 |
+| `autofill` | 是否启用账号/密码自动填充。`0` = 禁用，`1` = 启用。*(2.2 新增)* |
+| `general_autofill_enabled` | 是否启用通用表单自动填充（姓名/地址/电话等）。`0` = 禁用，`1` = 启用。*(2.2 新增)* |
+| `incognito` | 是否以无痕/隐私浏览模式运行。`0` = 正常模式，`1` = 无痕模式。*(2.2 新增)* |
+| `disable_clipboard` | 是否禁用剪贴板读写权限。`0` = 允许，`1` = 禁用。*(2.2 新增)* |
+| `proxy_url` | 代理URL，支持 HTTP 和 SOCKS5 代理（如 `"http://127.0.0.1:7890"` 或 `"socks5://127.0.0.1:1080"`）。`NULL` 表示不使用代理。*(2.2 新增)* |
+| `focused` | WebView 初始是否自动获取焦点。`0` = 不获取焦点，`1` = 自动聚焦（默认 `1`）。*(2.2 新增)* |

@@ -70,6 +70,12 @@ uint32_t create_webview_window(
   - `postmessage_whitelist` `string` - **页面 `postMessage` 是否转发给宿主**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收
   - `cors_whitelist` `string` - 版本支持 **v2.1+**， CORS 来源白名单，逗号或分号分隔的域名列表（如 `"http://198.18.0.1:8001, http://localhost:3000"`）。
     - 严格精确匹配，不支持通配符。设置后仅允许白名单内的来源跨域请求 JadeView 内部 API（invoke、on）；不设置（`NULL`）或空字符串则不允许任何跨域，无法与程序通信。
+  - `autofill` `int32_t` - 是否启用账号/密码自动填充。`0` = 禁用，`1` = 启用。*(2.2 新增)*
+  - `general_autofill_enabled` `int32_t` - 是否启用通用表单自动填充（姓名/地址/电话等）。`0` = 禁用，`1` = 启用。*(2.2 新增)*
+  - `incognito` `int32_t` - 是否以无痕/隐私浏览模式运行。`0` = 正常模式，`1` = 无痕模式。*(2.2 新增)*
+  - `disable_clipboard` `int32_t` - 是否禁用剪贴板读写权限。`0` = 允许，`1` = 禁用。*(2.2 新增)*
+  - `proxy_url` `string` - 代理URL，支持 HTTP 和 SOCKS5 代理（如 `"http://127.0.0.1:7890"` 或 `"socks5://127.0.0.1:1080"`）。`NULL` 表示不使用代理。*(2.2 新增)*
+  - `focused` `int32_t` - WebView 初始是否自动获取焦点。`0` = 不获取焦点，`1` = 自动聚焦（默认 `1`）。*(2.2 新增)*
 
 **返回值：**
 

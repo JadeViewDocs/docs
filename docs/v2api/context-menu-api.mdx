@@ -1,0 +1,140 @@
+---
+title: 右键菜单
+sidebar_position: 9
+---
+
+# 右键菜单 *(2.2 新增)*
+
+利用 WebView2 原生上下文菜单 API，实现类似 Electron 的右键菜单自定义系统。
+
+## 事件
+
+### 右键菜单事件（`context-menu`）
+
+右键点击时自动触发（需 `allow_right_click=1`），`event_data` 为 JSON。
+
+**`window_id`**：触发事件的窗口ID。
+
+**`event_data`**：JSON，包含右键目标的详细信息：
+
+```json
+{
+  "x": 100, "y": 200,
+  "kind": "page",
+  "is_editable": false, "is_main_frame": true,
+  "page_url": "https://example.com", "frame_url": "",
+  "has_link": true, "link_url": "https://example.com/page2", "link_text": "点击这里",
+  "has_source": false, "source_url": "",
+  "has_selection": true, "selection_text": "选中文本"
+}
+```
+
+| 字段 | 说明 |
+|------|------|
+| `x` / `y` | 屏幕坐标 |
+| `kind` | 目标类型：`page` / `image` / `selected_text` / `audio` / `video` |
+| `is_editable` | 是否可编辑区域 |
+| `is_main_frame` | 是否在主框架中 |
+| `page_url` / `frame_url` | 页面/框架 URL |
+| `has_link` / `link_url` / `link_text` | 链接信息 |
+| `has_source` / `source_url` | 资源源信息（图片/音视频） |
+| `has_selection` / `selection_text` | 选中文本信息 |
+
+### 菜单项点击事件（`menu-item-clicked`）
+
+自定义菜单项被点击时触发，`event_data` 为创建时传入的 `item_id`（字符串）。
+
+**`window_id`**：触发事件的窗口ID。
+
+**`event_data`**：创建菜单项时传入的 `item_id` 字符串。
+
+---
+
+## C API
+
+### 创建菜单项（`jade_menu_item_create`）
+
+```c
+uint32_t jade_menu_item_create(const char* label, int kind, uint32_t parent_menu_id, int item_id);
+```
+
+**参数：**
+
+- `label` `string` - 菜单项文本
+- `kind` `int` - 菜单项类型：`0` = 命令，`1` = 分隔线，`2` = 复选框，`3` = 单选，`4` = 子菜单
+- `parent_menu_id` `uint32_t` - 父菜单ID（`0` = 顶级菜单，`>0` = 添加到指定子菜单）
+- `item_id` `int` - 用户自定义ID，点击时通过 `menu-item-clicked` 事件返回
+
+**返回值：**
+
+- `> 0` - 菜单项ID（`menu_id`）
+- `0` - 失败
+
+### 设置菜单项启用状态（`jade_menu_item_set_enabled`）
+
+```c
+int jade_menu_item_set_enabled(uint32_t menu_id, int enabled);
+```
+
+**参数：**
+
+- `menu_id` `uint32_t` - 菜单项ID
+- `enabled` `int` - `0` = 禁用，`1` = 启用
+
+**返回值：** `1` = 成功，`0` = 失败
+
+### 设置菜单项选中状态（`jade_menu_item_set_checked`）
+
+```c
+int jade_menu_item_set_checked(uint32_t menu_id, int checked);
+```
+
+**参数：**
+
+- `menu_id` `uint32_t` - 菜单项ID
+- `checked` `int` - `0` = 未选中，`1` = 选中
+
+**返回值：** `1` = 成功，`0` = 失败
+
+### 设置右键菜单项（`jade_set_context_menu_items`）
+
+在 `context-menu` 事件回调中调用，设置要显示的菜单项。
+
+```c
+int jade_set_context_menu_items(uint32_t window_id, const uint32_t* menu_ids, int count);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 窗口ID
+- `menu_ids` `uint32_t*` - 菜单项ID数组
+- `count` `int` - 数组长度
+
+**返回值：** `1` = 成功，`0` = 失败
+
+### 销毁菜单项（`jade_menu_item_destroy`）
+
+```c
+int jade_menu_item_destroy(uint32_t menu_id);
+```
+
+**参数：**
+
+- `menu_id` `uint32_t` - 菜单项ID
+
+**返回值：** `1` = 成功，`0` = 失败
+
+---
+
+## 使用流程
+
+1. 注册 `context-menu` 事件监听：`jade_on("context-menu", callback)`
+2. 在回调中，根据 `kind` 等字段判断右键目标
+3. 调用 `jade_menu_item_create` 创建菜单项
+4. 调用 `jade_set_context_menu_items` 设置要显示的菜单
+5. WebView2 自动弹出原生菜单
+6. 用户点击后，`menu-item-clicked` 事件返回 `item_id`
+
+:::note
+如果不注册 `context-menu` 事件监听，右键将显示 WebView2 默认菜单。
+:::
