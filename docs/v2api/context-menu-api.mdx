@@ -25,7 +25,12 @@ sidebar_position: 9
   "page_url": "https://example.com", "frame_url": "",
   "has_link": true, "link_url": "https://example.com/page2", "link_text": "点击这里",
   "has_source": false, "source_url": "",
-  "has_selection": true, "selection_text": "选中文本"
+  "has_selection": true, "selection_text": "选中文本",
+  "default_menu_names": [
+    {"name": "back", "label": "后退(&B)", "kind": "command"},
+    {"name": "forward", "label": "前进(&F)", "kind": "command"},
+    {"name": "other", "label": "", "kind": "separator"}
+  ]
 }
 ```
 
@@ -39,6 +44,7 @@ sidebar_position: 9
 | `has_link` / `link_url` / `link_text` | 链接信息 |
 | `has_source` / `source_url` | 资源源信息（图片/音视频） |
 | `has_selection` / `selection_text` | 选中文本信息 |
+| `default_menu_names` | WebView2 默认菜单项列表，每项含 `name`、`label`、`kind`（见下方 Name 列表） |
 
 ### 菜单项点击事件（`menu-item-clicked`）
 
@@ -60,15 +66,19 @@ uint32_t jade_menu_item_create(const char* label, int kind, uint32_t parent_menu
 
 **参数：**
 
-- `label` `string` - 菜单项文本
-- `kind` `int` - 菜单项类型：`0` = 命令，`1` = 分隔线，`2` = 复选框，`3` = 单选，`4` = 子菜单
+- `label` `string` - 菜单项文本（`kind=5` 时填 WebView2 默认菜单项的 Name，如 `"copy"`）
+- `kind` `int` - 菜单项类型（见下表）
 - `parent_menu_id` `uint32_t` - 父菜单ID（`0` = 顶级菜单，`>0` = 添加到指定子菜单）
-- `item_id` `int` - 用户自定义ID，点击时通过 `menu-item-clicked` 事件返回
+- `item_id` `int` - 用户自定义ID，点击时通过 `menu-item-clicked` 事件返回（`kind=5` 忽略此参数）
 
 **返回值：**
 
 - `> 0` - 菜单项ID（`menu_id`）
 - `0` - 失败
+
+### kind 参数说明
+
+菜单项类型说明、`kind=5` 默认菜单项的 WebView2 原生 Name 列表（按右键上下文分类）详见 [菜单项类型与原生菜单项](/v2api/context-menu-items)。
 
 ### 设置菜单项启用状态（`jade_menu_item_set_enabled`）
 

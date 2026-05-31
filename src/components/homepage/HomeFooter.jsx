@@ -33,7 +33,7 @@ export default function HomeFooter({ className }) {
             <div className="jv-home-footer__nav">
               <a href="https://qm.qq.com/q/MVsl5VWokC" className="jv-home-footer__link">QQ群: 703623743</a>
               <a href="https://github.com/JadeViewDocs/JadeView/issues" className="jv-home-footer__link">GitHub Issues</a>
-              <a href="mailto:ihanlong@qq.com" className="jv-home-footer__link">邮箱</a>
+              <a href="mailto:tuyang@jade.run" className="jv-home-footer__link">邮箱</a>
             </div>
           </div>
         </div>

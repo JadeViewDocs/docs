@@ -18,7 +18,7 @@ export function AnimatedWave({ forceLight = false }: { forceLight?: boolean }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const chars = "·∘○◯◌●◉";
+    const chars ="·∘○◯◌●◉";;
     let time = 0;
 
     const resize = () => {
@@ -64,7 +64,7 @@ export function AnimatedWave({ forceLight = false }: { forceLight?: boolean }) {
         }
       }
 
-      time += 0.03;
+      time += 0.015;
       frameRef.current = requestAnimationFrame(render);
     };
 

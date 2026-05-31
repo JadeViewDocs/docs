@@ -19,7 +19,7 @@ const footerLinks = {
     { name: "QQ群", href: "https://qm.qq.com/q/MVsl5VWokC" },
     { name: "GitHub", href: "https://github.com/JadeViewDocs/JadeView", badge: "Issues" as const },
     { name: "Gitee", href: "https://gitee.com/ilinxuan/JadeView_library" },
-    { name: "邮箱", href: "mailto:ihanlong@qq.com" },
+    { name: "邮箱", href: "mailto:tuyang@jade.run" },
   ],
   相关: [
     { name: "镜芯API", href: "https://api2.wer.plus/" },

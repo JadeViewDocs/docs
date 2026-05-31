@@ -82,7 +82,7 @@ export function DistributionSection() {
               </ul>
               <button onClick={() => {
                 if (plan.cta === "联系我们") {
-                  window.location.href = "mailto:ihanlong@qq.com";
+                  window.open("mailto:tuyang@jade.run", "_self");
                 } else {
                   window.open("/spec/changelog", "_blank");
                 }

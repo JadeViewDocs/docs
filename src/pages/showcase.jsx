@@ -40,7 +40,7 @@ const showcaseItems = [
     name: 'Electron asar Gui工具',
     description: '一款简洁易用的 Electron asar 文件打包/解包工具。',
     link: 'https://github.com/HyJunYaa/Electron-asar-Gui-Tool',
-    image: '/img/electron_asar.jpg',
+    image: '/img/Electron_asar.jpg',
     hasOverlay: true,
   },
   

@@ -43,9 +43,9 @@ const sidebars = {
       id: 'local-server-api',
     },
     {
-      type: 'doc',
+      type: 'category',
       label: '右键菜单',
-      id: 'context-menu-api',
+      items: ['context-menu-api', 'context-menu-items'],
     },
     {
       type: 'category',
