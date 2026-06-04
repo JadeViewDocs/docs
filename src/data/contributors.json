@@ -263,12 +263,12 @@
   ],
   "docs/python-sdk2/api-reference.mdx": [
     {
-      "login": "lazyso",
-      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
-    },
-    {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    },
+    {
+      "login": "lazyso",
+      "avatar": "https://avatars.githubusercontent.com/u/42536030?s=100&v=4"
     }
   ],
   "docs/python-sdk2/examples.mdx": [
@@ -475,6 +475,18 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
+  "docs/v2api/context-menu-api.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
+  "docs/v2api/context-menu-items.mdx": [
+    {
+      "login": "tuyangJs",
+      "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
+    }
+  ],
   "docs/v2api/dialog-api.mdx": [
     {
       "login": "tuyangJs",
@@ -535,7 +547,7 @@
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
     }
   ],
-  "docs/v2api/plugin-system-api.mdx": [
+  "docs/v2api/system-api.mdx": [
     {
       "login": "tuyangJs",
       "avatar": "https://avatars.githubusercontent.com/u/38270397?s=100&u=733f95366440c259fe5131e9919a358bd95f909b&v=4"
