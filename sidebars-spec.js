@@ -53,7 +53,8 @@ const sidebars = {
       label: '发行行为',
       collapsed: false,
       items: [
-        'release-behavior'
+        'release-behavior',
+        'distribution'
       ]
     }
   ]

@@ -167,7 +167,7 @@ function SdkIntroToggle({ readme, isDark }) {
 function SdkCard({ sdk, isDark }) {
   if (!sdk.info) return null;
 
-  const { info, downloadUrl, downloadName, giteeFilePath } = sdk;
+  const { info, allFiles } = sdk;
   const [selectedVersion, setSelectedVersion] = useState(info.version);
   const [downloading, setDownloading] = useState(false);
 
@@ -177,6 +177,18 @@ function SdkCard({ sdk, isDark }) {
       if (!versions.includes(c.version)) versions.push(c.version);
     });
   }
+
+  // 根据选中版本匹配文件：文件名包含版本号则匹配，否则回退第一个
+  const matchedFile = React.useMemo(() => {
+    if (!allFiles || allFiles.length === 0) return null;
+    if (allFiles.length === 1) return allFiles[0];
+    const found = allFiles.find((f) => f.name.includes(selectedVersion));
+    return found || allFiles[0];
+  }, [allFiles, selectedVersion]);
+
+  const downloadName = matchedFile ? matchedFile.name.replace(/^['"]+|['"]+$/g, '') : null;
+  const giteeFilePath = matchedFile ? `SDK/${sdk.dirName}/SDK/${matchedFile.name}` : null;
+  const downloadUrl = matchedFile ? (matchedFile.download_url || null) : null;
 
   const changelogItems = (info.changelog || []).map((c) => ({
     label: `v${c.version}`,
@@ -438,22 +450,22 @@ function SdksContent() {
               const info = infoRes.status === 'fulfilled' ? infoRes.value : null;
               const readme = readmeRes.status === 'fulfilled' ? readmeRes.value : null;
 
+              const allFiles = (sdkFilesRes.status === 'fulfilled' && Array.isArray(sdkFilesRes.value))
+                ? sdkFilesRes.value.filter((f) => f.type === 'file')
+                : [];
               let downloadUrl = null;
               let downloadName = null;
               let giteeFilePath = null;
-              if (sdkFilesRes.status === 'fulfilled' && Array.isArray(sdkFilesRes.value)) {
-                const files = sdkFilesRes.value.filter((f) => f.type === 'file');
-                if (files.length > 0) {
-                  downloadName = files[0].name.replace(/^['"]+|['"]+$/g, '');
-                  downloadUrl = files[0].download_url || null;
-                  // 下载默认走 Gitee API，避免直链文件名带引号问题
-                  giteeFilePath = `SDK/${dirName}/SDK/${files[0].name}`;
-                }
+              if (allFiles.length > 0) {
+                downloadName = allFiles[0].name.replace(/^['"]+|['"]+$/g, '');
+                downloadUrl = allFiles[0].download_url || null;
+                // 下载默认走 Gitee API，避免直链文件名带引号问题
+                giteeFilePath = `SDK/${dirName}/SDK/${allFiles[0].name}`;
               }
 
-              return { dirName, info, readme, downloadUrl, downloadName, giteeFilePath };
+              return { dirName, info, readme, downloadUrl, downloadName, giteeFilePath, allFiles };
             } catch {
-              return { dirName, info: null, readme: null, downloadUrl: null, downloadName: null, giteeFilePath: null };
+              return { dirName, info: null, readme: null, downloadUrl: null, downloadName: null, giteeFilePath: null, allFiles: [] };
             }
           })
         );
@@ -480,21 +492,21 @@ function SdksContent() {
               const info = infoRes.status === 'fulfilled' ? infoRes.value : null;
               const readme = readmeRes.status === 'fulfilled' ? readmeRes.value : null;
 
+              const allFiles = (sdkFilesRes.status === 'fulfilled' && Array.isArray(sdkFilesRes.value))
+                ? sdkFilesRes.value.filter((f) => f.type === 'file')
+                : [];
               let downloadUrl = null;
               let downloadName = null;
               let giteeFilePath = null;
-              if (sdkFilesRes.status === 'fulfilled' && Array.isArray(sdkFilesRes.value)) {
-                const files = sdkFilesRes.value.filter((f) => f.type === 'file');
-                if (files.length > 0) {
-                  downloadName = files[0].name.replace(/^['"]+|['"]+$/g, '');
-                  // Gitee 走 API 下载，避免直链文件名带引号问题
-                  giteeFilePath = `SDK/${dirName}/SDK/${files[0].name}`;
-                }
+              if (allFiles.length > 0) {
+                downloadName = allFiles[0].name.replace(/^['"]+|['"]+$/g, '');
+                // Gitee 走 API 下载，避免直链文件名带引号问题
+                giteeFilePath = `SDK/${dirName}/SDK/${allFiles[0].name}`;
               }
 
-              return { dirName, info, readme, downloadUrl, downloadName, giteeFilePath };
+              return { dirName, info, readme, downloadUrl, downloadName, giteeFilePath, allFiles };
             } catch {
-              return { dirName, info: null, readme: null, downloadUrl: null, downloadName: null, giteeFilePath: null };
+              return { dirName, info: null, readme: null, downloadUrl: null, downloadName: null, giteeFilePath: null, allFiles: [] };
             }
           })
         );
