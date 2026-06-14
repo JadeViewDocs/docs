@@ -108,7 +108,7 @@ export function HeroSection() {
             }`}
           >
             <a 
-              href="/spec/changelog"
+              href="/releases/"
               className="inline-flex items-center bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group font-medium transition-colors"
             >
               获取核心库

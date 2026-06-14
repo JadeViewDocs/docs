@@ -23,7 +23,6 @@ const sidebars = {
         'index',
         'behavior',
         'compatibility',
-        'changelog/index',
       ]
     },
     {

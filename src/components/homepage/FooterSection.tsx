@@ -12,7 +12,7 @@ const footerLinks = {
   文档: [
     { name: "快速开始", href: "/spec/quickstart" },
     { name: "API 参考", href: "/v2api" },
-    { name: "更新日志", href: "/spec/changelog" },
+    { name: "更新日志", href: "/releases/" },
     { name: "IPC 通信", href: "/spec/ipc-communication" },
   ],
   社区: [
