@@ -172,6 +172,9 @@ const config = {
     ],
   ],
 
+  plugins: [
+  ],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
@@ -243,8 +246,8 @@ const config = {
             position: 'right',
           },
           {
-            label: '快速开始',
-            to: '/spec/quickstart',
+            label: '发行版本',
+            to: '/releases/',
             className:
               'get-button bg-primary text-white rounded-md hover:bg-primary/90 font-medium',
             position: 'right',
@@ -273,7 +276,7 @@ const config = {
               },
               {
                 label: '更新日志',
-                to: '/spec/changelog',
+                to: '/releases/',
               },
             ],
           },

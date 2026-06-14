@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JadeView 发行记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        jade: {
+                            glow: '#0066FF',
+                            solid: '#0055DE',
+                            dark: '#040914',
+                            muted: 'rgba(0, 102, 255, 0.05)',
+                            dim: '#002B7A'
+                        },
+                        obsidian: {
+                            950: '#02050A',
+                            900: '#060B14',
+                            800: '#0F1624',
+                            700: '#182234',
+                            600: '#25334A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        display: ['Cabinet Grotesk', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,900&display=swap');
+        body {
+            background-color: #000;
+            color: #E2E8F0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .release-body h1 { font-size: 1.5rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: #F1F5F9; }
+        .release-body h2 { font-size: 1.25rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #F1F5F9; }
+        .release-body h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: #E2E8F0; }
+        .release-body p { margin: 0.5rem 0; line-height: 1.7; }
+        .release-body ul, .release-body ol { margin: 0.5rem 0; padding-left: 1.5rem; list-style-position: outside; }
+        .release-body ul { list-style-type: disc; }
+        .release-body ol { list-style-type: decimal; }
+        .release-body li { margin: 0.25rem 0; line-height: 1.6; display: list-item; }
+        .release-body code {
+            background: rgba(0, 102, 255, 0.1);
+            border: 1px solid rgba(0, 102, 255, 0.15);
+            border-radius: 6px;
+            padding: 0.15em 0.4em;
+            font-size: 0.9em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .release-body pre {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .release-body pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.85rem;
+        }
+        .release-body a {
+            color: #60A5FA;
+            text-decoration: none;
+        }
+        .release-body a:hover {
+            text-decoration: underline;
+        }
+        .release-body blockquote {
+            border-left: 3px solid rgba(255,255,255,0.1);
+            padding-left: 1rem;
+            margin: 0.75rem 0;
+            color: #94A3B8;
+        }
+        .release-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .release-body th, .release-body td {
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        .release-body th {
+            background: rgba(255,255,255,0.04);
+            font-weight: 600;
+        }
+        .release-body strong {
+            color: #F1F5F9;
+        }
+        .version-row {
+            transition: background-color 0.2s ease;
+        }
+        .version-row:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+        .tab-btn {
+            color: rgba(255,255,255,0.5);
+            transition: all 0.2s ease;
+        }
+        .tab-btn:hover {
+            color: rgba(255,255,255,0.8);
+        }
+        .tab-btn.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .glass-card:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+        .glass-nav {
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+        }
+        .apple-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s ease;
+        }
+        .apple-btn:hover {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.16);
+        }
+        .apple-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+        .version-link {
+            background: linear-gradient(to right, #fff, rgba(255,255,255,0.7));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .version-link:hover {
+            background: linear-gradient(to right, #60A5FA, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        ::selection {
+            background: rgba(0,102,255,0.3);
+            color: #fff;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="glass-nav sticky top-0 z-50 border-b border-white/[0.06]">
+        <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    文档
+                </a>
+                <span class="text-white/10">|</span>
+                <h1 class="text-sm font-semibold text-white/90">发行记录</h1>
+            </div>
+            <a href="https://github.com/JadeViewDocs/JadeView/releases" target="_blank" class="text-sm text-white/40 hover:text-white transition-colors flex items-center gap-1.5">
+                GitHub
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-16">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-20">
+            <div class="inline-block w-6 h-6 border-2 border-white/10 border-t-white/60 rounded-full animate-spin"></div>
+            <p class="mt-4 text-white/30 text-sm">加载发布信息...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden text-center py-20">
+            <p class="text-red-400/80">加载失败，请稍后重试</p>
+            <button onclick="loadReleases()" class="mt-4 px-4 py-2 apple-btn rounded-full text-sm text-white/70">重试</button>
+        </div>
+
+        <!-- Content -->
+        <div id="content" class="hidden">
+            <!-- Top Navigation Tabs -->
+            <div class="flex items-center gap-1 mb-12 bg-white/[0.04] rounded-full p-1 w-fit border border-white/[0.06]">
+                <button id="tab-releases" onclick="switchTab('releases')" class="tab-btn px-6 py-2 text-sm font-medium rounded-full transition-all">
+                    发行版本
+                </button>
+                <button id="tab-calendar" onclick="switchTab('calendar')" class="tab-btn px-6 py-2 text-sm font-medium rounded-full transition-all">
+                    发行日历
+                </button>
+                <button id="tab-all" onclick="switchTab('all')" class="tab-btn px-6 py-2 text-sm font-medium rounded-full transition-all">
+                    所有发行
+                </button>
+            </div>
+
+            <!-- Releases View -->
+            <div id="view-releases">
+            <!-- Latest Stable Card -->
+            <div id="latest-card" class="glass-card rounded-2xl p-8 mb-16 fade-in">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">最新稳定版</span>
+                    <div class="flex items-center gap-2">
+                        <a id="latest-github" href="" target="_blank" class="apple-btn px-3 py-1.5 text-xs font-medium rounded-full text-white/60 flex items-center gap-1.5">
+                            GitHub
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                        <a id="latest-gitee" href="" target="_blank" class="apple-btn px-3 py-1.5 text-xs font-medium rounded-full text-white/60 flex items-center gap-1.5">
+                            Gitee
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <a id="latest-version-link" href="" class="group" onclick="event.preventDefault(); navigateTo(document.getElementById('latest-version').textContent);">
+                    <h2 id="latest-version" class="text-5xl font-black font-display version-link tracking-tight"></h2>
+                </a>
+                <p id="latest-date" class="mt-3 text-sm text-white/30"></p>
+            </div>
+
+            <!-- Stable Section -->
+            <section id="stable-section" class="mb-12">
+                <h3 class="text-xs font-medium text-white/40 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    稳定版
+                </h3>
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/[0.04]">
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">版本</th>
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">标题</th>
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">发布日期</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stable-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Prerelease Section -->
+            <section id="prerelease-section" class="mb-12 hidden">
+                <h3 class="text-xs font-medium text-white/40 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    预发布
+                </h3>
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/[0.04]">
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">版本</th>
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">标题</th>
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">发布日期</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prerelease-list"></tbody>
+                    </table>
+                </div>
+            </section>
+            </div>
+
+            <!-- All Releases View -->
+            <div id="view-all" class="hidden">
+                <div class="flex items-center gap-1 mb-6 bg-white/[0.04] rounded-full p-1 w-fit border border-white/[0.06] fade-in">
+                    <button id="all-filter-all" onclick="setAllFilter('all')" class="tab-btn px-4 py-1.5 text-sm font-medium rounded-full transition-all">全部</button>
+                    <button id="all-filter-stable" onclick="setAllFilter('stable')" class="tab-btn active px-4 py-1.5 text-sm font-medium rounded-full transition-all">稳定版</button>
+                    <button id="all-filter-prerelease" onclick="setAllFilter('prerelease')" class="tab-btn px-4 py-1.5 text-sm font-medium rounded-full transition-all">预发布</button>
+                </div>
+                <div class="glass-card rounded-2xl overflow-hidden fade-in">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/[0.04]">
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">版本</th>
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">标题</th>
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">类型</th>
+                                <th class="text-left px-6 py-3.5 text-[11px] font-medium text-white/30 uppercase tracking-widest">发布日期</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-list"></tbody>
+                    </table>
+                </div>
+                <div class="flex items-center justify-between mt-6">
+                    <span id="all-page-info" class="text-sm text-white/25"></span>
+                    <div class="flex items-center gap-2">
+                        <button id="all-prev" onclick="allReleasesPage(-1)" class="apple-btn px-4 py-2 text-sm rounded-full text-white/60 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            上一页
+                        </button>
+                        <button id="all-next" onclick="allReleasesPage(1)" class="apple-btn px-4 py-2 text-sm rounded-full text-white/60 flex items-center gap-1">
+                            下一页
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="view-calendar" class="hidden">
+                <div class="glass-card rounded-2xl p-8 fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xs font-medium text-white/40 uppercase tracking-widest">发行日历</h3>
+                        <div class="flex items-center gap-4 text-xs text-white/30">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/60"></span>稳定版</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500/60"></span>预发布</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-white/[0.06]"></span>无发行</span>
+                        </div>
+                    </div>
+                    <div id="heatmap-container" class="overflow-x-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail View -->
+        <div id="detail" class="hidden fade-in">
+            <button onclick="showList()" class="mb-8 text-sm text-white/30 hover:text-white transition-colors flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                返回列表
+            </button>
+            <div class="glass-card rounded-2xl p-10">
+                <div class="flex items-center gap-3 mb-3">
+                    <span id="detail-tag" class="px-3 py-1 text-xs font-medium rounded-full"></span>
+                </div>
+                <h2 id="detail-version" class="text-5xl font-black font-display version-link tracking-tight mb-3"></h2>
+                <div class="flex items-center gap-4 text-sm text-white/30 mb-8">
+                    <span id="detail-date"></span>
+                    <span class="text-white/10">|</span>
+                    <a id="detail-github" href="" target="_blank" class="hover:text-white/70 transition-colors flex items-center gap-1">
+                        GitHub
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                    <a id="detail-gitee" href="" target="_blank" class="hover:text-white/70 transition-colors flex items-center gap-1 hidden">
+                        Gitee
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
+                <hr class="border-white/[0.06] mb-8">
+                <div id="detail-body" class="release-body"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/[0.04] mt-20">
+        <div class="max-w-5xl mx-auto px-6 py-8 text-center text-xs text-white/15">
+            &copy; 2026 JadeView. 保留所有权利。
+        </div>
+    </footer>
+
+    <script>
+        let releasesData = null;
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+            const formatted = date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+            if (diffDays === 0) return `今天`;
+            if (diffDays === 1) return `昨天`;
+            return formatted;
+        }
+
+        function renderList() {
+            const stable = releasesData.releases.filter(r => !r.prerelease).slice(0, 5);
+            const prerelease = releasesData.releases.filter(r => r.prerelease).slice(0, 1);
+
+            // Latest stable card
+            if (stable.length > 0) {
+                const latest = stable[0];
+                document.getElementById('latest-version').textContent = latest.tag_name;
+                document.getElementById('latest-version-link').href = `/releases/${latest.tag_name}`;
+                document.getElementById('latest-date').textContent = formatDate(latest.published_at);
+                document.getElementById('latest-github').href = latest.html_url;
+                document.getElementById('latest-gitee').href = latest.gitee_url;
+            }
+
+            // Stable list
+            const stableList = document.getElementById('stable-list');
+            stableList.innerHTML = stable.map(r => `
+                <tr class="version-row border-b border-white/[0.03] last:border-0 cursor-pointer" onclick="navigateTo('${r.tag_name}')">
+                    <td class="px-6 py-4">
+                        <span class="text-white/90 font-medium">${r.tag_name}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-white/40">${r.name !== r.tag_name ? r.name : r.tag_name}</td>
+                    <td class="px-6 py-4"><span class="inline-block px-2.5 py-0.5 text-xs rounded-full bg-white/[0.04] text-white/35">${formatDate(r.published_at)}</span></td>
+                </tr>
+            `).join('');
+
+            // Prerelease list
+            if (prerelease.length > 0) {
+                document.getElementById('prerelease-section').classList.remove('hidden');
+                const prereleaseList = document.getElementById('prerelease-list');
+                prereleaseList.innerHTML = prerelease.map(r => `
+                    <tr class="version-row border-b border-white/[0.03] last:border-0 cursor-pointer" onclick="navigateTo('${r.tag_name}')">
+                        <td class="px-6 py-4">
+                            <span class="text-amber-400/80 font-medium">${r.tag_name}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-white/40">${r.name !== r.tag_name ? r.name : r.tag_name}</td>
+                        <td class="px-6 py-4"><span class="inline-block px-2.5 py-0.5 text-xs rounded-full bg-white/[0.04] text-white/35">${formatDate(r.published_at)}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            switchTab('releases');
+        }
+
+        function renderHeatmap() {
+            const container = document.getElementById('heatmap-container');
+            if (!releasesData || !releasesData.releases.length) { container.innerHTML = ''; return; }
+
+            // Build date → releases map
+            const dateMap = {};
+            releasesData.releases.forEach(r => {
+                const d = r.published_at.slice(0, 10);
+                if (!dateMap[d]) dateMap[d] = [];
+                dateMap[d].push(r);
+            });
+
+            // Determine year range: from earliest release year to current year
+            const releaseYears = releasesData.releases.map(r => new Date(r.published_at).getFullYear());
+            const minYear = Math.min(...releaseYears);
+            const now = new Date().getFullYear();
+            const years = [];
+            for (let y = now; y >= minYear; y--) years.push(y);
+
+            let html = `<div class="flex items-center gap-3 mb-4 flex-wrap">`;
+            years.forEach(y => {
+                const active = y === now;
+                html += `<button onclick="renderHeatmapYear(${y})" class="heatmap-year-btn px-3 py-1 text-sm rounded-full transition-all ${active ? 'bg-white/10 text-white border border-white/10' : 'bg-white/[0.03] text-white/30 border border-white/[0.04] hover:text-white/60'}">${y}</button>`;
+            });
+            html += `</div>`;
+            html += `<div id="heatmap-grid"></div>`;
+            container.innerHTML = html;
+            renderHeatmapYear(now);
+        }
+
+        function renderHeatmapYear(year) {
+            // Update year buttons
+            document.querySelectorAll('.heatmap-year-btn').forEach(btn => {
+                const btnYear = parseInt(btn.textContent);
+                if (btnYear === year) {
+                    btn.className = 'heatmap-year-btn px-3 py-1 text-sm rounded-full transition-all bg-white/10 text-white border border-white/10';
+                } else {
+                    btn.className = 'heatmap-year-btn px-3 py-1 text-sm rounded-full transition-all bg-white/[0.03] text-white/30 border border-white/[0.04] hover:text-white/60';
+                }
+            });
+
+            const dateMap = {};
+            releasesData.releases.forEach(r => {
+                const d = r.published_at.slice(0, 10);
+                if (!dateMap[d]) dateMap[d] = [];
+                dateMap[d].push(r);
+            });
+
+            const grid = document.getElementById('heatmap-grid');
+            const months = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+
+            let html = '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">';
+
+            for (let m = 0; m < 12; m++) {
+                const firstDay = new Date(year, m, 1).getDay();
+                const daysInMonth = new Date(year, m + 1, 0).getDate();
+
+                html += `<div>`;
+                html += `<div class="text-xs font-medium text-white/35 mb-2">${months[m]}</div>`;
+                html += `<div class="grid grid-cols-7 gap-1 text-center">`;
+
+                // Week day headers
+                weekDays.forEach(d => {
+                    html += `<div class="text-[10px] text-white/15 pb-1">${d}</div>`;
+                });
+
+                // Empty cells before first day
+                for (let i = 0; i < firstDay; i++) {
+                    html += `<div></div>`;
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const releases = dateMap[dateStr];
+                    const isFuture = new Date(dateStr) > new Date();
+
+                    let cellClass, cellContent, title;
+
+                    if (isFuture) {
+                        cellClass = 'bg-white/[0.015] text-white/15';
+                        cellContent = day;
+                        title = '';
+                    } else if (releases && releases.length > 0) {
+                        const hasStable = releases.some(r => !r.prerelease);
+                        const hasPre = releases.some(r => r.prerelease);
+                        if (hasStable) {
+                            cellClass = 'bg-emerald-500/40 text-emerald-100 hover:bg-emerald-500/60 cursor-pointer';
+                        } else {
+                            cellClass = 'bg-amber-500/40 text-amber-100 hover:bg-amber-500/60 cursor-pointer';
+                        }
+                        const tags = releases.map(r => r.tag_name).join(', ');
+                        cellContent = day;
+                        title = `${tags}`;
+                    } else {
+                        cellClass = 'bg-white/[0.02] text-white/20';
+                        cellContent = day;
+                        title = '';
+                    }
+
+                    const onclick = releases && releases.length > 0
+                        ? `onclick="navigateTo('${releases[0].tag_name}')"`
+                        : '';
+
+                    html += `<div ${onclick} ${title ? `title="${title}"` : ''} class="rounded-md h-7 flex items-center justify-center text-xs ${cellClass} transition-colors">${cellContent}</div>`;
+                }
+
+                html += `</div></div>`;
+            }
+
+            html += '</div>';
+            grid.innerHTML = html;
+        }
+
+        function navigateTo(tagName) {
+            const base = window.location.pathname.startsWith('/releases') ? '/releases' : '';
+            history.pushState(null, '', `${base}/${tagName}`);
+            handleRoute();
+        }
+
+        let allCurrentPage = 1;
+        let allFilter = 'stable';
+        const allPageSize = 10;
+
+        function getFilteredReleases() {
+            if (!releasesData) return [];
+            if (allFilter === 'stable') return releasesData.releases.filter(r => !r.prerelease);
+            if (allFilter === 'prerelease') return releasesData.releases.filter(r => r.prerelease);
+            return releasesData.releases;
+        }
+
+        function setAllFilter(filter) {
+            allFilter = filter;
+            allCurrentPage = 1;
+            document.querySelectorAll('[id^="all-filter-"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`all-filter-${filter}`).classList.add('active');
+            renderAllReleases();
+            const url = new URL(window.location);
+            if (filter === 'all') {
+                url.searchParams.delete('filter');
+            } else {
+                url.searchParams.set('filter', filter);
+            }
+            url.searchParams.delete('page');
+            history.replaceState(null, '', url);
+        }
+
+        function renderAllReleases() {
+            const filtered = getFilteredReleases();
+            const totalPages = Math.max(1, Math.ceil(filtered.length / allPageSize));
+            if (allCurrentPage > totalPages) allCurrentPage = totalPages;
+            if (allCurrentPage < 1) allCurrentPage = 1;
+
+            const start = (allCurrentPage - 1) * allPageSize;
+            const pageItems = filtered.slice(start, start + allPageSize);
+
+            const tbody = document.getElementById('all-list');
+            tbody.innerHTML = pageItems.map(r => `
+                <tr class="version-row border-b border-white/[0.03] last:border-0 cursor-pointer" onclick="navigateTo('${r.tag_name}')">
+                    <td class="px-6 py-4">
+                        <span class="${r.prerelease ? 'text-amber-400/80' : 'text-white/90'} font-medium">${r.tag_name}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-white/40">${r.name !== r.tag_name ? r.name : r.tag_name}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-block px-2.5 py-0.5 text-xs rounded-full ${r.prerelease ? 'bg-amber-500/10 text-amber-400/80 border border-amber-500/15' : 'bg-emerald-500/10 text-emerald-400/80 border border-emerald-500/15'}">${r.prerelease ? '预发布' : '稳定版'}</span>
+                    </td>
+                    <td class="px-6 py-4"><span class="inline-block px-2.5 py-0.5 text-xs rounded-full bg-white/[0.04] text-white/35">${formatDate(r.published_at)}</span></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('all-page-info').textContent = `第 ${allCurrentPage} / ${totalPages} 页，共 ${filtered.length} 个发行`;
+            document.getElementById('all-prev').disabled = allCurrentPage <= 1;
+            document.getElementById('all-next').disabled = allCurrentPage >= totalPages;
+        }
+
+        function allReleasesPage(delta) {
+            allCurrentPage += delta;
+            renderAllReleases();
+            const url = new URL(window.location);
+            if (allCurrentPage > 1) {
+                url.searchParams.set('page', allCurrentPage);
+            } else {
+                url.searchParams.delete('page');
+            }
+            history.replaceState(null, '', url);
+        }
+
+        let currentTab = 'releases';
+
+        function switchTab(tab, pushState = true) {
+            currentTab = tab;
+            document.getElementById('view-releases').classList.toggle('hidden', tab !== 'releases');
+            document.getElementById('view-calendar').classList.toggle('hidden', tab !== 'calendar');
+            document.getElementById('view-all').classList.toggle('hidden', tab !== 'all');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            if (pushState) {
+                const url = new URL(window.location);
+                url.searchParams.set('tab', tab);
+                if (tab === 'all' && allCurrentPage > 1) {
+                    url.searchParams.set('page', allCurrentPage);
+                } else {
+                    url.searchParams.delete('page');
+                }
+                history.replaceState(null, '', url);
+            }
+            if (tab === 'calendar') renderHeatmap();
+            if (tab === 'all') {
+                document.querySelectorAll('[id^="all-filter-"]').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`all-filter-${allFilter}`).classList.add('active');
+                renderAllReleases();
+            }
+        }
+
+        function showList() {
+            document.getElementById('content').classList.remove('hidden');
+            document.getElementById('detail').classList.add('hidden');
+            const base = window.location.pathname.startsWith('/releases') ? '/releases' : '';
+            if (window.location.pathname !== `${base}/` && window.location.pathname !== `${base}` && window.location.pathname !== `${base}/index.html`) {
+                const url = new URL(window.location);
+                url.pathname = `${base}/`;
+                history.pushState(null, '', url);
+            }
+            switchTab(currentTab, false);
+        }
+
+        function showDetail(tagName) {
+            const release = releasesData.releases.find(r => r.tag_name === tagName);
+            if (!release) return;
+
+            document.getElementById('content').classList.add('hidden');
+            document.getElementById('detail').classList.remove('hidden');
+
+            // Tag
+            const tagEl = document.getElementById('detail-tag');
+            if (release.prerelease) {
+                tagEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-amber-500/10 text-amber-400/80 border border-amber-500/15';
+                tagEl.textContent = '预发布';
+            } else {
+                tagEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400/80 border border-emerald-500/15';
+                tagEl.textContent = '稳定版';
+            }
+
+            document.getElementById('detail-version').textContent = release.tag_name;
+            document.getElementById('detail-date').textContent = formatDate(release.published_at);
+            document.getElementById('detail-github').href = release.html_url;
+            const giteeEl = document.getElementById('detail-gitee');
+            if (release.prerelease) {
+                giteeEl.classList.add('hidden');
+            } else {
+                giteeEl.href = release.gitee_url;
+                giteeEl.classList.remove('hidden');
+            }
+
+            // Render markdown body
+            const bodyEl = document.getElementById('detail-body');
+            if (release.body) {
+                bodyEl.innerHTML = marked.parse(release.body);
+            } else {
+                bodyEl.innerHTML = '<p class="text-slate-400">暂无详细说明</p>';
+            }
+        }
+
+        function handleRoute() {
+            const path = window.location.pathname;
+            const base = '/releases';
+            if (path.startsWith(base + '/')) {
+                const tagName = path.slice(base.length + 1);
+                if (tagName && tagName !== 'index.html' && tagName !== 'data.json') {
+                    showDetail(tagName);
+                    return;
+                }
+            }
+            // fallback: hash routing for local dev
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#/')) {
+                const tagName = hash.slice(2);
+                showDetail(tagName);
+                return;
+            }
+            // Restore tab from URL params
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            const page = params.get('page');
+            const filter = params.get('filter');
+            if (page) allCurrentPage = parseInt(page) || 1;
+            if (filter && ['all', 'stable', 'prerelease'].includes(filter)) allFilter = filter;
+            if (tab && ['releases', 'calendar', 'all'].includes(tab)) {
+                switchTab(tab, false);
+            } else {
+                showList();
+            }
+        }
+
+        async function loadReleases() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('content').classList.add('hidden');
+            document.getElementById('detail').classList.add('hidden');
+
+            try {
+                const res = await fetch('/releases/data.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                releasesData = await res.json();
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+
+                renderList();
+                handleRoute();
+            } catch (err) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+            }
+        }
+
+        window.addEventListener('hashchange', handleRoute);
+        window.addEventListener('popstate', handleRoute);
+        loadReleases();
+    </script>
+</body>
+</html>

@@ -17,7 +17,7 @@ export default function HomeFooter({ className }) {
             <div className="jv-home-footer__nav">
               <a href="/spec/quickstart" className="jv-home-footer__link">快速开始</a>
               <a href="/v2api" className="jv-home-footer__link">API 参考</a>
-              <a href="/spec/changelog" className="jv-home-footer__link">更新日志</a>
+              <a href="/releases/" className="jv-home-footer__link">更新日志</a>
             </div>
           </div>
           <div>

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * 自动从 GitHub Releases 获取发布信息并更新更新日志
- * 使用方法：node scripts/update-changelog.js
+ * 自动从 GitHub Releases 获取发布信息并生成 JSON 数据
+ * 使用方法：node scripts/update-changelog.mjs
  */
 
 import fs from 'fs';
@@ -19,10 +19,8 @@ const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases`;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 更新 changelog
-const CHANGELOG_PATHS = [
-  path.join(__dirname, '../docs/spec/changelog/index.mdx'),
-];
+// 输出路径
+const OUTPUT_PATH = path.join(__dirname, '../static/releases/data.json');
 
 /**
  * 从 GitHub API 获取发布信息
@@ -44,7 +42,6 @@ function fetchReleases() {
       });
 
       res.on('end', () => {
-        // 检查 HTTP 状态码
         if (res.statusCode !== 200) {
           reject(new Error(`GitHub API 返回错误状态码: ${res.statusCode}。仓库可能不存在、是私有的，或遇到了 API 限制。`));
           return;
@@ -52,7 +49,6 @@ function fetchReleases() {
 
         try {
           const releases = JSON.parse(data);
-          // 检查是否返回了错误对象
           if (releases.message) {
             reject(new Error(`GitHub API 错误: ${releases.message}`));
             return;
@@ -69,124 +65,70 @@ function fetchReleases() {
 }
 
 /**
- * 生成更新日志的 Markdown 内容
+ * 处理 Release body 中的 Issue 引用
  */
-function generateChangelogContent(releases) {
-  let content = `---
-title: 更新日志
-sidebar_position: 1
----
+function processReleaseBody(body) {
+  if (!body) return body;
 
-# 更新日志
+  let processedBody = body.replace(/[\x00-\x09\x0B-\x1F\x7F]/g, '');
+  processedBody = processedBody.replace(/\r\n/g, '\n');
+  processedBody = processedBody.replace(/\r/g, '\n');
 
-JadeView 遵循 [Semantic Versioning 2.0.0](https://semver.org/lang/zh-CN/) 语义化版本规范。
+  // 将 #123 转换为 GitHub Issue 链接
+  processedBody = processedBody.replace(/(^|[^:])#(\d+)(?![\d])/g, '$1[#$2](https://github.com/JadeViewDocs/JadeView/issues/$2)');
 
-**发布周期**
-
-- **修订版本号**：每周末会进行日常 bugfix 更新。（如果有紧急的 bugfix，则任何时候都可发布）
-- **次版本号**：每月发布一个带有新特性的向下兼容的版本。
-- **主版本号**：含有破坏性更新和新特性，不在发布周期内。
-
-## 版本历史
-
-`;
-
-  /**
-   * 处理Release body中的Issue引用和内部标题
-   */
-  function processReleaseBody(body) {
-    if (!body) return body;
-    
-    // 清理文本中的特殊字符和乱码，但保留换行符
-    let processedBody = body.replace(/[\x00-\x09\x0B-\x1F\x7F]/g, ''); // 移除控制字符，保留换行符
-    processedBody = processedBody.replace(/[\u0080-\u00FF]/g, ''); // 移除扩展ASCII
-    
-    // 确保换行符统一为\n
-    processedBody = processedBody.replace(/\r\n/g, '\n');
-    processedBody = processedBody.replace(/\r/g, '\n');
-    
-    // 将#123转换为GitHub Issue链接，避免被解析为标题
-    // 匹配#后面跟数字，前面不是:，避免匹配URL中的#片段
-    processedBody = processedBody.replace(/(^|[^:])#(\d+)(?![\d])/g, '$1[#$2](https://github.com/JadeViewDocs/JadeView/issues/$2)');
-    
-    // 将内部标题转换为粗体文本，避免出现在目录中
-    processedBody = processedBody.replace(/^##\s+(.*)$/gm, '**$1**');
-    processedBody = processedBody.replace(/^###\s+(.*)$/gm, '**$1**');
-    
-    return processedBody;
-  }
-
-  // 遍历所有正式发布版本（过滤预发布版本）
-  for (const release of releases.filter(release => !release.prerelease)) {
-    // 解析发布日期
-    const releaseDate = new Date(release.published_at).toISOString().split('T')[0];
-    
-    // 生成版本部分，使用容器包裹，防止内部标题污染全局目录
-    content += `### ${release.tag_name}
-
-`;
-    
-    // 添加发布日期标签和链接，放在同一行
-    content += `<div class="changelog-meta">
-`;
-    content += `  <span class="changelog-date-tag">${releaseDate}</span>
-`;
-    content += `  <span class="changelog-links">[GitHub 发布页面](${release.html_url}) | [Gitee 发布页面](https://gitee.com/ilinxuan/JadeView_library/releases/tag/${release.tag_name})</span>
-`;
-    content += `</div>
-
-`;
-    
-    // 添加发布说明，使用容器包裹
-    content += `<div className="changelog-version-container">
-
-`;
-    
-    if (release.body) {
-      const processedBody = processReleaseBody(release.body);
-      content += `${processedBody}\n\n`;
-    } else {
-      content += `**发布说明：**\n- 暂无详细说明\n\n`;
-    }
-    
-    // 关闭容器
-    content += `</div>\n\n`;
-  }
-
-  // 添加未来计划部分
-  content += "## 版权信息\n\n© 2025 JadeView. 保留所有权利。\n";
-
-  return content;
+  return processedBody;
 }
 
 /**
- * 更新更新日志文件
+ * 生成 JSON 数据
+ */
+function generateReleasesData(releases) {
+  const result = {
+    updated_at: new Date().toISOString(),
+    releases: releases.map((release) => ({
+      tag_name: release.tag_name,
+      name: release.name || release.tag_name,
+      published_at: release.published_at,
+      prerelease: release.prerelease,
+      html_url: release.html_url,
+      gitee_url: `https://gitee.com/ilinxuan/JadeView_library/releases/tag/${release.tag_name}`,
+      body: processReleaseBody(release.body) || '',
+    })),
+  };
+
+  return JSON.stringify(result, null, 2);
+}
+
+/**
+ * 更新发布数据
  */
 async function updateChangelog() {
   try {
     console.log('正在从 GitHub 获取发布信息...');
     const releases = await fetchReleases();
-    
+
     if (!Array.isArray(releases) || releases.length === 0) {
       console.log('未找到任何发布信息，跳过更新');
       return;
     }
-    
-    console.log(`成功获取 ${releases.length} 个发布版本`);
-    
-    // 生成更新日志内容
-    const content = generateChangelogContent(releases);
-    
-    // 更新所有 changelog 文件
-    for (const filePath of CHANGELOG_PATHS) {
-      fs.writeFileSync(filePath, content, 'utf-8');
-      console.log(`更新日志已成功更新到 ${filePath}`);
+
+    console.log(`成功获取 ${releases.length} 个发布版本（含 prerelease）`);
+
+    // 确保 static/releases 目录存在
+    const outputDir = path.dirname(OUTPUT_PATH);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
     }
-    
+
+    // 生成 JSON 数据
+    const content = generateReleasesData(releases);
+    fs.writeFileSync(OUTPUT_PATH, content, 'utf-8');
+    console.log(`发布数据已成功更新到 ${OUTPUT_PATH}`);
+
   } catch (error) {
-    console.warn('⚠️ 更新更新日志失败:', error.message);
-    console.warn('跳过更新日志更新，继续构建...');
-    // 不退出，让构建继续
+    console.warn('⚠️ 更新发布数据失败:', error.message);
+    console.warn('跳过更新，继续构建...');
   }
 }
 

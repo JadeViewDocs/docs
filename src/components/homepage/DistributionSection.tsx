@@ -84,7 +84,7 @@ export function DistributionSection() {
                 if (plan.cta === "联系我们") {
                   window.open("mailto:tuyang@jade.run", "_self");
                 } else {
-                  window.open("/spec/changelog", "_blank");
+                  window.open("/releases/", "_blank");
                 }
               }} className={`w-full py-4 flex items-center justify-center gap-2 text-sm font-medium transition-all group ${plan.popular ? "bg-foreground text-white hover:bg-foreground/90" : "border border-foreground/20 text-foreground hover:border-foreground hover:bg-foreground/5"}`}>
                 {plan.cta}
