@@ -228,6 +228,25 @@
 
             <!-- Releases View -->
             <div id="view-releases">
+            <!-- Version Policy -->
+            <div class="mb-12 fade-in">
+                <p class="text-sm text-white/30 leading-relaxed mb-4">JadeView 遵循 <a href="https://semver.org/lang/zh-CN/" target="_blank" class="text-white/50 hover:text-white/70 underline underline-offset-2 transition-colors">Semantic Versioning 2.0.0</a> 语义化版本规范。</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="glass-card rounded-xl px-5 py-4">
+                        <div class="text-xs font-medium text-white/50 mb-1.5">主版本号</div>
+                        <div class="text-xs text-white/25 leading-relaxed">含破坏性更新和新特性，不在发布周期内</div>
+                    </div>
+                    <div class="glass-card rounded-xl px-5 py-4">
+                        <div class="text-xs font-medium text-white/50 mb-1.5">次版本号</div>
+                        <div class="text-xs text-white/25 leading-relaxed">每月发布带有新特性的向下兼容版本</div>
+                    </div>
+                    <div class="glass-card rounded-xl px-5 py-4">
+                        <div class="text-xs font-medium text-white/50 mb-1.5">修订版本号</div>
+                        <div class="text-xs text-white/25 leading-relaxed">每周末日常 bugfix 更新，紧急修复随时发布</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Latest Stable Card -->
             <div id="latest-card" class="glass-card rounded-2xl p-8 mb-16 fade-in">
                 <div class="flex items-center justify-between mb-4">
