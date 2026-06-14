@@ -35,13 +35,14 @@ function fetchReleases() {
     };
 
     https.get(API_URL, options, (res) => {
-      let data = '';
+      const chunks = [];
 
       res.on('data', (chunk) => {
-        data += chunk;
+        chunks.push(chunk);
       });
 
       res.on('end', () => {
+        const data = Buffer.concat(chunks).toString('utf-8');
         if (res.statusCode !== 200) {
           reject(new Error(`GitHub API 返回错误状态码: ${res.statusCode}。仓库可能不存在、是私有的，或遇到了 API 限制。`));
           return;
