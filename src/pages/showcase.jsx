@@ -43,7 +43,14 @@ const showcaseItems = [
     image: '/img/Electron_asar.jpg',
     hasOverlay: true,
   },
-  
+  {
+    id: 2,
+    name: 'Jade EC 查看器',
+    description: '易语言 .ec 模块文件现代化查看器，支持浏览子程序、DLL 命令、类、自定义数据类型、全局变量和常量，具备三栏布局、亚克力背景、深浅主题与多维度搜索。',
+    link: 'https://github.com/tuyangJs/Jade_ec',
+    image: '/img/jadeec.jpg',
+    hasOverlay: false,
+  },
 ];
 
 function ShowcaseContent() {
@@ -93,7 +100,7 @@ function ShowcaseContent() {
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+                  className="w-full h-full object-contain transition-transform duration-700 ease-in-out group-hover:scale-105"
                 />
               </div>
 
