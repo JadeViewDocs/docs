@@ -29,6 +29,7 @@ const footerLinks = {
 };
 
 const socialLinks:{name:string,href:string}[] = [
+  { name: "蜀ICP备2022000695号-9", href: "https://beian.miit.gov.cn/" },
 ] 
 
 interface FooterSectionProps {
