@@ -65,8 +65,8 @@ export default memo(function DocumentLayout({ children }: any) {
   const shouldHideToc = fm.toc === false || noToc;
   const hideToc = mobile ? shouldHideToc : !laptop || shouldHideToc;
 
-  // 与原版一致：mobile 文档/变更日志页顶栏额外 +36（容纳移动端 TOC 行）
-  const headerHeight = mobile && page !== 'home' ? theme.headerHeight + 36 : theme.headerHeight;
+  // 移动端不再在顶栏内放 TOC 行（与悬浮胶囊冲突，已移除），故无需额外 +36
+  const headerHeight = theme.headerHeight;
   const tocWidth = hideToc ? 0 : theme.tocWidth;
   const asideWidth = theme.sidebarWidth;
 
@@ -113,7 +113,6 @@ export default memo(function DocumentLayout({ children }: any) {
       <div style={{ ['--layout-header-height' as any]: `${headerHeight}px` }}>
         <LayoutHeader headerHeight={headerHeight}>
           <Header />
-          {mobile && toc && <LayoutToc>{toc}</LayoutToc>}
         </LayoutHeader>
         <LayoutMain>
           {/* 侧栏不适用（首页/变更日志/ fm.sidebar=false）且桌面端：左侧占位，保持正文居中（与原版一致） */}

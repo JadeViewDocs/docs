@@ -28,6 +28,8 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import Navbar from '../../components/JadeNavbar';
 // 自定义移动端汉堡菜单（美化 + 正确 headerHeight）
 import Burger from '../../components/JadeBurger';
+// 移动端标题栏右侧搜索入口
+import MobileSearch from '../../components/JadeMobileSearch';
 // @ts-ignore
 import DiscordButton from 'dumi-theme-lobehub/dist/slots/Header/DiscordButton';
 // @ts-ignore
@@ -55,34 +57,69 @@ export default memo(function Header() {
   // 桌面端：悬浮胶囊；顶部无描边无阴影，滚动后出现
   const capsuleStyle: CSSProperties = {
     width: '100%',
-    maxWidth: 762, // 居中胶囊宽度上限，避免铺满整行（可调）
+    maxWidth: 712, // 居中胶囊宽度上限，避免铺满整行（可调）
     marginInline: 'auto',
     height: '100%',
     paddingInline: 10,
     borderRadius: 9999,
-    border: `1px solid ${scrolled ? theme.colorBorderSecondary : 'transparent'}`,
+    border: 'none', // 无边框（与移动端一致）
     background: `color-mix(in srgb, ${theme.colorBgContainer} 72%, transparent)`,
     backdropFilter: 'saturate(180%) blur(16px)',
     WebkitBackdropFilter: 'saturate(180%) blur(16px)',
-    boxShadow: scrolled ? '0 4px 24px rgba(0, 0, 0, 0.08)' : 'none',
+    // 顶部无阴影；滚动后柔和外阴影 + 1px inset 内描边（与移动端同款）
+    boxShadow: scrolled
+      ? '0 0 32px -8px rgba(0, 0, 0, 8%), 0 0 16px -4px rgba(0, 0, 0, 10%), 0 0 0 1px var(--ant-color-fill-tertiary) inset'
+      : 'none',
     transition: 'box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease',
   } as CSSProperties;
 
-  // 移动端：保持默认，仅顶部去阴影
-  const mobileStyle: CSSProperties = {
-    borderBlockEndColor: scrolled ? undefined : 'transparent',
-    boxShadow: scrolled ? '0 2px 8px rgba(0, 0, 0, 0.06)' : 'none',
-    transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
-  };
+  // 移动端：左右「两个独立胶囊」。Head 本体透明，胶囊视觉放到左右两组上。
+  const pill: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    height: 50,
+    // 左右内边距 = (高度 - 按钮)/2 = (50-36)/2 = 7，使圆形按钮与胶囊圆头同心对齐
+    paddingInline: 7,
+    borderRadius: 9999,
+    border: 'none', // 胶囊始终不要边框
+    background: `color-mix(in srgb, ${theme.colorBgContainer} 72%, transparent)`,
+    backdropFilter: 'saturate(180%) blur(16px)',
+    WebkitBackdropFilter: 'saturate(180%) blur(16px)',
+    // 无边框；顶部时无阴影（干净），滚动后才出现柔和外阴影 + 1px inset 内描边
+    boxShadow: scrolled
+      ? '0 0 32px -8px rgba(0, 0, 0, 8%), 0 0 16px -4px rgba(0, 0, 0, 10%), 0 0 0 1px var(--ant-color-fill-tertiary) inset'
+      : 'none',
+    transition: 'box-shadow 0.2s ease, background 0.2s ease',
+  } as CSSProperties;
+  // 移动端 Head 本体透明（不再是整条胶囊）；不挂 floatStyle，避免其 transform 破坏两个胶囊各自的背景模糊
+  const mobileHeadStyle: CSSProperties = {
+    width: '100%',
+    height: '100%',
+    background: 'transparent',
+    border: 'none',
+    boxShadow: 'none',
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
+  } as CSSProperties;
+  // 左胶囊：菜单按钮(汉堡) + Logo（仅图标、无标题文字）
+  const mobileLogo = (
+    <div className="jade-mpill" style={pill}>
+      <Burger />
+      <a href="/" style={{ display: 'inline-flex', alignItems: 'center', paddingInline: 2 }}>
+        <img alt="JadeView" src="/favicon.png" style={{ display: 'block', width: 36, height: 36, borderRadius: 10 }} />
+      </a>
+    </div>
+  );
 
   return (
     // 胶囊自身做「飘带飘入」(motion.create(Head))；style 合并 capsuleStyle(含背景模糊) + floatStyle(透视/旋转轴)，
     // framer-motion 再把动画 transform/opacity 合进 style → transform 与 backdrop-filter 同在胶囊本身，模糊不被破坏。
     <MotionHead
       animate="show"
-      className={mobile ? undefined : 'jade-capsule-header'}
+      className="jade-capsule-header"
       initial="hidden"
-      style={{ ...(mobile ? mobileStyle : capsuleStyle), ...floatStyle }}
+      style={mobile ? mobileHeadStyle : { ...capsuleStyle, ...floatStyle }}
       variants={floatItemNoBlur}
       // lobehub Header 桌面布局里 actions 区是 flex:1 + space-between（左侧塞了个空 div），
       // 会强占剩余宽度的一半 → nav 右侧出现大段空白、且 nav 只剩一半宽导致 Tabs 弹出「…」溢出。
@@ -92,7 +129,9 @@ export default memo(function Header() {
       actionsStyle={mobile ? undefined : { flex: '0 0 auto', width: 'auto' }}
       actions={
         mobile ? (
-          <ThemeSwitch />
+          <div className="jade-mpill" style={pill}>
+            <MobileSearch />
+          </div>
         ) : (
           <>
             <DiscordButton />
@@ -102,8 +141,8 @@ export default memo(function Header() {
           </>
         )
       }
-      logo={<Logo />}
-      nav={mobile ? <Burger /> : <Navbar />}
+      logo={mobile ? mobileLogo : <Logo />}
+      nav={mobile ? undefined : <Navbar />}
     />
   );
 });

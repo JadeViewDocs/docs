@@ -140,21 +140,21 @@ export default function HomeExtra() {
 
   return (
     <div style={{ width: '100%', maxWidth: 1080, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1, userSelect: 'text' }}>
-      {/* 核心特性（自渲染，替代原 frontmatter features）：网格本身即错峰容器，卡片逐个浮现 + 悬停微抬 */}
-      <motion.div style={{ ...grid(280), marginTop: 8 }} variants={scrollContainer} {...reveal}>
-        {features.map((f) => (
-          <motion.div
-            key={f.title}
-            style={card}
-            variants={scrollItem}
-            whileHover={reduce ? undefined : { y: -4 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-          >
-            <div style={{ fontSize: 30, lineHeight: 1, marginBottom: 14 }}>{f.image}</div>
-            <h3 style={{ fontSize: 18, fontWeight: 600, color: token.colorText, margin: '0 0 8' }}>{f.title}</h3>
-            <p style={{ fontSize: 14, color: token.colorTextSecondary, lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
-          </motion.div>
-        ))}
+      {/* 核心特性：用 lobehub SpotlightCard（鼠标悬浮光晕，与下方「核心开发者」一致）；整体作为一个单元滚动浮现 */}
+      <motion.div style={{ marginTop: 8 }} variants={scrollItem} {...reveal}>
+        <SpotlightCard
+          items={features}
+          columns={3}
+          gap={16}
+          borderRadius={token.borderRadiusLG}
+          renderItem={(f) => (
+            <div style={{ padding: 24, height: '100%' }}>
+              <div style={{ fontSize: 30, lineHeight: 1, marginBottom: 14 }}>{f.image}</div>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: token.colorText, margin: '0 0 8' }}>{f.title}</h3>
+              <p style={{ fontSize: 14, color: token.colorTextSecondary, lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
+            </div>
+          )}
+        />
       </motion.div>
 
       {/* 三步上手 */}

@@ -10,8 +10,8 @@ import { MenuIcon, X } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 // @ts-ignore 主题 store / selectors
 import { siteSelectors, useSiteStore } from 'dumi-theme-lobehub/dist/store';
-
-const HEADER_H = 80; // 与 themeConfig.siteToken.headerHeight 对齐
+// 主题切换（循环按钮，不用 lobehub 的下拉式，避免在全屏抽屉里弹层被盖住）
+import ThemeToggle from './JadeThemeToggle';
 
 export default memo(function JadeBurger() {
   const [opened, setOpened] = useState(false);
@@ -27,29 +27,14 @@ export default memo(function JadeBurger() {
   // 其它顶级项为普通链接。
   const inDocs = pathname === '/docs' || pathname.startsWith('/docs/');
   const items = useMemo(() => {
-    // 文档主路由下：子菜单顶部先放「分区切换」（文档指南 / API），保证移动端也能在子分区间跳转。
-    const secGroup = inDocs
-      ? [
-          {
-            key: 'doc-sections',
-            type: 'group',
-            label: '文档',
-            children: [
-              { title: '文档指南', root: '/docs/spec' },
-              { title: 'API', root: '/docs/api' },
-            ].map((s) => ({
-              key: `sec-${s.root}`,
-              label: (
-                <Link onClick={close} to={s.root}>
-                  {s.title}
-                </Link>
-              ),
-            })),
-          },
-        ]
-      : [];
+    // 「文档」始终可展开的分区切换子项（首页也能展开到 文档指南 / API，不必先进文档页）。
+    const docsSwitch = [
+      { key: 'sec-/docs/spec', label: (<Link onClick={close} to="/docs/spec">文档指南</Link>) },
+      { key: 'sec-/docs/api', label: (<Link onClick={close} to="/docs/api">API</Link>) },
+    ];
 
-    const subChildren: any[] = [...secGroup];
+    // 当前页侧栏树（文档页 = 当前分区目录；SDK 等区 = 该区目录）。
+    const treeChildren: any[] = [];
     (sidebar || []).forEach((group: any, gi: number) => {
       if (!group || group.link) return;
       const children = (group.children || []).map((it: any) => ({
@@ -60,17 +45,24 @@ export default memo(function JadeBurger() {
           </Link>
         ),
       }));
-      if (group.title) subChildren.push({ key: `g-${gi}`, label: group.title, type: 'group', children });
-      else subChildren.push(...children);
+      if (group.title) treeChildren.push({ key: `g-${gi}`, label: group.title, type: 'group', children });
+      else treeChildren.push(...children);
     });
 
     return nav.map((item: any) => {
       const key = item.activePath || item.link;
-      // 「文档」项链接到 /docs/spec，但在整个 /docs/* 下都应展开（含 /docs/api 子分区）。
       const isDocsItem = String(item.link || '').startsWith('/docs');
-      const expand = (key === activePath || (inDocs && isDocsItem)) && subChildren.length > 0;
-      if (expand) {
-        return { children: subChildren, key, label: item.title };
+      if (isDocsItem) {
+        // 文档：始终为可展开子菜单；子项 = 分区切换；在文档页时再附上当前分区目录树。
+        const children =
+          inDocs && treeChildren.length
+            ? [{ key: 'doc-sections', type: 'group', label: '文档', children: docsSwitch }, ...treeChildren]
+            : docsSwitch;
+        return { children, key, label: item.title };
+      }
+      // 其它区：当前区且有侧栏树 → 展开；否则普通链接。
+      if (key === activePath && treeChildren.length) {
+        return { children: treeChildren, key, label: item.title };
       }
       return {
         key,
@@ -85,17 +77,27 @@ export default memo(function JadeBurger() {
 
   return (
     <>
-      <ActionIcon icon={opened ? X : MenuIcon} onClick={() => setOpened((o) => !o)} />
+      <ActionIcon icon={MenuIcon} onClick={() => setOpened(true)} size={{ blockSize: 36, fontSize: 22 }} />
       <Drawer
         closable={false}
         onClose={close}
         open={opened}
         placement="left"
         rootClassName="jade-burger"
-        rootStyle={{ insetBlockStart: HEADER_H }}
         styles={{ body: { padding: 0 }, header: { display: 'none' }, mask: { background: 'transparent' } }}
         width="100vw"
       >
+        {/* 全屏菜单覆盖了顶部的关闭按钮，这里自带一个 ✕（位置与顶部胶囊对齐），并放 Logo 图标 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 16px 6px' }}>
+          <span className="jade-mpill" style={{ display: 'inline-flex' }}>
+            <ActionIcon icon={X} onClick={close} size={{ blockSize: 36, fontSize: 22 }} />
+          </span>
+          <img alt="JadeView" src="/favicon.png" style={{ display: 'block', width: 32, height: 32, borderRadius: 8 }} />
+          {/* 主题切换（移动端标题栏右侧已换成搜索，这里补上；循环切换，不依赖弹层）*/}
+          <div className="jade-mpill" style={{ display: 'inline-flex', marginInlineStart: 'auto' }}>
+            <ThemeToggle />
+          </div>
+        </div>
         <Menu
           items={items}
           mode="inline"

@@ -232,6 +232,24 @@ html[data-prefers-color='light'] .ant-draggable-panel-fixed {
   margin-inline: 8px !important;
 }
 `,
+    `
+/* 移动端标题栏两个胶囊里的图标按钮（菜单 / 搜索）：lobehub ActionIcon 默认是圆角方形，
+   与圆形胶囊不搭，这里改成圆形。 */
+.jade-mpill button,
+.jade-mpill [role='button'] {
+  border-radius: 50% !important;
+  background: var(--ant-color-fill-secondary) !important; /* 常驻背景（菜单/搜索按钮）*/
+}
+.jade-mpill button:hover,
+.jade-mpill [role='button']:hover {
+  background: var(--ant-color-fill) !important;
+}
+/* lobehub Head 的 logo/actions 槽容器是 overflow:hidden，会把两个胶囊的圆角与阴影裁掉；
+   放开「直接包裹胶囊」的那层容器即可。 */
+*:has(> .jade-mpill) {
+  overflow: visible !important;
+}
+`,
   ],
   // 仅中文
   locales: [{ id: 'zh-CN', name: '中文' }],
