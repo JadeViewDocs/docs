@@ -11,6 +11,11 @@ export default defineConfig({
   // Algolia DocSearch 站点归属验证：构建期把该 meta 写进每个 HTML 的 <head>，
   // 验证爬虫抓 jade.run 首页 raw HTML 时即可读到（SPA 也没问题，head 是静态的）。
   metas: [{ name: 'algolia-site-verification', content: '70B112895FD5CB2F' }],
+  // 站点主机名：lobehub 主题用它生成 canonical / og:url / JSON-LD；不设会回退成
+  // 'https://lobehub.com'（把 SEO 权重导向 lobehub、且 Algolia 因 canonical 跨域而拒爬）。
+  // 设了同时让 dumi 生成 sitemap.xml。注意 lobehub 的 canonical 只用 hostname(根)，
+  // 按页 canonical 由下方 headScript 客户端升级。
+  sitemap: { hostname: 'https://jade.run' },
   // 搜索框中文占位：lobehub 自带 SearchBar 用 @lobehub/ui 默认英文 "Type keywords..."。
   // 用 head 脚本在客户端把它改成中文，避免覆盖 SearchBar slot 引发 dev 的 'dumi' 解析报错。
   headScripts: [
@@ -28,6 +33,12 @@ export default defineConfig({
       // 底栏顶部边框跟随鼠标高光：给 <footer> 绑 mousemove，写 CSS 变量驱动 footer::after
       content:
         "(function(){function b(){var f=document.querySelector('footer');if(!f||f.__jvSpot)return;f.__jvSpot=1;f.addEventListener('mousemove',function(e){var r=f.getBoundingClientRect();f.style.setProperty('--footer-spot-x',(e.clientX-r.left)+'px');f.style.setProperty('--footer-spot-o','1');});f.addEventListener('mouseleave',function(){f.style.setProperty('--footer-spot-o','0');});}if(typeof window!=='undefined'){setInterval(b,800);}})();",
+    },
+    {
+      // 按页 canonical：lobehub 的 canonical 只用 hostname(根)，全站都指向首页对 docs SEO 不利。
+      // 客户端把 <link rel=canonical> 升级成「当前页 URL(去尾斜杠)」，定时纠正 Helmet 的回写。
+      content:
+        "(function(){if(typeof window==='undefined')return;function c(){var p=location.pathname;if(p.length>1&&p.charAt(p.length-1)==='/')p=p.slice(0,-1);var u=location.origin+p;var l=document.querySelector('link[rel=canonical]');if(!l){l=document.createElement('link');l.setAttribute('rel','canonical');document.head.appendChild(l);}if(l.href!==u)l.href=u;}setInterval(c,1000);c();})();",
     },
   ],
   // lobehub 主题在 Windows 上建议关闭 mfsu，规避兼容问题
