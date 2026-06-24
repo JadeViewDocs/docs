@@ -1,34 +1,33 @@
-// 覆盖 lobehub 的 Header slot：把标题栏改成 lobehub.com 那种「悬浮胶囊」样式。
+// 覆盖 lobehub 的 Header slot：标题栏 = lobehub.com 那种「悬浮胶囊」，所有形态切换都有 iOS 动画。
 //
-// 桌面端：
-//   - 内层 <Header>(section) 变成一个圆角、内缩、磨砂(blur)的悬浮胶囊；
-//   - 外层 <header>(LayoutHeader) 由全宽磨砂条改为透明、去边框（见 .dumirc.ts 全局样式
-//     里的 `header:has(> .jade-capsule-header)`），让胶囊真正“浮”在内容之上；
-//   - 页面在顶部时无阴影/无描边，滚动后出现描边 + 柔和阴影。
-// 移动端：保持默认结构（仅做顶部无阴影处理），避免与 LayoutToc 叠加导致布局异常。
+// 三种形态：
+//   · ≥768  桌面：单胶囊 = 图标 + 「JadeView」文字 + 横排导航 + 右侧动作（Discord/语言/主题/GitHub）
+//   · 576–767 窄桌面：单胶囊 = 图标（文字收起）+ 收紧的横排导航（见 JadeNavbar 媒体查询）+ 右侧动作
+//   · ≤575  手机：左右「两个独立胶囊」——左=汉堡+图标，右=搜索；Head 透明（导航收进汉堡抽屉 JadeBurger）。
 //
-// 结构与 lobehub 原版一致（dist/slots/Header/index.js），仅追加 className/style。
-import { Header as Head } from '@lobehub/ui';
+// 动画分两类：
+//  1) 桌面 ↔ 窄桌面（同一套单胶囊内）：Logo 文字常驻挂载，spring 动画其 width/opacity；导航容器同步动画 marginLeft。
+//     文字宽度连续收缩时 flex 每帧重排 → 导航平滑滑动到位（不用 layout/AnimatePresence，避免「闪现」）。
+//  2) 单胶囊 ↔ 手机双胶囊（跨 575）：两套结构都用 absolute 叠放，AnimatePresence 交叉淡入淡出（桌面侧再加轻微缩放）。
+//
+// 背景模糊铁律：backdrop-filter 只会被「祖先」的 transform 破坏，不被「自身」transform 破坏。故：
+//   · 飘入/缩放等 transform 必须作用在「带 backdrop-filter 的那个元素自身」（桌面胶囊 / 各 pill），不能套在其祖先上；
+//   · 手机双胶囊的外层 section 透明、是 pill 的祖先 → 它「静止时绝不能留 transform」，所以手机侧交叉淡入只用 opacity
+//     （不用 scale，scale:1 也会残留 transform 掐断 pill 模糊）；桌面胶囊自身带模糊，可安心用 scale。
+//   · 最外层 wrapper 不加任何 transform（仅 position:relative 定位），承载 .jade-capsule-header 类名供全局 CSS 命中。
+//   · 导航下拉面板 portal 到 body，不是胶囊子级，不受影响。
+//
+// 导入约束：不引用 `dumi/theme/slots/*` 别名（dev 下 .dumi/tmp 重建会致 'dumi' 解析报错）；
+//   未覆盖的主题内部件/ store 走 `dumi-theme-lobehub/dist/*`，本地组件走相对路径。
 import { useResponsive, useTheme } from 'antd-style';
-import { motion } from 'motion/react';
+import isEqual from 'fast-deep-equal';
+import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useState, type CSSProperties } from 'react';
-// 与首屏 Hero 共用同一套「飘带飘入」（标题栏胶囊自身带 backdrop-filter，用无 filter 版以保留背景模糊）
 import { floatItemNoBlur, floatStyle } from '../../components/floatIn';
-
-// 让胶囊「自身」做飘入：自身 transform 不会破坏自身 backdrop-filter（背景模糊得以保留）；
-// 若改用外层 motion.div 包裹，wrapper 静止时残留的 transform 会成为 backdrop 根、掐断胶囊模糊。
-const MotionHead = motion.create(Head as any);
-// 直接从主题包导入（不走 `dumi/theme/slots/*` 别名）：避免本地 slot 覆盖文件依赖
-// `dumi` 别名，从而规避 dev 下 .dumi/tmp 重新生成时的 "Can't resolve 'dumi'" 报错。
-// @ts-ignore lobehub 内部 slot / store / 子组件，深层路径无类型声明
-import Logo from 'dumi-theme-lobehub/dist/slots/Logo';
-// @ts-ignore
-import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
-// 自定义导航（含 SDKs 悬浮 mega 下拉）；相对路径引用，不走 dumi/theme 别名
+// @ts-ignore 主题 store / selectors，深层路径无类型声明
+import { siteSelectors, useSiteStore } from 'dumi-theme-lobehub/dist/store';
 import Navbar from '../../components/JadeNavbar';
-// 自定义移动端汉堡菜单（美化 + 正确 headerHeight）
 import Burger from '../../components/JadeBurger';
-// 移动端标题栏右侧搜索入口
 import MobileSearch from '../../components/JadeMobileSearch';
 // @ts-ignore
 import DiscordButton from 'dumi-theme-lobehub/dist/slots/Header/DiscordButton';
@@ -39,11 +38,18 @@ import LangSwitch from 'dumi-theme-lobehub/dist/slots/Header/LangSwitch';
 // @ts-ignore
 import ThemeSwitch from 'dumi-theme-lobehub/dist/slots/Header/ThemeSwitch';
 
+// 形态内重排（Logo 文字 / 导航间距）与跨形态交叉淡入共用的 iOS 手感 spring。
+const reflow = { type: 'spring', stiffness: 300, damping: 30 } as const;
+const swap = { type: 'spring', stiffness: 280, damping: 30 } as const;
+
 export default memo(function Header() {
   const hasHeader = useSiteStore((s: any) => Boolean(s.routeMeta.frontmatter));
-  const { mobile } = useResponsive();
+  const config = useSiteStore(siteSelectors.themeConfig, isEqual);
+  const { mobile, tablet } = useResponsive();
   const theme = useTheme() as any;
   const [scrolled, setScrolled] = useState(false);
+  // 首屏「飘带飘入」只在首次加载播一次；之后跨 575 的形态切换走交叉淡入（不重播飘入）。
+  const [entered, setEntered] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled((window.scrollY || 0) > 4);
@@ -51,98 +57,159 @@ export default memo(function Header() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  useEffect(() => {
+    const t = setTimeout(() => setEntered(true), 1300);
+    return () => clearTimeout(t);
+  }, []);
 
   if (!hasHeader) return null;
 
-  // 桌面端：悬浮胶囊；顶部无描边无阴影，滚动后出现
-  const capsuleStyle: CSSProperties = {
-    width: '100%',
-    maxWidth: 712, // 居中胶囊宽度上限，避免铺满整行（可调）
-    marginInline: 'auto',
+  const showBrand = tablet; // ≥768 才显示「JadeView」文字（窄桌面收起，给横排导航腾空间）
+  const logoSrc = (config && (config as any).logo) || '/favicon.png';
+  const brand = (config && (config as any).name) || 'JadeView';
+
+  const glassBg = `color-mix(in srgb, ${theme.colorBgContainer} 72%, transparent)`;
+  const scrolledShadow =
+    '0 0 32px -8px rgba(0, 0, 0, 8%), 0 0 16px -4px rgba(0, 0, 0, 10%), 0 0 0 1px var(--ant-color-fill-tertiary) inset';
+  const blur = 'saturate(180%) blur(16px)';
+
+  // 桌面单胶囊视觉（圆角 / 内缩 / 磨砂）；顶部无描边无阴影，滚动后出现。定位/居中在 JSX 里补。
+  const capsuleVisual: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
     height: '100%',
     paddingInline: 10,
     borderRadius: 9999,
-    border: 'none', // 无边框（与移动端一致）
-    background: `color-mix(in srgb, ${theme.colorBgContainer} 72%, transparent)`,
-    backdropFilter: 'saturate(180%) blur(16px)',
-    WebkitBackdropFilter: 'saturate(180%) blur(16px)',
-    // 顶部无阴影；滚动后柔和外阴影 + 1px inset 内描边（与移动端同款）
-    boxShadow: scrolled
-      ? '0 0 32px -8px rgba(0, 0, 0, 8%), 0 0 16px -4px rgba(0, 0, 0, 10%), 0 0 0 1px var(--ant-color-fill-tertiary) inset'
-      : 'none',
-    transition: 'box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease',
-  } as CSSProperties;
+    background: glassBg,
+    backdropFilter: blur,
+    WebkitBackdropFilter: blur,
+    boxShadow: scrolled ? scrolledShadow : 'none',
+    transition: 'box-shadow 0.2s ease, background 0.2s ease',
+  };
 
-  // 移动端：左右「两个独立胶囊」。Head 本体透明，胶囊视觉放到左右两组上。
+  // 手机端单个胶囊（左/右各一）：高度 50，左右内边距 7 使 36px 圆形按钮与圆头同心；顶部无阴影、滚动后出现。
   const pill: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
     height: 50,
-    // 左右内边距 = (高度 - 按钮)/2 = (50-36)/2 = 7，使圆形按钮与胶囊圆头同心对齐
     paddingInline: 7,
     borderRadius: 9999,
-    border: 'none', // 胶囊始终不要边框
-    background: `color-mix(in srgb, ${theme.colorBgContainer} 72%, transparent)`,
-    backdropFilter: 'saturate(180%) blur(16px)',
-    WebkitBackdropFilter: 'saturate(180%) blur(16px)',
-    // 无边框；顶部时无阴影（干净），滚动后才出现柔和外阴影 + 1px inset 内描边
-    boxShadow: scrolled
-      ? '0 0 32px -8px rgba(0, 0, 0, 8%), 0 0 16px -4px rgba(0, 0, 0, 10%), 0 0 0 1px var(--ant-color-fill-tertiary) inset'
-      : 'none',
+    background: glassBg,
+    backdropFilter: blur,
+    WebkitBackdropFilter: blur,
+    boxShadow: scrolled ? scrolledShadow : 'none',
     transition: 'box-shadow 0.2s ease, background 0.2s ease',
-  } as CSSProperties;
-  // 移动端 Head 本体透明（不再是整条胶囊）；不挂 floatStyle，避免其 transform 破坏两个胶囊各自的背景模糊
-  const mobileHeadStyle: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    background: 'transparent',
-    border: 'none',
-    boxShadow: 'none',
-    backdropFilter: 'none',
-    WebkitBackdropFilter: 'none',
-  } as CSSProperties;
-  // 左胶囊：菜单按钮(汉堡) + Logo（仅图标、无标题文字）
-  const mobileLogo = (
-    <div className="jade-mpill" style={pill}>
-      <Burger />
-      <a href="/" style={{ display: 'inline-flex', alignItems: 'center', paddingInline: 2 }}>
-        <img alt="JadeView" src="/favicon.png" style={{ display: 'block', width: 36, height: 36, borderRadius: 10 }} />
-      </a>
-    </div>
-  );
+  };
+
+  // 跨形态交叉淡入：桌面侧带轻微缩放（自身有模糊，transform 安全）；手机侧仅 opacity（避免残留 transform 掐断 pill 模糊）。
+  // 首屏首次加载：桌面播「飘带飘入」（与 Hero 一致），手机仅淡入（飘入的 transform 会留在 pill 祖先上，故避开）。
+  const desktopMotion = entered
+    ? {
+        initial: { opacity: 0, scale: 0.97 },
+        animate: { opacity: 1, scale: 1, transition: swap },
+        exit: { opacity: 0, scale: 0.98, transition: { duration: 0.18, ease: 'easeOut' } },
+      }
+    : {
+        initial: floatItemNoBlur.hidden,
+        animate: floatItemNoBlur.show,
+        exit: { opacity: 0, transition: { duration: 0.18 } },
+      };
+  const mobileMotion = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1, transition: entered ? swap : { duration: 0.5 } },
+    exit: { opacity: 0, transition: { duration: 0.18 } },
+  };
 
   return (
-    // 胶囊自身做「飘带飘入」(motion.create(Head))；style 合并 capsuleStyle(含背景模糊) + floatStyle(透视/旋转轴)，
-    // framer-motion 再把动画 transform/opacity 合进 style → transform 与 backdrop-filter 同在胶囊本身，模糊不被破坏。
-    <MotionHead
-      animate="show"
-      className="jade-capsule-header"
-      initial="hidden"
-      style={mobile ? mobileHeadStyle : { ...capsuleStyle, ...floatStyle }}
-      variants={floatItemNoBlur}
-      // lobehub Header 桌面布局里 actions 区是 flex:1 + space-between（左侧塞了个空 div），
-      // 会强占剩余宽度的一半 → nav 右侧出现大段空白、且 nav 只剩一半宽导致 Tabs 弹出「…」溢出。
-      // 注意：FlexBasic 对「横向 + space-between + 无显式宽度」会强制 width:100%，
-      // 故仅改 flex 不够（basis:auto 会吃到 100% 反把 nav 挤成 0）；需同时把 width 设回 auto。
-      // 结果：actions 收成内容宽贴最右，nav(flex:1 1 0%) 吃满剩余宽度，Tabs 溢出消失。
-      actionsStyle={mobile ? undefined : { flex: '0 0 auto', width: 'auto' }}
-      actions={
-        mobile ? (
-          <div className="jade-mpill" style={pill}>
-            <MobileSearch />
-          </div>
+    // 最外层 wrapper：承载 .jade-capsule-header 类名（全局 CSS 据此把 <header> 透明化），仅做定位、绝不加 transform。
+    <div className="jade-capsule-header" style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <AnimatePresence>
+        {mobile ? (
+          // 手机：透明壳 + 左右两个独立胶囊（absolute 叠放，便于与桌面胶囊交叉淡入）
+          <motion.section
+            key="mobile"
+            style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}
+            {...mobileMotion}
+          >
+            <div className="jade-mpill" style={pill}>
+              <Burger />
+              <a href="/" style={{ display: 'inline-flex', alignItems: 'center', paddingInline: 2 }}>
+                <img
+                  alt={brand}
+                  src={logoSrc}
+                  style={{ display: 'block', width: 36, height: 36, borderRadius: 10 }}
+                />
+              </a>
+            </div>
+            <div style={{ flex: 1 }} />
+            <div className="jade-mpill" style={pill}>
+              <MobileSearch />
+            </div>
+          </motion.section>
         ) : (
-          <>
-            <DiscordButton />
-            <LangSwitch />
-            <ThemeSwitch />
-            <GithubButton />
-          </>
-        )
-      }
-      logo={mobile ? mobileLogo : <Logo />}
-      nav={mobile ? undefined : <Navbar />}
-    />
+          // 桌面 / 窄桌面：单胶囊横排。宽度按内容自适应（width:max-content）→ Logo 文字收起时胶囊整体跟着变窄；
+          // 用 left/right:0 + marginInline:auto 让这个内容宽的 absolute 元素水平居中；maxWidth 兜底、并以 100% 防溢出窗口。
+          // 自身带模糊与飘入/缩放 transform。
+          <motion.section
+            key="desktop"
+            style={{
+              position: 'absolute',
+              insetBlock: 0,
+              insetInline: 0,
+              width: 'max-content',
+              maxWidth: 'min(720px, 100%)',
+              marginInline: 'auto',
+              ...capsuleVisual,
+              ...floatStyle,
+            }}
+            {...desktopMotion}
+          >
+            <a
+              href="/"
+              style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', flex: '0 0 auto', zIndex: 10 }}
+            >
+              <img
+                alt={brand}
+                src={logoSrc}
+                style={{ display: 'block', width: 32, height: 32, borderRadius: 9, flexShrink: 0 }}
+              />
+              {/* 文字常驻挂载，靠 width/opacity spring 平滑收起/展开（窄桌面 width→0）。overflow:hidden + nowrap 防换行。 */}
+              <motion.span
+                animate={{ width: showBrand ? 'auto' : 0, opacity: showBrand ? 1 : 0, marginLeft: showBrand ? 8 : 0 }}
+                initial={false}
+                style={{
+                  display: 'inline-block',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: theme.colorText,
+                }}
+                transition={reflow}
+              >
+                {brand}
+              </motion.span>
+            </a>
+            {/* 导航容器：marginLeft 即 Logo↔导航间距，随文字收起同步 spring 收紧（48↔16）→ 导航平滑滑动。 */}
+            <motion.div
+              animate={{ marginLeft: showBrand ? 18 : 12 }}
+              initial={false}
+              style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', alignItems: 'center', overflow: 'hidden' }}
+              transition={reflow}
+            >
+              <Navbar />
+            </motion.div>
+            {/* 右侧动作：content-width 胶囊下导航与动作相邻，补一点左间距避免贴太紧。 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '0 0 auto', marginLeft: 10, zIndex: 10 }}>
+              <DiscordButton />
+              <LangSwitch />
+              <ThemeSwitch />
+              <GithubButton />
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+    </div>
   );
 });

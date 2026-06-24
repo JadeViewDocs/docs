@@ -98,6 +98,13 @@ const useStyles = createStyles(({ css, token, cx }) => ({
       color: ${token.colorText};
       background: ${token.colorFillTertiary};
     }
+
+    /* 窄桌面（576–767，>575 仍是横排导航但空间吃紧）：收紧内边距，配合 Header 的「图标 Logo + 小间距」
+       让 5 个导航项仍能完整排下、不被胶囊 overflow:hidden 裁切。 */
+    @media (max-width: 767.98px) {
+      gap: 2px;
+      padding: 0 9px;
+    }
   `,
   active: css`
     color: ${token.colorText};
