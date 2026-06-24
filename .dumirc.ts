@@ -8,6 +8,9 @@ export default defineConfig({
   outputPath: 'dist',
   // 浏览器标签页图标
   favicons: ['/favicon.png'],
+  // Algolia DocSearch 站点归属验证：构建期把该 meta 写进每个 HTML 的 <head>，
+  // 验证爬虫抓 jade.run 首页 raw HTML 时即可读到（SPA 也没问题，head 是静态的）。
+  metas: [{ name: 'algolia-site-verification', content: '70B112895FD5CB2F' }],
   // 搜索框中文占位：lobehub 自带 SearchBar 用 @lobehub/ui 默认英文 "Type keywords..."。
   // 用 head 脚本在客户端把它改成中文，避免覆盖 SearchBar slot 引发 dev 的 'dumi' 解析报错。
   headScripts: [
