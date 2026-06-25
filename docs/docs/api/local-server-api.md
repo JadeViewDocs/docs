@@ -47,7 +47,7 @@ int32_t set_protocol_service_path(
 
 ## 安全资源访问系统 *(2.2 新增)*
 
-通过 token 机制安全地暴露本地文件给前端。宿主层注册资源 → 生成 token 路径 → 前端仅访问已授权资源 → 协议服务动态映射。前端只能看到 token 路径，无法推断真实文件路径。
+通过 token 机制安全地暴露本地文件给渲染进程。主进程注册资源 → 生成 token 路径 → 渲染进程仅访问已授权资源 → 协议服务动态映射。渲染进程只能看到 token 路径，无法推断真实文件路径。
 
 ### URL 格式
 
@@ -55,7 +55,7 @@ int32_t set_protocol_service_path(
 /---jade---resource--?token=xxx
 ```
 
-前端使用同源相对路径，浏览器基于当前页面 origin 自动解析。
+渲染进程使用同源相对路径，浏览器基于当前页面 origin 自动解析。
 
 ### 注册本地资源（`register_resource`）
 
@@ -84,7 +84,7 @@ int register_resource(
 - `1` - 成功
 - `0` - 失败（路径无效、缓冲太小、尚未初始化等）
 
-**前端使用示例：**
+**渲染进程使用示例：**
 
 ```html
 <video src="/---jade---resource--?token=a3f8d2e1..." />
@@ -134,7 +134,7 @@ int clear_window_resources(unsigned int window_id);
 | 自动过期 | `ttl_seconds` 参数，`0` = 默认6秒，`-1` = 永不过期 |
 | 窗口级清理 | 窗口关闭时自动释放该窗口注册的所有资源 |
 | Range 请求 | 支持 `Range: bytes=start-end`，返回 206 Partial Content，视频拖动不卡 |
-| MIME 自动识别 | `mime_guess` 自动识别，不依赖前端指定 |
+| MIME 自动识别 | `mime_guess` 自动识别，不依赖渲染进程指定 |
 | 注册表上限 | 最多 4096 条，超出自动清理最旧/过期的条目 |
 | 缓存头 | `Cache-Control: no-cache`，与资源可撤销性一致 |
 
@@ -148,7 +148,7 @@ int clear_window_resources(unsigned int window_id);
 
 1. 启用热载后，后台线程使用 `notify` crate 递归监视 `root_path` 目录
 2. 检测到文件创建/修改/删除事件后，自动清除静态文件缓存
-3. 通过 `hot-reload` 事件通知前端，前端自动执行 `location.reload()` 刷新页面
+3. 通过 `hot-reload` 事件通知渲染进程，渲染进程自动执行 `location.reload()` 刷新页面
 4. 内置 150ms 防抖，避免批量文件修改时频繁刷新
 
 ### 新增事件：`hot-reload`
@@ -159,7 +159,7 @@ int clear_window_resources(unsigned int window_id);
 {"paths": ["C:\\project\\index.html", "C:\\project\\style.css"]}
 ```
 
-前端无需手动监听此事件，IPC 运行时已内置自动刷新逻辑。
+渲染进程无需手动监听此事件，IPC 运行时已内置自动刷新逻辑。
 
 ### 限制
 

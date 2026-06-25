@@ -244,7 +244,7 @@ int main() {
   </div>
 
   <script>
-    // 窗口控制 - 通过 jade.invoke 发送命令到宿主
+    // 窗口控制 - 通过 jade.invoke 发送命令到主进程
     document.getElementById('minBtn').onclick = () => {
       jade.invoke('minimize-window');
     };
@@ -261,9 +261,9 @@ int main() {
 </html>
 ```
 
-### 宿主侧：注册窗口控制命令
+### 主进程侧：注册窗口控制命令
 
-前端通过 `jade.invoke` 发送命令后，宿主需要用 `register_ipc_handler` 注册对应的回调函数：
+渲染进程通过 `jade.invoke` 发送命令后，主进程需要用 `register_ipc_handler` 注册对应的回调函数：
 
 ```c
 // 窗口控制回调

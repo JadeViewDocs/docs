@@ -8,10 +8,10 @@ group:
 
 # IPC 通信 API
 
-**用途概括**：宿主用 **`jade_on`** 订阅库派发的事件（窗口生命周期、导航、脚本结果等）；用 **`register_ipc_handler`** 响应网页里的 **`jade.invoke('命令', 数据)`**；用 **`send_ipc_message`** 主动给页面推消息。
+**用途概括**：主进程用 **`jade_on`** 订阅库派发的事件（窗口生命周期、导航、脚本结果等）；用 **`register_ipc_handler`** 响应网页里的 **`jade.invoke('命令', 数据)`**；用 **`send_ipc_message`** 主动给渲染进程推消息。
 
 :::info
-**2.3 通信链路优化（对外接口不变）**：`invoke` 与广播消息共用发送路径、前端消息入口收敛为统一 dispatcher、高频小事件经微任务批处理合并发送，并去掉了整条消息克隆。前端 `jade.invoke` / `jade.on` 调用方式与旧消息形态**完全兼容**，无需改动代码即可获得性能提升（`invoke` 约 5%~20%、广播约 20%~60%、高频事件消息数减少约 50%~90%）。
+**2.3 通信链路优化（对外接口不变）**：`invoke` 与广播消息共用发送路径、渲染进程消息入口收敛为统一 dispatcher、高频小事件经微任务批处理合并发送，并去掉了整条消息克隆。渲染进程 `jade.invoke` / `jade.on` 调用方式与旧消息形态**完全兼容**，无需改动代码即可获得性能提升（`invoke` 约 5%~20%、广播约 20%~60%、高频事件消息数减少约 50%~90%）。
 :::
 
 ---
@@ -20,7 +20,7 @@ group:
 
 <h3 id="ipccallback">回调类型（`IpcCallback`）</h3>
 
-宿主侧事件与 **`jade.invoke`** 共用同一种 C 回调类型（与 **`JadeView.h`** 一致）：
+主进程侧事件与 **`jade.invoke`** 共用同一种 C 回调类型（与 **`JadeView.h`** 一致）：
 
 ```c
 typedef const char *(*IpcCallback)(uint32_t window_id, const char *event_data);
@@ -115,7 +115,7 @@ int32_t jade_off(const char *event_name, uint32_t callback_id);
 
 ### 发送 IPC 消息（`send_ipc_message`）
 
-**用途**：从 C 侧**主动推一条消息给指定窗口里的页面**（类型 + 正文），页面用 **`jade.on(message_type, ...)`** 接收。
+**用途**：从 C 侧**主动推一条消息给指定窗口里的渲染进程**（类型 + 正文），渲染进程用 **`jade.on(message_type, ...)`** 接收。
 
 ```c
 int32_t send_ipc_message(
@@ -128,16 +128,16 @@ int32_t send_ipc_message(
 | 参数 | 说明 |
 |------|------|
 | `window_id` | 目标窗口 id。 |
-| `message_type` | 前端订阅用的类型名，与 `jade.on` 第一个参数一致。 |
-| `message_content` | 一般为 **JSON 文本**；也可按你与页面约定传其它 UTF-8 串。 |
+| `message_type` | 渲染进程订阅用的类型名，与 `jade.on` 第一个参数一致。 |
+| `message_content` | 一般为 **JSON 文本**；也可按你与渲染进程约定传其它 UTF-8 串。 |
 
-正文特别大时，2.0 内部可走分片/引用等优化路径；仍建议**单次**控制在约 **252MB** 以内，避免 WebView2 与宿主内存压力。
+正文特别大时，2.0 内部可走分片/引用等优化路径；仍建议**单次**控制在约 **252MB** 以内，避免 WebView2 与主进程内存压力。
 
 ---
 
 ### 注册调用处理器（`register_ipc_handler`）
 
-**用途**：把 **`channel` 名字符串**与 C 回调绑定；页面 **`await jade.invoke(channel, payload, options)`** 时会调用该 **`IpcCallback`**。
+**用途**：把 **`channel` 名字符串**与 C 回调绑定；渲染进程 **`await jade.invoke(channel, payload, options)`** 时会调用该 **`IpcCallback`**。
 
 ```c
 int32_t register_ipc_handler(const char *channel, IpcCallback ipc_cb);
@@ -145,7 +145,7 @@ int32_t register_ipc_handler(const char *channel, IpcCallback ipc_cb);
 
 | 参数 | 说明 |
 |------|------|
-| `channel` | 与前端 **`jade.invoke` 第一个参数**完全一致（区分大小写）。 |
+| `channel` | 与渲染进程 **`jade.invoke` 第一个参数**完全一致（区分大小写）。 |
 | `ipc_cb` | **`IpcCallback`**：`window_id` 为发起请求的窗口；`event_data` 一般为请求的 payload（常为 JSON 文本）。 |
 
 | 返回值 | 含义 |
@@ -155,9 +155,9 @@ int32_t register_ipc_handler(const char *channel, IpcCallback ipc_cb);
 
 <h4 id="register-ipc-handler-return">返回值约定（`register_ipc_handler`）</h4>
 
-此处 **`IpcCallback` 的返回值表示给前端的应答**，与 **`jade_on` 的「拦截」语义不同**：
+此处 **`IpcCallback` 的返回值表示给渲染进程的应答**，与 **`jade_on` 的「拦截」语义不同**：
 
-- 返回 **`NULL`**、**`(const char *)1`** 或实现认定的其它**特殊地址**：库向前端返回**默认成功 JSON**，**不会**对该指针调用 **`jade_text_free`**。
+- 返回 **`NULL`**、**`(const char *)1`** 或实现认定的其它**特殊地址**：库向渲染进程返回**默认成功 JSON**，**不会**对该指针调用 **`jade_text_free`**。
 - 返回**其它指针**：视为 **UTF-8 应答正文**，读完后由库 **`jade_text_free`**；请用 **`jade_text_create`** 分配（见 [工具 API](/docs/api/tools-api)）。
 
-2.0 前端请使用 **`jade.invoke(command, payload, { timeout })`**；旧版 **`invokeAsync` 已移除**。详见 [前端通信 API](/docs/api/javascript-api)。
+2.0 渲染进程请使用 **`jade.invoke(command, payload, { timeout })`**；旧版 **`invokeAsync` 已移除**。详见 [前端通信 API](/docs/api/javascript-api)。

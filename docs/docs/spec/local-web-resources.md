@@ -192,7 +192,7 @@ int main() {
     </div>
 
     <script>
-        // 窗口控制 —— 通过 jade.invoke 发送命令到宿主
+        // 窗口控制 —— 通过 jade.invoke 发送命令到主进程
         document.getElementById('minBtn').onclick = () => {
             jade.invoke('minimize-window');
         };
@@ -216,9 +216,9 @@ int main() {
             }
         };
 
-        // 监听宿主推送
+        // 监听主进程推送
         jade.on('host-notify', (data) => {
-            console.log('宿主通知:', data);
+            console.log('主进程通知:', data);
         });
     </script>
 </body>

@@ -8,7 +8,7 @@ group:
 
 # 系统托盘
 
-**用途**：在任务栏右下角放一个**托盘图标**，支持悬停提示、右键菜单；用户点菜单项或点图标时，宿主用 `jade_on` 收到 **`tray-menu-command`** 或 **`tray-event`**（见 [事件类型](/docs/api/event-types)）。
+**用途**：在任务栏右下角放一个**托盘图标**，支持悬停提示、右键菜单；用户点菜单项或点图标时，主进程用 `jade_on` 收到 **`tray-menu-command`** 或 **`tray-event`**（见 [事件类型](/docs/api/event-types)）。
 
 整个进程里**只允许一个托盘**；重复 `tray_create` 只会拿到同一个 `tray_id`。
 

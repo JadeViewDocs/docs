@@ -16,7 +16,7 @@ group:
 
 一个典型的 JadeView 程序发行流程：
 
-1. **开发完成** → 前端资源（HTML/CSS/JS）和宿主程序（调用 JadeView DLL 的 exe）就绪
+1. **开发完成** → 前端资源（HTML/CSS/JS）和主进程（调用 JadeView DLL 的 exe）就绪
 2. **打包前端资源** → 使用 JadePack 或 `@electron/asar` 将前端项目打包为 JAPK 文件
 3. **保护资源内容** → JadePack 提供混淆和签名保护，防止源码泄露和篡改
 4. **嵌入或分发 JAPK** → 可将 JAPK 作为独立文件分发，也可嵌入 exe 通过内存载入

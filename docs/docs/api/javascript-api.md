@@ -1,6 +1,6 @@
 ---
 title: 前端通信 API
-description: 页面与宿主通信（jade 对象）
+description: 页面与主进程通信（jade 对象）
 order: 0
 group:
   title: 前端 API
@@ -11,29 +11,29 @@ group:
 
 ## 概述
 
-**用途**：网页里通过全局对象 **`jade`** 和外面 C/C++ 写的宿主互相发消息。订阅事件用 **`jade.on`**；让宿主算点东西、拿文件路径等用 **`jade.invoke`**。页面须运行在 JadeView 提供的 WebView 环境（含 **`set_protocol_service_path` 给出的内置地址** 或等价加载方式），否则没有 `jade` 对象。
+**用途**：网页里通过全局对象 **`jade`** 和外面 C/C++ 写的主进程互相发消息。订阅事件用 **`jade.on`**；让主进程算点东西、拿文件路径等用 **`jade.invoke`**。页面须运行在 JadeView 提供的 WebView 环境（含 **`set_protocol_service_path` 给出的内置地址** 或等价加载方式），否则没有 `jade` 对象。
 
 ---
 
 ## 通信方式
 
-### 调用宿主方法（`jade.invoke`）
+### 调用主进程方法（`jade.invoke`）
 
-**用途**：像「**远程调用宿主函数**」：你把命令名和数据丢过去，宿主在 `register_ipc_handler` 里处理，再把结果异步还给你。适合读配置、选文件、跑耗时任务等。
+**用途**：像「**远程调用主进程函数**」：你把命令名和数据丢过去，主进程在 `register_ipc_handler` 里处理，再把结果异步还给你。适合读配置、选文件、跑耗时任务等。
 
 2.0 推荐写法：
 
 ```javascript
-await jade.invoke('命令名', 传给宿主的数据, { timeout: 5000 });
+await jade.invoke('命令名', 传给主进程的数据, { timeout: 5000 });
 ```
 
-- 第二段可以是字符串、对象等，宿主收到的一般是 JSON 文本。
+- 第二段可以是字符串、对象等，主进程收到的一般是 JSON 文本。
 - **第三段可选**：`timeout` 控制最多等多久；不写则用默认超时。
 - 内部是**两段异步**：大结果或慢任务时更稳；旧版 **`invokeAsync` 已删除**，请只用 **`invoke`**。
 
 ---
 
-### 批量调用宿主方法（`jade.invokeBatch`）
+### 批量调用主进程方法（`jade.invokeBatch`）
 
 **用途**：批量发送多个 invoke 命令，统一等待全部完成。
 
@@ -76,9 +76,9 @@ const results = await jade.invokeBatch([
 
 ---
 
-### 订阅宿主消息（`jade.on`）
+### 订阅主进程消息（`jade.on`）
 
-**用途**：监听宿主 **`send_ipc_message`** 推过来的消息，或库内约定的通知（事件名与负载格式见 [事件类型](/docs/api/event-types)）。
+**用途**：监听主进程 **`send_ipc_message`** 推过来的消息，或库内约定的通知（事件名与负载格式见 [事件类型](/docs/api/event-types)）。
 
 ```javascript
 const off = jade.on('事件名', function (payload) {
@@ -107,11 +107,11 @@ const off = jade.on('事件名', function (payload) {
 const result = await jade.invoke('message', { data: 'test' }, { timeout: 5000 });
 ```
 
-宿主侧为每个 `命令名` 调 `register_ipc_handler`，见 [IPC 通信 API](/docs/api/ipc-api)。
+主进程侧为每个 `命令名` 调 `register_ipc_handler`，见 [IPC 通信 API](/docs/api/ipc-api)。
 
 ---
 
-## 宿主回调示例
+## 主进程回调示例
 
 以下为常见命令的 `register_ipc_handler` 回调写法。
 
@@ -149,7 +149,7 @@ const char* set_theme_callback(uint32_t window_id, const char* event_data) {
     snprintf(result, sizeof(result),
         "{\"status\":\"success\",\"message\":\"已接收，异步处理中\"}");
 
-    // 2. 异步处理 ... 完成后 send_ipc_message 通知前端
+    // 2. 异步处理 ... 完成后 send_ipc_message 通知渲染进程
     send_ipc_message(window_id, "setTheme",
         "{\"theme\":\"Dark\",\"status\":\"completed\"}");
 
@@ -199,13 +199,13 @@ document.getElementById('sendBtn').addEventListener('click', async function () {
 
 ### 2. 调用失败，提示超时
 
-- 检查宿主是否正确注册了对应的 IPC handler
+- 检查主进程是否正确注册了对应的 IPC handler
 - 检查命令名称是否拼写正确（区分大小写）
 - 确认 `timeout` 参数对耗时操作设置了足够的时间
 
 ### 3. 事件不触发
 
-- 检查宿主侧 `send_ipc_message` 的 `message_type` 是否与 `jade.on` 第一个参数一致
+- 检查主进程侧 `send_ipc_message` 的 `message_type` 是否与 `jade.on` 第一个参数一致
 - 确认订阅在事件发送之前执行
 
 ### 4. 性能问题

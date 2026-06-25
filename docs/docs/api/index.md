@@ -187,7 +187,7 @@ int32_t jadeview_exit(void);
 | `ua` | 自定义 User-Agent。 |
 | `preload_js` | 页面加载前要注入的一段 JS。 |
 | `allow_fullscreen` | 网页里全屏 API 是否允许。 |
-| `postmessage_whitelist` | **页面 `postMessage` 是否转发给宿主**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收。 |
+| `postmessage_whitelist` | **页面 `postMessage` 是否转发给主进程**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收。 |
 | `autofill` | 是否启用账号/密码自动填充。`0` = 禁用，`1` = 启用。*(2.2 新增)* |
 | `general_autofill_enabled` | 是否启用通用表单自动填充（姓名/地址/电话等）。`0` = 禁用，`1` = 启用。*(2.2 新增)* |
 | `incognito` | 是否以无痕/隐私浏览模式运行。`0` = 正常模式，`1` = 无痕模式。开启后页面渲染会变慢。*(2.2 新增)* |

@@ -50,7 +50,7 @@ int32_t get_webview_version(char* buffer, size_t buffer_size);
 
 ### 获取系统语言（`getLocale`）
 
-读取 **Windows 当前用户界面语言**（区域设置），得到一个标准语言标签字符串。常见用途：决定宿主或网页用中文还是英文界面、把语言参数传给前端做 i18n。
+读取 **Windows 当前用户界面语言**（区域设置），得到一个标准语言标签字符串。常见用途：决定主进程或网页用中文还是英文界面、把语言参数传给渲染进程做 i18n。
 
 ```c
 int32_t getLocale(char* buffer, size_t buffer_size);
@@ -88,7 +88,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 | `appData` | 按用户区分的应用数据目录（常接近 `%LOCALAPPDATA%`）。 |
 | `sessionData` | 与 WebView 会话/缓存相关的目录（在 JadeView 配置的数据目录下的子路径）。 |
 | `temp` | 系统临时目录。 |
-| `exe` | **当前宿主进程 exe** 的完整路径（谁加载了 DLL 就是谁）。 |
+| `exe` | **当前主进程 exe** 的完整路径（谁加载了 DLL 就是谁）。 |
 | `desktop` / `documents` / `downloads` / `music` / `pictures` / `videos` | 桌面、文档、下载、音乐、图片、视频等用户文件夹。 |
 | `logs` | 应用日志目录（在数据目录下，不存在时可能会创建）。 |
 | `app` | **exe 所在目录**（安装目录），适合读同目录资源。 |

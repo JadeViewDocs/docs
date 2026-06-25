@@ -72,7 +72,7 @@ uint32_t create_webview_window(
   - `ua` `string` - 自定义 User-Agent
   - `preload_js` `string` - 页面加载前要注入的一段 JS
   - `allow_fullscreen` `int32_t` - 网页里全屏 API 是否允许
-  - `postmessage_whitelist` `string` - **页面 `postMessage` 是否转发给宿主**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收
+  - `postmessage_whitelist` `string` - **页面 `postMessage` 是否转发给主进程**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收
   - `cors_whitelist` `string` - 版本支持 **v2.1+**， CORS 来源白名单，逗号或分号分隔的域名列表（如 `"http://198.18.0.1:8001, http://localhost:3000"`）。
     - 严格精确匹配，不支持通配符。设置后仅允许白名单内的来源跨域请求 JadeView 内部 API（invoke、on）；不设置（`NULL`）或空字符串则不允许任何跨域，无法与程序通信。
   :::warning

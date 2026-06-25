@@ -32,7 +32,7 @@ int32_t show_notification(const NotificationParams* params);
 
 ### 行为说明
 
-不再需要单独调「注册应用」：**第一次显示通知时库会在内部完成注册**。用户点击、关闭或显示失败时，宿主通过 **`jade_on`** 收到的事件名见 [事件类型 · 通知相关事件](/docs/api/event-types#notification-events)。
+不再需要单独调「注册应用」：**第一次显示通知时库会在内部完成注册**。用户点击、关闭或显示失败时，主进程通过 **`jade_on`** 收到的事件名见 [事件类型 · 通知相关事件](/docs/api/event-types#notification-events)。
 
 **示例**（C 侧调用后，在回调里处理结果）：
 
