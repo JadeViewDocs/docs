@@ -35,8 +35,6 @@ import DiscordButton from 'dumi-theme-lobehub/dist/slots/Header/DiscordButton';
 // @ts-ignore
 import GithubButton from 'dumi-theme-lobehub/dist/slots/Header/GithubButton';
 // @ts-ignore
-import LangSwitch from 'dumi-theme-lobehub/dist/slots/Header/LangSwitch';
-// @ts-ignore
 import ThemeSwitch from 'dumi-theme-lobehub/dist/slots/Header/ThemeSwitch';
 
 // 形态内重排（Logo 文字 / 导航间距）与跨形态交叉淡入共用的 iOS 手感 spring。
@@ -204,7 +202,9 @@ export default memo(function Header() {
               insetBlock: 0,
               insetInline: 0,
               width: 'max-content',
-              maxWidth: 'min(720px, 100%)',
+              // 上限放宽到 860：英文导航词更长（Showcase/Releases），720 会裁掉「Releases」；
+              // 中文是 max-content 更窄，不受影响。
+              maxWidth: 'min(860px, 100%)',
               marginInline: 'auto',
               ...capsuleVisual,
               ...floatStyle,
@@ -250,7 +250,6 @@ export default memo(function Header() {
             {/* 右侧动作：content-width 胶囊下导航与动作相邻，补一点左间距避免贴太紧。 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '0 0 auto', marginLeft: 10, zIndex: 10 }}>
               <DiscordButton />
-              <LangSwitch />
               <ThemeSwitch />
               <GithubButton />
             </div>

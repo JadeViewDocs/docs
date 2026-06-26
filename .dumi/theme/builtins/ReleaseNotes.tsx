@@ -7,6 +7,7 @@ import { Segmented, theme as antdTheme } from 'antd';
 import { createStyles } from 'antd-style';
 import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
+import { useT } from '../locales/strings';
 
 const DATA_URL = '/releases/data.json';
 const PAGE_SIZE = 10;
@@ -21,12 +22,12 @@ type Release = {
   body?: string;
 };
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, t: { today: string; yesterday: string; dateLocale: string }) {
   const date = new Date(dateStr);
   const diffDays = Math.floor((Date.now() - date.getTime()) / 86400000);
-  if (diffDays === 0) return '今天';
-  if (diffDays === 1) return '昨天';
-  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  if (diffDays === 0) return t.today;
+  if (diffDays === 1) return t.yesterday;
+  return date.toLocaleDateString(t.dateLocale, { year: 'numeric', month: '2-digit', day: '2-digit' });
 }
 
 // —— URL 状态同步（SPA 单页，用查询参数；刷新可还原、可分享、前进后退可用）——
@@ -435,16 +436,11 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
   `,
 }));
 
-const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
-const MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
-const POLICY = [
-  { t: '主版本号', d: '含破坏性更新和新特性，不在发布周期内' },
-  { t: '次版本号', d: '每月发布带有新特性的向下兼容版本' },
-  { t: '修订版本号', d: '每周末日常 bugfix 更新，紧急修复随时发布' },
-];
+// 周/月/版本策略文案见 ../locales/strings 的 releases.week / releases.months / releases.policy
 
 export default memo(function ReleaseNotes() {
   const { styles, theme } = useStyles();
+  const t = useT().releases;
   antdTheme.useToken();
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
@@ -529,11 +525,11 @@ export default memo(function ReleaseNotes() {
       {showType && (
         <span className={styles.rowType}>
           <span className={styles.badge} style={r.prerelease ? preBadge : stableBadge}>
-            {r.prerelease ? '预发布' : '稳定版'}
+            {r.prerelease ? t.prerelease : t.stable}
           </span>
         </span>
       )}
-      <span className={styles.rowDate}>{formatDate(r.published_at)}</span>
+      <span className={styles.rowDate}>{formatDate(r.published_at, t)}</span>
     </div>
   );
 
@@ -543,27 +539,27 @@ export default memo(function ReleaseNotes() {
     return (
       <div className={styles.root}>
         <button className={styles.back} onClick={() => setDetailTag(null)} type="button">
-          <ArrowLeft size={16} /> 返回列表
+          <ArrowLeft size={16} /> {t.backToList}
         </button>
         {loading ? (
-          <div className={styles.state}>加载中…</div>
+          <div className={styles.state}>{t.loading}</div>
         ) : r ? (
           <div className={styles.detail}>
             <span className={styles.badge} style={r.prerelease ? preBadge : stableBadge}>
-              {r.prerelease ? '预发布' : '稳定版'}
+              {r.prerelease ? t.prerelease : t.stable}
             </span>
             <h1 className={styles.detailVer}>{r.tag_name}</h1>
             <div className={styles.detailMeta}>
-              <span>{formatDate(r.published_at)}</span>
+              <span>{formatDate(r.published_at, t)}</span>
               <span className={styles.links}>
                 <GhLink href={r.html_url} label="GitHub" />
                 {!r.prerelease && <GhLink href={r.gitee_url} label="Gitee" />}
               </span>
             </div>
-            {r.body ? <Markdown>{r.body}</Markdown> : <p className={styles.state}>暂无详细说明</p>}
+            {r.body ? <Markdown>{r.body}</Markdown> : <p className={styles.state}>{t.noDetail}</p>}
           </div>
         ) : (
-          <div className={styles.state}>未找到该版本</div>
+          <div className={styles.state}>{t.notFound}</div>
         )}
       </div>
     );
@@ -585,17 +581,17 @@ export default memo(function ReleaseNotes() {
   return (
     <div className={styles.root}>
       <div className={styles.header}>
-        <h1 className={styles.title}>发行版本</h1>
-        <p className={styles.subtitle}>JadeView 各版本的更新内容、发布日期与下载入口。</p>
+        <h1 className={styles.title}>{t.title}</h1>
+        <p className={styles.subtitle}>{t.subtitle}</p>
       </div>
 
       {loading ? (
         <div className={styles.state}>加载中…</div>
       ) : error ? (
         <div className={styles.state}>
-          加载失败 ·{' '}
+          {t.loadFailed}{' '}
           <button className={styles.back} onClick={load} style={{ display: 'inline-flex', margin: 0 }} type="button">
-            重试
+            {t.retry}
           </button>
         </div>
       ) : (
@@ -604,9 +600,9 @@ export default memo(function ReleaseNotes() {
             <Segmented
               onChange={(v) => setTab(v as string)}
               options={[
-                { label: '发行版本', value: 'releases' },
-                { label: '发行日历', value: 'calendar' },
-                { label: '所有发行', value: 'all' },
+                { label: t.tabReleases, value: 'releases' },
+                { label: t.tabCalendar, value: 'calendar' },
+                { label: t.tabAll, value: 'all' },
               ]}
               value={tab}
             />
@@ -615,7 +611,7 @@ export default memo(function ReleaseNotes() {
           {tab === 'releases' && (
             <>
               <div className={styles.policy}>
-                {POLICY.map((p) => (
+                {t.policy.map((p) => (
                   <div className={styles.policyCard} key={p.t}>
                     <div className={styles.policyTitle}>{p.t}</div>
                     <div className={styles.policyDesc}>{p.d}</div>
@@ -627,7 +623,7 @@ export default memo(function ReleaseNotes() {
                 <div className={styles.latest}>
                   <div className={styles.latestTop}>
                     <span className={styles.badge} style={stableBadge}>
-                      最新稳定版
+                      {t.latestStable}
                     </span>
                     <span className={styles.links}>
                       <GhLink href={latest.html_url} label="GitHub" />
@@ -637,14 +633,14 @@ export default memo(function ReleaseNotes() {
                   <h2 className={styles.latestVer} onClick={() => open(latest.tag_name)}>
                     {latest.tag_name}
                   </h2>
-                  <div className={styles.latestDate}>{formatDate(latest.published_at)}</div>
+                  <div className={styles.latestDate}>{formatDate(latest.published_at, t)}</div>
                 </div>
               )}
 
               <div className={styles.section}>
                 <h3 className={styles.sectionTitle}>
                   <span className={styles.dot} style={{ background: theme.colorSuccess }} />
-                  稳定版
+                  {t.stable}
                 </h3>
                 <div className={styles.rows}>
                   {stable.slice(0, 5).map((r) => (
@@ -657,7 +653,7 @@ export default memo(function ReleaseNotes() {
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>
                     <span className={styles.dot} style={{ background: theme.colorWarning }} />
-                    预发布
+                    {t.prerelease}
                   </h3>
                   <div className={styles.rows}>
                     {prerelease.slice(0, 3).map((r) => (
@@ -678,9 +674,9 @@ export default memo(function ReleaseNotes() {
                     setAllPage(1);
                   }}
                   options={[
-                    { label: '全部', value: 'all' },
-                    { label: '稳定版', value: 'stable' },
-                    { label: '预发布', value: 'prerelease' },
+                    { label: t.filterAll, value: 'all' },
+                    { label: t.stable, value: 'stable' },
+                    { label: t.prerelease, value: 'prerelease' },
                   ]}
                   size="small"
                   value={allFilter}
@@ -693,7 +689,7 @@ export default memo(function ReleaseNotes() {
               </div>
               <div className={styles.pager}>
                 <span className={styles.pageInfo}>
-                  第 {page} / {totalPages} 页 · 共 {filtered.length} 个发行
+                  {t.pageInfo(page, totalPages, filtered.length)}
                 </span>
                 <div className={styles.pageBtns}>
                   <button
@@ -702,7 +698,7 @@ export default memo(function ReleaseNotes() {
                     onClick={() => setAllPage((p) => Math.max(1, p - 1))}
                     type="button"
                   >
-                    <ChevronLeft size={14} /> 上一页
+                    <ChevronLeft size={14} /> {t.prev}
                   </button>
                   <button
                     className={styles.pageBtn}
@@ -710,7 +706,7 @@ export default memo(function ReleaseNotes() {
                     onClick={() => setAllPage((p) => Math.min(totalPages, p + 1))}
                     type="button"
                   >
-                    下一页 <ChevronRight size={14} />
+                    {t.next} <ChevronRight size={14} />
                   </button>
                 </div>
               </div>
@@ -733,7 +729,7 @@ export default memo(function ReleaseNotes() {
                 ))}
               </div>
               <div className={styles.calGrid}>
-                {MONTHS.map((mName, m) => {
+                {t.months.map((mName, m) => {
                   const firstDay = new Date(activeYear, m, 1).getDay();
                   const daysInMonth = new Date(activeYear, m + 1, 0).getDate();
                   const cells: (number | null)[] = Array.from({ length: firstDay }, () => null);
@@ -742,7 +738,7 @@ export default memo(function ReleaseNotes() {
                     <div key={mName}>
                       <div className={styles.calMonth}>{mName}</div>
                       <div className={styles.calDays}>
-                        {WEEK.map((w) => (
+                        {t.week.map((w) => (
                           <div className={styles.calWeek} key={w}>
                             {w}
                           </div>

@@ -27,8 +27,8 @@ import Changelog from 'dumi-theme-lobehub/dist/pages/Changelog';
 import Docs from 'dumi-theme-lobehub/dist/pages/Docs';
 // @ts-ignore
 import Home from 'dumi-theme-lobehub/dist/pages/Home';
-// @ts-ignore 未覆盖的主题 slot
-import Footer from 'dumi-theme-lobehub/dist/slots/Footer';
+// 本地自定义页底（栏目本地化 + 语言切换移到这里）；是普通组件、非 slot，避免触发 .dumi/tmp 重扫崩坏
+import Footer from '../../components/JadeFooter';
 // @ts-ignore
 import { heroSelectors, siteSelectors, useSiteStore } from 'dumi-theme-lobehub/dist/store';
 // 本地覆盖的 slot（相对路径，避免 dumi/theme/* 别名）
@@ -45,8 +45,13 @@ export default memo(function DocumentLayout({ children }: any) {
   const { mobile, laptop } = useResponsive();
 
   const { loading, page, siteTitle, noToc } = useSiteStore((s: any) => {
-    const isChangelogPage = s.location.pathname === '/changelog';
-    const isHomePage = heroSelectors.isHeroPage(s);
+    // lobehub 的 heroSelectors.isHeroPage 写死 pathname==='/'，不认 /en-US 这类「语言根」→
+    // 英文首页被当成文档页（出现侧栏、Hero/极光消失、正文偏右）。改为「pathname == 当前语言 base 根」
+    // 即首页，兼容多语言（zh base '/'，en base '/en-US'）。
+    const norm = (pp: string) => (pp !== '/' && pp.endsWith('/') ? pp.slice(0, -1) : pp);
+    const localeBase = norm(s.locale?.base || '/');
+    const isHomePage = norm(s.location.pathname) === localeBase;
+    const isChangelogPage = s.location.pathname === `${localeBase === '/' ? '' : localeBase}/changelog`;
     const p = isHomePage ? 'home' : isChangelogPage ? 'changelog' : 'docs';
     return {
       loading: s.siteData.loading,

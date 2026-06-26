@@ -8,27 +8,11 @@ import { ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { memo } from 'react';
 import { scrollContainer, scrollItem, scrollViewport } from '../components/scrollIn';
+import { useT } from '../locales/strings';
 
 const BRAND = '#007ee5';
 
-type CaseItem = { name: string; desc: string; link: string; image: string; badge?: string };
-
-// 案例数据（沿用旧站；图片复制到 public/showcase/）。后续新增案例直接往这里加对象即可，网格自适应。
-const cases: CaseItem[] = [
-  {
-    name: 'Electron asar GUI 工具',
-    desc: '一款简洁易用的 Electron asar 文件打包 / 解包工具，图形界面操作，开箱即用。',
-    link: 'https://github.com/HyJunYaa/Electron-asar-Gui-Tool',
-    image: '/showcase/electron-asar.jpg',
-    badge: '社区生态',
-  },
-  {
-    name: 'Jade EC 查看器',
-    desc: '易语言 .ec 模块文件现代化查看器，支持浏览子程序、DLL 命令、类、自定义数据类型、全局变量与常量；三栏布局、亚克力背景、深浅主题与多维度搜索。',
-    link: 'https://github.com/tuyangJs/Jade_ec',
-    image: '/showcase/jade-ec.jpg',
-  },
-];
+// 案例数据见 ../locales/strings 的 showcase.cases（按语言取值）。
 
 const useStyles = createStyles(({ css, token, responsive }) => ({
   root: css`
@@ -168,6 +152,7 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
 
 export default memo(function Showcase() {
   const { styles, cx } = useStyles();
+  const t = useT().showcase;
   const reduce = useReducedMotion();
   const reveal = reduce
     ? {}
@@ -180,12 +165,12 @@ export default memo(function Showcase() {
           Built with JadeView.
         </motion.h1>
         <motion.p className={styles.subtitle} variants={scrollItem}>
-          卓越的高性能应用，汇聚现代原生美学。
+          {t.subtitle}
         </motion.p>
       </motion.div>
 
       <motion.div className={styles.grid} variants={scrollContainer} {...reveal}>
-        {cases.map((c) => (
+        {t.cases.map((c) => (
           <motion.div
             key={c.name}
             className={styles.card}
@@ -201,7 +186,7 @@ export default memo(function Showcase() {
               <h2 className={styles.name}>{c.name}</h2>
               <p className={styles.desc}>{c.desc}</p>
               <a className={styles.cta} href={c.link} rel="noreferrer" target="_blank">
-                获取应用 <ArrowUpRight size={16} />
+                {t.cta} <ArrowUpRight size={16} />
               </a>
             </div>
           </motion.div>

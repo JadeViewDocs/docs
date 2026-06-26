@@ -320,8 +320,12 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
 }
 `,
   ],
-  // 仅中文
-  locales: [{ id: 'zh-CN', name: '中文' }],
+  // 多语言：中文（默认，base '/'）+ 英文（base '/en-US'）。
+  // 内置外壳文案 dumi 自带中/英；自定义组件文案见 .dumi/theme/locales/strings.ts。
+  locales: [
+    { id: 'zh-CN', name: '中文' },
+    { id: 'en-US', name: 'English' },
+  ],
   themeConfig: {
     name: 'JadeView',
     title: 'JadeView',

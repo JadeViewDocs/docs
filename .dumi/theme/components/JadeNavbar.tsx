@@ -11,8 +11,9 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 // @ts-ignore 主题 store，深层路径无类型声明
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
+import { useT, useLocaleBase, localeHref } from '../locales/strings';
 
-type SdkItem = { key: string; title: string; link: string; desc: string };
+type SdkKey = 'web' | 'py' | 'py2' | 'ey' | 'vol';
 
 // 图标：能用真实品牌 logo 的用真实 logo（彩色 SVG，存于 public/sdk/，devicon 来源）；
 // 易语言 / 火山无公开 logo，用品牌色「字徽」（比抽象线条统一、清晰）。
@@ -24,20 +25,21 @@ const SDK_ICON: Record<string, { type: 'img'; src: string } | { type: 'char'; ch
   vol: { type: 'char', char: '火', color: '#e8533f' },
 };
 
-const SDK_GROUPS: { title: string; items: SdkItem[] }[] = [
+// 结构（key/链接）固定；标题与描述走 useT()（见 ../locales/strings）。
+const SDK_GROUPS: { key: 'frontend' | 'more'; items: { key: SdkKey; link: string }[] }[] = [
   {
-    title: '前端 & Python',
+    key: 'frontend',
     items: [
-      { key: 'web', title: 'Web SDK', link: '/web-sdk', desc: '前端 / JavaScript 集成' },
-      { key: 'py', title: 'Python SDK', link: '/python-sdk', desc: 'Python 桌面应用开发' },
-      { key: 'py2', title: 'Python SDK 2', link: '/python-sdk2', desc: '基于 ctypes 的新版绑定' },
+      { key: 'web', link: '/web-sdk' },
+      { key: 'py', link: '/python-sdk' },
+      { key: 'py2', link: '/python-sdk2' },
     ],
   },
   {
-    title: '更多语言',
+    key: 'more',
     items: [
-      { key: 'ey', title: '易语言 SDK', link: '/easy-language-sdk', desc: '易语言模块封装' },
-      { key: 'vol', title: '火山 SDK', link: '/voldp-sdk', desc: '火山窗口 SDK 适配' },
+      { key: 'ey', link: '/easy-language-sdk' },
+      { key: 'vol', link: '/voldp-sdk' },
     ],
   },
 ];
@@ -45,19 +47,18 @@ const SDK_GROUPS: { title: string; items: SdkItem[] }[] = [
 const SDK_LINKS = ['/sdk', ...SDK_GROUPS.flatMap((g) => g.items.map((i) => i.link))];
 
 // 「文档」下拉的两张大卡片（仿 lobehub.com 顶部导航左侧大卡片）：顶部色块 + 图标 + 页数角标，下方标题/描述。
+// 标题/描述走 useT()；这里只放结构（key/链接/图标/配色）。
 const DOCS_SECTIONS = [
   {
-    title: '文档指南',
+    key: 'spec' as const,
     link: '/docs/spec',
-    desc: '入门教程、核心设计原理与程序发行行为。',
     icon: <BookOpen size={18} />,
     grad: 'linear-gradient(135deg, rgba(0,126,229,0.22), rgba(0,126,229,0.04))',
     iconBg: '#007ee5',
   },
   {
-    title: 'API',
+    key: 'api' as const,
     link: '/docs/api',
-    desc: '窗口、WebView、IPC、原生 UI 等完整 C API 参考。',
     icon: <Code2 size={18} />,
     grad: 'linear-gradient(135deg, rgba(124,77,255,0.22), rgba(0,200,170,0.10))',
     iconBg: 'linear-gradient(135deg, #7c4dff, #00c8aa)',
@@ -403,6 +404,18 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
 
 export default memo(function JadeNavbar() {
   const { styles, cx } = useStyles();
+  const t = useT();
+  const base = useLocaleBase();
+  const L = (link?: string) => localeHref(base, link); // 站内链接补当前语言前缀
+  // 顶部导航标题本地化：link 不变，按 link 取字典标题（themeConfig.nav 里的中文标题被覆盖）。
+  const navTitle = (item: any): string => {
+    const l = String(item.link || '');
+    if (l.startsWith('/docs')) return t.nav.docs;
+    if (l === '/sdk' || item.title === 'SDKs') return t.nav.sdks;
+    if (l === '/showcase') return t.nav.showcase;
+    if (l === '/releases') return t.nav.releases;
+    return item.title;
+  };
   const nav = useSiteStore((s: any) => s.navData) || [];
   const { pathname } = useLocation();
   const fullSidebar = useFullSidebarData();
@@ -485,19 +498,19 @@ export default memo(function JadeNavbar() {
       {DOCS_SECTIONS.map((s) => {
         const n = countOf(s.link);
         return (
-          <Link key={s.link} className={styles.docBig} to={s.link}>
+          <Link key={s.link} className={styles.docBig} to={L(s.link)}>
             <div className={styles.docMedia} style={{ background: s.grad }}>
               <span className={styles.docMediaIcon} style={{ background: s.iconBg }}>
                 {s.icon}
               </span>
-              {n > 0 && <span className={styles.docCount}>{n} 篇</span>}
+              {n > 0 && <span className={styles.docCount}>{n}{t.navbar.countSuffix}</span>}
             </div>
             <div className={styles.docBody}>
               <span className={styles.docCardTitle}>
-                {s.title}
+                {t.navbar.docsSections[s.key].title}
                 <ChevronRight className={cx(styles.docArrow, 'jade-doc-arrow')} size={15} />
               </span>
-              <span className={styles.docCardDesc}>{s.desc}</span>
+              <span className={styles.docCardDesc}>{t.navbar.docsSections[s.key].desc}</span>
             </div>
           </Link>
         );
@@ -509,12 +522,12 @@ export default memo(function JadeNavbar() {
     <div className={styles.card}>
       <div className={styles.cols}>
         {SDK_GROUPS.map((g) => (
-          <div key={g.title} className={styles.col}>
-            <p className={styles.colTitle}>{g.title}</p>
+          <div key={g.key} className={styles.col}>
+            <p className={styles.colTitle}>{t.navbar.sdkGroupTitles[g.key]}</p>
             {g.items.map((it) => {
               const ic = SDK_ICON[it.key];
               return (
-                <Link key={it.link} className={styles.menuItem} to={it.link}>
+                <Link key={it.link} className={styles.menuItem} to={L(it.link)}>
                   {ic.type === 'img' ? (
                     <span className={styles.icon}>
                       <img alt="" src={ic.src} />
@@ -525,8 +538,8 @@ export default memo(function JadeNavbar() {
                     </span>
                   )}
                   <span>
-                    <span className={styles.mTitle}>{it.title}</span>
-                    <span className={styles.mDesc}>{it.desc}</span>
+                    <span className={styles.mTitle}>{t.navbar.sdk[it.key].title}</span>
+                    <span className={styles.mDesc}>{t.navbar.sdk[it.key].desc}</span>
                   </span>
                 </Link>
               );
@@ -535,13 +548,13 @@ export default memo(function JadeNavbar() {
         ))}
       </div>
       <div className={styles.footer}>
-        <Link className={styles.downloadCard} to="/download">
+        <Link className={styles.downloadCard} to={L('/download')}>
           <span className={styles.downloadIcon}>
             <Download size={18} strokeWidth={2.2} />
           </span>
           <span className={styles.downloadBody}>
-            <span className={styles.downloadTitle}>SDK 下载中心</span>
-            <span className={styles.downloadDesc}>获取各端 SDK 安装包与历史版本</span>
+            <span className={styles.downloadTitle}>{t.navbar.download.title}</span>
+            <span className={styles.downloadDesc}>{t.navbar.download.desc}</span>
           </span>
           <ChevronRight className={cx(styles.downloadArrow, 'jade-dl-arrow')} size={18} />
         </Link>
@@ -563,16 +576,16 @@ export default memo(function JadeNavbar() {
               className={cx(styles.item, itemActiveNow && styles.active)}
               onMouseEnter={(e) => openMenu(menu, e.currentTarget as HTMLElement)}
               onMouseLeave={scheduleClose}
-              to={item.link || (menu === 'sdk' ? '/sdk' : '/docs/spec')}
+              to={L(item.link || (menu === 'sdk' ? '/sdk' : '/docs/spec'))}
             >
-              {item.title}
+              {navTitle(item)}
               {chevron(active === menu)}
             </Link>
           );
         }
         return (
-          <Link key={key} className={cx(styles.item, itemActive(item.link) && styles.active)} to={item.link}>
-            {item.title}
+          <Link key={key} className={cx(styles.item, itemActive(item.link) && styles.active)} to={L(item.link)}>
+            {navTitle(item)}
           </Link>
         );
       })}

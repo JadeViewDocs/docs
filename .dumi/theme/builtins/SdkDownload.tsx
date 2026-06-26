@@ -7,6 +7,7 @@ import { Segmented, theme as antdTheme } from 'antd';
 import { createStyles } from 'antd-style';
 import { Download } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
+import { useT } from '../locales/strings';
 
 const GITHUB_API = 'https://api.github.com/repos/JadeViewDocs/JadeView/contents/SDK';
 const GITEE_API = 'https://gitee.com/api/v5/repos/ilinxuan/JadeView_library/contents/SDK';
@@ -268,6 +269,7 @@ type Sdk = { dirName: string; info: SdkInfo | null; readme: string | null; allFi
 
 const SdkRow = memo(function SdkRow({ sdk, index }: { sdk: Sdk; index: number }) {
   const { styles } = useStyles();
+  const t = useT().sdkDownload;
   const info = sdk.info!;
   const [selectedVersion, setSelectedVersion] = useState(info.version);
   const [downloading, setDownloading] = useState(false);
@@ -275,8 +277,8 @@ const SdkRow = memo(function SdkRow({ sdk, index }: { sdk: Sdk; index: number })
   // 「更新日志 / SDK 介绍」用 Segmented 切换显示
   const segOptions = useMemo(
     () => [
-        ...(sdk.readme ? [{ label: 'SDK 介绍', value: 'readme' }] : []),
-      ...((info.changelog || []).length ? [{ label: '更新日志', value: 'changelog' }] : []),
+        ...(sdk.readme ? [{ label: t.about, value: 'readme' }] : []),
+      ...((info.changelog || []).length ? [{ label: t.changelog, value: 'changelog' }] : []),
     ],
     [info.changelog, sdk.readme],
   );
@@ -359,9 +361,9 @@ const SdkRow = memo(function SdkRow({ sdk, index }: { sdk: Sdk; index: number })
                 {a}
               </Tag>
             ))}
-            {info.author && <span className={styles.metaText}>作者 {info.author}</span>}
+            {info.author && <span className={styles.metaText}>{t.authorPrefix}{info.author}</span>}
             {info.compatibleVersion && (
-              <span className={styles.metaText}>兼容 JadeView {info.compatibleVersion}</span>
+              <span className={styles.metaText}>{t.compatPrefix}{info.compatibleVersion}</span>
             )}
           </div>
         </div>
@@ -378,11 +380,11 @@ const SdkRow = memo(function SdkRow({ sdk, index }: { sdk: Sdk; index: number })
               />
               <button className={styles.downloadBtn} disabled={downloading} onClick={handleDownload} type="button">
                 <Download size={16} />
-                {downloading ? '获取中…' : '下载'}
+                {downloading ? t.fetching : t.download}
               </button>
             </>
           ) : (
-            <span className={styles.noFile}>暂无下载文件</span>
+            <span className={styles.noFile}>{t.noFile}</span>
           )}
         </div>
       </div>
@@ -418,6 +420,7 @@ const SdkRow = memo(function SdkRow({ sdk, index }: { sdk: Sdk; index: number })
 
 export default memo(function SdkDownload() {
   const { styles } = useStyles();
+  const t = useT().sdkDownload;
   antdTheme.useToken();
   const [sdks, setSdks] = useState<Sdk[]>([]);
   const [loading, setLoading] = useState(true);
@@ -540,9 +543,9 @@ export default memo(function SdkDownload() {
   return (
     <div className={styles.root}>
       <div className={styles.header}>
-        <h1 className={styles.title}>SDK 下载中心</h1>
+        <h1 className={styles.title}>{t.title}</h1>
         <p className={styles.subtitle}>
-          选择对应平台的 SDK 模块进行下载，每个 SDK 均包含完整的 API 封装与示例代码。
+          {t.subtitle}
         </p>
       </div>
 
@@ -561,7 +564,7 @@ export default memo(function SdkDownload() {
           ))}
         </div>
       ) : (
-        <div className={styles.empty}>暂无 SDK 信息，请稍后重试。</div>
+        <div className={styles.empty}>{t.empty}</div>
       )}
     </div>
   );
