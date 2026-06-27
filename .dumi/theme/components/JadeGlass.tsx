@@ -85,13 +85,15 @@ export function useLiquidGlass(options: LiquidGlassOptions = {}): LiquidGlass {
   const blurRef = useRef<SVGFEGaussianBlurElement | null>(null);
   const roRef = useRef<ResizeObserver | null>(null);
   const rafRef = useRef<number | null>(null);
+  const visRef = useRef<(() => void) | null>(null);
+  const nonceRef = useRef(0);
   const supportedRef = useRef(false);
 
   const [supported, setSupported] = useState(false);
 
   // 生成与元素同尺寸的位移贴图（圆角矩形：横红渐变 + 纵蓝渐变 + 中央高亮模糊块）。
   const buildMap = useCallback(
-    (w: number, h: number) => {
+    (w: number, h: number, nonce = 0) => {
       const edge = Math.min(w, h) * (o.borderWidth * 0.5);
       const r = Math.min(o.borderRadius, Math.min(w, h) / 2);
       const svg =
@@ -104,6 +106,9 @@ export function useLiquidGlass(options: LiquidGlassOptions = {}): LiquidGlass {
         `<rect x="0" y="0" width="${w}" height="${h}" rx="${r}" fill="url(#r)"/>` +
         `<rect x="0" y="0" width="${w}" height="${h}" rx="${r}" fill="url(#b)" style="mix-blend-mode:${o.mixBlendMode}"/>` +
         `<rect x="${edge}" y="${edge}" width="${w - edge * 2}" height="${h - edge * 2}" rx="${r}" fill="hsl(0 0% ${o.brightness}% / ${o.opacity})" style="filter:blur(${o.blur}px)"/>` +
+        // nonce 仅是一段注释：渲染完全一致，但改变了 data-URI 字符串 → 强制 feImage 重新解码
+        // （后台加载时若 feImage 从未解码、回填相同 href 不触发重绘，靠它兜底）。
+        (nonce ? `<!--${nonce}-->` : '') +
         `</svg>`;
       return `data:image/svg+xml,${encodeURIComponent(svg)}`;
     },
@@ -111,13 +116,18 @@ export function useLiquidGlass(options: LiquidGlassOptions = {}): LiquidGlass {
   );
 
   // 按元素当前尺寸刷新贴图与三通道位移 scale。
-  const apply = useCallback(() => {
+  // force=true：即使尺寸不变也强制 feImage 重新解码（递增 nonce 改变 data-URI），
+  //   用于「切回前台 / 字体就绪」——后台加载时 feImage 可能从未解码、且尺寸没变时回填相同 href 是空操作。
+  const apply = useCallback((force = false) => {
     const el = elRef.current;
     if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const w = Math.max(1, Math.round(rect.width));
-    const h = Math.max(1, Math.round(rect.height));
-    feImageRef.current?.setAttribute('href', buildMap(w, h));
+    // 用 offset 尺寸（布局尺寸，不含自身 transform）：位移贴图作用在元素「变换前的本地坐标系」。
+    // 若用 getBoundingClientRect，会把入场/弹入的 scale 也算进去 → 贴图按缩小后的尺寸生成、落位后不再匹配
+    // （ResizeObserver 只在布局尺寸变化时触发，捕捉不到 scale 回正）。下拉面板 scale 弹入即踩此坑。
+    const w = Math.max(1, Math.round(el.offsetWidth));
+    const h = Math.max(1, Math.round(el.offsetHeight));
+    if (force) nonceRef.current += 1;
+    feImageRef.current?.setAttribute('href', buildMap(w, h, nonceRef.current));
     const setChan = (node: SVGFEDisplacementMapElement | null, off: number) => {
       if (!node) return;
       node.setAttribute('scale', String(o.distortionScale + off));
@@ -131,6 +141,17 @@ export function useLiquidGlass(options: LiquidGlassOptions = {}): LiquidGlass {
   }, [buildMap, o.distortionScale, o.redOffset, o.greenOffset, o.blueOffset, o.xChannel, o.yChannel, o.displace]);
 
   const schedule = useCallback(() => {
+    // 后台标签页里 requestAnimationFrame 会被浏览器冻结/不触发：刷新后立刻切走，webfont 载入改变
+    // 胶囊 max-content 宽度 → ResizeObserver 触发的「重算贴图」被排进一个永不执行的 rAF；切回前台时
+    // 贴图仍停留在旧宽度，被 preserveAspectRatio=none 拉伸 → 折射错位/破图。隐藏时直接同步重算、绕过 rAF。
+    if (typeof document !== 'undefined' && document.hidden) {
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      apply();
+      return;
+    }
     if (rafRef.current != null) return;
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = null;
@@ -145,6 +166,10 @@ export function useLiquidGlass(options: LiquidGlassOptions = {}): LiquidGlass {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
+    if (visRef.current) {
+      document.removeEventListener('visibilitychange', visRef.current);
+      visRef.current = null;
+    }
   }, []);
 
   const attach = useCallback(
@@ -154,6 +179,15 @@ export function useLiquidGlass(options: LiquidGlassOptions = {}): LiquidGlass {
       const ro = new ResizeObserver(schedule);
       ro.observe(el);
       roRef.current = ro;
+      // 兜底：切回前台时强制重新解码（force）。后台加载会出现 feImage 从未解码、切回来时 href 不变也不重绘
+      //   的破图（平板白胶囊）→ 用 force 改变 data-URI 字符串逼它重新解码。
+      const onVis = () => {
+        if (!document.hidden) apply(true);
+      };
+      document.addEventListener('visibilitychange', onVis);
+      visRef.current = onVis;
+      // webfont 载入会改变胶囊 max-content 宽度，且首帧 feImage 可能还没解码 → 字体就绪后强制重算一次。
+      (document as any).fonts?.ready?.then(() => apply(true));
     },
     [apply, schedule, detach],
   );

@@ -23,7 +23,7 @@ import { useResponsive, useTheme } from 'antd-style';
 import isEqual from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { floatItemNoBlur, floatStyle } from '../../components/floatIn';
+import { floatItemNoBlur, floatStyleTop } from '../../components/floatIn';
 import { useLiquidGlass, GLASS_PARAMS, GLASS_BG_OPACITY, GLASS_SATURATION } from '../../components/JadeGlass';
 // @ts-ignore 主题 store / selectors，深层路径无类型声明
 import { siteSelectors, useSiteStore } from 'dumi-theme-lobehub/dist/store';
@@ -69,6 +69,15 @@ export default memo(function Header() {
   const [scrolled, setScrolled] = useState(false);
   // 首屏「飘带飘入」只在首次加载播一次；之后跨 575 的形态切换走交叉淡入（不重播飘入）。
   const [entered, setEntered] = useState(false);
+  // 入场倾斜动画只在「加载时页面可见」才播：后台标签页 rAF 被冻结、旋转 spring 不前进，而 1.3s 后
+  // entered 翻转到 swap 变体会把旋转永久遗留在初值 → 切回前台时胶囊一直是斜的。故不可见加载时直接落位。
+  const [canEnter] = useState(
+    () => typeof document === 'undefined' || document.visibilityState === 'visible',
+  );
+  // 入场期间「关掉液态玻璃」：backdrop-filter:url(#位移) 很贵，元素移动/回弹时每帧重算 → 卡顿（用户反馈
+  // 「往上恢复时卡一下」）。入场用便宜的实色霜底(无 backdrop-filter)平滑播扭曲，落位后再点亮玻璃。
+  // 后台加载(canEnter=false)无入场、直接静止 → 立即上玻璃。
+  const [glassReady, setGlassReady] = useState(!canEnter);
 
   useEffect(() => {
     const onScroll = () => setScrolled((window.scrollY || 0) > 4);
@@ -80,6 +89,12 @@ export default memo(function Header() {
     const t = setTimeout(() => setEntered(true), 1300);
     return () => clearTimeout(t);
   }, []);
+  // 入场（含 200ms 延迟 + spring 回弹）大约 1.8s 落位，之后点亮液态玻璃。
+  useEffect(() => {
+    if (!canEnter) return; // 后台加载已是 glassReady
+    const t = setTimeout(() => setGlassReady(true), 1800);
+    return () => clearTimeout(t);
+  }, [canEnter]);
 
   // 桌面单胶囊的液态玻璃滤镜（hook 必须在任何提前 return 之前无条件调用）。
   const capsuleGlass = useLiquidGlass(GLASS_PARAMS);
@@ -123,6 +138,8 @@ export default memo(function Header() {
         };
 
   // 桌面单胶囊视觉（圆角 / 内缩 / 磨砂或玻璃）；顶部无描边无阴影，滚动后出现。定位/居中在 JSX 里补。
+  // glassReady 之前（入场播放中）用「无 backdrop-filter 的实色霜底」，避免昂贵的位移玻璃随 3D 回弹每帧重算而卡顿；
+  // 落位后切到真正的液态玻璃（background 走 0.2s 缓动，玻璃点亮自然）。
   const capsuleVisual: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
@@ -130,7 +147,12 @@ export default memo(function Header() {
     paddingInline: 10,
     borderRadius: 9999,
     transition: 'box-shadow 0.2s ease, background 0.2s ease',
-    ...decorate(capsuleGlass.supported, capsuleGlass.filterId),
+    ...(glassReady
+      ? decorate(capsuleGlass.supported, capsuleGlass.filterId)
+      : {
+          background: glassBg,
+          boxShadow: [rings, edgeRing, scrolled ? scrolledShadow : ''].filter(Boolean).join(', '),
+        }),
   };
 
   // 手机端单个胶囊药丸的「布局」部分（高度 50，左右内边距 7 使 36px 圆形按钮与圆头同心）；
@@ -146,18 +168,27 @@ export default memo(function Header() {
   };
 
   // 跨形态交叉淡入：桌面侧带轻微缩放（自身有模糊，transform 安全）；手机侧仅 opacity（避免残留 transform 掐断 pill 模糊）。
-  // 首屏首次加载：桌面播「飘带飘入」（与 Hero 一致），手机仅淡入（飘入的 transform 会留在 pill 祖先上，故避开）。
-  const desktopMotion = entered
-    ? {
-        initial: { opacity: 0, scale: 0.97 },
-        animate: { opacity: 1, scale: 1, transition: swap },
+  // 首屏首次加载：桌面播「飘带掀落」（floatItemNoBlur），手机仅淡入（飘入的 transform 会留在 pill 祖先上，故避开）。
+  // settled：最终静止态。swap/落位都显式把旋转/位移归零 —— 即便入场被中途切到后台冻结，回前台也必收敛、绝不残留倾斜。
+  const settled = { opacity: 1, scale: 1, y: 0, rotateX: 0, rotateZ: 0 };
+  const desktopMotion = !canEnter
+    ? // 后台加载：跳过入场，直接渲染在最终态（initial:false → 不播动画、不依赖 rAF），杜绝卡在倾斜。
+      {
+        initial: false,
+        animate: settled,
         exit: { opacity: 0, scale: 0.98, transition: { duration: 0.18, ease: 'easeOut' } },
       }
-    : {
-        initial: floatItemNoBlur.hidden,
-        animate: floatItemNoBlur.show,
-        exit: { opacity: 0, transition: { duration: 0.18 } },
-      };
+    : entered
+      ? {
+          initial: { opacity: 0, scale: 0.97 },
+          animate: { ...settled, transition: swap },
+          exit: { opacity: 0, scale: 0.98, transition: { duration: 0.18, ease: 'easeOut' } },
+        }
+      : {
+          initial: floatItemNoBlur.hidden,
+          animate: floatItemNoBlur.show,
+          exit: { opacity: 0, transition: { duration: 0.18 } },
+        };
   const mobileMotion = {
     initial: { opacity: 0 },
     animate: { opacity: 1, transition: entered ? swap : { duration: 0.5 } },
@@ -207,7 +238,7 @@ export default memo(function Header() {
               maxWidth: 'min(860px, 100%)',
               marginInline: 'auto',
               ...capsuleVisual,
-              ...floatStyle,
+              ...floatStyleTop,
             }}
             {...desktopMotion}
           >

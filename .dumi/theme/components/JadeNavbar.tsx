@@ -3,7 +3,7 @@
 //   - 「SDKs」做成 lobehub.com 那种「悬浮下拉 mega 卡片」：悬停展开，多列 + 图标 + 标题 + 描述。
 // 由 Header slot 以相对路径引用（不走 dumi/theme 别名，也不依赖 slot 覆盖注册，HMR 即生效）。
 // 路由/激活用 dumi 主包核心导出（Link / useLocation，主题自带 Navbar 也这么用），安全。
-import { createStyles } from 'antd-style';
+import { createStyles, useTheme } from 'antd-style';
 import { Link, useFullSidebarData, useLocation } from 'dumi';
 import { BookOpen, ChevronRight, Code2, Download } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -12,6 +12,7 @@ import { createPortal } from 'react-dom';
 // @ts-ignore 主题 store，深层路径无类型声明
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
+import { useLiquidGlass, GLASS_PARAMS, GLASS_SATURATION } from './JadeGlass';
 
 type SdkKey = 'web' | 'py' | 'py2' | 'ey' | 'vol';
 
@@ -419,6 +420,20 @@ export default memo(function JadeNavbar() {
   const nav = useSiteStore((s: any) => s.navData) || [];
   const { pathname } = useLocation();
   const fullSidebar = useFullSidebarData();
+  const theme = useTheme() as any;
+  // 下拉面板的「液态玻璃」：与标题栏胶囊同款位移折射；圆角对齐面板自身(18)。
+  // 注意「背景模糊铁律」：面板的 backdrop-filter 只会被「祖先」transform 掐断 → 故 scale 弹入动画必须放在
+  //   面板自身（自身 transform 不破坏自身 backdrop），定位层只动 left/top/opacity（见下方面板/定位层）。
+  const panelGlass = useLiquidGlass({ ...GLASS_PARAMS, borderRadius: 18 });
+  // 霜底「透明度 70%」= 不透明度 30%（按深浅模式取色：colorBgContainer 浅色白/深色暗，只是把 alpha 统一到 30%）。
+  // 足够通透才能看清液态玻璃折射（之前 50% 太实、把折射糊没了）。
+  const panelGlassStyle = panelGlass.supported
+    ? {
+        background: `color-mix(in srgb, ${theme.colorBgContainer} 68%, transparent)`,
+        backdropFilter: `url(#${panelGlass.filterId}) saturate(${GLASS_SATURATION})`,
+        WebkitBackdropFilter: 'saturate(180%) blur(16px)',
+      }
+    : {};
   // 共享下拉：active=当前展开的菜单；coords=面板 fixed 定位（落在触发器所在胶囊下方、并相对触发器居中）。
   const [active, setActive] = useState<'docs' | 'sdk' | null>(null);
   const [coords, setCoords] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
@@ -598,27 +613,40 @@ export default memo(function JadeNavbar() {
             {active && (
               <motion.div
                 key="jade-nav-dropdown"
-                animate={{ opacity: 1, scale: 1, left: coords.left, top: coords.top }}
+                // 定位层「任何时刻都不能有 transform 或 opacity<1」（祖先的 transform/opacity 都会掐断面板玻璃的
+                //   背景折射，导致「动画完才有玻璃」）→ 这里只动 left/top（非 transform、非 opacity）。
+                //   淡入(opacity) + 缩放(scale) 全部下放到「带玻璃的面板自身」。
+                animate={{ left: coords.left, top: coords.top }}
                 className={styles.ddPositioner}
-                exit={{ opacity: 0, scale: 0.95 }}
-                // iOS 风：从触发器正下方（top center）轻微缩放 + 淡入弹出；切换时整体平滑滑动到新触发器下。
-                initial={{ opacity: 0, scale: 0.95, left: coords.left, top: coords.top }}
+                initial={{ left: coords.left, top: coords.top }}
                 onMouseEnter={() => clearTimeout(closeTimer.current)}
                 onMouseLeave={scheduleClose}
-                style={{ transformOrigin: 'top center' }}
                 transition={{
-                  default: { type: 'spring', stiffness: 300, damping: 24 }, // scale：轻微回弹（iOS 手感）
-                  left: { type: 'spring', stiffness: 340, damping: 30 }, // 切换滑动
-                  top: { type: 'spring', stiffness: 340, damping: 30 },
-                  opacity: { duration: 0.16, ease: 'easeOut' },
+                  // 切换触发器时的「来回滑动」：用 duration+bounce 的弹簧，bounce 0.42 给明显过冲回弹 → iOS Q 弹手感。
+                  left: { type: 'spring', duration: 0.52, bounce: 0.42 },
+                  top: { type: 'spring', duration: 0.52, bounce: 0.42 },
                 }}
               >
                 <motion.div
+                  // iOS 风：从顶边中心淡入 + 轻微缩放弹入。opacity/scale 都在「面板自身」上 —— 自身的
+                  //   transform/opacity 不破坏自身 backdrop → 玻璃从出现第一帧就在（淡入/缩放过程中持续折射）。
+                  animate={{ opacity: 1, scale: 1 }}
                   className={styles.panel}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   layout="size"
-                  ref={panelRef}
-                  transition={{ type: 'spring', stiffness: 340, damping: 30 }}
+                  ref={(el) => {
+                    panelRef.current = el;
+                    panelGlass.ref(el);
+                  }}
+                  style={{ transformOrigin: 'top center', ...panelGlassStyle }}
+                  transition={{
+                    default: { type: 'spring', stiffness: 360, damping: 26 }, // scale 弹入（轻微回弹）
+                    layout: { type: 'spring', duration: 0.52, bounce: 0.42 }, // 尺寸随触发器切换 Q 弹形变，与滑动同手感
+                    opacity: { duration: 0.16, ease: 'easeOut' },
+                  }}
                 >
+                  {panelGlass.svg}
                   <AnimatePresence initial={false} mode="popLayout">
                     <motion.div
                       animate={{ opacity: 1 }}
