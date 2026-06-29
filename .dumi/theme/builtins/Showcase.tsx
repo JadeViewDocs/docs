@@ -4,6 +4,7 @@
 // 由 docs/showcase.md 以 <Showcase /> 内嵌（sidebar:false / toc:false，全宽居中呈现）。
 // 新增本地 builtin 需重启 dumi dev 才会被扫描注册（见 .dumi/tmp/appData.json 的别名表）。
 import { createStyles } from 'antd-style';
+import { Link } from 'dumi';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { memo } from 'react';
@@ -185,9 +186,16 @@ export default memo(function Showcase() {
             <div className={styles.body}>
               <h2 className={styles.name}>{c.name}</h2>
               <p className={styles.desc}>{c.desc}</p>
-              <a className={styles.cta} href={c.link} rel="noreferrer" target="_blank">
-                {t.cta} <ArrowUpRight size={16} />
-              </a>
+              {/* 站内产品页走 SPA 同标签跳转；外部案例仍新标签打开 */}
+              {String(c.link).startsWith('/') ? (
+                <Link className={styles.cta} to={c.link}>
+                  {t.cta} <ArrowUpRight size={16} />
+                </Link>
+              ) : (
+                <a className={styles.cta} href={c.link} rel="noreferrer" target="_blank">
+                  {t.cta} <ArrowUpRight size={16} />
+                </a>
+              )}
             </div>
           </motion.div>
         ))}

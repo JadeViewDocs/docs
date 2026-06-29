@@ -6,7 +6,7 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 
 const zh = {
   // 顶部导航项（按 link 映射，见 JadeNavbar）
-  nav: { docs: '文档', sdks: 'SDKs', showcase: '案例', releases: '发行版本' },
+  nav: { docs: '文档', sdks: 'SDKs', products: '产品', showcase: '案例', releases: '发行版本' },
   // 导航「文档」「SDKs」下拉
   navbar: {
     countSuffix: ' 篇', // {n} 篇
@@ -23,6 +23,10 @@ const zh = {
       api: { title: 'API', desc: '窗口、WebView、IPC、原生 UI 等完整 C API 参考。' },
     },
     download: { title: 'SDK 下载中心', desc: '获取各端 SDK 安装包与历史版本' },
+    products: {
+      jadepack: { title: 'JadePack', desc: '官方图形化打包工具：JAPK 混淆 / 签名加密与安装包构建。' },
+      jadeEc: { title: 'Jade EC 查看器', desc: '易语言 .ec 模块现代化查看器，三栏布局 + 多维度搜索。' },
+    },
   },
   // 首页 HomeExtra
   home: {
@@ -186,16 +190,92 @@ jade.on('backend-event', (data) => {});`,
       {
         name: 'Jade EC 查看器',
         desc: '易语言 .ec 模块文件现代化查看器，支持浏览子程序、DLL 命令、类、自定义数据类型、全局变量与常量；三栏布局、亚克力背景、深浅主题与多维度搜索。',
-        link: 'https://github.com/tuyangJs/Jade_ec',
+        link: '/jade-ec',
         image: '/showcase/jade-ec.jpg',
         badge: '',
       },
     ],
   },
+  jadepack: {
+    hero: {
+      eyebrow: '官方打包工具',
+      logo: '/product/jadepack.svg',
+      title: 'JadePack',
+      tagline: '把前端资源一键构建为 JAPK 资源包（混淆 / 签名加密），或生成 Windows 安装包。无需命令行，桌面客户端可视化操作。',
+      note: '按月付费 · Windows 10 / 11 · NSIS 安装包',
+      actions: [
+        { text: '下载 JadePack', link: 'https://store.jade.run/downloads/jadepack/latest', external: true, primary: true },
+        { text: '查看接入文档', link: '/docs/api/jadepack' },
+      ],
+    },
+    features: {
+      title: '核心能力',
+      sub: '从轻量混淆到签名加密，覆盖资源分发全链路。',
+      items: [
+        { icon: '🔒', title: '资源混淆', desc: '3 层可逆变换（XOR + 字节置换 + 位旋转），生成非明文混淆包，加载无需公钥，适合内部工具与原型分发。' },
+        { icon: '🛡️', title: '签名加密', desc: 'Ed25519 签名 + AES-256-GCM 加密双重保护，验证来源与完整性、防篡改，面向生产与商业分发。' },
+        { icon: '📦', title: '解包文件', desc: '可将 .node 原生模块等指定文件设为解包存储，不混淆 / 加密，便于从文件系统直接加载。' },
+        { icon: '🏗️', title: '编译安装包', desc: '一键打包为 NSIS 安装包，内含主程序、资源与 WebView2 运行时；压缩级别、图标、语言、快捷方式可配。' },
+      ],
+    },
+    integration: {
+      title: '与 JadeView 集成',
+      sub: 'JadePack 产出的 JAPK 包通过 JadeView API 加载。',
+      items: [
+        { code: 'set_protocol_service_path', title: '本地文件加载', desc: '注册本地 JAPK / 目录到自定义协议，拿到可直接打开的 URL', link: '/docs/api/japk' },
+        { code: 'JadeView_load_from_bytes', title: '从内存加载', desc: '直接从内存字节加载；签名包加载前用 set_public_key 设公钥', link: '/docs/api/japk-load-memory' },
+      ],
+    },
+    cta: {
+      title: '开始打包你的应用',
+      desc: '下载 JadePack，几步生成受保护的 JAPK 资源包与安装程序。',
+      action: { text: '下载 JadePack', link: 'https://store.jade.run/downloads/jadepack/latest', external: true },
+    },
+  },
+  jadeEc: {
+    hero: {
+      eyebrow: '易语言 · 模块查看器',
+      logo: '/product/jade-ec.svg',
+      title: 'Jade EC 查看器',
+      tagline: '易语言 .ec 模块文件的现代化查看器：解析浏览子程序、DLL 命令、类、数据类型、全局变量与常量，三栏布局 + 多维度搜索，像读 IDE 一样读模块。',
+      note: '基于 JadeView 构建 · 约 3MB 运行时 · 毫秒级启动',
+      actions: [
+        { text: '下载最新版', link: 'https://github.com/tuyangJs/Jade_ec/releases', external: true, primary: true },
+        { text: 'GitHub 源码', link: 'https://github.com/tuyangJs/Jade_ec', external: true },
+      ],
+    },
+    features: {
+      title: '核心功能',
+      sub: '解析、检索、跳转，一应俱全。',
+      items: [
+        { icon: '🗂️', title: '分类浏览', desc: '子程序、DLL 命令、类、自定义数据类型、全局变量、常量分区清晰，拖拽或双击 .ec 直接打开。' },
+        { icon: '🔍', title: '多维度搜索', desc: '按名称 / 类型 / 备注 / 方法 / 参数检索，空格分词搜多个关键词，多种匹配模式。' },
+        { icon: '⌨️', title: '命令面板', desc: 'Ctrl + P 跨所有分类模糊跳转任意符号，前缀 / 子串 / 子序列匹配，键盘上下选择。' },
+        { icon: '💡', title: '参数提示 / 跳转', desc: '参数类、返回类悬浮即得 VSCode 式类型提示，自定义类一键跳转到详情。' },
+        { icon: '🔗', title: '交叉引用', desc: '类与数据类型详情页列出所有被引用位置，配合类型跳转形成双向导航。' },
+        { icon: '⭐', title: '收藏 / 记忆', desc: '☆ 收藏常用项、记录搜索历史与导航位置，按文件 MD5 独立存储。' },
+      ],
+    },
+    shots: {
+      title: '界面一览',
+      sub: '现代化三栏布局，亚克力材质，深浅主题与可调侧边栏。',
+      items: [
+        { cap: '主界面 · 三栏布局', src: 'https://github.com/user-attachments/assets/364c856f-18ff-4d4c-8d8a-8ae4af2d1448' },
+        { cap: '多维度搜索 · 多模式 / 空格分词', src: 'https://github.com/user-attachments/assets/f0b8c5b2-2c24-4b3b-8d81-7a928de6d7d3' },
+        { cap: '背景材质与透明度', src: 'https://github.com/user-attachments/assets/f95f2a97-8c63-4fe7-b4a1-69e521e73ed9' },
+        { cap: '深色 / 浅色主题', src: 'https://github.com/user-attachments/assets/4647f635-d403-489c-8d1d-11600879b97d' },
+      ],
+    },
+    cta: {
+      title: '用现代方式阅读 .ec 模块',
+      desc: '下载 Jade EC 查看器，或在 GitHub 查看源码与更新日志。',
+      action: { text: '下载最新版', link: 'https://github.com/tuyangJs/Jade_ec/releases', external: true },
+    },
+  },
 };
 
 const en: typeof zh = {
-  nav: { docs: 'Docs', sdks: 'SDKs', showcase: 'Showcase', releases: 'Releases' },
+  nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', releases: 'Releases' },
   navbar: {
     countSuffix: ' docs', // {n} docs
     sdkGroupTitles: { frontend: 'Frontend & Python', more: 'More Languages' },
@@ -211,6 +291,10 @@ const en: typeof zh = {
       api: { title: 'API', desc: 'Complete C API reference: windows, WebView, IPC, native UI and more.' },
     },
     download: { title: 'SDK Download Center', desc: 'Get SDK installers and past versions for every platform' },
+    products: {
+      jadepack: { title: 'JadePack', desc: 'Official GUI packaging tool: JAPK obfuscation / signing and installer builds.' },
+      jadeEc: { title: 'Jade EC Viewer', desc: 'A modern viewer for E-Language .ec modules — three-column layout + search.' },
+    },
   },
   home: {
     features: [
@@ -369,11 +453,87 @@ jade.on('backend-event', (data) => {});`,
       {
         name: 'Jade EC Viewer',
         desc: 'A modern viewer for E-Language .ec module files — browse subroutines, DLL commands, classes, custom data types, globals and constants; with a three-column layout, acrylic background, light/dark themes and multi-dimensional search.',
-        link: 'https://github.com/tuyangJs/Jade_ec',
+        link: '/en-US/jade-ec',
         image: '/showcase/jade-ec.jpg',
         badge: '',
       },
     ],
+  },
+  jadepack: {
+    hero: {
+      eyebrow: 'Official packaging tool',
+      logo: '/product/jadepack.svg',
+      title: 'JadePack',
+      tagline: 'Turn your frontend assets into JAPK packages (obfuscated / signed & encrypted) or a Windows installer in one click — a visual desktop client, no command line.',
+      note: 'Monthly subscription · Windows 10 / 11 · NSIS installer',
+      actions: [
+        { text: 'Download JadePack', link: 'https://store.jade.run/downloads/jadepack/latest', external: true, primary: true },
+        { text: 'Integration docs', link: '/docs/api/jadepack' },
+      ],
+    },
+    features: {
+      title: 'Capabilities',
+      sub: 'From lightweight obfuscation to signed encryption — the whole distribution chain.',
+      items: [
+        { icon: '🔒', title: 'Obfuscation', desc: 'A 3-layer reversible transform (XOR + byte permutation + bit rotation) produces a non-plaintext package; loads without a public key, ideal for internal tools and prototypes.' },
+        { icon: '🛡️', title: 'Sign & encrypt', desc: 'Ed25519 signature + AES-256-GCM encryption verify origin and integrity and prevent tampering — for production and commercial distribution.' },
+        { icon: '📦', title: 'Unpacked files', desc: 'Mark files such as .node native modules as unpacked — neither obfuscated nor encrypted — so they load straight from the filesystem.' },
+        { icon: '🏗️', title: 'Build installer', desc: 'Package into an NSIS installer with the main program, assets and WebView2 runtime; configurable compression, icon, language and shortcuts.' },
+      ],
+    },
+    integration: {
+      title: 'Integrates with JadeView',
+      sub: 'JAPK packages from JadePack load through the JadeView API.',
+      items: [
+        { code: 'set_protocol_service_path', title: 'Load from a local file', desc: 'Register a local JAPK / directory to the custom protocol and get a ready-to-open URL', link: '/docs/api/japk' },
+        { code: 'JadeView_load_from_bytes', title: 'Load from memory', desc: 'Load straight from in-memory bytes; set a public key before loading signed packages', link: '/docs/api/japk-load-memory' },
+      ],
+    },
+    cta: {
+      title: 'Start packaging your app',
+      desc: 'Download JadePack and produce protected JAPK packages and an installer in a few steps.',
+      action: { text: 'Download JadePack', link: 'https://store.jade.run/downloads/jadepack/latest', external: true },
+    },
+  },
+  jadeEc: {
+    hero: {
+      eyebrow: 'E-Language · Module viewer',
+      logo: '/product/jade-ec.svg',
+      title: 'Jade EC Viewer',
+      tagline: 'A modern viewer for E-Language .ec module files: browse subroutines, DLL commands, classes, data types, globals and constants — a three-column layout with multi-dimensional search, so you read a module like in an IDE.',
+      note: 'Built with JadeView · ~3 MB runtime · millisecond startup',
+      actions: [
+        { text: 'Download latest', link: 'https://github.com/tuyangJs/Jade_ec/releases', external: true, primary: true },
+        { text: 'Source on GitHub', link: 'https://github.com/tuyangJs/Jade_ec', external: true },
+      ],
+    },
+    features: {
+      title: 'Core features',
+      sub: 'Parse, search and jump — everything you need.',
+      items: [
+        { icon: '🗂️', title: 'Browse by category', desc: 'Subroutines, DLL commands, classes, custom data types, globals and constants, clearly sectioned; drag or double-click an .ec to open.' },
+        { icon: '🔍', title: 'Multi-dimensional search', desc: 'Search by name / type / remark / method / parameter, multi-keyword with spaces, multiple matching modes.' },
+        { icon: '⌨️', title: 'Command palette', desc: 'Ctrl + P fuzzy-jumps to any symbol across all categories — prefix / substring / subsequence — with keyboard navigation.' },
+        { icon: '💡', title: 'Hints & jumps', desc: 'Hover any parameter/return class for VSCode-style type hints; click a custom class to jump to its detail.' },
+        { icon: '🔗', title: 'Cross-references', desc: 'Class and data-type pages list every place a type is referenced, pairing with type jumps for two-way navigation.' },
+        { icon: '⭐', title: 'Favorites & memory', desc: 'Star (☆) frequent items and remember search history and navigation position, stored per file by MD5.' },
+      ],
+    },
+    shots: {
+      title: 'A look at the interface',
+      sub: 'A modern three-column layout with acrylic material, light/dark themes and a resizable sidebar.',
+      items: [
+        { cap: 'Main interface · three-column layout', src: 'https://github.com/user-attachments/assets/364c856f-18ff-4d4c-8d8a-8ae4af2d1448' },
+        { cap: 'Search · multiple modes / space keywords', src: 'https://github.com/user-attachments/assets/f0b8c5b2-2c24-4b3b-8d81-7a928de6d7d3' },
+        { cap: 'Background material & opacity', src: 'https://github.com/user-attachments/assets/f95f2a97-8c63-4fe7-b4a1-69e521e73ed9' },
+        { cap: 'Light / Dark theme', src: 'https://github.com/user-attachments/assets/4647f635-d403-489c-8d1d-11600879b97d' },
+      ],
+    },
+    cta: {
+      title: 'Read .ec modules the modern way',
+      desc: 'Download Jade EC Viewer, or browse the source and changelog on GitHub.',
+      action: { text: 'Download latest', link: 'https://github.com/tuyangJs/Jade_ec/releases', external: true },
+    },
   },
 };
 

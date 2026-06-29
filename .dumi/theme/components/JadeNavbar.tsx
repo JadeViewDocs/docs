@@ -66,6 +66,13 @@ const DOCS_SECTIONS = [
   },
 ];
 
+// 「产品」下拉的两张卡片（复用「文档」的 docBig 卡壳）：JadePack / Jade EC 查看器。
+// 标题/描述走 useT()（见 ../locales/strings 的 navbar.products）；logo 为各产品自带的 app 图标（public/product/）。
+const PRODUCTS = [
+  { key: 'jadepack' as const, link: '/jadepack', logo: '/product/jadepack.svg' },
+  { key: 'jadeEc' as const, link: '/jade-ec', logo: '/product/jade-ec.svg' },
+];
+
 const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
   // 玻璃胶囊很通透，导航文字必须高对比：深色纯白、浅色纯黑，避免与背后折射画面糊在一起。
   const fg = isDarkMode ? '#fff' : '#000';
@@ -400,6 +407,17 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
     line-height: 1.5;
     color: ${token.colorTextSecondary};
   `,
+  prodInner: css`
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  `,
+  prodLogo: css`
+    width: 46px;
+    height: 46px;
+    margin-bottom: 12px;
+    border-radius: 11px;
+  `,
   };
 });
 
@@ -413,6 +431,7 @@ export default memo(function JadeNavbar() {
     const l = String(item.link || '');
     if (l.startsWith('/docs')) return t.nav.docs;
     if (l === '/sdk' || item.title === 'SDKs') return t.nav.sdks;
+    if (l === '/jadepack' || item.title === '产品') return t.nav.products;
     if (l === '/showcase') return t.nav.showcase;
     if (l === '/releases') return t.nav.releases;
     return item.title;
@@ -435,13 +454,13 @@ export default memo(function JadeNavbar() {
       }
     : {};
   // 共享下拉：active=当前展开的菜单；coords=面板 fixed 定位（落在触发器所在胶囊下方、并相对触发器居中）。
-  const [active, setActive] = useState<'docs' | 'sdk' | null>(null);
+  const [active, setActive] = useState<'docs' | 'sdk' | 'products' | null>(null);
   const [coords, setCoords] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const [mounted, setMounted] = useState(false);
   const closeTimer = useRef<any>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const centerXRef = useRef(0); // 当前激活触发器的水平中心（用于把面板居中其下）
-  const widthCache = useRef<Record<'docs' | 'sdk', number>>({ docs: 510, sdk: 474 }); // 面板宽度缓存（实测自愈）
+  const widthCache = useRef<Record<'docs' | 'sdk' | 'products', number>>({ docs: 510, sdk: 474, products: 510 }); // 面板宽度缓存（实测自愈）
   useEffect(() => setMounted(true), []);
 
   const matches = (link: string) => {
@@ -449,6 +468,7 @@ export default memo(function JadeNavbar() {
     return pathname === link || pathname.startsWith(link + '/');
   };
   const sdkActive = SDK_LINKS.some((l) => matches(l));
+  const productsActive = ['/jadepack', '/jade-ec'].some((l) => matches(l));
 
   // 「文档」项链接到 /docs/spec，但需在整个文档主路由（含 /docs/api 子分区）下都高亮。
   const itemActive = (link: string) =>
@@ -463,11 +483,13 @@ export default memo(function JadeNavbar() {
 
   const isSdk = (item: any) => item.title === 'SDKs' || item.link === '/sdk';
   const isDocs = (item: any) => String(item.link || '').startsWith('/docs');
-  const menuOf = (item: any): 'docs' | 'sdk' | null => (isSdk(item) ? 'sdk' : isDocs(item) ? 'docs' : null);
+  const isProducts = (item: any) => item.title === '产品' || item.link === '/jadepack';
+  const menuOf = (item: any): 'docs' | 'sdk' | 'products' | null =>
+    isSdk(item) ? 'sdk' : isProducts(item) ? 'products' : isDocs(item) ? 'docs' : null;
 
   // 悬停某个带下拉的触发器：测量其所在胶囊底边 → 面板定位到「胶囊下方 12px」、并相对触发器水平居中。
   // 切换菜单时 active/coords 变化驱动面板滑动 + 内容交叉淡入（见下方共享面板）。
-  const openMenu = (key: 'docs' | 'sdk', el: HTMLElement) => {
+  const openMenu = (key: 'docs' | 'sdk' | 'products', el: HTMLElement) => {
     clearTimeout(closeTimer.current);
     const cap = (el.closest('.jade-capsule-header') as HTMLElement) || el;
     const tr = el.getBoundingClientRect();
@@ -577,6 +599,24 @@ export default memo(function JadeNavbar() {
     </div>
   );
 
+  // 「产品」下拉：复用「文档」的卡壳（docBig），展示各产品自带 app 图标 + 标题/描述。
+  const productsCard = (
+    <div className={styles.docCard}>
+      {PRODUCTS.map((p) => (
+        <Link key={p.link} className={styles.docBig} to={L(p.link)}>
+          <div className={styles.prodInner}>
+            <img className={styles.prodLogo} src={p.logo} alt="" />
+            <span className={styles.docCardTitle}>
+              {t.navbar.products[p.key].title}
+              <ChevronRight className={cx(styles.docArrow, 'jade-doc-arrow')} size={15} />
+            </span>
+            <span className={styles.docCardDesc}>{t.navbar.products[p.key].desc}</span>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+
   return (
     <nav className={styles.nav}>
       {nav.map((item: any) => {
@@ -584,7 +624,7 @@ export default memo(function JadeNavbar() {
         const menu = menuOf(item);
         if (menu) {
           // 带下拉的触发器（文档 / SDKs）：悬停打开共享面板；点击仍按链接跳转。
-          const itemActiveNow = menu === 'sdk' ? sdkActive : itemActive(item.link);
+          const itemActiveNow = menu === 'sdk' ? sdkActive : menu === 'products' ? productsActive : itemActive(item.link);
           return (
             <Link
               key={key}
@@ -656,7 +696,7 @@ export default memo(function JadeNavbar() {
                       onClick={() => setActive(null)}
                       transition={{ duration: 0.16 }}
                     >
-                      {active === 'docs' ? docsCard : megaCard}
+                      {active === 'docs' ? docsCard : active === 'products' ? productsCard : megaCard}
                     </motion.div>
                   </AnimatePresence>
                 </motion.div>

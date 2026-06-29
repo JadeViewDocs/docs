@@ -12,6 +12,7 @@ JadePack is the official graphical desktop client released by JadeView, used for
 
 <div className="jv-cta-row">
   <a href="https://store.jade.run/downloads/jadepack/latest" target="_blank" rel="noopener noreferrer" className="jv-cta-button">Download JadePack</a>
+  <a href="/en-US/jadepack" className="jv-cta-button secondary">Product page</a>
 </div>
 
 ---

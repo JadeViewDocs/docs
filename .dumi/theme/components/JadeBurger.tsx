@@ -64,6 +64,17 @@ export default memo(function JadeBurger() {
       if (key === activePath && treeChildren.length) {
         return { children: treeChildren, key, label: item.title };
       }
+      // 「产品」：可展开，列出 JadePack / Jade EC 两个产品页。
+      if (item.title === '产品' || item.link === '/jadepack') {
+        return {
+          key,
+          label: item.title,
+          children: [
+            { key: 's-/jadepack', label: (<Link onClick={close} to="/jadepack">JadePack</Link>) },
+            { key: 's-/jade-ec', label: (<Link onClick={close} to="/jade-ec">Jade EC 查看器</Link>) },
+          ],
+        };
+      }
       return {
         key,
         label: (

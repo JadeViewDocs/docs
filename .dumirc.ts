@@ -114,6 +114,49 @@ main:has(.layoutkit-flexbox[style*="64vh"]) {
 }
 `,
     `
+/* 产品 / 文档页 CTA 按钮：.jv-cta-row 容器 + .jv-cta-button 主按钮（/.secondary 次按钮）。
+   供产品页(/jadepack、/jade-ec)使用，并补齐 api/jadepack 文档里早已使用却从未定义的样式。
+   品牌色与 Showcase / footer 一致(#007ee5)，取色用 antd v6 cssVar 适配深浅。 */
+.jv-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0 8px;
+}
+.jv-cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff !important;
+  text-decoration: none !important;
+  background: #007ee5;
+  border: 1px solid transparent;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.jv-cta-button:hover {
+  color: #fff !important;
+  background: #0a6fc2;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 126, 229, 0.28);
+}
+.jv-cta-button.secondary {
+  color: var(--ant-color-text) !important;
+  background: transparent;
+  border-color: var(--ant-color-border);
+}
+.jv-cta-button.secondary:hover {
+  color: var(--ant-color-text) !important;
+  background: var(--ant-color-fill-quaternary);
+  border-color: var(--ant-color-border-secondary);
+  box-shadow: none;
+}
+`,
+    `
 /* 底栏氛围背景（全局 CSS，不用 slot 覆盖，避免 dev 'dumi' 解析问题）：
    ::before 大尺寸渐变 + background-position 动画做流动；顶部 mask 渐隐与上方页面衔接。 */
 footer {
@@ -353,12 +396,16 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
     socialLinks: {
       github: 'https://github.com/JadeViewDocs/JadeView',
     },
+    // 去掉导航栏自动注入的「首页」项（lobehub StoreUpdater 默认会前置 getHomeNav）：
+    // 点击左上角 Logo 已可回首页，无需再占一个导航位。
+    hideHomeNav: true,
     // 顶部导航：文档指南(/docs/spec) 与 API(/docs/api) 收纳进单一「文档」主入口（子路由）；
     //   「文档」内部的分区切换（文档指南 / API）由 Sidebar slot 顶部的分区按钮负责（见参考图）。
     // 注意：lobehub 主题导航为扁平 Tabs，不支持 children 下拉；SDKs 仍为单链接（指向 /sdk 总览）。
     nav: [
       { title: '文档', link: '/docs/spec' },
       { title: 'SDKs', link: '/sdk' },
+      { title: '产品', link: '/jadepack' },
       { title: '案例', link: '/showcase' },
       { title: '发行版本', link: '/releases' },
     ],
