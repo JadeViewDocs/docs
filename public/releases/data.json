@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-06-30T19:49:45.695Z",
+  "updated_at": "2026-07-01T19:48:22.404Z",
   "releases": [
+    {
+      "tag_name": "v2.3.0-beta.9",
+      "name": "v2.3.0-beta.9 (Build 26G01)",
+      "published_at": "2026-07-01T11:50:43Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.3.0-beta.9",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.3.0-beta.9",
+      "body": "- **取窗口ID**：新增  ` get_window_id` 根据 HWND 获取窗口 ID\n\n\n- **获取窗口句柄**：调整  ` get_window_hwnd` 从本版本起，可以获取所有方法创建窗口的句柄。\\n\\n---\\n本版本的文档参考在 beta 目录中\n"
+    },
     {
       "tag_name": "v2.3.0-beta.8",
       "name": "v2.3.0-beta.8 (Build 26F13)",
