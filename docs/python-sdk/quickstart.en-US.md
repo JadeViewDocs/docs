@@ -8,8 +8,8 @@ This guide will help you quickly understand how to use the JadeUI Python SDK to 
 
 ## Requirements
 
-- Python 3.8+
-- Windows 10+ (current version)
+- Python 3.7+
+- Windows 10/11
 - WebView2 Runtime
 
 ## Install
@@ -115,9 +115,8 @@ ipc = IPCManager()
 @ipc.on("greet")
 def handle_greet(window_id, message):
     print(f"Received message: {message}")
-    # Send a response to the frontend
-    ipc.send(window_id, "response", f"Hello from Python! You said: {message}")
-    return 1
+    # jade.invoke receives this return value directly
+    return f"Hello from Python! You said: {message}"
 
 @app.on_ready
 def on_ready():
@@ -131,12 +130,13 @@ app.run()
 Frontend JavaScript code:
 
 ```javascript
-// Send a message to Python
-window.jade.ipcSend('greet', 'Hello from JavaScript!');
+// Send a message to Python and wait for the return value
+const result = await jade.invoke('greet', 'Hello from JavaScript!');
+console.log('Response received:', result);
 
-// Receive Python's response
-window.jade.ipcMain('response', function(content) {
-    console.log('Response received:', content);
+// Receive messages pushed from Python
+jade.on('response', function(content) {
+    console.log('Push received:', content);
 });
 ```
 
@@ -240,6 +240,10 @@ window = Window(
     
     # PostMessage communication (requires 1.0.2+)
     postmessage_whitelist="https://example.com,https://trusted.com",  # Origins allowed to receive PostMessage
+
+    # v2.3 window integration
+    skip_taskbar=False,      # Keep out of taskbar / Alt-Tab
+    no_activate=False,       # Do not steal focus when shown or clicked
 )
 ```
 
@@ -420,7 +424,11 @@ window.set_size(1280, 720)
 window.set_position(100, 100)
 window.center()
 window.set_always_on_top(True)
+window.set_skip_taskbar(True)       # v2.3: hide from taskbar / Alt-Tab
+window.set_no_activate(True)        # v2.3: do not steal focus
+window.set_level("topmost")         # v2.3: topmost / normal / bottom / desktop
 window.set_resizable(False)
+print(window.get_hwnd())            # v2.3: regular windows can return HWND
 
 # Theme and appearance
 window.set_theme(Theme.DARK)
@@ -429,6 +437,70 @@ window.set_backdrop(Backdrop.MICA)  # Windows 11 effect
 # WebView operations
 window.load_url("https://example.com")
 window.execute_js("console.log('Hello from Python!')")
+```
+
+## v2.3 Feature Quick Tour
+
+### YAML Storage
+
+`Storage` writes YAML files under JadeView's `data_directory`. Use it after `app.on_ready` so that the native layer and data directory are ready.
+
+```python
+from jadeui import Storage
+
+Storage.set("settings", "user.name", "JadeUI")
+Storage.set("settings", "window", {"width": 1024, "height": 768})
+
+print(Storage.get("settings", "user.name"))
+print(Storage.keys("settings", "window"))
+print(Storage.length("settings", "window"))
+```
+
+### System Integration
+
+```python
+import sys
+from jadeui import System
+
+print(System.jadeview_version())
+print(System.webview_version())
+print(System.get_login_autostart())
+print(System.ntp_now())  # UTC milliseconds; returns None on network failure
+
+icon_url = System.get_file_icon(sys.executable, size=64, window_id=window.id or 0)
+```
+
+### Tray, Hotkeys, and Clipboard
+
+```python
+from jadeui import Clipboard, HotKey, Tray
+
+Clipboard.write_text("Hello JadeUI")
+print(Clipboard.read_text())
+
+HotKey.register("Ctrl+Alt+J", lambda: window.flash(3))
+
+tray = Tray()
+tray.set_tooltip("JadeUI App")
+tray.set_menu([
+    {"key": "show", "label": "Show window", "on_click": lambda: window.show()},
+    {"key": "quit", "label": "Quit", "dangerous": True, "on_click": app.quit},
+])
+tray.show()
+```
+
+### Drag and Drop
+
+The low-level JadeView 2.x event is `drag-drop`, with `enter`, `over`, `drop`, and `leave` phases. `file-drop` remains as a compatibility wrapper for the final drop only.
+
+```python
+@window.on("drag-drop")
+def on_drag_drop(data):
+    print(data["type"], data.get("paths", []))
+
+@window.on_file_dropped
+def on_file_drop(files, x, y):
+    print(files, x, y)
 ```
 
 ## Complete Example
@@ -453,8 +525,7 @@ def handle_get_data(window_id, message):
         "status": "success",
         "items": ["Python", "JadeUI", "WebView"]
     }
-    ipc.send(window_id, "data-response", json.dumps(response))
-    return 1
+    return json.dumps(response)
 
 # Window action handler
 @ipc.on("windowAction")
@@ -580,7 +651,7 @@ Notification.error("Title", "Content")
 
 ## Next Steps
 
-- See the [API Reference](./reference/methods.mdx) for detailed API documentation
-- Learn about [Application Packaging](./packaging.mdx) to package your app into a standalone .exe file
+- See the [API Reference](./reference/methods) for detailed API documentation
+- Learn about [Application Packaging](./packaging) to package your app into a standalone .exe file
 - Explore the `Router` class to build complex multi-page applications
 - Learn to use the Mica/Acrylic effects of Windows 11
