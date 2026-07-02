@@ -9,8 +9,9 @@ This guide will help you quickly understand how to use the JadeUI Python SDK to 
 ## Requirements
 
 - Python 3.7+
-- Windows 10/11
-- WebView2 Runtime
+- Windows 10/11 + WebView2 Runtime
+- Linux x64 / arm64 + GTK / WebKitGTK desktop runtime
+- Linux x86 and macOS do not have SDK native library support yet
 
 ## Install
 
@@ -139,6 +140,10 @@ jade.on('response', function(content) {
     console.log('Push received:', content);
 });
 ```
+
+:::warning{title="Known Linux / WSLg IPC Limitation"}
+With JadeView v2.3.0-beta.9 Build 26G01, WSLg validation shows that Linux `libJadeView.so` invokes the Python handler, but `jade.invoke(channel, payload)` passes literal `null` as the message and may reject the frontend Promise even when the handler returns. Use `examples/linux_demo` in the SDK repository to diagnose Linux environments. Windows usage remains as shown above.
+:::
 
 ### Using the Routing System
 

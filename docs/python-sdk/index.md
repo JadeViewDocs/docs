@@ -69,9 +69,10 @@ JadeUI Python SDK 采用以下技术架构：
 ## 系统要求
 
 - **Python 版本**：Python 3.7+
-- **操作系统**：Windows 10/11
-- **运行时**：WebView2 Runtime (Windows)
-- **Python 架构**：支持 x86 / x64 / arm64。SDK 会按当前 Python 解释器架构下载并加载匹配的 JadeView DLL。
+- **操作系统**：Windows 10/11；Linux x64 / arm64（v2.3.0-beta.9 起 SDK 可下载并加载 `libJadeView.so`）
+- **运行时**：Windows 需要 WebView2 Runtime；Linux 需要可用的 GTK / WebKitGTK 桌面运行环境
+- **Python 架构**：Windows 支持 x86 / x64 / arm64；Linux 支持 x64 / arm64。SDK 会按当前 Python 解释器架构下载并加载匹配的 JadeView 原生库。
+- **暂不支持**：Linux x86 与 macOS 暂无上游发行资产，SDK 不声明支持。
 
 ## 版本与 DLL 更新规则
 
@@ -79,6 +80,10 @@ JadeUI SDK 会自动下载已适配的 JadeView DLL。当前版本适配 `v2.3.0
 
 :::warning{title="兼容性边界"}
 自动更新只限同一 API 版本 / release tag 内的 build 修订号。类似 `2.2 -> 2.3`、`2.3 -> 2.4` 这类 minor/major 升级可能包含 ABI 或行为变化，需要 SDK 明确适配后再升级。
+:::
+
+:::warning{title="Linux IPC 已知限制"}
+在 JadeView v2.3.0-beta.9 Build 26G01 的 WSLg 验证中，Linux `libJadeView.so` 的 `jade.invoke(channel, payload)` 存在上游 bridge 问题：payload 到 Python 侧会变成字面量 `null`，且 handler 返回值可能无法 resolve 到前端 Promise。`ipc.send()` / `jade.on()` 推送通道可用。需要排查 Linux 环境时请运行 SDK 仓库的 `examples/linux_demo`。
 :::
 
 ## 安装方式

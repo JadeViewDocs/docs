@@ -9,8 +9,9 @@ order: 1
 ## 环境要求
 
 - Python 3.7+
-- Windows 10/11
-- WebView2 Runtime
+- Windows 10/11 + WebView2 Runtime
+- Linux x64 / arm64 + GTK / WebKitGTK 桌面运行环境
+- Linux x86 与 macOS 暂无 SDK 原生库支持
 
 ## 安装
 
@@ -139,6 +140,10 @@ jade.on('response', function(content) {
     console.log('收到推送:', content);
 });
 ```
+
+:::warning{title="Linux / WSLg IPC 已知限制"}
+在当前适配的 JadeView v2.3.0-beta.9 Build 26G01 中，Linux `libJadeView.so` 的 `jade.invoke(channel, payload)` 在 WSLg 下会触发 Python handler，但 payload 会以字面量 `null` 到达，且返回值可能导致前端 Promise 报 `invoke 调用失败`。如果需要验证 Linux IPC，请先运行 SDK 仓库的 `examples/linux_demo`；普通 Windows 示例仍按上面的写法使用。
+:::
 
 ### 使用路由系统
 
