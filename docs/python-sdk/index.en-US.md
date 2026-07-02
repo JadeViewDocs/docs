@@ -4,7 +4,7 @@ order: 0
 
 # Introduction
 
-The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, and Web front-end integration based on JadeView WebView technology.
+The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, system integration, and Web front-end integration based on JadeView WebView technology. The current SDK is aligned with JadeView **v2.3.0-beta.9 (Build 26G01)**.
 
 ## What is the JadeUI Python SDK
 
@@ -18,6 +18,10 @@ The JadeUI Python SDK is an object-oriented Python library that gives Python dev
 - **Local server**: The `LocalServer` class provides a built-in HTTP server for hosting Web content
 - **Routing system**: The `Router` class provides a backend-driven routing system that supports built-in and custom templates
 - **Event system**: The `EventEmitter` class provides a flexible mechanism for subscribing to and publishing events
+- **Dialogs and notifications**: `Dialog` and `Notification` wrap system file dialogs, message boxes, and desktop notifications
+- **System integration**: `Tray`, `HotKey`, `Clipboard`, and `System` support tray icons, global shortcuts, clipboard access, system paths, display info, and version queries
+- **YAML storage**: `Storage` wraps the JadeView 2.3 YAML persistence APIs
+- **Window enhancements**: DevTools, zoom, taskbar progress/flash, content protection, window levels, skip taskbar, no activate, and HWND-to-window-id lookup
 
 ## Use Cases
 
@@ -64,9 +68,23 @@ The JadeUI Python SDK uses the following technical architecture:
 
 ## System Requirements
 
-- **Python version**: Python 3.8+
-- **Operating system**: Windows 10+ (current version)
-- **Runtime**: WebView2 Runtime (Windows)
+- **Python version**: Python 3.7+
+- **Operating system**: Windows 10/11; Linux x64 / arm64 (starting with v2.3.0-beta.9, the SDK can download and load `libJadeView.so`)
+- **Runtime**: WebView2 Runtime on Windows; a working GTK / WebKitGTK desktop runtime on Linux
+- **Python architecture**: Windows supports x86 / x64 / arm64; Linux supports x64 / arm64. The SDK downloads and loads the matching JadeView native library for the active Python interpreter architecture.
+- **Not supported**: Linux x86 and macOS do not have upstream release assets yet, so the SDK does not declare support for them.
+
+## Version and DLL Update Rules
+
+JadeUI automatically downloads the adapted JadeView DLL. The current SDK targets `v2.3.0-beta.9` and may select the latest build within the same release tag, such as a later build after `26G01`.
+
+:::warning{title="Compatibility Boundary"}
+Automatic updates are limited to build revisions within the same API version / release tag. Minor or major jumps such as `2.2 -> 2.3` or `2.3 -> 2.4` may include ABI or behavior changes and require an explicit SDK adaptation first.
+:::
+
+:::warning{title="Known Linux IPC Limitation"}
+In WSLg validation with JadeView v2.3.0-beta.9 Build 26G01, the Linux `libJadeView.so` bridge has an upstream issue with `jade.invoke(channel, payload)`: payloads arrive in Python as literal `null`, and handler return values may fail to resolve the frontend Promise. The push path (`ipc.send()` / `jade.on()`) works. Use `examples/linux_demo` in the SDK repository to diagnose Linux environments.
+:::
 
 ## Installation
 
