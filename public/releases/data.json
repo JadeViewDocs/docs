@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-03T19:18:07.606Z",
+  "updated_at": "2026-07-04T19:08:14.828Z",
   "releases": [
     {
       "tag_name": "v2.3.0-beta.9",
@@ -72,6 +72,15 @@
       "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.3.0-beta.2",
       "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.3.0-beta.2",
       "body": "- **YAML 存储 API 扩展**\n  - 新增 `yaml_set_str` / `yaml_get_str`：强制字符串类型存储与读取\n  - 新增 `yaml_get_all`：读取整个 YAML 文件内容\n  - 新增 `yaml_has`：检查指定路径是否存在\n  - 新增 `yaml_delete` / `yaml_clear` / `yaml_delete_file`：路径删除、文件清空、文件删除\n  - 新增 `yaml_keys`：列出指定路径下的所有 key\n  - 新增 `yaml_len`：返回数组长度或对象 key 数量\n- **YAML 路径语法增强**\n  - `yaml_get` / `yaml_set` 支持数组下标语法 `[N]`\n  - `yaml_get` 支持两阶段查询：buffer 不足时返回所需字节数（含 NUL）\n- **窗口事件拦截**\n  - drag-drop `Enter` 事件支持同步拦截，宿主返回非空指针拒绝拖拽\n  - drag-drop `Drop` 事件支持同步消费，宿主返回非空指针表示已处理\n  - `Over` / `Leave` 保持异步通知\n  - 无回调注册时行为不变（兼容现有逻辑）\n- **IPC 通信优化**\n  - `invoke` 与广播消息共用发送路径，减少重复封装\n  - 前端消息入口收敛到统一 dispatcher，取消多入口分发\n  - 高频小事件合并发送：微任务批处理 flush，减少调度开销\n  - 外部 `jade.invoke` / `jade.on` 调用方式不变，旧消息形态继续兼容\n- **NTP时间获取**\n  - 新增 `jade_time_now` API，获取当前网络时间戳（UTC毫秒），北京时间需+8H\n\n\n- 修复 YAML 中间节点覆盖问题：非映射且非空时返回 `-2`，不再覆盖\n- 修复 YAML 序列化失败时清空文件的问题：失败返回 `-1`，不写盘\n- 修复 YAML 非原子写入：改用临时文件 + rename，Windows 下增加重试\n- 修复 YAML 无文件锁问题：使用 `CreateFileW` + `LockFileEx`\n- 修复 YAML CString NUL 截断问题：失败时返回 `-1`\n\n\n- `yaml_get` / `yaml_set` 返回值新增负数错误码语义\n  - `-1` IO 错误 / `-2` 类型不匹配 / `-3` 目标已存在 / `-4` 格式解析失败\n- `yaml_set` 自动解析数值与布尔类型，`yaml_set_num` / `yaml_set_bool` 合并到 `yaml_set`\n- 迁移 `serde_yaml` → `serde_yml`\n\n\n- `jade.invoke` 路径优化，预期提升 5% \\~ 20%\n- 广播消息路径收敛，预期提升 20% \\~ 60%\n- 高频小事件合并发送，消息数减少约 50% \\~ 90%\n\n> 收益最明显的场景：多窗口广播、高频状态同步、日志/进度/拖拽类小消息、大量连续触发的 UI 事件。\\n\\n---\\n本版本的文档参考在 beta 目录中\n"
+    },
+    {
+      "tag_name": "v2.2.6",
+      "name": "v2.2.6 (Build 26G02)",
+      "published_at": "2026-07-04T02:39:56Z",
+      "prerelease": false,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.2.6",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.2.6",
+      "body": "- 修复 Win10 系统下无边框窗口在 WM_SIZE 消息处理中错误执行 DwmExtendFrameIntoClientArea 的问题，该问题会导致无边框窗口帧显示异常。\n"
     },
     {
       "tag_name": "v2.2.5",
