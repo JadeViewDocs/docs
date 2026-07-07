@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-07-06T19:52:39.764Z",
+  "updated_at": "2026-07-07T19:52:21.209Z",
   "releases": [
+    {
+      "tag_name": "v2.3.0-beta.10",
+      "name": "v2.3.0-beta.10 (Build 26G01)",
+      "published_at": "2026-07-07T12:45:33Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.3.0-beta.10",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.3.0-beta.10",
+      "body": "- **Linux `jade.invoke` 通讯不可用**：Linux 下 handler 收到的 payload 恒为字面量 `\"null\"`（与实际传入内容无关），且前端 Promise 一律 reject（`invoke 调用失败`）。本版本重构了 Linux 下的 invoke 传输通道，字符串 / 对象 / 数组 / 数字 / 布尔 / null / 中文 / emoji / 特殊字符等各类型 payload 均正确送达，Promise 正常 resolve。\n- **大 payload 传输**：invoke 传输大数据时自动分片，实测 100KB / 1MB payload 及 10 路并发调用均完整可靠；纯中文等多字节内容同样不受影响。调用方式不变，无需任何适配。\n- **drag-drop 事件 enter/drop 双触发**：宿主注册 drag-drop 回调且不拦截时，`enter` / `drop` 会收到两次重复事件。现每次只触发一次；拦截语义不变（`enter` 返回非空指针拒绝拖拽、`drop` 返回非空指针表示已消费），`over` / `leave` 行为不变。\\n\\n---\\n本版本的文档参考在 beta 目录中\n"
+    },
     {
       "tag_name": "v2.3.0-beta.9",
       "name": "v2.3.0-beta.9 (Build 26G01)",
