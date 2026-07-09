@@ -15,8 +15,7 @@ order: 90
 
 ## 获取资源
 
-- **GitHub 仓库**：[前往下载SDK源码](https://github.com/JadeViewDocs/JadeView/)
-- **Gitee 仓库**：[前往下载SDK源码](https://gitee.com/ilinxuan/JadeView_library)
+- **JadeView官网**：[前往下载易语言模块](https://jade.run/download)
 
 ## 完整双向通讯示例（易语言后端 + 前端 HTML）
 
