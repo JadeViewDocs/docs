@@ -56,6 +56,12 @@ export default function SDKs() {
       icon: '火',
       bgColor: '#DB2777',
     },
+    {
+      name: 'Golang SDK',
+      to: '/golang-sdk',
+      icon: 'Go',
+      bgColor: '#00ADD8',
+    },
   ];
 
   const quickStart: SDKItem[] = [

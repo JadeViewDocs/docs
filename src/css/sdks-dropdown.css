@@ -68,6 +68,24 @@ body[data-sdk-menu="voldp"] .sdks-dropdown [data-dropdown-sdks="voldp"] {
   display: block;
 }
 
+/* Python SDK2 选中状态 */
+body[data-sdk-menu="python-sdk2"] .sdks-dropdown [data-dropdown-sdks="web"] {
+  display: none;
+}
+
+body[data-sdk-menu="python-sdk2"] .sdks-dropdown [data-dropdown-sdks="python-sdk2"] {
+  display: block;
+}
+
+/* Golang SDK 选中状态 */
+body[data-sdk-menu="golang"] .sdks-dropdown [data-dropdown-sdks="web"] {
+  display: none;
+}
+
+body[data-sdk-menu="golang"] .sdks-dropdown [data-dropdown-sdks="golang"] {
+  display: block;
+}
+
 .sdks-dropdown a {
   text-decoration: none !important;
 }

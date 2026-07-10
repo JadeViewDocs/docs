@@ -72,6 +72,12 @@ const docs = [
     routeBasePath: 'api-2-preview',
     sidebarPath: require.resolve('./sidebars-api-2-preview.js'),
   },
+  {
+    id: 'golang-sdk',
+    path: 'docs/golang-sdk',
+    routeBasePath: 'golang-sdk',
+    sidebarPath: require.resolve('./sidebars-golang-sdk.js'),
+  },
 ];
 
 /** @type {import('@docusaurus/plugin-content-docs').Options} */
