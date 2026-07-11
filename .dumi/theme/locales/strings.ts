@@ -10,7 +10,6 @@ const zh = {
   // 导航「文档」「SDKs」下拉
   navbar: {
     countSuffix: ' 篇', // {n} 篇
-    sdkGroupTitles: { frontend: '前端 & Python', more: '更多语言' },
     sdk: {
       web: { title: 'Web SDK', desc: '前端 / JavaScript 集成' },
       py: { title: 'Python SDK', desc: 'Python 桌面应用开发' },
@@ -278,7 +277,6 @@ const en: typeof zh = {
   nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', releases: 'Releases' },
   navbar: {
     countSuffix: ' docs', // {n} docs
-    sdkGroupTitles: { frontend: 'Frontend & Python', more: 'More Languages' },
     sdk: {
       web: { title: 'Web SDK', desc: 'Frontend / JavaScript integration' },
       py: { title: 'Python SDK', desc: 'Python desktop app development' },

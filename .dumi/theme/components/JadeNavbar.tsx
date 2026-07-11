@@ -27,25 +27,15 @@ const SDK_ICON: Record<string, { type: 'img'; src: string } | { type: 'char'; ch
 };
 
 // 结构（key/链接）固定；标题与描述走 useT()（见 ../locales/strings）。
-const SDK_GROUPS: { key: 'frontend' | 'more'; items: { key: SdkKey; link: string }[] }[] = [
-  {
-    key: 'frontend',
-    items: [
-      { key: 'web', link: '/web-sdk' },
-      { key: 'py', link: '/python-sdk' },
-    ],
-  },
-  {
-    key: 'more',
-    items: [
-      { key: 'go', link: '/golang-sdk' },
-      { key: 'ey', link: '/easy-language-sdk' },
-      { key: 'vol', link: '/voldp-sdk' },
-    ],
-  },
+const SDK_ITEMS: { key: SdkKey; link: string }[] = [
+  { key: 'web', link: '/web-sdk' },
+  { key: 'py', link: '/python-sdk' },
+  { key: 'go', link: '/golang-sdk' },
+  { key: 'ey', link: '/easy-language-sdk' },
+  { key: 'vol', link: '/voldp-sdk' },
 ];
 
-const SDK_LINKS = ['/sdk', ...SDK_GROUPS.flatMap((g) => g.items.map((i) => i.link))];
+const SDK_LINKS = ['/sdk', ...SDK_ITEMS.map((i) => i.link)];
 
 // 「文档」下拉的两张大卡片（仿 lobehub.com 顶部导航左侧大卡片）：顶部色块 + 图标 + 页数角标，下方标题/描述。
 // 标题/描述走 useT()；这里只放结构（key/链接/图标/配色）。
@@ -169,25 +159,10 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
     max-width: 560px;
   `,
   cols: css`
-    display: flex;
-    gap: 28px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    gap: 2px 28px;
     padding: 20px 22px;
-  `,
-  col: css`
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 200px;
-  `,
-  colTitle: css`
-    margin: 0 0 6px;
-    padding-inline-start: 10px;
-
-    font-size: 12px;
-    font-weight: 500;
-    color: ${token.colorTextTertiary};
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
   `,
   menuItem: css`
     display: flex;
@@ -558,31 +533,26 @@ export default memo(function JadeNavbar() {
   const megaCard = (
     <div className={styles.card}>
       <div className={styles.cols}>
-        {SDK_GROUPS.map((g) => (
-          <div key={g.key} className={styles.col}>
-            <p className={styles.colTitle}>{t.navbar.sdkGroupTitles[g.key]}</p>
-            {g.items.map((it) => {
-              const ic = SDK_ICON[it.key];
-              return (
-                <Link key={it.link} className={styles.menuItem} to={L(it.link)}>
-                  {ic.type === 'img' ? (
-                    <span className={styles.icon}>
-                      <img alt="" src={ic.src} />
-                    </span>
-                  ) : (
-                    <span className={styles.iconChar} style={{ background: ic.color }}>
-                      {ic.char}
-                    </span>
-                  )}
-                  <span>
-                    <span className={styles.mTitle}>{t.navbar.sdk[it.key].title}</span>
-                    <span className={styles.mDesc}>{t.navbar.sdk[it.key].desc}</span>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+        {SDK_ITEMS.map((it) => {
+          const ic = SDK_ICON[it.key];
+          return (
+            <Link key={it.link} className={styles.menuItem} to={L(it.link)}>
+              {ic.type === 'img' ? (
+                <span className={styles.icon}>
+                  <img alt="" src={ic.src} />
+                </span>
+              ) : (
+                <span className={styles.iconChar} style={{ background: ic.color }}>
+                  {ic.char}
+                </span>
+              )}
+              <span>
+                <span className={styles.mTitle}>{t.navbar.sdk[it.key].title}</span>
+                <span className={styles.mDesc}>{t.navbar.sdk[it.key].desc}</span>
+              </span>
+            </Link>
+          );
+        })}
       </div>
       <div className={styles.footer}>
         <Link className={styles.downloadCard} to={L('/download')}>
