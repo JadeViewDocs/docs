@@ -2,91 +2,51 @@
 order: 0
 ---
 
-# 介绍
+# JadeView 易语言 SDK
 
-## 什么是 JadeView 易语言 SDK
+## 项目简介
 
 JadeView 易语言 SDK 是一个专为易语言开发者设计的 WebView 窗口库，基于 Rust 开发，提供了简单易用的 API 接口，帮助开发者快速构建现代化的桌面应用程序。
 
-## 为什么选择 JadeView 易语言 SDK
-
-- **现代化技术栈**：基于最新的 WebView 技术，支持现代 Web 标准和 HTML5 特性
-- **简单易用**：专为易语言开发者设计的 API，易于理解和使用
-- **高性能**：底层基于 Rust 开发，具有出色的性能和稳定性
-- **跨平台潜力**：虽然目前主要支持 Windows，但设计上考虑了跨平台扩展
-- **活跃开发**：持续更新和改进，不断添加新功能和优化
-
-## 获取资源
-
-- **GitHub 仓库**：[前往下载SDK源码](https://github.com/JadeViewDocs/JadeView/)
-- **Gitee 仓库**：[前往下载SDK源码](https://gitee.com/ilinxuan/JadeView_library)
-在代码文件中找到`e_v0.xx`文件，其中是易语言所需的源码
-- **下载DLL**：[Github](https://github.com/JadeViewDocs/JadeView/releases) 或 [Gitee](https://gitee.com/ilinxuan/JadeView_library/releases)
-- **易语言DLL**：一般使用`JadeView_x86_dynamic.dll`或`JadeView_x86_static.dll`
-
-
-
 ## 主要功能
 
-### 窗口管理
+- 跨底层平台：内核支持 Windows/Linux，易语言仅适配 Windows
+- WebView 渲染：支持 HTML/CSS/JS/Vue/React 页面
+- 窗口管理：标准 / 无边框窗口、Mica 透明、截图保护、明暗主题切换
+- 事件系统：子程序指针回调，覆盖窗口、IPC、热键全生命周期事件
+- 内置`jade://`私有资源协议，无需 HTTP 服务加载静态文件
+- 安全内存自动托管，全接口线程安全
+- 双向 IPC 通讯，配套系统文件、消息弹窗工具
+- JAPK 加密资源包（付费）：内存加载、签名防篡改
+- 系统工具：托盘、全局热键、自定义 URL、YAML 配置、NTP 授时、剪贴板文本读写
 
-- 支持创建和管理多个 WebView 窗口
-- 灵活的窗口配置选项（大小、位置、标题等）
-- 支持窗口最大化、最小化、全屏等操作
-- 支持窗口始终置顶和焦点管理
+## 内存管理机制
 
-### 主题支持
+底层`jadeview_x86.dll`采用 Rust 内存模型，规避内存泄漏与野指针崩溃：
 
-- 内置三种主题模式：亮色、暗色和自动跟随系统
-- 主题可以动态切换
-- 支持自定义主题颜色
+1. 使用`CStr/CString`安全处理 UTF8 字符串；
+2. 回调产生字符串内核自动释放，无需手动操作；
+3. 底层不直接调用 malloc/free，内存统一托管；
+4. 回调生命周期严格管控，资源及时回收；
+5. 全局状态加互斥锁，支持多线程并发调用。
 
-### 窗口样式
+## 快速开始
 
-- 支持无边框窗口
-- 支持透明窗口和自定义背景色
-- 支持窗口圆角（取决于系统支持）
-- 支持窗口阴影效果
+1. 注册应用就绪事件：`JadeView.App.注册事件(#事件_应用准备就绪, &回调子程序)`，必须在初始化之前执行
+2. 初始化内核：调用`JadeView.App.初始化`加载 jadeview_x86.dll进行初始化
+3. 运行消息循环：调用`JadeView.App.消息循环` 运行消息循环
+4. 创建 WebView 窗口：在 #事件_应用准备就绪 回调子程序 内调用`JadeView.窗口.创建`创建窗口。**重要：窗口必须在 `#事件_应用准备就绪` 事件触发后才能创建**。
+5. 注册其他事件：通过`JadeView.App.注册事件`  注册其他事件回调
+6. 清理资源：监听 `#事件_全部窗口已关闭` 事件，调用`JadeView.App.退出`释放全部资源
 
-### WebView 功能
+## 注意事项
 
-- 支持现代 Web 标准和 HTML5 特性
-- 支持 JavaScript 与易语言的交互
-- 支持注入自定义 JavaScript 代码
-- 支持开发者工具（可选）
+1. 全接口线程安全，多线程可正常调用；
+2. `JadeView.窗口.创建`即时返回 ID，但窗口实际创建是在事件循环线程中异步完成的；
+3. 中文入参必须使用`GBK文本到UTF8文本`转换；
+4. 导入`JadeView.ec`自带全局单例，无需手动声明。
+5. 使用完毕后应及时调用 `JadeView.App.退出` 清理资源
 
-## 技术架构
+## 支持的平台
 
-JadeView 易语言 SDK 采用分层架构设计：
-
-1. **底层核心**：基于 Rust 开发的 WebView 核心库
-2. **DLL 接口**：提供给易语言调用的 DLL 函数
-3. **易语言封装**：易语言模块和类，简化 SDK 的使用
-4. **示例代码**：提供各种使用场景的示例
-
-## 系统要求
-
-- 操作系统：Windows 7 及以上版本
-- 易语言版本：易语言 5.3 及以上
-- .NET Framework：4.0 及以上
-- 硬件要求：至少 2GB RAM，50MB 可用磁盘空间
-
-## 适用场景
-
-JadeView 易语言 SDK 适用于以下场景：
-
-1. **现代化桌面应用**：使用 Web 技术构建现代化的桌面应用界面
-2. **传统应用升级**：为传统易语言应用添加现代化的 Web 界面
-3. **工具开发**：快速构建各种工具类应用
-4. **原型开发**：快速验证应用概念和设计
-5. **Web 应用桌面化**：将现有的 Web 应用打包为桌面应用
-
-## 许可证
-
-JadeView 易语言 SDK 遵循 MIT 许可证，允许自由使用、修改和分发。
-
-## 社区和支持
-
-- GitHub 仓库：[https://github.com/JadeViewDocs/docs](https://github.com/JadeViewDocs/docs)
-- 文档网站：[https://jadeviewdocs.github.io](https://jadeviewdocs.github.io)
-- 如有问题或建议，欢迎提交 Issue 或 Pull Request
+- Windows 10 1903 及以上、Windows 11（易语言 SDK 唯一适配操作系统）

@@ -2,183 +2,197 @@
 order: 90
 ---
 
-# Quick Start
+## Execution Steps
 
-This guide will help you quickly understand how to use the JadeView E-Language SDK to create your first WebView application.
+1. Register app ready event: `JadeView.App.RegisterEvent(#Event_AppReady, &Callback_Ready)`. This step **must be executed before `JadeView.App.Init`**.
+2. Initialize kernel: Call `JadeView.App.Init` to load `jadeview_x86.dll`.
+3. Run message loop: Call `JadeView.App.MessageLoop` to block the main thread and dispatch all asynchronous events.
+4. Create WebView window: Invoke `JadeView.Window.Create` inside the `#Event_AppReady` callback subroutine to generate the page window.
+5. Register other event callbacks: Use `JadeView.App.RegisterEvent` to subscribe to IPC, tray, hotkey and other business events.
+6. Clean up resources: Listen for the `#Event_AllWindowsClosed` event and call `JadeView.App.Exit` inside its callback to release all kernel resources uniformly.
 
-## Environment Requirements
+## Get SDK Source Code
 
-- Operating system: Windows 7 or later
-- E-Language version: E-Language 5.3 or later
+- GitHub Repository: [Download SDK Source Code](https://link.wtturl.cn/?target=https%3A%2F%2Fgithub.com%2FJadeViewDocs%2FJadeView%2F&scene=im&aid=497858&lang=zh)
+- Gitee Repository: [Download SDK Source Code](https://link.wtturl.cn/?target=https%3A%2F%2Fgitee.com%2Filinxuan%2FJadeView_library&scene=im&aid=497858&lang=zh)
 
-## SDK Import Steps
+## Full Two-Way Communication Demo (E Language Backend + Frontend HTML)
 
-1. **Download the SDK**: Download the latest version of the JadeView E-Language SDK source code and examples from the following channels:
-   - GitHub Releases: [https://github.com/JadeViewDocs/JadeView/releases](https://github.com/JadeViewDocs/JadeView/releases)
-   - Jingyi Forum: [https://bbs.ijingyi.com/thread-14870797-1-1.html](https://bbs.ijingyi.com/thread-14870797-1-1.html)
-2. **Extract the files**: Extract the downloaded SDK archive to a suitable directory
-3. **Import the module**:
-   - Open the E-Language IDE
-   - Create a new E-Language project or open an existing one
-   - Click the menu bar's "Tools" → "Support Library Configuration"
-   - Click the "Select All" button, then click "OK"
-   - Click the menu bar's "Insert" → "Module Reference Table"
-   - Click the "Add Module Reference" button
-   - Browse to the SDK extraction directory and select the required E-Language module file
-   - Click the "Open" button to complete the module import
+### 1. E Language Code
 
-## Simple Example Code
-
-Below is a simple example that demonstrates how to use the JadeView E-Language SDK to create a WebView window:
-
-```e
+```
 .版本 2
-.支持库 spec
-
 .程序集 程序集1
-.程序集变量 窗口设置, JadeView窗口设置
-.程序集变量 JadeView实例, JadeView
 
-.子程序 _启动子程序, 整数型, , 本子程序在程序启动后最先执行
-    .局部变量 开启DevTools, 逻辑型
-    
-    开启DevTools ＝ 假
-    
-    ' 初始化 JadeView 运行时（异步）
-    JadeView实例.初始化(开启DevTools, 取运行目录() ＋ "\log.txt", 取运行目录())
-    
-    ' 注册程序事件，监听初始化完成
-    JadeView实例.注册程序事件("app-ready", &JadeView准备就绪)
-    
-    ' 运行消息循环
-    JadeView实例.消息循环()
-    
-    返回 (0)  ' 可以根据您的需要返回任意数值
+.子程序 _启动子程序, 整数型
+' Step 1: Register lifecycle events in advance
+JadeView.App.注册事件 (#事件_应用准备就绪, &回调就绪)
+JadeView.App.注册事件 (#事件_所有窗口已关闭, &回调清理)
+' Step 2: Initialize kernel
+JadeView.App.初始化 (真, “app.log”, “”, “Demo Program”, “demo001”, 假)
+' Step 3: Start message loop
+JadeView.App.消息循环 ()
+返回 (0)
 
-.子程序 JadeView准备就绪
-    .参数 成功否, 逻辑型
-    .参数 err, 文本型
-    
-    .如果 (成功否)
-        ' 初始化窗口设置
-        窗口设置.标题 ＝ "我的第一个 JadeView 应用"
-        窗口设置.宽度 ＝ 800
-        窗口设置.高度 ＝ 600
-        窗口设置.窗口主题 ＝ #主题_亮色
-        窗口设置.最大化按钮 ＝ 真
-        窗口设置.最小化按钮 ＝ 真
-        窗口设置.可调整大小边框 ＝ 真
-        
-        ' 初始化视窗设置
-        .局部变量 视窗设置, JadeView视窗设置
-        视窗设置.自动播放媒体 ＝ 假
-        视窗设置.禁用右键菜单 ＝ 假
-        
-        ' 创建 WebView 窗口
-        .局部变量 窗口ID, 整数型
-        窗口ID ＝ JadeView实例.创建窗口("https://www.example.com", , 窗口设置, 视窗设置)
-        
-        .如果真 (窗口ID ＞ 0)
-            调试输出 ("WebView 窗口创建成功，窗口ID：" ＋ 到文本 (窗口ID))
-        .如果真结束
-    .否则
-        调试输出 ("JadeView 初始化失败！" ＋ err)
-    .如果结束
+.子程序 回调就绪
+.参数 是否成功, 逻辑型
+.参数 数据, 文本型
+.局部变量 窗口设置, JadeView窗口设置
+.局部变量 url, 文本型
+.局部变量 视窗设置, JadeView视窗设置
+.局部变量 主窗口ID, 整数型
 
-.子程序 订阅IPC消息
-    
-    ' 注册前端事件
-    JadeView实例.ipc_订阅("setTheme", &ipc_设置主题)
-    JadeView实例.ipc_订阅("message", &ipc_对话消息)
-    
-.子程序 ipc_设置主题
-    ' 实现主题设置逻辑
-    
-.子程序 ipc_对话消息
-    ' 实现消息处理逻辑
+url ＝ JadeView.协议服务.创建服务 (“./web”, 真)
+窗口设置.宽度 ＝ 920
+窗口设置.高度 ＝ 625
+窗口设置.最大化按钮 ＝ 真
+窗口设置.最小化按钮 ＝ 真
+窗口设置.可调整大小边框 ＝ 真
+窗口设置.隐藏窗口 ＝ 假
+窗口设置.X坐标 ＝ -1
+窗口设置.Y坐标 ＝ -1
+窗口设置.透明背景 ＝ JadeView.系统.是否为Win11 ()
+窗口设置.焦点 ＝ 真
+窗口设置.置顶窗口 ＝ 真
+窗口设置.标题 ＝ GBK文本到UTF8文本 (“Jade Quick Demo”)
+窗口设置.边框样式 ＝ #标题栏_标题覆盖层
+视窗设置.开启右键菜单 ＝ 真
+
+' Step 4: Create Web window
+主窗口ID ＝ JadeView.窗口.创建 (url, 0, 窗口设置, 视窗设置)
+
+' Step 5: Subscribe IPC event for close command from frontend
+.如果真 (主窗口ID ＞ 0)
+    JadeView.通讯.订阅 (“send_msg”, &前端消息回调)
+.如果真结束
+
+.子程序 前端消息回调
+.参数 窗口id, 整数型
+.参数 数据, 文本型
+.局部变量 接收文本, 文本型
+
+接收文本 ＝ UTF8文本到GBK文本 (数据)
+JadeView.通讯.广播 (窗口id, “backend_response”, “Received from backend: ” ＋ 接收文本)
+
+.子程序 回调清理
+.参数 窗口id, 整数型
+.参数 数据, 文本型
+
+JadeView.App.退出 ()
 ```
 
-## Code Explanation
+### 2. Frontend File `./web/index.html`
 
-1. **Assembly variable declarations**: Declares the `窗口设置` and `JadeView实例` assembly variables for global access
-2. **_启动子程序**: The program entry function
-   - Initializes the JadeView runtime (asynchronously)
-   - Registers program events to listen for the initialization-complete event
-   - Starts the message loop to handle window events
-3. **JadeView准备就绪**: The callback function invoked after initialization completes
-   - Checks whether initialization succeeded
-   - On success, configures the window settings and viewport settings
-   - Calls the `创建窗口` method to create the WebView window
-   - Outputs the window creation result
-   - On failure, outputs the error message
-4. **订阅IPC消息**: Registers front-end events to handle messages from the front end
-5. **ipc_设置主题**: Handles theme setting requests from the front end
-6. **ipc_对话消息**: Handles conversation messages from the front end
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Jade Quick Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        /* Message display area */
+        #msg_box {
+            flex: 1;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        /* Bottom input container */
+        .input_wrap {
+            display: flex;
+            gap: 10px;
+        }
+        /* Text input box */
+        #input_text {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+        }
+        #input_text::placeholder {
+            color: #999;
+        }
+        /* Send button */
+        #send_btn {
+            padding: 0 24px;
+            background: #1677ff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Area to receive messages pushed by backend -->
+    <div id="msg_box"></div>
+    <!-- Input box + send button -->
+    <div class="input_wrap">
+        <input type="text" id="input_text" placeholder="Send IPC Message">
+        <button id="send_btn" onclick="sendMsg()">Send</button>
+    </div>
 
-**Key Notes**:
-- JadeView initialization is asynchronous; the completion of initialization is handled via an event callback
-- Window creation is also asynchronous: it returns the window ID first, and the actual window is created later
-- You must call the `消息循环` method to start message processing
-- Various events are handled using an event-driven approach
+<script>
+    const msgBox = document.getElementById("msg_box");
+    const input = document.getElementById("input_text");
 
-This example demonstrates the basic workflow of the JadeView E-Language SDK, including core features such as initialization, event subscription, and window creation. You can modify and extend this example according to your own needs.
+    // Listen for reply messages broadcasted by backend
+    jade.on("backend_response", function(text) {
+        const item = document.createElement("div");
+        item.style.marginBottom = "8px";
+        item.textContent = text;
+        msgBox.appendChild(item);
+        // Auto scroll to bottom
+        msgBox.scrollTop = msgBox.scrollHeight;
+    })
 
-## Running Result
+    // Send message to E-language backend on button click
+    function sendMsg() {
+        const content = input.value.trim();
+        if (!content) return;
+        // Invoke backend IPC channel
+        jade.invoke("send_msg", content);
+        // Clear input
+        input.value = "";
+    }
 
-After running the above code, you will see a new window titled "我的第一个 JadeView 应用", measuring 800x600 pixels, displaying the content of the `https://www.example.com` web page.
-
-## Standalone Public Methods
-
-In addition to the JadeView class methods, the E-Language SDK also provides a number of standalone public methods. These methods can be called directly, without going through a JadeView class instance.
-
-### Main Standalone Public Methods
-
-1. **JadeView消息循环**: Runs and keeps the main process alive; must be called after initialization, and is used to handle window events and IPC messages
-2. **JadeView创建本地服务**: Creates a local HTTP server for serving local files
-3. **GBK文本到UTF8文本**: Converts GBK-encoded text to UTF-8-encoded text, used when interacting with JavaScript
-4. **UTF8文本到GBK文本**: Converts UTF-8-encoded text to GBK-encoded text, used to process text data received from JavaScript
-
-### Example Code
-
-```e
-.局部变量 开启DevTools, 逻辑型
-
-' 根据是否为调试版决定是否开启开发者工具
-开启DevTools ＝ 是否为调试版()
-
-' 整个初始化都是异步的
-JadeView.初始化(开启DevTools, GBK文本到UTF8文本(取运行目录()) ＋ "\log.txt", 取运行目录())
-
-' 订阅IPC消息
-订阅IPC消息()
-
-' 在异步中，千万不要等待返回后执行任何创建窗口操作
-JadeView消息循环()
-
-返回 (0)  ' 可以根据您的需要返回任意数值
+    // Send message when pressing Enter key
+    input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") sendMsg();
+    })
+</script>
+</body>
+</html>
 ```
 
-## Common Questions
+## Deployment & Demo Workflow
 
-### 1. Why does compilation report that the "JadeView窗口设置" type cannot be found?
+1. Place `jadeview_x86.dll` in the same directory as your compiled EXE file.
+2. Create a folder named `web` in your program root directory, then put the above `index.html` inside it.
+3. Import `JadeView.ec` module into your E-language project, compile and run.
 
-Please make sure you have correctly imported the JadeView E-Language SDK module and that the module contains the definitions of these data types.
+### Interaction Process
 
-### 2. Why does the program report at runtime that the DLL file cannot be found?
-
-Please make sure the JadeView.dll file is located in the same directory as your E-Language program, or has been added to the system PATH environment variable.
-
-### 3. Why isn't the window displayed?
-
-Please check that your code correctly calls the `create_webview_window` function and that the returned window ID is greater than 0. You can use the `调试输出` function to view the specific error message.
-
-## Next Steps
-
-- Read the [Constants](./reference/constants.mdx) reference to learn about all the constants defined in the SDK
-- Read the [Data Types](./reference/data-types.mdx) reference to learn about all the data types defined in the SDK
-- Read the [JadeView Class Methods](./reference/methods.mdx) reference to learn about all the class methods defined in the SDK
-- Read the [Standalone Public Methods](./reference/public-methods.mdx) reference to learn about all the standalone public methods defined in the SDK
-- Try modifying the example code to use different window settings and viewport settings
-- Explore how to implement interaction between JavaScript and E-Language
-
-You have now successfully created your first JadeView E-Language SDK application. Continue exploring more features of the SDK!
+1. Type text in the bottom input box and click the blue **Send** button.
+2. The frontend calls `jade.invoke` to send text data to the E-language backend via IPC.
+3. The backend receives the data, generates a reply, and broadcasts it to the page with `JadeView.IPC.Broadcast`.
+4. All reply records will be rendered inside the white message area, with vertical scroll for multi-line history.
