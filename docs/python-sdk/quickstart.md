@@ -8,9 +8,10 @@ order: 1
 
 ## 环境要求
 
-- Python 3.8+
-- Windows 10+ (当前版本)
-- WebView2 Runtime
+- Python 3.7+
+- Windows 10/11 + WebView2 Runtime
+- Linux x64 / arm64 + GTK / WebKitGTK 桌面运行环境
+- Linux x86 与 macOS 暂无 SDK 原生库支持
 
 ## 安装
 
@@ -115,9 +116,8 @@ ipc = IPCManager()
 @ipc.on("greet")
 def handle_greet(window_id, message):
     print(f"收到消息: {message}")
-    # 发送响应给前端
-    ipc.send(window_id, "response", f"Hello from Python! You said: {message}")
-    return 1
+    # jade.invoke 会直接收到这个返回值
+    return f"Hello from Python! You said: {message}"
 
 @app.on_ready
 def on_ready():
@@ -131,14 +131,19 @@ app.run()
 前端 JavaScript 代码：
 
 ```javascript
-// 发送消息到 Python
-window.jade.ipcSend('greet', 'Hello from JavaScript!');
+// 发送消息到 Python，并等待返回值
+const result = await jade.invoke('greet', 'Hello from JavaScript!');
+console.log('收到响应:', result);
 
-// 接收 Python 的响应
-window.jade.ipcMain('response', function(content) {
-    console.log('收到响应:', content);
+// 接收 Python 主动推送
+jade.on('response', function(content) {
+    console.log('收到推送:', content);
 });
 ```
+
+:::warning{title="Linux IPC 大小限制"}
+JadeView v2.3.0-beta.10 已修复此前 Linux payload 丢失和 invoke Promise 失败的问题，上面的 `jade.invoke(channel, payload)` 写法可正常使用。单次 payload 建议控制在 `1000KB` 以内；更大的内容请使用分片、临时文件或资源 URL。需要验证目标环境时可运行 SDK 仓库的 `examples/linux_demo`。
+:::
 
 ### 使用路由系统
 
@@ -240,6 +245,10 @@ window = Window(
     
     # PostMessage 通信 (需 1.0.2+)
     postmessage_whitelist="https://example.com,https://trusted.com",  # 允许接收 PostMessage 的源
+
+    # v2.3 窗口集成
+    skip_taskbar=False,      # 不进任务栏 / Alt-Tab
+    no_activate=False,       # 显示或点击时不抢焦点
 )
 ```
 
@@ -349,6 +358,8 @@ window.show()
 
 :::warning{title="file-drop 事件注意"}
 使用 `file-drop` 事件会接管 WebView 的拖拽事件处理，**导致前端无法收到原生拖拽事件**。如果您需要在前端使用 JavaScript 处理拖拽事件（如 `ondrop`），请不要注册此事件。
+
+JadeView v2.3.0-beta.10 的 Linux 原生拖拽订阅可能导致段错误，SDK 会默认阻止 `drag-drop` / `file-drop` 注册。以下示例当前仅适用于 Windows。
 :::
 
 ### 文件下载事件
@@ -420,7 +431,11 @@ window.set_size(1280, 720)
 window.set_position(100, 100)
 window.center()
 window.set_always_on_top(True)
+window.set_skip_taskbar(True)       # v2.3: 隐藏任务栏 / Alt-Tab
+window.set_no_activate(True)        # v2.3: 不抢焦点
+window.set_level("topmost")         # v2.3: topmost / normal / bottom / desktop
 window.set_resizable(False)
+print(window.get_hwnd())            # v2.3: 普通窗口也可返回 HWND
 
 # 主题和外观
 window.set_theme(Theme.DARK)
@@ -429,6 +444,74 @@ window.set_backdrop(Backdrop.MICA)  # Windows 11 效果
 # WebView 操作
 window.load_url("https://example.com")
 window.execute_js("console.log('Hello from Python!')")
+```
+
+## v2.3 新能力速览
+
+### YAML 存储
+
+`Storage` 会把数据写入 JadeView `data_directory` 下的 YAML 文件。建议在 `app.on_ready` 之后使用，确保原生层和数据目录已经就绪。
+
+```python
+from jadeui import Storage
+
+Storage.set("settings", "user.name", "JadeUI")
+Storage.set("settings", "window", {"width": 1024, "height": 768})
+
+print(Storage.get("settings", "user.name"))
+print(Storage.keys("settings", "window"))
+print(Storage.length("settings", "window"))
+```
+
+### 系统集成
+
+```python
+import sys
+from jadeui import System
+
+print(System.jadeview_version())
+print(System.webview_version())
+print(System.get_login_autostart())
+print(System.ntp_now())  # UTC 毫秒时间戳，网络失败返回 None
+
+icon_url = System.get_file_icon(sys.executable, size=64, window_id=window.id or 0)
+```
+
+### 托盘、热键和剪贴板
+
+```python
+from jadeui import Clipboard, HotKey, Tray
+
+Clipboard.write_text("Hello JadeUI")
+print(Clipboard.read_text())
+
+HotKey.register("Ctrl+Alt+J", lambda: window.flash(3))
+
+tray = Tray()
+tray.set_tooltip("JadeUI App")
+tray.set_menu([
+    {"key": "show", "label": "显示窗口", "on_click": lambda: window.show()},
+    {"key": "quit", "label": "退出", "dangerous": True, "on_click": app.quit},
+])
+tray.show()
+```
+
+### 拖拽事件
+
+JadeView 2.x 的底层事件名是 `drag-drop`，包含 `enter`、`over`、`drop`、`leave` 阶段；`file-drop` 仍保留为只关心最终 drop 的兼容封装。
+
+:::warning{title="Linux beta.10"}
+Linux 下暂时不要注册以下事件。SDK 会抛出 `NotImplementedError`，避免 JadeView 原生 GUI/WebKit 线程发生段错误。Windows 可正常使用。
+:::
+
+```python
+@window.on("drag-drop")
+def on_drag_drop(data):
+    print(data["type"], data.get("paths", []))
+
+@window.on_file_dropped
+def on_file_drop(files, x, y):
+    print(files, x, y)
 ```
 
 ## 完整示例
@@ -453,8 +536,7 @@ def handle_get_data(window_id, message):
         "status": "success",
         "items": ["Python", "JadeUI", "WebView"]
     }
-    ipc.send(window_id, "data-response", json.dumps(response))
-    return 1
+    return json.dumps(response, ensure_ascii=False)
 
 # 窗口操作处理器
 @ipc.on("windowAction")
@@ -580,7 +662,7 @@ Notification.error("标题", "内容")
 
 ## 下一步
 
-- 查看 [API 参考](./reference/methods.mdx) 了解详细的 API 文档
-- 学习 [应用打包](./packaging.mdx) 将应用打包成独立的 .exe 文件
+- 查看 [API 参考](./reference/methods) 了解详细的 API 文档
+- 学习 [应用打包](./packaging) 将应用打包成独立的 .exe 文件
 - 探索 `Router` 类构建复杂的多页面应用
 - 学习使用 Windows 11 的 Mica/Acrylic 效果

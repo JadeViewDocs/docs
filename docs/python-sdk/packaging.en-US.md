@@ -58,6 +58,7 @@ This packages using the default configuration:
 - Single-file mode (onefile)
 - Compression level 1 (basic LTO optimization)
 - Automatically includes the JadeUI DLL
+- The DLL matches the Python interpreter architecture: 32-bit Python uses the x86 DLL, 64-bit Python uses the x64 DLL, and ARM64 Python uses the arm64 DLL
 - Automatically includes the `web` directory (if present)
 - Automatically uses `web/favicon.png` as the icon (if present)
 
@@ -181,6 +182,12 @@ dist/
 pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
 ```
 
+Also make sure the packaged JadeView DLL matches the Python interpreter architecture. JadeUI selects `x86` / `x64` / `arm64` based on the interpreter, not the operating system bitness.
+
+### Q: Does the SDK automatically upgrade to the latest JadeView?
+
+**A:** Only within the release tag that the SDK has adapted to. For example, the current SDK targets `v2.3.0-beta.10` and can automatically use later build revisions in the same tag, but it will not automatically jump to `2.4` or another release tag. Minor/major upgrades require an explicit SDK ABI/API adaptation first.
+
 ### Q: How can I reduce the size of the packaged file?
 
 **A:**
@@ -210,7 +217,7 @@ app.initialize(
 **C:** Allow the right-click menu
 ```python
 window = Window(
-    disable_right_click=True,
+    disable_right_click=False,
 )
 ```
 
