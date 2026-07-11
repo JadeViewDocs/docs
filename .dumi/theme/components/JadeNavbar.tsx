@@ -14,14 +14,13 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
 import { useLiquidGlass, GLASS_PARAMS, GLASS_SATURATION } from './JadeGlass';
 
-type SdkKey = 'web' | 'py' | 'py2' | 'go' | 'ey' | 'vol';
+type SdkKey = 'web' | 'py' | 'go' | 'ey' | 'vol';
 
 // 图标：能用真实品牌 logo 的用真实 logo（彩色 SVG，存于 public/sdk/，devicon 来源）；
 // 易语言 / 火山无公开 logo，用品牌色「字徽」（比抽象线条统一、清晰）。
 const SDK_ICON: Record<string, { type: 'img'; src: string } | { type: 'char'; char: string; color: string }> = {
   web: { type: 'img', src: '/sdklogo/javascript.svg' },
   py: { type: 'img', src: '/sdklogo/python.svg' },
-  py2: { type: 'img', src: '/sdklogo/python.svg' },
   go: { type: 'img', src: '/sdklogo/go.svg' },
   ey: { type: 'char', char: '易', color: '#2b7de9' },
   vol: { type: 'char', char: '火', color: '#e8533f' },
@@ -34,7 +33,6 @@ const SDK_GROUPS: { key: 'frontend' | 'more'; items: { key: SdkKey; link: string
     items: [
       { key: 'web', link: '/web-sdk' },
       { key: 'py', link: '/python-sdk' },
-      { key: 'py2', link: '/python-sdk2' },
     ],
   },
   {
