@@ -141,8 +141,8 @@ jade.on('response', function(content) {
 });
 ```
 
-:::warning{title="Linux / WSLg IPC 已知限制"}
-在当前适配的 JadeView v2.3.0-beta.9 Build 26G01 中，Linux `libJadeView.so` 的 `jade.invoke(channel, payload)` 在 WSLg 下会触发 Python handler，但 payload 会以字面量 `null` 到达，且返回值可能导致前端 Promise 报 `invoke 调用失败`。如果需要验证 Linux IPC，请先运行 SDK 仓库的 `examples/linux_demo`；普通 Windows 示例仍按上面的写法使用。
+:::warning{title="Linux IPC 大小限制"}
+JadeView v2.3.0-beta.10 已修复此前 Linux payload 丢失和 invoke Promise 失败的问题，上面的 `jade.invoke(channel, payload)` 写法可正常使用。单次 payload 建议控制在 `1000KB` 以内；更大的内容请使用分片、临时文件或资源 URL。需要验证目标环境时可运行 SDK 仓库的 `examples/linux_demo`。
 :::
 
 ### 使用路由系统
@@ -358,6 +358,8 @@ window.show()
 
 :::warning{title="file-drop 事件注意"}
 使用 `file-drop` 事件会接管 WebView 的拖拽事件处理，**导致前端无法收到原生拖拽事件**。如果您需要在前端使用 JavaScript 处理拖拽事件（如 `ondrop`），请不要注册此事件。
+
+JadeView v2.3.0-beta.10 的 Linux 原生拖拽订阅可能导致段错误，SDK 会默认阻止 `drag-drop` / `file-drop` 注册。以下示例当前仅适用于 Windows。
 :::
 
 ### 文件下载事件
@@ -497,6 +499,10 @@ tray.show()
 ### 拖拽事件
 
 JadeView 2.x 的底层事件名是 `drag-drop`，包含 `enter`、`over`、`drop`、`leave` 阶段；`file-drop` 仍保留为只关心最终 drop 的兼容封装。
+
+:::warning{title="Linux beta.10"}
+Linux 下暂时不要注册以下事件。SDK 会抛出 `NotImplementedError`，避免 JadeView 原生 GUI/WebKit 线程发生段错误。Windows 可正常使用。
+:::
 
 ```python
 @window.on("drag-drop")

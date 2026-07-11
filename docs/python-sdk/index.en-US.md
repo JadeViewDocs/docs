@@ -4,7 +4,7 @@ order: 0
 
 # Introduction
 
-The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, system integration, and Web front-end integration based on JadeView WebView technology. The current SDK is aligned with JadeView **v2.3.0-beta.9 (Build 26G01)**.
+The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, system integration, and Web front-end integration based on JadeView WebView technology. The current SDK version is **2.3.0b10**, aligned with JadeView **v2.3.0-beta.10 (Build 26G01)**.
 
 ## What is the JadeUI Python SDK
 
@@ -69,21 +69,25 @@ The JadeUI Python SDK uses the following technical architecture:
 ## System Requirements
 
 - **Python version**: Python 3.7+
-- **Operating system**: Windows 10/11; Linux x64 / arm64 (starting with v2.3.0-beta.9, the SDK can download and load `libJadeView.so`)
+- **Operating system**: Windows 10/11; Linux x64 / arm64 (the SDK can automatically download and load `libJadeView.so`)
 - **Runtime**: WebView2 Runtime on Windows; a working GTK / WebKitGTK desktop runtime on Linux
 - **Python architecture**: Windows supports x86 / x64 / arm64; Linux supports x64 / arm64. The SDK downloads and loads the matching JadeView native library for the active Python interpreter architecture.
 - **Not supported**: Linux x86 and macOS do not have upstream release assets yet, so the SDK does not declare support for them.
 
 ## Version and DLL Update Rules
 
-JadeUI automatically downloads the adapted JadeView DLL. The current SDK targets `v2.3.0-beta.9` and may select the latest build within the same release tag, such as a later build after `26G01`.
+JadeUI automatically downloads the adapted JadeView DLL. The current SDK targets `v2.3.0-beta.10` and may select the latest build within the same release tag, such as a later build after `26G01`.
 
 :::warning{title="Compatibility Boundary"}
 Automatic updates are limited to build revisions within the same API version / release tag. Minor or major jumps such as `2.2 -> 2.3` or `2.3 -> 2.4` may include ABI or behavior changes and require an explicit SDK adaptation first.
 :::
 
-:::warning{title="Known Linux IPC Limitation"}
-In WSLg validation with JadeView v2.3.0-beta.9 Build 26G01, the Linux `libJadeView.so` bridge has an upstream issue with `jade.invoke(channel, payload)`: payloads arrive in Python as literal `null`, and handler return values may fail to resolve the frontend Promise. The push path (`ipc.send()` / `jade.on()`) works. Use `examples/linux_demo` in the SDK repository to diagnose Linux environments.
+:::warning{title="Known Linux Limitations"}
+JadeView v2.3.0-beta.10 fixes the earlier Linux payload-loss and invoke-return issues. Ubuntu validation passed regular payloads, Unicode, JSON, and concurrent invokes. Keep a single business payload below `1000KB`; an exact `1MiB` payload plus IPC framing exceeds the native bridge limit and is rejected. Native Linux `drag-drop` subscription can still segfault, so the SDK blocks registration by default. Windows is not affected.
+:::
+
+:::info{title="VMware / Virtual GPUs"}
+If a Linux VM shows a WebKitGTK white screen or rendering crash, start the app with `WEBKIT_DISABLE_DMABUF_RENDERER=1` and `LIBGL_ALWAYS_SOFTWARE=1`. These variables are not mandatory on a physical Linux desktop.
 :::
 
 ## Installation

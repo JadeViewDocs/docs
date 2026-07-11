@@ -4,7 +4,7 @@ order: 0
 
 # 介绍
 
-JadeUI Python SDK 是一个用于 Python 开发桌面应用的库，提供了基于 JadeView WebView 技术的窗口管理、IPC 通信、系统集成和 Web 前端集成功能。当前 SDK 版本对齐 JadeView **v2.3.0-beta.9 (Build 26G01)**。
+JadeUI Python SDK 是一个用于 Python 开发桌面应用的库，提供了基于 JadeView WebView 技术的窗口管理、IPC 通信、系统集成和 Web 前端集成功能。当前 SDK 版本为 **2.3.0b10**，对齐 JadeView **v2.3.0-beta.10 (Build 26G01)**。
 
 ## 什么是 JadeUI Python SDK
 
@@ -69,21 +69,25 @@ JadeUI Python SDK 采用以下技术架构：
 ## 系统要求
 
 - **Python 版本**：Python 3.7+
-- **操作系统**：Windows 10/11；Linux x64 / arm64（v2.3.0-beta.9 起 SDK 可下载并加载 `libJadeView.so`）
+- **操作系统**：Windows 10/11；Linux x64 / arm64（SDK 可自动下载并加载 `libJadeView.so`）
 - **运行时**：Windows 需要 WebView2 Runtime；Linux 需要可用的 GTK / WebKitGTK 桌面运行环境
 - **Python 架构**：Windows 支持 x86 / x64 / arm64；Linux 支持 x64 / arm64。SDK 会按当前 Python 解释器架构下载并加载匹配的 JadeView 原生库。
 - **暂不支持**：Linux x86 与 macOS 暂无上游发行资产，SDK 不声明支持。
 
 ## 版本与 DLL 更新规则
 
-JadeUI SDK 会自动下载已适配的 JadeView DLL。当前版本适配 `v2.3.0-beta.9`，默认可在同一个 release tag 内选择最新 build，例如从 `26G01` 更新到同 tag 的后续修订号。
+JadeUI SDK 会自动下载已适配的 JadeView DLL。当前版本适配 `v2.3.0-beta.10`，默认可在同一个 release tag 内选择最新 build，例如从 `26G01` 更新到同 tag 的后续修订号。
 
 :::warning{title="兼容性边界"}
 自动更新只限同一 API 版本 / release tag 内的 build 修订号。类似 `2.2 -> 2.3`、`2.3 -> 2.4` 这类 minor/major 升级可能包含 ABI 或行为变化，需要 SDK 明确适配后再升级。
 :::
 
-:::warning{title="Linux IPC 已知限制"}
-在 JadeView v2.3.0-beta.9 Build 26G01 的 WSLg 验证中，Linux `libJadeView.so` 的 `jade.invoke(channel, payload)` 存在上游 bridge 问题：payload 到 Python 侧会变成字面量 `null`，且 handler 返回值可能无法 resolve 到前端 Promise。`ipc.send()` / `jade.on()` 推送通道可用。需要排查 Linux 环境时请运行 SDK 仓库的 `examples/linux_demo`。
+:::warning{title="Linux 已知限制"}
+JadeView v2.3.0-beta.10 已修复此前 Linux payload 丢失和 invoke 返回失败的问题。Ubuntu 实测普通 payload、Unicode、JSON 和并发 invoke 均可用。单次业务 payload 建议不超过 `1000KB`；精确 `1MiB` payload 加上 IPC 封装后会超过原生 bridge 上限并被拒绝。Linux 原生 `drag-drop` 订阅仍可能导致段错误，因此 SDK 默认禁止注册该事件；Windows 不受影响。
+:::
+
+:::info{title="VMware / 虚拟显卡"}
+如果 Linux 虚拟机出现 WebKitGTK 白屏或渲染崩溃，可在启动前设置 `WEBKIT_DISABLE_DMABUF_RENDERER=1` 和 `LIBGL_ALWAYS_SOFTWARE=1`。物理 Linux 桌面不强制使用这两个变量。
 :::
 
 ## 安装方式

@@ -141,8 +141,8 @@ jade.on('response', function(content) {
 });
 ```
 
-:::warning{title="Known Linux / WSLg IPC Limitation"}
-With JadeView v2.3.0-beta.9 Build 26G01, WSLg validation shows that Linux `libJadeView.so` invokes the Python handler, but `jade.invoke(channel, payload)` passes literal `null` as the message and may reject the frontend Promise even when the handler returns. Use `examples/linux_demo` in the SDK repository to diagnose Linux environments. Windows usage remains as shown above.
+:::warning{title="Linux IPC Size Limit"}
+JadeView v2.3.0-beta.10 fixes the earlier Linux payload-loss and invoke-Promise issues, so the `jade.invoke(channel, payload)` pattern above works normally. Keep one payload below `1000KB`; use chunks, temporary files, or resource URLs for larger content. Run `examples/linux_demo` from the SDK repository to validate a target environment.
 :::
 
 ### Using the Routing System
@@ -358,6 +358,8 @@ window.show()
 
 :::warning{title="file-drop Event Note"}
 Using the `file-drop` event takes over the WebView's drag-and-drop event handling, **causing the frontend to be unable to receive native drag events**. If you need to handle drag events in the frontend with JavaScript (such as `ondrop`), do not register this event.
+
+Native drag/drop subscription in JadeView v2.3.0-beta.10 can segfault on Linux, so the SDK blocks `drag-drop` / `file-drop` registration by default. The following example currently applies to Windows only.
 :::
 
 ### File Download Events
@@ -497,6 +499,10 @@ tray.show()
 ### Drag and Drop
 
 The low-level JadeView 2.x event is `drag-drop`, with `enter`, `over`, `drop`, and `leave` phases. `file-drop` remains as a compatibility wrapper for the final drop only.
+
+:::warning{title="Linux beta.10"}
+Do not register the events below on Linux for now. The SDK raises `NotImplementedError` to prevent a native JadeView GUI/WebKit-thread segfault. Windows remains supported.
+:::
 
 ```python
 @window.on("drag-drop")

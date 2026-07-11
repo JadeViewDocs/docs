@@ -581,8 +581,8 @@ These provide IDE type hints, and the arguments are parsed automatically:
 | `@window.on_closing` | `() -> bool` | Window is about to close; return True to prevent it |
 | `@window.on_state_changed` | `(is_maximized: bool)` | Window state changed |
 | `@window.on_fullscreen_changed` | `(is_fullscreen: bool)` | Fullscreen state changed (requires 1.2+) |
-| `@window.on_file_dropped` | `(files: List[str], x: int, y: int)` | File drop |
-| `@window.on("drag-drop")` | `(data: dict)` | v2.x low-level drag/drop lifecycle event with enter/over/drop/leave phases |
+| `@window.on_file_dropped` | `(files: List[str], x: int, y: int)` | File drop (disabled on beta.10 Linux) |
+| `@window.on("drag-drop")` | `(data: dict)` | v2.x drag/drop lifecycle event (disabled on beta.10 Linux) |
 | `@window.on_navigate` | `(url: str) -> bool` | About to navigate; return True to prevent it |
 | `@window.on_page_loaded` | `(url: str)` | Page finished loading |
 | `@window.on_title_updated` | `(title: str)` | Page title updated |
@@ -634,7 +634,7 @@ You can also use the `Events` constants; the arguments are likewise parsed autom
 | `Events.WINDOW_CLOSING` | window-closing | `()` | About to close (return 1 to prevent it) |
 | `Events.WINDOW_STATE_CHANGED` | window-state-changed | `(is_maximized,)` | State changed |
 | `Events.WINDOW_FULLSCREEN` | window-fullscreen | `(is_fullscreen,)` | Fullscreen state changed (requires 1.2+) |
-| `Events.FILE_DROP` | file-drop | `(files, x, y)` | File drop |
+| `Events.FILE_DROP` | file-drop | `(files, x, y)` | File drop (disabled on beta.10 Linux) |
 | `Events.WEBVIEW_WILL_NAVIGATE` | webview-will-navigate | `(url,)` | About to navigate |
 | `Events.WEBVIEW_DID_FINISH_LOAD` | webview-did-finish-load | `(url,)` | Loading finished |
 | `Events.WEBVIEW_NEW_WINDOW` | webview-new-window | `(url, frame_name)` | New window requested |
@@ -672,6 +672,10 @@ window.show()
 #### drag-drop / file-drop Event Details
 
 The low-level JadeView 2.x event is `drag-drop`, fired for the `enter`, `over`, `drop`, and `leave` phases. The SDK keeps `file-drop` / `on_file_dropped` as a compatibility wrapper that fires only for the final drop.
+
+:::warning{title="Linux beta.10 Limitation"}
+JadeView v2.3.0-beta.10 Build 26G01 may segfault after native `drag-drop` registration on Linux. The SDK blocks `drag-drop` and `file-drop` by default and raises `NotImplementedError`; the examples below currently apply to Windows only. Do not set `JADEUI_ENABLE_UNSAFE_LINUX_DRAG_DROP=1` in production.
+:::
 
 **Callback arguments**:
 

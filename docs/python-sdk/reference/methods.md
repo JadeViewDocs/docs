@@ -581,8 +581,8 @@ Window 类提供两种事件监听方式：**类型化装饰器**（推荐）和
 | `@window.on_closing` | `() -> bool` | 窗口即将关闭，返回 True 阻止 |
 | `@window.on_state_changed` | `(is_maximized: bool)` | 窗口状态改变 |
 | `@window.on_fullscreen_changed` | `(is_fullscreen: bool)` | 全屏状态改变 (需 1.2+) |
-| `@window.on_file_dropped` | `(files: List[str], x: int, y: int)` | 文件拖放 |
-| `@window.on("drag-drop")` | `(data: dict)` | v2.x 底层拖拽生命周期事件，含 enter/over/drop/leave 阶段 |
+| `@window.on_file_dropped` | `(files: List[str], x: int, y: int)` | 文件拖放（beta.10 Linux 暂禁用） |
+| `@window.on("drag-drop")` | `(data: dict)` | v2.x 底层拖拽生命周期事件（beta.10 Linux 暂禁用） |
 | `@window.on_navigate` | `(url: str) -> bool` | 即将导航，返回 True 阻止 |
 | `@window.on_page_loaded` | `(url: str)` | 页面加载完成 |
 | `@window.on_title_updated` | `(title: str)` | 页面标题更新 |
@@ -634,7 +634,7 @@ window.show()
 | `Events.WINDOW_CLOSING` | window-closing | `()` | 即将关闭（返回 1 可阻止） |
 | `Events.WINDOW_STATE_CHANGED` | window-state-changed | `(is_maximized,)` | 状态改变 |
 | `Events.WINDOW_FULLSCREEN` | window-fullscreen | `(is_fullscreen,)` | 全屏状态改变 (需 1.2+) |
-| `Events.FILE_DROP` | file-drop | `(files, x, y)` | 文件拖放 |
+| `Events.FILE_DROP` | file-drop | `(files, x, y)` | 文件拖放（beta.10 Linux 暂禁用） |
 | `Events.WEBVIEW_WILL_NAVIGATE` | webview-will-navigate | `(url,)` | 即将导航 |
 | `Events.WEBVIEW_DID_FINISH_LOAD` | webview-did-finish-load | `(url,)` | 加载完成 |
 | `Events.WEBVIEW_NEW_WINDOW` | webview-new-window | `(url, frame_name)` | 新窗口请求 |
@@ -672,6 +672,10 @@ window.show()
 #### drag-drop / file-drop 事件详解
 
 JadeView 2.x 底层事件名为 `drag-drop`，会在 `enter`、`over`、`drop`、`leave` 阶段触发。SDK 仍保留 `file-drop` / `on_file_dropped` 作为兼容封装，只在最终 drop 阶段触发。
+
+:::warning{title="Linux beta.10 限制"}
+JadeView v2.3.0-beta.10 Build 26G01 在 Linux 注册原生 `drag-drop` 后可能发生 segmentation fault。SDK 默认阻止 `drag-drop` 和 `file-drop` 注册并抛出 `NotImplementedError`；以下示例当前仅适用于 Windows。不要在生产环境设置 `JADEUI_ENABLE_UNSAFE_LINUX_DRAG_DROP=1`。
+:::
 
 **回调参数**：
 

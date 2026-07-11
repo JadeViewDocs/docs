@@ -186,7 +186,7 @@ Also make sure the packaged JadeView DLL matches the Python interpreter architec
 
 ### Q: Does the SDK automatically upgrade to the latest JadeView?
 
-**A:** Only within the release tag that the SDK has adapted to. For example, the current SDK targets `v2.3.0-beta.9` and can automatically use later build revisions in the same tag, but it will not automatically jump to `2.4` or another release tag. Minor/major upgrades require an explicit SDK ABI/API adaptation first.
+**A:** Only within the release tag that the SDK has adapted to. For example, the current SDK targets `v2.3.0-beta.10` and can automatically use later build revisions in the same tag, but it will not automatically jump to `2.4` or another release tag. Minor/major upgrades require an explicit SDK ABI/API adaptation first.
 
 ### Q: How can I reduce the size of the packaged file?
 

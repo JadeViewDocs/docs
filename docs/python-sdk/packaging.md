@@ -186,7 +186,7 @@ pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
 
 ### Q: SDK 会自动升级到最新 JadeView 吗？
 
-**A:** 只会在 SDK 已适配的 release tag 内自动选择最新 build。例如当前 SDK 适配 `v2.3.0-beta.9`，可自动使用同一 tag 下的后续修订号；但不会自动跨到 `2.4` 或其它 release tag。跨 minor/major 的版本升级需要 SDK 先完成 ABI/API 适配。
+**A:** 只会在 SDK 已适配的 release tag 内自动选择最新 build。例如当前 SDK 适配 `v2.3.0-beta.10`，可自动使用同一 tag 下的后续修订号；但不会自动跨到 `2.4` 或其它 release tag。跨 minor/major 的版本升级需要 SDK 先完成 ABI/API 适配。
 
 ### Q: 如何减小打包后的文件大小？
 
