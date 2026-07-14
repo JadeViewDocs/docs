@@ -69,6 +69,18 @@ export default defineConfig({
   // 全局样式补丁
   styles: [
     `
+/* 【根因修复】全站「裸链接」（面包屑、文档翻页 Next/Prev、正文外普通 <a> 等）发青：
+   antd 的 reset.css 给所有 <a> 上了 color: var(--ant-color-link)，而该变量取自 antd 组件的
+   默认链接色（偏青蓝）。在布局层嵌套 ConfigProvider 改 token 无效——antd v6 cssVar 模式下
+   嵌套 provider 会另起哈希 key、生成新变量名，而根级那条 a 规则始终引用根 key 的
+   --ant-color-link。故直接在全局把「链接色变量族」改成品牌橙，一处根治所有裸链接。
+   用通配 + !important 确保盖过 antd 在其 cssVar 作用域内对同名变量的常规声明。 */
+* {
+  --ant-color-link: #F97316 !important;
+  --ant-color-link-hover: #FB923C !important;
+  --ant-color-link-active: #EA680C !important;
+}
+
 /* 修复：lobehub GradientButton（首页主按钮）悬停时 ::after 背景突变、缺少过渡 */
 .ant-btn,
 .ant-btn::before,
@@ -330,6 +342,23 @@ html[data-prefers-color='light'] .ant-draggable-panel-fixed {
 }
 .ant-breadcrumb .ant-breadcrumb-separator {
   margin-inline: 8px !important;
+}
+/* 面包屑链接：裸 <a> 默认吃 antd reset 的 --ant-color-link（本主题偏青），且 antd Breadcrumb
+   的链接色走组件级 linkColor、不认外层 ConfigProvider 的 colorLink，故这里显式统一到品牌橙。
+   当前页（最后一级）不是 <a>，不受影响，保持中性文字色。 */
+.jade-doc-breadcrumb .ant-breadcrumb a {
+  color: #F97316 !important;
+}
+.jade-doc-breadcrumb .ant-breadcrumb a:hover {
+  color: #EA680C !important;
+}
+/* 「编辑此页」文字按钮：默认中性次要色（去掉青色），hover 转品牌橙。 */
+.jade-doc-breadcrumb .ant-btn-text {
+  color: var(--ant-color-text-secondary) !important;
+}
+.jade-doc-breadcrumb .ant-btn-text:hover {
+  color: #F97316 !important;
+  background: color-mix(in srgb, #F97316 10%, transparent) !important;
 }
 `,
     `

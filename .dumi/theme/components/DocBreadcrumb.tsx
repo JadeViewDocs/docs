@@ -164,6 +164,7 @@ export default memo(function DocBreadcrumb() {
 
   return (
     <div
+      className="jade-doc-breadcrumb"
       style={{
         alignItems: 'center',
         display: 'flex',
