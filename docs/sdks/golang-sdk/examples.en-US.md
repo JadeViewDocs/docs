@@ -4,10 +4,10 @@ order: 4
 
 # Examples
 
-The module ships an interactive example (the `example/` subpackage) — one codebase that runs on both Windows and Linux:
+The module ships an interactive example (the `example/` subpackage) that you can run directly:
 
 ```bash
-go run github.com/luoxueyousheng/JadeViewGo/example@v0.2.2
+go run github.com/luoxueyousheng/JadeViewGo/example@latest
 ```
 
 It demonstrates theme/backdrop switching, IPC echo & push, window operations, dialogs, notifications, clipboard, NTP, YAML, tray, and all three frontend-loading approaches for JAPK. Below are snippets you can drop into your own code.
@@ -21,7 +21,6 @@ package main
 
 import (
     "fmt"
-    "runtime"
 
     jadeview "github.com/luoxueyousheng/JadeViewGo"
 )
@@ -70,9 +69,7 @@ func setupTray() {
         return
     }
     jadeview.TraySetTooltip(trayID, "My App - running")
-    if runtime.GOOS == "windows" {
-        jadeview.TraySetIconFromFile(trayID, "icon.ico")
-    }
+    jadeview.TraySetIconFromFile(trayID, "icon.ico")
     jadeview.TraySetMenu(trayID, []jadeview.TrayMenuItem{
         {Type: jadeview.TrayItem.Normal, Key: "show", Label: "Show Window"},
         {Type: jadeview.TrayItem.Divider, Key: "sep"},

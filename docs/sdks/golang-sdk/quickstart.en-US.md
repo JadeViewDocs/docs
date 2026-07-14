@@ -7,31 +7,9 @@ order: 1
 ## Requirements
 
 - **Go 1.23+**
-- **Windows**: Windows 10 / 11 + WebView2 Runtime (bundled with Win11; on Win10 install via Microsoft's Evergreen Bootstrapper)
-- **Linux**: X11 / Wayland graphical desktop + GTK3 / WebKit2GTK / libxdo3
-
-### Windows Prerequisites
+- **Windows 10 / 11** + WebView2 Runtime (bundled with Win11; on Win10 install via Microsoft's Evergreen Bootstrapper)
 
 Build machines need **only the Go toolchain** — no MinGW / MSYS2, no `CC` / `CGO_ENABLED` setup. The `JadeView.dll` for each architecture is embedded into the binary via `go:embed`, so **no DLL needs to ship with your app**.
-
-### Linux Prerequisites
-
-Linux uses cgo static linking. Build machines need the system dev packages (Debian / Ubuntu):
-
-```bash
-sudo apt install build-essential pkg-config \
-    libgtk-3-dev libwebkit2gtk-4.1-dev libxdo-dev
-```
-
-Target machines (runtime) only need the runtime libraries:
-
-```bash
-sudo apt install libgtk-3-0 libwebkit2gtk-4.1-0 libxdo3
-```
-
-:::info
-On older distros that only ship WebKit2GTK 4.0 (no 4.1 package), change `webkit2gtk-4.1` to `webkit2gtk-4.0` in the module's `jadeview_linux_amd64.go` / `jadeview_linux_arm64.go`. Verify first with `pkg-config --exists webkit2gtk-4.1 && echo has-4.1 || echo use-4.0`.
-:::
 
 ## Installation
 
@@ -120,8 +98,6 @@ The protocol service site directory must **not** be the same as (or nested with)
 
 ## Build & Distribution
 
-### Windows
-
 ```powershell
 go build -o myapp.exe .                             # console build (shows logs)
 go build -ldflags "-H windowsgui" -o myapp.exe .    # GUI build (no cmd window)
@@ -132,20 +108,6 @@ $env:GOARCH="arm64"; go build -ldflags "-H windowsgui" -o myapp_arm64.exe .
 ```
 
 The output is a **single exe**. On first run the DLL is extracted to a content-addressed directory under `%TEMP%\jadeview\` (multiple versions/architectures coexist safely); if a `JadeView.dll` sits next to the exe it takes priority (handy for debugging with a different library build).
-
-### Linux
-
-```bash
-CGO_ENABLED=1 go build ./...     # verify compile + link
-go run ./example                 # requires a graphical desktop
-```
-
-In GPU-less / remote X11 environments WebKit crashes when it can't get EGL; force software rendering:
-
-```bash
-WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 \
-LIBGL_ALWAYS_SOFTWARE=1 ./myapp
-```
 
 ## Feature Overview
 

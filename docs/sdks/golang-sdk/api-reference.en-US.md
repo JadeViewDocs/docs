@@ -4,7 +4,7 @@ order: 2
 
 # API Reference
 
-The public API is identical across platforms (pure Go on Windows / cgo on Linux, switched automatically by `GOOS`). Everything lives in the single package `jadeview`.
+The SDK is a pure Go implementation (direct syscall, no CGO). Everything lives in the single package `jadeview`.
 
 ## Core Functions
 
@@ -41,7 +41,7 @@ Returns the JadeView version string.
 
 ### `jadeview.Preload()`
 
-Windows: extracts and loads the embedded DLL early, returning an error (if loading fails, the first API call panics — hosts that need graceful degradation should call this at startup to probe). Linux: static linking has no load step, always returns `nil` — cross-platform code can call it unconditionally.
+Extracts and loads the embedded DLL early, returning an error. If loading fails, the first API call panics — hosts that need graceful degradation should call this at startup to probe.
 
 ---
 
@@ -161,7 +161,7 @@ Creates a standalone borderless WebView window.
 | `SetBackdrop(windowID, backdropType)` | Window backdrop: `Backdrop.Mica` / `Backdrop.MicaAlt` / `Backdrop.Acrylic` (Windows 11) |
 | `SetBackgroundColor(windowID, colorHex)` | Solid background `#RRGGBBAA` |
 | `SetFrameStyle(windowID, frameStyle)` | Frame style, see the `FrameStyle` enum |
-| `SetTitlebarOverlayStyle(windowID, height, iconColorHex, hoverBgHex)` | Title-bar overlay styling (Windows; height ≤ 0 keeps the height) |
+| `SetTitlebarOverlayStyle(windowID, height, iconColorHex, hoverBgHex)` | Title-bar overlay styling (height ≤ 0 keeps the height) |
 | `SetLevel(windowID, level)` | Window level, see the `WindowLevel` enum |
 | `SetSkipTaskbar` / `SetNoActivate` / `SetIgnoreCursorEvents` | Hide from taskbar / no activation / click-through |
 | `SetContentProtection(windowID, on)` | Screenshot protection |
@@ -349,7 +349,7 @@ jadeview.TrayCreate() uint32                          // create a tray icon, ret
 jadeview.TrayDestroy(trayID) bool
 jadeview.TraySetVisible(trayID, visible) bool
 jadeview.TraySetTooltip(trayID, tooltip) bool
-jadeview.TraySetIconFromFile(trayID, iconPath) bool   // icon file (.ico is Windows-only)
+jadeview.TraySetIconFromFile(trayID, iconPath) bool   // icon file (.ico)
 jadeview.TraySetIconFromData(trayID, data []byte) bool // in-memory icon data
 jadeview.TraySetMenu(trayID, items []TrayMenuItem) bool // flat table; empty slice = clear menu
 ```
@@ -367,10 +367,6 @@ items := []jadeview.TrayMenuItem{
 ```
 
 `Key` must be unique across the table and non-empty (dividers need unique keys too); clicks are reported via the `EventTrayMenuCommand` event.
-
-:::warning
-**Probe before creating a tray on Linux**: on desktops without the StatusNotifier tray protocol (e.g. stock Debian/GNOME), `TrayCreate` in beta.10 crashes the library's GUI thread instead of returning 0. Probe the session D-Bus for `org.kde.StatusNotifierWatcher` first — see [Advanced Usage](./advanced#linux-tray-protocol-detection).
-:::
 
 ---
 

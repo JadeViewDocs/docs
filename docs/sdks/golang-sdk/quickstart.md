@@ -7,31 +7,9 @@ order: 1
 ## 环境要求
 
 - **Go 1.23+**
-- **Windows**：Windows 10 / 11 + WebView2 Runtime（Win11 自带；Win10 用微软 Evergreen Bootstrapper 安装）
-- **Linux**：X11 / Wayland 图形桌面 + GTK3 / WebKit2GTK / libxdo3
-
-### Windows 前置条件
+- **Windows 10 / 11** + WebView2 Runtime（Win11 自带；Win10 用微软 Evergreen Bootstrapper 安装）
 
 构建机**只需 Go 工具链**——无需 MinGW / MSYS2，无需设置 `CC` / `CGO_ENABLED`。对应架构的 `JadeView.dll` 已用 `go:embed` 编进二进制，**无需随程序分发 DLL**。
-
-### Linux 前置条件
-
-Linux 侧走 cgo 静态链接，构建机需装系统开发包（Debian / Ubuntu 系）：
-
-```bash
-sudo apt install build-essential pkg-config \
-    libgtk-3-dev libwebkit2gtk-4.1-dev libxdo-dev
-```
-
-目标机（运行时）只需运行时库：
-
-```bash
-sudo apt install libgtk-3-0 libwebkit2gtk-4.1-0 libxdo3
-```
-
-:::info
-老发行版只有 WebKit2GTK 4.0（无 4.1 包）时，把模块内 `jadeview_linux_amd64.go` / `jadeview_linux_arm64.go` 里的 `webkit2gtk-4.1` 改成 `webkit2gtk-4.0`。先用 `pkg-config --exists webkit2gtk-4.1 && echo 有4.1 || echo 用4.0` 确认。
-:::
 
 ## 安装
 
@@ -119,8 +97,6 @@ jadeview.On(jadeview.EventAppReady, func(windowID uint32, data string) string {
 
 ## 构建与分发
 
-### Windows
-
 ```powershell
 go build -o myapp.exe .                             # 控制台版（能看日志）
 go build -ldflags "-H windowsgui" -o myapp.exe .    # GUI 版（无 cmd 黑窗）
@@ -131,20 +107,6 @@ $env:GOARCH="arm64"; go build -ldflags "-H windowsgui" -o myapp_arm64.exe .
 ```
 
 产物是**单个 exe**。首次运行时 DLL 自动释放到 `%TEMP%\jadeview\` 下的内容寻址目录（多版本/多架构并存互不覆盖）；exe 同目录若放了 `JadeView.dll` 则优先使用（便于调试换库）。
-
-### Linux
-
-```bash
-CGO_ENABLED=1 go build ./...     # 验证编译 + 链接
-go run ./example                 # 需要图形桌面
-```
-
-无 GPU / 远程 X11 环境下 WebKit 拿不到 EGL 会崩溃，强制软件渲染：
-
-```bash
-WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 \
-LIBGL_ALWAYS_SOFTWARE=1 ./myapp
-```
 
 ## 功能分区总览
 

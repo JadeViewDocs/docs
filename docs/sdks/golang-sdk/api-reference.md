@@ -4,7 +4,7 @@ order: 2
 
 # API 参考
 
-公共 API 跨平台完全一致（Windows 纯 Go 实现 / Linux cgo 实现自动按 `GOOS` 切换）。所有 API 都在单个包 `jadeview` 下。
+SDK 为纯 Go 实现（syscall 直调，无 CGO）。所有 API 都在单个包 `jadeview` 下。
 
 ## 核心函数
 
@@ -41,7 +41,7 @@ jadeview.Init(
 
 ### `jadeview.Preload()`
 
-Windows：提前释放并加载内置 DLL，返回 error（加载失败时首次 API 调用会 panic，需要优雅降级的宿主在启动早期调用它探测）。Linux：静态链接无加载步骤，恒返回 `nil`——跨平台代码可无条件调用。
+提前释放并加载内置 DLL，返回 error。加载失败时首次 API 调用会 panic——需要优雅降级的宿主应在启动早期调用它探测。
 
 ---
 
@@ -161,7 +161,7 @@ jadeview.CreateBorderlessWindow(url string, settings *WebViewSettings) uint32
 | `SetBackdrop(windowID, backdropType)` | 窗口材质：`Backdrop.Mica` / `Backdrop.MicaAlt` / `Backdrop.Acrylic`（Windows 11） |
 | `SetBackgroundColor(windowID, colorHex)` | 纯色底 `#RRGGBBAA` |
 | `SetFrameStyle(windowID, frameStyle)` | 边框样式，见 `FrameStyle` 枚举 |
-| `SetTitlebarOverlayStyle(windowID, height, iconColorHex, hoverBgHex)` | 标题栏覆盖层样式（Windows；height≤0 不改高度） |
+| `SetTitlebarOverlayStyle(windowID, height, iconColorHex, hoverBgHex)` | 标题栏覆盖层样式（height≤0 不改高度） |
 | `SetLevel(windowID, level)` | 窗口层级，见 `WindowLevel` 枚举 |
 | `SetSkipTaskbar` / `SetNoActivate` / `SetIgnoreCursorEvents` | 任务栏隐藏 / 不激活 / 鼠标穿透 |
 | `SetContentProtection(windowID, on)` | 防截屏 |
@@ -349,7 +349,7 @@ jadeview.TrayCreate() uint32                          // 创建托盘，返回 t
 jadeview.TrayDestroy(trayID) bool
 jadeview.TraySetVisible(trayID, visible) bool
 jadeview.TraySetTooltip(trayID, tooltip) bool
-jadeview.TraySetIconFromFile(trayID, iconPath) bool   // 图标文件（.ico 仅 Windows）
+jadeview.TraySetIconFromFile(trayID, iconPath) bool   // 图标文件（.ico）
 jadeview.TraySetIconFromData(trayID, data []byte) bool // 内存图标数据
 jadeview.TraySetMenu(trayID, items []TrayMenuItem) bool // 扁平表；空切片=清除菜单
 ```
@@ -367,10 +367,6 @@ items := []jadeview.TrayMenuItem{
 ```
 
 `Key` 需全表唯一且非空（分隔线也要唯一 key）；点击经 `EventTrayMenuCommand` 事件回报。
-
-:::warning
-**Linux 托盘须先探测**：在没有 StatusNotifier 托盘协议的桌面（如 Debian/GNOME 默认桌面）上，beta.10 的 `TrayCreate` 会让库 GUI 线程直接崩溃而非返回 0。调用前先探测会话 D-Bus 上有无 `org.kde.StatusNotifierWatcher`，详见[高级用法](./advanced#linux-托盘协议探测)。
-:::
 
 ---
 

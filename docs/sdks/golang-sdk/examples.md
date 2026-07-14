@@ -4,10 +4,10 @@ order: 4
 
 # 示例代码
 
-模块自带可交互示例（`example/` 子包），一份代码 Windows / Linux 都能跑：
+模块自带可交互示例（`example/` 子包），可直接运行：
 
 ```bash
-go run github.com/luoxueyousheng/JadeViewGo/example@v0.2.2
+go run github.com/luoxueyousheng/JadeViewGo/example@latest
 ```
 
 演示了主题/材质切换、IPC 回声与推送、窗口操作、对话框、通知、剪贴板、NTP、YAML、托盘、JAPK 三种前端加载方式。以下为可直接套用的代码片段。
@@ -21,7 +21,6 @@ package main
 
 import (
     "fmt"
-    "runtime"
 
     jadeview "github.com/luoxueyousheng/JadeViewGo"
 )
@@ -70,9 +69,7 @@ func setupTray() {
         return
     }
     jadeview.TraySetTooltip(trayID, "我的应用 - 运行中")
-    if runtime.GOOS == "windows" {
-        jadeview.TraySetIconFromFile(trayID, "icon.ico")
-    }
+    jadeview.TraySetIconFromFile(trayID, "icon.ico")
     jadeview.TraySetMenu(trayID, []jadeview.TrayMenuItem{
         {Type: jadeview.TrayItem.Normal, Key: "show", Label: "显示窗口"},
         {Type: jadeview.TrayItem.Divider, Key: "sep"},

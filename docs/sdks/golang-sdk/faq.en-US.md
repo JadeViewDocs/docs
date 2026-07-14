@@ -8,32 +8,20 @@ order: 5
 
 ### Which operating systems does the Golang SDK support?
 
-**Windows 10 / 11** (amd64 / 386 / arm64) and **Linux** (amd64 / arm64). The public API is identical on both, so the same business code compiles for both platforms. macOS is not supported yet.
+**Windows 10 / 11** (amd64 / 386 / arm64). Linux support is planned to arrive with upcoming upstream JadeView releases (2.4 / 2.5); macOS is not supported yet.
 
 ### What Go version is required?
 
 **Go 1.23** or later.
 
-### Do I need a C compiler on Windows?
+### Do I need a C compiler?
 
-No. The Windows side is **pure Go** (direct syscall) with the DLL embedded via `go:embed` — no MinGW / MSYS2, no `CC` / `CGO_ENABLED`, and no DLL to ship with your app.
-
-### Linux build fails with `stdlib.h: No such file` / `cannot find -lxdo`?
-
-Linux uses cgo; the build machine needs the system dev packages:
-
-```bash
-sudo apt install build-essential pkg-config \
-    libgtk-3-dev libwebkit2gtk-4.1-dev libxdo-dev
-```
-
-`libxdo-dev` is easy to miss — `libJadeView.a` hard-references it (the tray menu sends key sequences); without it the linker reports `cannot find -lxdo`.
+No. The SDK is **pure Go** (direct syscall) with the DLL embedded via `go:embed` — no MinGW / MSYS2, no `CC` / `CGO_ENABLED`, and no DLL to ship with your app.
 
 ### Do I need the WebView2 Runtime?
 
 - **Windows 11**: built in, nothing to install
 - **Windows 10**: install the [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
-- **Linux**: WebView2 is not used; rendering goes through the system WebKit2GTK
 
 ### Does the SDK have extra Go dependencies?
 
@@ -41,7 +29,7 @@ No — Go standard library only.
 
 ### `go get @latest` can't resolve a just-released version?
 
-The official proxy index lags by a few minutes. Use an exact version (e.g. `@v0.2.2`), or pull explicitly with `GOPROXY=https://proxy.golang.org,direct`.
+The official proxy index lags by a few minutes. Wait and retry, or pull explicitly with `GOPROXY=https://proxy.golang.org,direct`.
 
 ---
 
@@ -98,7 +86,7 @@ Most likely **cross-origin**: pages loaded from http(s) URLs are not same-origin
 
 Set `WindowOptions.FrameStyle`:
 
-- `FrameStyle.TitleOverlay` — keeps the frame, no title bar, built-in window controls at the top right (Windows, recommended)
+- `FrameStyle.TitleOverlay` — keeps the frame, no title bar, built-in window controls at the top right (recommended)
 - `FrameStyle.NoTitlebar` — keeps the frame; draw your own title bar
 - `FrameStyle.Borderless` — completely frameless
 
@@ -110,32 +98,13 @@ Set `WindowOptions.FrameStyle`:
 
 ### How do I drag a borderless window?
 
-The `jade-region-drag` drag region is a Windows feature; on Linux use CSS `-webkit-app-region: drag`.
+Add the HTML boolean attribute `jade-region-drag` to an element to make it a drag region, and `jade-region-no-drag` to exclude interactive elements inside it (injected automatically at runtime — no script required).
 
 ---
 
 ## Platform Specifics
 
-### TrayCreate crashes on Linux?
-
-Known upstream beta.10 issue: on desktops **without the StatusNotifier tray protocol** (e.g. stock Debian/GNOME), `tray_create` crashes the GUI thread instead of returning 0. Probe the session D-Bus for `org.kde.StatusNotifierWatcher` first and skip the tray when unsupported. Probe code: [Advanced Usage - Linux Tray Protocol Detection](./advanced#linux-tray-protocol-detection). GNOME users can install an AppIndicator extension to get tray support.
-
-### Crashes at startup in a Linux VM / GPU-less environment (libEGL errors)?
-
-WebKit defaults to GPU compositing and crashes when EGL/DRI is unavailable. Force software rendering:
-
-```bash
-WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 \
-LIBGL_ALWAYS_SOFTWARE=1 ./myapp
-```
-
-Enabling "3D acceleration" in VMware also fixes it.
-
-### "No authorisation provided" after SSH / su to root?
-
-The X/Wayland auth cookie belongs to the login user and is lost after `su`/`sudo`. Run GUI programs as the **original login user**.
-
-### Antivirus flags / blocks the app on Windows?
+### Antivirus flags / blocks the app?
 
 Some antivirus products heuristically flag the "extract-and-load a DLL" pattern; that's expected — guide users to whitelist. If DLL loading is blocked, the first API call panics — call `Preload()` early at startup to detect the error and fail gracefully.
 
@@ -169,6 +138,5 @@ An empty string `""` selects the **in-memory JAPK mode**: it serves the package 
 
 ## Version Info
 
-- **SDK version**: v0.2.2
-- **JadeView version**: v2.3.0-beta.10
+- **SDK version**: always use `@latest`; see [GitHub Releases](https://github.com/luoxueyousheng/JadeViewGo/releases) for changelogs
 - **Go**: 1.23+

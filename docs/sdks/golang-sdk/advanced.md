@@ -104,20 +104,18 @@ jadeview.CreateWindow(url, 0, &opts, &settings)
 
 ## 平台自适应（PreloadJS 注入环境）
 
-用 `PreloadJS` 在页面脚本运行前注入平台信息，前端同步读取做适配（Windows 11 才开材质、非 Windows 隐藏自绘标题栏等）：
+用 `PreloadJS` 在页面脚本运行前注入环境信息，前端同步读取做适配（如 Windows 11 才启用材质）：
 
 ```go
-win11 := runtime.GOOS == "windows" && jadeview.IsWindows11()
+win11 := jadeview.IsWindows11()
 
 settings := jadeview.DefaultWebViewSettings()
 settings.PreloadJS = fmt.Sprintf(
-    "window.__JV_ENV={os:%q,arch:%q,win11:%v};",
-    runtime.GOOS, runtime.GOARCH, win11)
+    "window.__JV_ENV={arch:%q,win11:%v};",
+    runtime.GOARCH, win11)
 
 opts := jadeview.DefaultWindowOptions()
-if runtime.GOOS == "windows" {
-    opts.FrameStyle = jadeview.FrameStyle.TitleOverlay // 库内置右上角控制按钮
-}
+opts.FrameStyle = jadeview.FrameStyle.TitleOverlay // 库内置右上角控制按钮
 if win11 {
     opts.Transparent = true // 材质需要透明底
 } else {
@@ -132,35 +130,9 @@ if win11 {
 
 ```javascript
 // 前端同步读取（页面脚本运行前已注入）
-const ENV = Object.assign({ os: 'windows', win11: true }, window.__JV_ENV);
-if (!(ENV.os === 'windows' && ENV.win11)) {
+const ENV = Object.assign({ win11: true }, window.__JV_ENV);
+if (!ENV.win11) {
     // 禁用材质选项，退回纯色
-}
-```
-
-## Linux 托盘协议探测
-
-beta.10 的 `tray_create` 在**没有 StatusNotifier 托盘协议**的桌面（如 Debian/GNOME 默认桌面，需另装 AppIndicator 扩展）上不是返回 0，而是让库 GUI 线程直接崩溃（已反馈上游）。调用前先探测：
-
-```go
-func hasStatusNotifierWatcher() bool {
-    out, err := exec.Command("dbus-send", "--session",
-        "--dest=org.freedesktop.DBus", "--type=method_call", "--print-reply",
-        "/org/freedesktop/DBus", "org.freedesktop.DBus.NameHasOwner",
-        "string:org.kde.StatusNotifierWatcher").Output()
-    if err != nil {
-        return false
-    }
-    return strings.Contains(string(out), "true")
-}
-
-func setupTray() {
-    if runtime.GOOS == "linux" && !hasStatusNotifierWatcher() {
-        fmt.Println("[托盘] 跳过：桌面无 StatusNotifier 协议")
-        return
-    }
-    trayID := jadeview.TrayCreate()
-    // ...
 }
 ```
 
@@ -211,7 +183,7 @@ if jadeview.IsWindows11() {
 
 ## 应用打包与分发
 
-### Windows：单 exe 自包含
+### 单 exe 自包含
 
 DLL 已 `go:embed` 内置，**无需任何打包工具**：
 
@@ -230,14 +202,6 @@ if err := jadeview.Preload(); err != nil {
 }
 ```
 
-### Linux：单二进制（依赖系统库）
-
-```bash
-CGO_ENABLED=1 go build -o myapp .
-```
-
-目标机需装 `libgtk-3-0 libwebkit2gtk-4.1-0 libxdo3`。arm64 推荐在 arm64 机器上原生构建；交叉编译需 aarch64 gcc 加 arm64 版 GTK/WebKit sysroot，配置繁琐一般不值得。
-
 ### 无边框窗口拖动区
 
-`jade-region-drag` 拖动区为 **Windows 特性**（上游文档标注）；Linux 请用 CSS `-webkit-app-region: drag`。
+无边框 / 无标题栏窗口用 HTML 布尔属性 `jade-region-drag` 标记拖动区、`jade-region-no-drag` 排除内部交互元素（运行时自动注入，无需引入脚本）。

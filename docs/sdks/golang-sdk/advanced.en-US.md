@@ -105,20 +105,18 @@ Use a reverse-domain `appSignature` in `Init` (e.g. `com.example.myapp`) — it 
 
 ## Platform Adaptation (injecting env via PreloadJS)
 
-Use `PreloadJS` to inject platform info before page scripts run, so the frontend can adapt synchronously (enable backdrops only on Windows 11, hide the custom title bar off Windows, etc.):
+Use `PreloadJS` to inject environment info before page scripts run, so the frontend can adapt synchronously (e.g. enable backdrops only on Windows 11):
 
 ```go
-win11 := runtime.GOOS == "windows" && jadeview.IsWindows11()
+win11 := jadeview.IsWindows11()
 
 settings := jadeview.DefaultWebViewSettings()
 settings.PreloadJS = fmt.Sprintf(
-    "window.__JV_ENV={os:%q,arch:%q,win11:%v};",
-    runtime.GOOS, runtime.GOARCH, win11)
+    "window.__JV_ENV={arch:%q,win11:%v};",
+    runtime.GOARCH, win11)
 
 opts := jadeview.DefaultWindowOptions()
-if runtime.GOOS == "windows" {
-    opts.FrameStyle = jadeview.FrameStyle.TitleOverlay // built-in window controls, top-right
-}
+opts.FrameStyle = jadeview.FrameStyle.TitleOverlay // built-in window controls, top-right
 if win11 {
     opts.Transparent = true // backdrops need a transparent base
 } else {
@@ -133,35 +131,9 @@ if win11 {
 
 ```javascript
 // Frontend reads synchronously (injected before page scripts run)
-const ENV = Object.assign({ os: 'windows', win11: true }, window.__JV_ENV);
-if (!(ENV.os === 'windows' && ENV.win11)) {
+const ENV = Object.assign({ win11: true }, window.__JV_ENV);
+if (!ENV.win11) {
     // disable backdrop options, fall back to solid colors
-}
-```
-
-## Linux Tray Protocol Detection
-
-In beta.10, `tray_create` on desktops **without the StatusNotifier tray protocol** (e.g. stock Debian/GNOME, which needs an AppIndicator extension) doesn't return 0 — it crashes the library's GUI thread (reported upstream). Probe before calling:
-
-```go
-func hasStatusNotifierWatcher() bool {
-    out, err := exec.Command("dbus-send", "--session",
-        "--dest=org.freedesktop.DBus", "--type=method_call", "--print-reply",
-        "/org/freedesktop/DBus", "org.freedesktop.DBus.NameHasOwner",
-        "string:org.kde.StatusNotifierWatcher").Output()
-    if err != nil {
-        return false
-    }
-    return strings.Contains(string(out), "true")
-}
-
-func setupTray() {
-    if runtime.GOOS == "linux" && !hasStatusNotifierWatcher() {
-        fmt.Println("[tray] skipped: desktop has no StatusNotifier protocol")
-        return
-    }
-    trayID := jadeview.TrayCreate()
-    // ...
 }
 ```
 
@@ -212,7 +184,7 @@ if jadeview.IsWindows11() {
 
 ## Packaging & Distribution
 
-### Windows: single self-contained exe
+### Single self-contained exe
 
 The DLL is embedded via `go:embed` — **no packaging tool needed**:
 
@@ -231,14 +203,6 @@ if err := jadeview.Preload(); err != nil {
 }
 ```
 
-### Linux: single binary (system-library dependent)
-
-```bash
-CGO_ENABLED=1 go build -o myapp .
-```
-
-Target machines need `libgtk-3-0 libwebkit2gtk-4.1-0 libxdo3`. For arm64, build natively on an arm64 machine; cross-compiling needs an aarch64 gcc plus an arm64 GTK/WebKit sysroot — usually not worth the setup.
-
 ### Drag Regions in Borderless Windows
 
-The `jade-region-drag` drag region is a **Windows feature** (per upstream docs); on Linux use CSS `-webkit-app-region: drag`.
+In borderless / no-titlebar windows, mark drag regions with the HTML boolean attribute `jade-region-drag` and exclude interactive elements inside them with `jade-region-no-drag` (injected automatically at runtime — no script required).
