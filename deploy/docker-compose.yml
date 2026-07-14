@@ -43,5 +43,8 @@ services:
       IMAGE_NAME: ${IMAGE_NAME:-yiminger/jadeview_docs:latest}
       CONTAINER_NAME: docs-site
       SITE_PORT: ${SITE_PORT:-8088}
+      # 拉镜像加速器回退列表（逗号分隔主机名）。留空用代码内置默认；
+      # 国内加速器时常失效，失效了改这里再 `docker compose up -d webhook` 即可。
+      PULL_MIRRORS: ${PULL_MIRRORS:-docker.1ms.run,docker.m.daocloud.io,docker.1panel.live,hub.rat.dev}
     working_dir: /app
     command: bash -c "pip install --quiet -i https://pypi.tuna.tsinghua.edu.cn/simple fastapi uvicorn docker && python webhook-server.py"
