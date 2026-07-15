@@ -3,17 +3,18 @@
 # 思路：发行库（JadeViewDocs/JadeView）发新版后，本工作流在 CI（海外、可达 GitHub）拉取 Releases，
 #   重新生成同源静态快照并提交回本仓库。用户访问时只读本站 /releases/data.json，国内不卡、不直连 GitHub。
 #
-# 触发：定时（每日）+ 手动。注意 `on: release` 只对“本仓库自身”的发布生效，而版本发布在另一个库里，
-#   故这里用 schedule + 手动；若想“发版即更新”，可在发行库加一步向本仓库发 repository_dispatch
-#   （type: refresh-releases），再在下方 on 里打开 repository_dispatch 即可。
+# 触发：定时（每日）+ 手动 + 发版即时。注意 `on: release` 只对“本仓库自身”的发布生效，
+#   版本发布在发行库里，故发行库 release.yml 收尾会向本仓库发 repository_dispatch
+#   （type: refresh-releases）：本工作流刷新快照提交（[skip ci] 不引发二次部署），
+#   deploy-docker 同时被触发完成前端重建部署。
 name: 刷新发行快照
 
 on:
   schedule:
     - cron: '0 18 * * *' # 每日 02:00（北京时间）
   workflow_dispatch: {}
-  # repository_dispatch:
-  #   types: [refresh-releases]
+  repository_dispatch:
+    types: [refresh-releases]
 
 permissions:
   contents: write

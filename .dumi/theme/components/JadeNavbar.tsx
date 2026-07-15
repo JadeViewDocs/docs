@@ -14,38 +14,30 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
 import { useLiquidGlass, GLASS_PARAMS, GLASS_SATURATION } from './JadeGlass';
 
-type SdkKey = 'web' | 'py' | 'py2' | 'ey' | 'vol';
+type SdkKey = 'web' | 'py' | 'go' | 'ey' | 'vol';
 
 // 图标：能用真实品牌 logo 的用真实 logo（彩色 SVG，存于 public/sdk/，devicon 来源）；
 // 易语言 / 火山无公开 logo，用品牌色「字徽」（比抽象线条统一、清晰）。
-const SDK_ICON: Record<string, { type: 'img'; src: string } | { type: 'char'; char: string; color: string }> = {
+const SDK_ICON: Record<string, { type: 'img'; src: string; bg?: string } | { type: 'char'; char: string; color: string }> = {
   web: { type: 'img', src: '/sdklogo/javascript.svg' },
   py: { type: 'img', src: '/sdklogo/python.svg' },
-  py2: { type: 'img', src: '/sdklogo/python.svg' },
-  ey: { type: 'char', char: '易', color: '#2b7de9' },
+  go: { type: 'img', src: '/sdklogo/go.svg', bg: '#007D9C' }, // 白色 GO logo → Go 品牌深蓝底
+  ey: { type: 'char', char: '易', color: '#F97316' },
   vol: { type: 'char', char: '火', color: '#e8533f' },
 };
 
 // 结构（key/链接）固定；标题与描述走 useT()（见 ../locales/strings）。
-const SDK_GROUPS: { key: 'frontend' | 'more'; items: { key: SdkKey; link: string }[] }[] = [
-  {
-    key: 'frontend',
-    items: [
-      { key: 'web', link: '/web-sdk' },
-      { key: 'py', link: '/python-sdk' },
-      { key: 'py2', link: '/python-sdk2' },
-    ],
-  },
-  {
-    key: 'more',
-    items: [
-      { key: 'ey', link: '/easy-language-sdk' },
-      { key: 'vol', link: '/voldp-sdk' },
-    ],
-  },
+// 扁平列表（不分类）：所有 SDK 平铺一列，无分组标题。
+const SDK_ITEMS: { key: SdkKey; link: string }[] = [
+  { key: 'web', link: '/sdks/web-sdk' },
+  { key: 'py', link: '/sdks/python-sdk' },
+  { key: 'go', link: '/sdks/golang-sdk' },
+  { key: 'ey', link: '/sdks/easy-language-sdk' },
+  { key: 'vol', link: '/sdks/voldp-sdk' },
 ];
 
-const SDK_LINKS = ['/sdk', ...SDK_GROUPS.flatMap((g) => g.items.map((i) => i.link))];
+// SDK 分区已统一收纳在 /sdks 子路由下，激活态只需匹配该前缀
+const SDK_ROOT = '/sdks';
 
 // 「文档」下拉的两张大卡片（仿 lobehub.com 顶部导航左侧大卡片）：顶部色块 + 图标 + 页数角标，下方标题/描述。
 // 标题/描述走 useT()；这里只放结构（key/链接/图标/配色）。
@@ -54,15 +46,15 @@ const DOCS_SECTIONS = [
     key: 'spec' as const,
     link: '/docs/spec',
     icon: <BookOpen size={18} />,
-    grad: 'linear-gradient(135deg, rgba(0,126,229,0.22), rgba(0,126,229,0.04))',
-    iconBg: '#007ee5',
+    grad: 'linear-gradient(135deg, rgba(249,115,22,0.22), rgba(249,115,22,0.04))',
+    iconBg: '#F97316',
   },
   {
     key: 'api' as const,
     link: '/docs/api',
     icon: <Code2 size={18} />,
-    grad: 'linear-gradient(135deg, rgba(124,77,255,0.22), rgba(0,200,170,0.10))',
-    iconBg: 'linear-gradient(135deg, #7c4dff, #00c8aa)',
+    grad: 'linear-gradient(135deg, rgba(251,191,36,0.22), rgba(234,88,12,0.10))',
+    iconBg: 'linear-gradient(135deg, #FBBF24, #EA580C)',
   },
 ];
 
@@ -169,25 +161,10 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
     max-width: 560px;
   `,
   cols: css`
-    display: flex;
-    gap: 28px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    gap: 2px 28px;
     padding: 20px 22px;
-  `,
-  col: css`
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 200px;
-  `,
-  colTitle: css`
-    margin: 0 0 6px;
-    padding-inline-start: 10px;
-
-    font-size: 12px;
-    font-weight: 500;
-    color: ${token.colorTextTertiary};
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
   `,
   menuItem: css`
     display: flex;
@@ -206,7 +183,8 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
       background: ${token.colorFillTertiary};
     }
   `,
-  // 真实 logo 容器：中性浅底，img 居中（logo 自带配色）
+  // 真实 logo 容器：中性底牌（JS/Python 等全彩 logo 深浅两色都清晰）。
+  // 白色单色 logo（如 go.svg 是纯白 GO）单独给品牌深底，见 SDK_ICON.bg —— 否则白 logo 在浅底上看不见。
   icon: css`
     overflow: hidden;
     flex-shrink: 0;
@@ -299,7 +277,7 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
     border-radius: 9px;
 
     color: #fff;
-    background: linear-gradient(135deg, #2b9bff, #007ee5);
+    background: linear-gradient(135deg, #FDBA74, #F97316);
   `,
   downloadBody: css`
     overflow: hidden;
@@ -430,7 +408,7 @@ export default memo(function JadeNavbar() {
   const navTitle = (item: any): string => {
     const l = String(item.link || '');
     if (l.startsWith('/docs')) return t.nav.docs;
-    if (l === '/sdk' || item.title === 'SDKs') return t.nav.sdks;
+    if (l === SDK_ROOT || item.title === 'SDKs') return t.nav.sdks;
     if (l === '/jadepack' || item.title === '产品') return t.nav.products;
     if (l === '/showcase') return t.nav.showcase;
     if (l === '/releases') return t.nav.releases;
@@ -467,7 +445,7 @@ export default memo(function JadeNavbar() {
     if (link === '/') return pathname === '/';
     return pathname === link || pathname.startsWith(link + '/');
   };
-  const sdkActive = SDK_LINKS.some((l) => matches(l));
+  const sdkActive = matches(SDK_ROOT);
   const productsActive = ['/jadepack', '/jade-ec'].some((l) => matches(l));
 
   // 「文档」项链接到 /docs/spec，但需在整个文档主路由（含 /docs/api 子分区）下都高亮。
@@ -481,7 +459,7 @@ export default memo(function JadeNavbar() {
     return groups.reduce((n: number, g: any) => n + (g?.children?.length || 0), 0);
   };
 
-  const isSdk = (item: any) => item.title === 'SDKs' || item.link === '/sdk';
+  const isSdk = (item: any) => item.title === 'SDKs' || item.link === SDK_ROOT;
   const isDocs = (item: any) => String(item.link || '').startsWith('/docs');
   const isProducts = (item: any) => item.title === '产品' || item.link === '/jadepack';
   const menuOf = (item: any): 'docs' | 'sdk' | 'products' | null =>
@@ -558,31 +536,26 @@ export default memo(function JadeNavbar() {
   const megaCard = (
     <div className={styles.card}>
       <div className={styles.cols}>
-        {SDK_GROUPS.map((g) => (
-          <div key={g.key} className={styles.col}>
-            <p className={styles.colTitle}>{t.navbar.sdkGroupTitles[g.key]}</p>
-            {g.items.map((it) => {
-              const ic = SDK_ICON[it.key];
-              return (
-                <Link key={it.link} className={styles.menuItem} to={L(it.link)}>
-                  {ic.type === 'img' ? (
-                    <span className={styles.icon}>
-                      <img alt="" src={ic.src} />
-                    </span>
-                  ) : (
-                    <span className={styles.iconChar} style={{ background: ic.color }}>
-                      {ic.char}
-                    </span>
-                  )}
-                  <span>
-                    <span className={styles.mTitle}>{t.navbar.sdk[it.key].title}</span>
-                    <span className={styles.mDesc}>{t.navbar.sdk[it.key].desc}</span>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+        {SDK_ITEMS.map((it) => {
+          const ic = SDK_ICON[it.key];
+          return (
+            <Link key={it.link} className={styles.menuItem} to={L(it.link)}>
+              {ic.type === 'img' ? (
+                <span className={styles.icon} style={ic.bg ? { background: ic.bg, boxShadow: 'none' } : undefined}>
+                  <img alt="" src={ic.src} />
+                </span>
+              ) : (
+                <span className={styles.iconChar} style={{ background: ic.color }}>
+                  {ic.char}
+                </span>
+              )}
+              <span>
+                <span className={styles.mTitle}>{t.navbar.sdk[it.key].title}</span>
+                <span className={styles.mDesc}>{t.navbar.sdk[it.key].desc}</span>
+              </span>
+            </Link>
+          );
+        })}
       </div>
       <div className={styles.footer}>
         <Link className={styles.downloadCard} to={L('/download')}>
@@ -631,7 +604,7 @@ export default memo(function JadeNavbar() {
               className={cx(styles.item, itemActiveNow && styles.active)}
               onMouseEnter={(e) => openMenu(menu, e.currentTarget as HTMLElement)}
               onMouseLeave={scheduleClose}
-              to={L(item.link || (menu === 'sdk' ? '/sdk' : '/docs/spec'))}
+              to={L(item.link || (menu === 'sdk' ? SDK_ROOT : '/docs/spec'))}
             >
               {navTitle(item)}
               {chevron(active === menu)}

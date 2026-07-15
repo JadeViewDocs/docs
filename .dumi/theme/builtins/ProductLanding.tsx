@@ -1,6 +1,6 @@
 // 产品落地页（/jadepack、/jade-ec 内嵌 <ProductLanding name="jadepack|jadeEc" />）。
 // 设计语言对齐首页 HomeExtra / Showcase：antd token + @lobehub/ui SpotlightCard +
-//   motion 的 scrollIn 滚动浮现 + 品牌色 #007ee5。各区(hero/features/shots/integration/cta)按数据存在与否渲染。
+//   motion 的 scrollIn 滚动浮现 + 品牌色 #F97316。各区(hero/features/shots/integration/cta)按数据存在与否渲染。
 // 文案数据见 ../locales/strings 的 t[name]（中英按 typeof zh 对齐）。
 // 注意：新增本地 builtin 需重启 dumi dev 才会被扫描注册（dumi build 每次重扫，无碍）。
 import { Button } from '@lobehub/ui';
@@ -14,8 +14,8 @@ import { memo } from 'react';
 import { scrollContainer, scrollItem, scrollViewport } from '../components/scrollIn';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
 
-const BRAND = '#007ee5';
-const ACCENT = '#7c4dff';
+const BRAND = '#F97316';
+const ACCENT = '#FBBF24';
 
 // 每个产品 Hero / 底部 CTA 背景的强调色（取自各自 logo 配色）：
 // jadepack 的 logo 是浅灰 + 深灰的极简图标 → 冷调石板灰；jadeEc 的 logo 是蓝底白图形 → 蓝。
@@ -44,7 +44,7 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
     background:
       radial-gradient(58% 80% at 50% -6%, color-mix(in srgb, ${BRAND} 22%, transparent), transparent 70%),
       radial-gradient(46% 64% at 88% 8%, color-mix(in srgb, ${ACCENT} 18%, transparent), transparent 72%),
-      radial-gradient(40% 60% at 8% 18%, color-mix(in srgb, #00c8aa 12%, transparent), transparent 72%),
+      radial-gradient(40% 60% at 8% 18%, color-mix(in srgb, #EA580C 12%, transparent), transparent 72%),
       ${token.colorBgContainer};
     ${responsive.mobile} {
       padding: 52px 20px 56px;

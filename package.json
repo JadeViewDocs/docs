@@ -7,6 +7,7 @@
     "dev": "dumi dev",
     "start": "npm run dev",
     "update-changelog": "node scripts/update-changelog.mjs",
+    "update-contributors": "node scripts/update-contributors.mjs",
     "prebuild": "node scripts/update-changelog.mjs",
     "build": "dumi build",
     "preview": "dumi preview",
@@ -20,11 +21,13 @@
     "antd": "^6.4.4",
     "motion": "^12.23.26",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.185.1",
     "dumi": "^2.4.17",
     "dumi-theme-lobehub": "^5.0.0",
     "puppeteer-core": "^25.1.0",

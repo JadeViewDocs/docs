@@ -12,6 +12,7 @@ import { memo, useMemo, useState } from 'react';
 import { siteSelectors, useSiteStore } from 'dumi-theme-lobehub/dist/store';
 // 主题切换（循环按钮，不用 lobehub 的下拉式，避免在全屏抽屉里弹层被盖住）
 import ThemeToggle from './JadeThemeToggle';
+import Logo3D from './JadeLogo3D';
 
 export default memo(function JadeBurger() {
   const [opened, setOpened] = useState(false);
@@ -25,14 +26,8 @@ export default memo(function JadeBurger() {
 
   // 当前所在区 → 可展开 SubMenu（标题纯文本，点击仅展开/收缩）；子项为文档侧栏（点击导航并关抽屉）。
   // 其它顶级项为普通链接。
-  const inDocs = pathname === '/docs' || pathname.startsWith('/docs/');
+  const inSdks = pathname === '/sdks' || pathname.startsWith('/sdks/');
   const items = useMemo(() => {
-    // 「文档」始终可展开的分区切换子项（首页也能展开到 文档指南 / API，不必先进文档页）。
-    const docsSwitch = [
-      { key: 'sec-/docs/spec', label: (<Link onClick={close} to="/docs/spec">文档指南</Link>) },
-      { key: 'sec-/docs/api', label: (<Link onClick={close} to="/docs/api">API</Link>) },
-    ];
-
     // 当前页侧栏树（文档页 = 当前分区目录；SDK 等区 = 该区目录）。
     const treeChildren: any[] = [];
     (sidebar || []).forEach((group: any, gi: number) => {
@@ -53,11 +48,45 @@ export default memo(function JadeBurger() {
       const key = item.activePath || item.link;
       const isDocsItem = String(item.link || '').startsWith('/docs');
       if (isDocsItem) {
-        // 文档：始终为可展开子菜单；子项 = 分区切换；在文档页时再附上当前分区目录树。
-        const children =
-          inDocs && treeChildren.length
-            ? [{ key: 'doc-sections', type: 'group', label: '文档', children: docsSwitch }, ...treeChildren]
-            : docsSwitch;
+        // 文档：始终可展开；子项 = 两个分区（文档指南 / API）。当前所在分区作为可展开子菜单，
+        // 把该分区目录树嵌成第 3 级（与 SDKs 一致、层次分明），而非把目录树与分区切换平铺成同级。
+        const secs = [
+          { seg: 'spec', title: '文档指南' },
+          { seg: 'api', title: 'API' },
+        ];
+        const children = secs.map((s) => {
+          const to = `/docs/${s.seg}`;
+          const active = pathname === to || pathname.startsWith(`${to}/`);
+          if (active && treeChildren.length) {
+            return { key: `sec-${to}`, label: s.title, children: treeChildren };
+          }
+          return { key: `sec-${to}`, label: (<Link onClick={close} to={to}>{s.title}</Link>) };
+        });
+        return { children, key, label: item.title };
+      }
+      // SDKs：nav 里是单链接（指向 /sdks 总览），desktop 靠总览页列各 SDK；移动端抽屉里没有左侧栏，
+      // 必须让它可展开、直接列出各 SDK 入口。层次要分明：SDK 列表是第 2 级，
+      // 「当前所在 SDK」再作为可展开子菜单，把它的页面树嵌成第 3 级（缩进更深），
+      // 而不是把页面树与 SDK 列表平铺成同级（否则 2/3 级看起来一样平）。
+      if (item.title === 'SDKs' || item.link === '/sdks') {
+        const sdks = [
+          { seg: '', title: 'SDK 总览' },
+          { seg: 'web-sdk', title: 'Web SDK' },
+          { seg: 'python-sdk', title: 'Python SDK' },
+          { seg: 'easy-language-sdk', title: '易语言 SDK' },
+          { seg: 'voldp-sdk', title: '火山 SDK' },
+        ];
+        // 当前所在 SDK 段（/sdks/<seg>/…）；不在预置列表里则兜底插入，保证其页面树有处可挂。
+        const curSeg = inSdks ? pathname.replace(/^\/sdks\/?/, '').split('/')[0] || '' : null;
+        if (curSeg && !sdks.some((s) => s.seg === curSeg)) sdks.splice(1, 0, { seg: curSeg, title: curSeg });
+        const children = sdks.map((s) => {
+          const to = s.seg ? `/sdks/${s.seg}` : '/sdks';
+          // 当前 SDK：可展开子菜单，页面树作为第 3 级嵌入；其余 SDK：普通链接。
+          if (s.seg && s.seg === curSeg && treeChildren.length) {
+            return { key: `s-${to}`, label: s.title, children: treeChildren };
+          }
+          return { key: `s-${to}`, label: (<Link onClick={close} to={to}>{s.title}</Link>) };
+        });
         return { children, key, label: item.title };
       }
       // 其它区：当前区且有侧栏树 → 展开；否则普通链接。
@@ -84,7 +113,7 @@ export default memo(function JadeBurger() {
         ),
       };
     });
-  }, [nav, activePath, sidebar, inDocs]);
+  }, [nav, activePath, sidebar, inSdks, pathname]);
 
   return (
     <>
@@ -103,7 +132,7 @@ export default memo(function JadeBurger() {
           <span className="jade-mpill" style={{ display: 'inline-flex' }}>
             <ActionIcon icon={X} onClick={close} size={{ blockSize: 36, fontSize: 22 }} />
           </span>
-          <img alt="JadeView" src="/favicon.png" style={{ display: 'block', width: 32, height: 32, borderRadius: 8 }} />
+          <Logo3D fallbackRadius={8} size={32} />
           {/* 主题切换（移动端标题栏右侧已换成搜索，这里补上；循环切换，不依赖弹层）*/}
           <div className="jade-mpill" style={{ display: 'inline-flex', marginInlineStart: 'auto' }}>
             <ThemeToggle />

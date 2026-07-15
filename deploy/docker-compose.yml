@@ -9,6 +9,24 @@ services:
     ports:
       - "${SITE_PORT:-8088}:80"
 
+  # 文档 MCP 服务（search_docs / get_doc）。容器内监听 8848，映射到 host MCP_PORT。
+  # 反代把它挂到你想要的路径/子域即可（TLS 你自己在前置反代终结）。
+  mcp:
+    image: ${MCP_IMAGE_NAME:-yiminger/jadeview_docs_mcp:latest}
+    # 若服务器上有完整仓库、想本地构建：注释掉上面 image，改用下面两行
+    # build:
+    #   context: ..
+    #   dockerfile: mcp/Dockerfile
+    container_name: docs-mcp
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8848
+      BASE_URL: ${BASE_URL:-https://jade.run}
+      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:-}
+    ports:
+      - "${MCP_PORT:-8848}:8848"
+
   webhook:
     image: python:3.11-slim
     container_name: docs-webhook
@@ -25,5 +43,8 @@ services:
       IMAGE_NAME: ${IMAGE_NAME:-yiminger/jadeview_docs:latest}
       CONTAINER_NAME: docs-site
       SITE_PORT: ${SITE_PORT:-8088}
+      # 拉镜像加速器回退列表（逗号分隔主机名）。留空用代码内置默认；
+      # 国内加速器时常失效，失效了改这里再 `docker compose up -d webhook` 即可。
+      PULL_MIRRORS: ${PULL_MIRRORS:-docker.1ms.run,docker.m.daocloud.io,docker.1panel.live,hub.rat.dev}
     working_dir: /app
     command: bash -c "pip install --quiet -i https://pypi.tuna.tsinghua.edu.cn/simple fastapi uvicorn docker && python webhook-server.py"

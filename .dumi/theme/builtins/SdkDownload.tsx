@@ -12,9 +12,9 @@ import { useT } from '../locales/strings';
 const GITHUB_API = 'https://api.github.com/repos/JadeViewDocs/JadeView/contents/SDK';
 const GITEE_API = 'https://gitee.com/api/v5/repos/ilinxuan/JadeView_library/contents/SDK';
 const TIMEOUT_MS = 6000;
-const BRAND = '#007ee5';
+const BRAND = '#F97316';
 // 字徽配色（按序轮换；与 SDK 下拉里 易/火 徽章同系）
-const PALETTE = ['#007ee5', '#e8533f', '#7c4dff', '#00b8a3', '#f59e0b'];
+const PALETTE = ['#F97316', '#e8533f', '#FBBF24', '#00b8a3', '#f59e0b'];
 
 function fetchWithTimeout(url: string, timeout = TIMEOUT_MS) {
   const controller = new AbortController();
@@ -178,7 +178,7 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
     transition: background 0.2s ease, opacity 0.2s ease;
 
     &:hover {
-      background: #0a6fc2;
+      background: #EA680C;
     }
 
     &:disabled {

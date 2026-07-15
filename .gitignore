@@ -11,6 +11,10 @@ src/.umi-production/
 # build output
 dist/
 
+# python 编译产物（deploy/webhook-server.py 语法检查等会生成）
+__pycache__/
+*.pyc
+
 # misc
 .DS_Store
 *.local
@@ -27,3 +31,6 @@ yarn-error.log*
 
 # 本地 dev server 日志
 .dev*.log
+
+# CI 构建时生成的贡献者快照（scripts/update-contributors.mjs）
+public/contributors/

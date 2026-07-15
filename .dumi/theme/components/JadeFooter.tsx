@@ -9,6 +9,7 @@ import { memo } from 'react';
 // @ts-ignore 主题 store（仅取 locales / 当前语言 / pathname，不引 'dumi'）
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
+import Logo3D from './JadeLogo3D';
 
 const LANG_LABEL: Record<string, string> = { 'zh-CN': '中文', 'en-US': 'EN' };
 
@@ -171,7 +172,7 @@ export default memo(function JadeFooter() {
         <div className={styles.top}>
           <div className={styles.brand}>
             <a className={styles.brandLink} href={base === '/' ? '/' : base}>
-              <img alt="JadeView" className={styles.logo} src="/favicon.png" />
+              <Logo3D fallbackRadius={9} size={34} />
               <span className={styles.brandName}>JadeView</span>
             </a>
             <p className={styles.tagline}>{t.tagline}</p>

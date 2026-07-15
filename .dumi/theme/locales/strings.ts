@@ -10,11 +10,10 @@ const zh = {
   // 导航「文档」「SDKs」下拉
   navbar: {
     countSuffix: ' 篇', // {n} 篇
-    sdkGroupTitles: { frontend: '前端 & Python', more: '更多语言' },
     sdk: {
       web: { title: 'Web SDK', desc: '前端 / JavaScript 集成' },
       py: { title: 'Python SDK', desc: 'Python 桌面应用开发' },
-      py2: { title: 'Python SDK 2', desc: '基于 ctypes 的新版绑定' },
+      go: { title: 'Golang SDK', desc: 'Go 封装，纯 Go 零依赖构建' },
       ey: { title: '易语言 SDK', desc: '易语言模块封装' },
       vol: { title: '火山 SDK', desc: '火山窗口 SDK 适配' },
     },
@@ -96,6 +95,11 @@ jade.on('backend-event', (data) => {});`,
       { name: '青舟', avatar: '/avatar/Q.jpg', url: 'https://github.com/lazyso', bio: '全栈开发者，负责 Python SDK2 的开发及维护。' },
     ],
   },
+  // 文档页面包屑行（DocBreadcrumb）
+  doc: {
+    editPage: '编辑此页',
+    contributorsTip: (name: string, commits: number) => `${name} · ${commits} 次提交`,
+  },
   // 发行版本页（ReleaseNotes builtin）
   releases: {
     title: '发行版本',
@@ -150,10 +154,10 @@ jade.on('backend-event', (data) => {});`,
       {
         title: 'SDK',
         items: [
-          { title: 'Web SDK', url: '/web-sdk', openExternal: false },
-          { title: 'Python SDK', url: '/python-sdk', openExternal: false },
-          { title: '易语言 SDK', url: '/easy-language-sdk', openExternal: false },
-          { title: '火山 SDK', url: '/voldp-sdk', openExternal: false },
+          { title: 'Web SDK', url: '/sdks/web-sdk', openExternal: false },
+          { title: 'Python SDK', url: '/sdks/python-sdk', openExternal: false },
+          { title: '易语言 SDK', url: '/sdks/easy-language-sdk', openExternal: false },
+          { title: '火山 SDK', url: '/sdks/voldp-sdk', openExternal: false },
         ],
       },
       {
@@ -278,11 +282,10 @@ const en: typeof zh = {
   nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', releases: 'Releases' },
   navbar: {
     countSuffix: ' docs', // {n} docs
-    sdkGroupTitles: { frontend: 'Frontend & Python', more: 'More Languages' },
     sdk: {
       web: { title: 'Web SDK', desc: 'Frontend / JavaScript integration' },
       py: { title: 'Python SDK', desc: 'Python desktop app development' },
-      py2: { title: 'Python SDK 2', desc: 'New ctypes-based bindings' },
+      go: { title: 'Golang SDK', desc: 'Go wrapper, pure-Go zero-dependency build' },
       ey: { title: 'E-Language SDK', desc: 'E-Language (易语言) module wrapper' },
       vol: { title: 'VolDP SDK', desc: 'VolDP window SDK adaptation' },
     },
@@ -363,6 +366,11 @@ jade.on('backend-event', (data) => {});`,
       { name: '青舟', avatar: '/avatar/Q.jpg', url: 'https://github.com/lazyso', bio: 'Full-stack developer, building and maintaining Python SDK 2.' },
     ],
   },
+  doc: {
+    editPage: 'Edit this page',
+    contributorsTip: (name: string, commits: number) =>
+      `${name} · ${commits} commit${commits > 1 ? 's' : ''}`,
+  },
   releases: {
     title: 'Releases',
     subtitle: 'Update notes, release dates and downloads for each version of JadeView.',
@@ -414,10 +422,10 @@ jade.on('backend-event', (data) => {});`,
       {
         title: 'SDK',
         items: [
-          { title: 'Web SDK', url: '/web-sdk', openExternal: false },
-          { title: 'Python SDK', url: '/python-sdk', openExternal: false },
-          { title: 'E-Language SDK', url: '/easy-language-sdk', openExternal: false },
-          { title: 'VolDP SDK', url: '/voldp-sdk', openExternal: false },
+          { title: 'Web SDK', url: '/sdks/web-sdk', openExternal: false },
+          { title: 'Python SDK', url: '/sdks/python-sdk', openExternal: false },
+          { title: 'E-Language SDK', url: '/sdks/easy-language-sdk', openExternal: false },
+          { title: 'VolDP SDK', url: '/sdks/voldp-sdk', openExternal: false },
         ],
       },
       {

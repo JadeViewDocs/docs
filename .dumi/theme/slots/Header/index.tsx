@@ -23,6 +23,7 @@ import { useResponsive, useTheme } from 'antd-style';
 import isEqual from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Link } from 'dumi';
 import { floatItemNoBlur, floatStyleTop } from '../../components/floatIn';
 import { useLiquidGlass, GLASS_PARAMS, GLASS_BG_OPACITY, GLASS_SATURATION } from '../../components/JadeGlass';
 // @ts-ignore 主题 store / selectors，深层路径无类型声明
@@ -30,6 +31,7 @@ import { siteSelectors, useSiteStore } from 'dumi-theme-lobehub/dist/store';
 import Navbar from '../../components/JadeNavbar';
 import Burger from '../../components/JadeBurger';
 import MobileSearch from '../../components/JadeMobileSearch';
+import Logo3D from '../../components/JadeLogo3D';
 // @ts-ignore
 import DiscordButton from 'dumi-theme-lobehub/dist/slots/Header/DiscordButton';
 // @ts-ignore
@@ -64,6 +66,9 @@ const GlassPill = memo(function GlassPill({
 export default memo(function Header() {
   const hasHeader = useSiteStore((s: any) => Boolean(s.routeMeta.frontmatter));
   const config = useSiteStore(siteSelectors.themeConfig, isEqual);
+  // 当前语言的首页根：中文 '/'，英文 '/en-US'。logo 必须指向它，否则在英文页点 logo 会
+  // 跳到 '/'（中文首页）—— 既强制切回默认语言、也不是当前语言的首页。
+  const localeBase = useSiteStore((s: any) => s?.locale?.base) || '/';
   const { mobile, tablet } = useResponsive();
   const theme = useTheme() as any;
   const [scrolled, setScrolled] = useState(false);
@@ -211,13 +216,10 @@ export default memo(function Header() {
           >
             <GlassPill baseStyle={pillBase} decorate={decorate}>
               <Burger />
-              <a href="/" style={{ display: 'inline-flex', alignItems: 'center', paddingInline: 2 }}>
-                <img
-                  alt={brand}
-                  src={logoSrc}
-                  style={{ display: 'block', width: 36, height: 36, borderRadius: 10 }}
-                />
-              </a>
+              <Link to={localeBase} style={{ display: 'inline-flex', alignItems: 'center', paddingInline: 2 }}>
+                {/* 药丸高仅 50：34×1.35≈46 留出上下边距（36×1.5 会比药丸还高） */}
+                <Logo3D alt={brand} fallback={logoSrc} fallbackRadius={10} size={34} />
+              </Link>
             </GlassPill>
             <div style={{ flex: 1 }} />
             <GlassPill baseStyle={pillBase} decorate={decorate}>
@@ -246,18 +248,21 @@ export default memo(function Header() {
             {...desktopMotion}
           >
             {capsuleGlass.svg}
-            <a
-              href="/"
+            <Link
+              to={localeBase}
               style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', flex: '0 0 auto', zIndex: 10 }}
             >
-              <img
+              {/* 3D logo 画布向四周溢出渲染（overscan），左侧补一点内距让它别贴住胶囊圆头 */}
+              <Logo3D
                 alt={brand}
-                src={logoSrc}
-                style={{ display: 'block', width: 32, height: 32, borderRadius: 9, flexShrink: 0 }}
+                fallback={logoSrc}
+                fallbackRadius={9}
+                size={32}
+                style={{ marginInlineStart: 6 }}
               />
               {/* 文字常驻挂载，靠 width/opacity spring 平滑收起/展开（窄桌面 width→0）。overflow:hidden + nowrap 防换行。 */}
               <motion.span
-                animate={{ width: showBrand ? 'auto' : 0, opacity: showBrand ? 1 : 0, marginLeft: showBrand ? 8 : 0 }}
+                animate={{ width: showBrand ? 'auto' : 0, opacity: showBrand ? 1 : 0, marginLeft: showBrand ? 11 : 0 }}
                 initial={false}
                 style={{
                   display: 'inline-block',
@@ -271,7 +276,7 @@ export default memo(function Header() {
               >
                 {brand}
               </motion.span>
-            </a>
+            </Link>
             {/* 导航容器：marginLeft 即 Logo↔导航间距，随文字收起同步 spring 收紧（48↔16）→ 导航平滑滑动。 */}
             <motion.div
               animate={{ marginLeft: showBrand ? 18 : 12 }}

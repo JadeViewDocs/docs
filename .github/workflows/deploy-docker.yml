@@ -11,9 +11,14 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch: {}
+  # 发行库（tuyangJs/JadeView）发版后自动触发：release.yml 收尾向本仓库发
+  # repository_dispatch，构建时重新生成发行快照，站点即刻带上新版本数据。
+  repository_dispatch:
+    types: [refresh-releases]
 
 env:
   IMAGE_NAME: yiminger/jadeview_docs
+  MCP_IMAGE_NAME: yiminger/jadeview_docs_mcp
 
 concurrency:
   group: docker-deploy
@@ -39,6 +44,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/update-changelog.mjs
 
+      # 贡献者快照：按文档页拉提交作者 + 下载头像为同源静态文件（运行时不连 GitHub）。
+      # 与发行快照同理，只在构建机执行，产物随源码 COPY 进镜像。
+      - name: 生成文档贡献者快照
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-contributors.mjs
+
       - name: 登录 Docker Hub
         uses: docker/login-action@v3
         with:
@@ -53,6 +65,17 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      # MCP 服务镜像：与站点同源，打包 docs/ markdown，启动时建索引。
+      - name: 构建并推送 MCP 镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mcp/Dockerfile
+          push: true
+          tags: |
+            ${{ env.MCP_IMAGE_NAME }}:latest
+            ${{ env.MCP_IMAGE_NAME }}:${{ github.sha }}
 
       - name: 触发服务器 webhook 拉取部署
         run: |

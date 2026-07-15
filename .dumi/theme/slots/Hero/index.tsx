@@ -15,6 +15,8 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { floatContainer as container, floatItem as item, floatStyle } from '../../components/floatIn';
 // 「快速开始」主按钮：motion 驱动的渐变描边/glow/悬停按压（替代 lobehub GradientButton 的纯 CSS 动画）
 import JadeStartButton from '../../components/JadeStartButton';
+// 3D 品牌吉祥物（与标题栏同源，GLB 只加载一次）：首屏大尺寸展示位
+import Logo3D from '../../components/JadeLogo3D';
 
 const useStyles = createStyles(({ css, token }) => ({
   // @lobehub/ui 的 AuroraBackground 在 ≤575.98px 把极光强制 `transform: scale(2); max-height: 25vh`，
@@ -53,7 +55,7 @@ const useStyles = createStyles(({ css, token }) => ({
 
     /* 标题若含 <b> 则做渐变描边（与 lobehub 一致；当前配置为纯文本，留作兜底） */
     b {
-      background: linear-gradient(90deg, #007ee5, #7c4dff 60%, #00c8aa);
+      background: linear-gradient(90deg, #F97316, #FBBF24 60%, #EA580C);
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -100,6 +102,24 @@ const useStyles = createStyles(({ css, token }) => ({
   `,
 }));
 
+// 3D 吉祥物专用入场：仅 2D 位移 + 淡入（弹性与共享 floatItem 一致）。
+// 不能复用 floatItem——它的 transformPerspective/rotateX/filter 会把 canvas 压进 3D 变换 + filter
+// 合成层，Chrome 对该层里的 WebGL 画布走低质量重采样，2 倍超采样抗锯齿直接报废（踩过坑：锯齿严重）。
+const logoFloat = {
+  hidden: { opacity: 0, y: 44 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 46,
+      damping: 11,
+      mass: 1.1,
+      opacity: { duration: 0.8, ease: 'easeOut' },
+    },
+  },
+} as const;
+
 export default memo(function Hero() {
   const { styles } = useStyles();
   const { mobile } = useResponsive();
@@ -110,6 +130,12 @@ export default memo(function Hero() {
     <>
       <AuroraBackground className={styles.aurora} />
       <motion.div animate="show" className={styles.wrap} initial="hidden" variants={container}>
+        {/* 首屏大尺寸 3D 吉祥物：悬浮 + 眨眼等待机动画自带；随错峰序列第一个飘入（纯 2D 变体，见 logoFloat） */}
+        {/* marginBottom 必须容下 Logo3D 的 overscan 向下溢出（≈(overscan-1)/2*size，128 时约 19px）+ 浮动幅度，
+            否则火焰下缘/尾焰会压到下面的标题。移动端标题小、更紧凑，需要更大间距；桌面标题大、行内留白足，维持原值。 */}
+        <motion.div style={{ marginBottom: mobile ? 32 : 8 }} variants={logoFloat}>
+          <Logo3D alt="JadeView" fallbackRadius={40} overscan={1.3} size={mobile ? 128 : 180} />
+        </motion.div>
         {title && (
           <motion.h1
             className={styles.title}

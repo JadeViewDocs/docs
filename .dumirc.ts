@@ -30,7 +30,7 @@ export default defineConfig({
     { name: 'twitter:description', content: 'JadeView - 现代化跨平台开发框架，提供高性能、易用的 API 和工具链，支持 Web、桌面端和移动端开发' },
     { name: 'twitter:image', content: 'https://jade.run/logo/light.svg' },
     // 其他
-    { name: 'theme-color', content: '#007ee5' },
+    { name: 'theme-color', content: '#F97316' },
     { name: 'color-scheme', content: 'light dark' },
   ],
   // 站点主机名：lobehub 主题用它生成 canonical / og:url / JSON-LD；不设会回退成
@@ -42,10 +42,11 @@ export default defineConfig({
   // 用 head 脚本在客户端把它改成中文，避免覆盖 SearchBar slot 引发 dev 的 'dumi' 解析报错。
   headScripts: [
     {
-      // 旧 URL 重定向：文档迁入 /docs 子路由后，把旧路径 /spec/* → /docs/spec/*、/v2api/* → /docs/api/*
+      // 旧 URL 重定向：文档迁入 /docs 子路由后 /spec/* → /docs/spec/*、/v2api/* → /docs/api/*；
+      // SDK 分区迁入 /sdks 子路由后 /<sdk>/* → /sdks/<sdk>/*、/sdk → /sdks（支持 /en-US 前缀）。
       // 客户端早跳转（在 <head> 内、SPA 渲染前执行），保住旧书签 / 外链 / 搜索引擎收录不 404。
       content:
-        "(function(){if(typeof window==='undefined')return;var p=location.pathname,m=[['/v2api','/docs/api'],['/spec','/docs/spec']];for(var i=0;i<m.length;i++){var o=m[i][0],n=m[i][1];if(p===o||p.indexOf(o+'/')===0){location.replace(n+p.slice(o.length)+location.search+location.hash);return;}}})();",
+        "(function(){if(typeof window==='undefined')return;var p=location.pathname,b='';if(p==='/en-US'||p.indexOf('/en-US/')===0){b='/en-US';p=p.slice(6)||'/';}var m=[['/v2api','/docs/api'],['/spec','/docs/spec'],['/web-sdk','/sdks/web-sdk'],['/python-sdk','/sdks/python-sdk'],['/golang-sdk','/sdks/golang-sdk'],['/easy-language-sdk','/sdks/easy-language-sdk'],['/voldp-sdk','/sdks/voldp-sdk'],['/sdk','/sdks']];for(var i=0;i<m.length;i++){var o=m[i][0],n=m[i][1];if(p===o||p.indexOf(o+'/')===0){location.replace(b+n+p.slice(o.length)+location.search+location.hash);return;}}})();",
     },
     {
       content:
@@ -68,6 +69,18 @@ export default defineConfig({
   // 全局样式补丁
   styles: [
     `
+/* 【根因修复】全站「裸链接」（面包屑、文档翻页 Next/Prev、正文外普通 <a> 等）发青：
+   antd 的 reset.css 给所有 <a> 上了 color: var(--ant-color-link)，而该变量取自 antd 组件的
+   默认链接色（偏青蓝）。在布局层嵌套 ConfigProvider 改 token 无效——antd v6 cssVar 模式下
+   嵌套 provider 会另起哈希 key、生成新变量名，而根级那条 a 规则始终引用根 key 的
+   --ant-color-link。故直接在全局把「链接色变量族」改成品牌橙，一处根治所有裸链接。
+   用通配 + !important 确保盖过 antd 在其 cssVar 作用域内对同名变量的常规声明。 */
+* {
+  --ant-color-link: #F97316 !important;
+  --ant-color-link-hover: #FB923C !important;
+  --ant-color-link-active: #EA680C !important;
+}
+
 /* 修复：lobehub GradientButton（首页主按钮）悬停时 ::after 背景突变、缺少过渡 */
 .ant-btn,
 .ant-btn::before,
@@ -138,7 +151,7 @@ main:has(.layoutkit-flexbox[style*="64vh"]) {
     `
 /* 产品 / 文档页 CTA 按钮：.jv-cta-row 容器 + .jv-cta-button 主按钮（/.secondary 次按钮）。
    供产品页(/jadepack、/jade-ec)使用，并补齐 api/jadepack 文档里早已使用却从未定义的样式。
-   品牌色与 Showcase / footer 一致(#007ee5)，取色用 antd v6 cssVar 适配深浅。 */
+   品牌色与 Showcase / footer 一致(#F97316)，取色用 antd v6 cssVar 适配深浅。 */
 .jv-cta-row {
   display: flex;
   flex-wrap: wrap;
@@ -156,15 +169,15 @@ main:has(.layoutkit-flexbox[style*="64vh"]) {
   font-weight: 600;
   color: #fff !important;
   text-decoration: none !important;
-  background: #007ee5;
+  background: #F97316;
   border: 1px solid transparent;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .jv-cta-button:hover {
   color: #fff !important;
-  background: #0a6fc2;
+  background: #EA680C;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 126, 229, 0.28);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.28);
 }
 .jv-cta-button.secondary {
   color: var(--ant-color-text) !important;
@@ -197,8 +210,8 @@ footer::after {
   z-index: 2;
   pointer-events: none;
   background:
-    radial-gradient(260px 2px at var(--footer-spot-x, 50%) 0, rgba(0, 126, 229, 1), rgba(124, 77, 255, 0.6) 40%, transparent 78%),
-    radial-gradient(360px 96px at var(--footer-spot-x, 50%) 0, rgba(0, 126, 229, 0.28), transparent 72%);
+    radial-gradient(260px 2px at var(--footer-spot-x, 50%) 0, rgba(249, 115, 22, 1), rgba(251, 191, 36, 0.6) 40%, transparent 78%),
+    radial-gradient(360px 96px at var(--footer-spot-x, 50%) 0, rgba(249, 115, 22, 0.28), transparent 72%);
   opacity: var(--footer-spot-o, 0);
   transition: opacity 0.3s ease;
 }
@@ -208,7 +221,7 @@ footer::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: linear-gradient(120deg, rgba(0,126,229,0.20), rgba(124,77,255,0.16), rgba(0,200,170,0.16), rgba(0,126,229,0.20));
+  background-image: linear-gradient(120deg, rgba(249,115,22,0.20), rgba(251,191,36,0.16), rgba(234,88,12,0.16), rgba(249,115,22,0.20));
   background-size: 300% 300%;
   animation: jvFooterFlow 16s ease infinite;
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 55%);
@@ -310,8 +323,8 @@ html[data-prefers-color='light'] .ant-draggable-panel-fixed {
 .jade-burger .ant-menu-item-selected:hover,
 .jade-burger .ant-menu-item-selected:active {
   font-weight: 600 !important;
-  color: #007ee5 !important;
-  background: color-mix(in srgb, #007ee5 12%, transparent) !important;
+  color: #F97316 !important;
+  background: color-mix(in srgb, #F97316 12%, transparent) !important;
 }
 `,
     `
@@ -329,6 +342,23 @@ html[data-prefers-color='light'] .ant-draggable-panel-fixed {
 }
 .ant-breadcrumb .ant-breadcrumb-separator {
   margin-inline: 8px !important;
+}
+/* 面包屑链接：裸 <a> 默认吃 antd reset 的 --ant-color-link（本主题偏青），且 antd Breadcrumb
+   的链接色走组件级 linkColor、不认外层 ConfigProvider 的 colorLink，故这里显式统一到品牌橙。
+   当前页（最后一级）不是 <a>，不受影响，保持中性文字色。 */
+.jade-doc-breadcrumb .ant-breadcrumb a {
+  color: #F97316 !important;
+}
+.jade-doc-breadcrumb .ant-breadcrumb a:hover {
+  color: #EA680C !important;
+}
+/* 「编辑此页」文字按钮：默认中性次要色（去掉青色），hover 转品牌橙。 */
+.jade-doc-breadcrumb .ant-btn-text {
+  color: var(--ant-color-text-secondary) !important;
+}
+.jade-doc-breadcrumb .ant-btn-text:hover {
+  color: #F97316 !important;
+  background: color-mix(in srgb, #F97316 10%, transparent) !important;
 }
 `,
     `
@@ -384,6 +414,19 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
   background: rgba(0, 0, 0, 0.1) !important;
 }
 `,
+    `
+/* 正文 Markdown 链接用品牌橙（lobehub 默认把正文链接设为文字色、仅 hover 才主色，且暗色主色偏白，
+   正文里的链接几乎看不出。这里统一成品牌橙 #F97316，hover 加深并显下划线）。
+   仅作用于正文容器 .markdown 内、排除标题锚点（aria-hidden / .anchor）等非正文链接。 */
+.markdown a:not([aria-hidden]):not(.anchor):not(.ant-btn) {
+  color: #F97316 !important;
+  text-decoration: none;
+}
+.markdown a:not([aria-hidden]):not(.anchor):not(.ant-btn):hover {
+  color: #EA680C !important;
+  text-decoration: underline;
+}
+`,
   ],
   // 多语言：中文（默认，base '/'）+ 英文（base '/en-US'）。
   // 内置外壳文案 dumi 自带中/英；自定义组件文案见 .dumi/theme/locales/strings.ts。
@@ -423,10 +466,10 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
     hideHomeNav: true,
     // 顶部导航：文档指南(/docs/spec) 与 API(/docs/api) 收纳进单一「文档」主入口（子路由）；
     //   「文档」内部的分区切换（文档指南 / API）由 Sidebar slot 顶部的分区按钮负责（见参考图）。
-    // 注意：lobehub 主题导航为扁平 Tabs，不支持 children 下拉；SDKs 仍为单链接（指向 /sdk 总览）。
+    // 注意：lobehub 主题导航为扁平 Tabs，不支持 children 下拉；SDKs 仍为单链接（指向 /sdks 总览）。
     nav: [
       { title: '文档', link: '/docs/spec' },
-      { title: 'SDKs', link: '/sdk' },
+      { title: 'SDKs', link: '/sdks' },
       { title: '产品', link: '/jadepack' },
       { title: '案例', link: '/showcase' },
       { title: '发行版本', link: '/releases' },
@@ -441,16 +484,16 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
           items: [
             { title: '快速开始', url: '/docs/spec/quickstart' },
             { title: 'API 参考', url: '/docs/api' },
-            { title: 'SDK 总览', url: '/sdk' },
+            { title: 'SDK 总览', url: '/sdks' },
           ],
         },
         {
           title: 'SDK',
           items: [
-            { title: 'Web SDK', url: '/web-sdk' },
-            { title: 'Python SDK', url: '/python-sdk' },
-            { title: '易语言 SDK', url: '/easy-language-sdk' },
-            { title: '火山 SDK', url: '/voldp-sdk' },
+            { title: 'Web SDK', url: '/sdks/web-sdk' },
+            { title: 'Python SDK', url: '/sdks/python-sdk' },
+            { title: '易语言 SDK', url: '/sdks/easy-language-sdk' },
+            { title: '火山 SDK', url: '/sdks/voldp-sdk' },
           ],
         },
         {

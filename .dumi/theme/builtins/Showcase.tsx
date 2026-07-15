@@ -11,7 +11,7 @@ import { memo } from 'react';
 import { scrollContainer, scrollItem, scrollViewport } from '../components/scrollIn';
 import { useT } from '../locales/strings';
 
-const BRAND = '#007ee5';
+const BRAND = '#F97316';
 
 // 案例数据见 ../locales/strings 的 showcase.cases（按语言取值）。
 
@@ -146,7 +146,7 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
 
     &:hover {
       color: #fff;
-      background: #0a6fc2;
+      background: #EA680C;
     }
   `,
 }));

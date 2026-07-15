@@ -15,8 +15,8 @@ export default function HomeExtra() {
   const { token } = theme.useToken();
   const t = useT();
   const base = useLocaleBase();
-  // JadeView 品牌蓝：lobehub 暗色主题下 colorPrimary 偏白，做徽标/高亮会白底白字，改用固定品牌色
-  const BRAND = '#007ee5';
+  // JadeView 品牌橙：lobehub 暗色主题下 colorPrimary 偏白，做徽标/高亮会白底白字，改用固定品牌色
+  const BRAND = '#F97316';
 
   // 滚动进场动画的触发属性。尊重「减少动态效果」系统偏好：开启时不挂 initial/whileInView，
   // 元素直接以最终态渲染（variants 未被激活即为自然显示），完全跳过动画。

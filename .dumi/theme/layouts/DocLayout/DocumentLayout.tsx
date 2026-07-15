@@ -16,6 +16,7 @@
 // 导入约束：不引用 `dumi/theme/*` 子路径别名（dev 下 .dumi/tmp 重建会致 'dumi' 解析报错）；
 //   本地覆盖的 slot 走相对路径，未覆盖的主题内部件/页面/ store 一律走 `dumi-theme-lobehub/dist/*`。
 import { LayoutFooter, LayoutHeader, LayoutMain, LayoutToc } from '@lobehub/ui';
+import { ConfigProvider } from 'antd';
 import { useResponsive, useTheme } from 'antd-style';
 import { Helmet, useIntl, useLocation } from 'dumi';
 import isEqual from 'fast-deep-equal';
@@ -143,7 +144,20 @@ export default memo(function DocumentLayout({ children }: any) {
   const toc = hideToc ? null : <Toc />;
 
   return (
-    <>
+    // 全站 antd 主色/链接色改品牌橙：antd reset.css 给所有 <a> 上了 color:var(--ant-color-link)，
+    // 本主题该色偏青蓝（面包屑等裸链接因此发蓝）。在布局层套一层 ConfigProvider 覆盖 colorPrimary/
+    // colorLink（antd 按当前明暗算法自动推导衍生 token），一次性把 antd 组件与裸链接统一到橙色。
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#F97316',
+          colorInfo: '#F97316',
+          colorLink: '#F97316',
+          colorLinkHover: '#FB923C',
+          colorLinkActive: '#EA680C',
+        },
+      }}
+    >
       <HelmetBlock />
       <div style={{ ['--layout-header-height' as any]: `${headerHeight}px` }}>
         <LayoutHeader headerHeight={headerHeight}>
@@ -209,6 +223,6 @@ export default memo(function DocumentLayout({ children }: any) {
           <Footer />
         </LayoutFooter>
       </div>
-    </>
+    </ConfigProvider>
   );
 });

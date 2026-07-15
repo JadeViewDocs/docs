@@ -24,12 +24,9 @@ export default memo(function JadeStartButton({
   block?: boolean;
 }) {
   const theme = useTheme() as any;
-  // antd 预设色板（lobehub 原按钮同款）；带 hex 兜底以防 token 缺失。
-  const gold = theme.gold || '#faad14';
-  const magenta = theme.magenta || '#eb2f96';
-  const geekblue = theme.geekblue || '#2f54eb';
-  const cyan = theme.cyan || '#13c2c2';
-  const grad = `linear-gradient(-45deg, ${gold}, ${magenta}, ${geekblue}, ${cyan})`;
+  // 火焰四色扫动渐变（原为 gold/magenta/geekblue/cyan 彩虹）：黄→主橙→焰红→亮橙。
+  // 色相/明度跨度足够大 → 流光渐变明显（纯橙系太接近会糊成一片实色），且「黄橙红」正贴火焰吉祥物。
+  const grad = 'linear-gradient(-45deg, #FDE047, #F97316, #EF4444, #FB923C)';
   const radius = theme.borderRadiusLG || 8;
   const border = 1.5; // 渐变描边可见厚度
 

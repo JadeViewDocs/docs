@@ -18,7 +18,7 @@ Add the following snippet to your AI tool's MCP configuration:
 {
   "mcpServers": {
     "jade_view": {
-      "url": "https://WETBQUB2XL.algolia.net/mcp/1/iBPttr-BRpSm28UT8VkQHg/mcp",
+      "url": "https://mcp.jade.run/mcp",
       "transport": "http"
     }
   }
@@ -26,7 +26,7 @@ Add the following snippet to your AI tool's MCP configuration:
 ```
 
 :::info{title=Note}
-This is a **read-only search** server. The token in the URL is a public search-only key, so it is safe to share. It can only search the public docs on jade.run, and it involves no write operations or private data.
+This is a **read-only search** server. No login or token is required, so it is safe to share. It can only search the public docs on jade.run, and it involves no write operations or private data.
 :::
 
 ## Where to put it in each client
@@ -34,7 +34,7 @@ This is a **read-only search** server. The token in the URL is a public search-o
 - **Claude Code**: connect with a single command line (note that Claude Code uses `--transport http`):
 
   ```bash
-  claude mcp add --transport http jade_view https://WETBQUB2XL.algolia.net/mcp/1/iBPttr-BRpSm28UT8VkQHg/mcp
+  claude mcp add --transport http jade_view https://mcp.jade.run/mcp
   ```
 
   Or add it to the `.mcp.json` at your project root (Claude Code uses `"type": "http"`):
@@ -44,7 +44,7 @@ This is a **read-only search** server. The token in the URL is a public search-o
     "mcpServers": {
       "jade_view": {
         "type": "http",
-        "url": "https://WETBQUB2XL.algolia.net/mcp/1/iBPttr-BRpSm28UT8VkQHg/mcp"
+        "url": "https://mcp.jade.run/mcp"
       }
     }
   }
@@ -54,12 +54,17 @@ This is a **read-only search** server. The token in the URL is a public search-o
 
 ## What it can do
 
-Once connected, the AI can run a full-text search over the JadeView docs and return the **most relevant doc snippets** (heading hierarchy, link to the page they appear on, and a summary of the body text). For example, you can simply ask:
+Once connected, the AI has two tools available:
+
+- **`search_docs`** — full-text search (both Chinese and English), returning the most relevant doc snippets: heading hierarchy, a link to the page, and a summary of the body text.
+- **`get_doc`** — read the full markdown of a whole page to get complete API signatures and code samples.
+
+The typical flow is: the AI first calls `search_docs` to find the relevant sections, then `get_doc` to read the full page when needed. For example, you can simply ask:
 
 > How do I customize the title bar in JadeView? What values can `frame_style` take?
 
-The AI will first search the docs, cite the corresponding section on jade.run, and then answer.
+The AI will first search the docs, cite the corresponding section on jade.run, read the full page if needed, and then answer.
 
 :::warning{title=Can't find the latest content?}
-The docs index is updated periodically by a crawler. If something you just published can't be found yet, just wait for the next index refresh.
+The docs index is built from the documentation source when the service starts. If something you just published can't be found yet, it will become searchable once the service is redeployed with the next docs release.
 :::
