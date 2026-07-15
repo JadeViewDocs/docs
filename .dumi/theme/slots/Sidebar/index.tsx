@@ -212,10 +212,9 @@ const SECTIONS: { key: 'spec' | 'api'; root: string; icon: () => React.ReactNode
 // 「SDKs」主路由下的 SDK 列表（title 走 useT 本地化）。
 // 图标与 JadeNavbar 下拉同源：有品牌 logo 的用彩色 SVG（public/sdklogo/），易语言/火山用品牌色字徽；
 // 字徽选中态跟随 secIconActive 反白（图标为 active 的函数）。
-const SDK_SECTIONS: { key: 'web' | 'py' | 'py2' | 'go' | 'ey' | 'vol'; root: string; bg?: string; icon: (active: boolean) => React.ReactNode }[] = [
+const SDK_SECTIONS: { key: 'web' | 'py' | 'go' | 'ey' | 'vol'; root: string; bg?: string; icon: (active: boolean) => React.ReactNode }[] = [
   { key: 'web', root: '/sdks/web-sdk', icon: () => <img alt="" height={15} src="/sdklogo/javascript.svg" width={15} /> },
   { key: 'py', root: '/sdks/python-sdk', icon: () => <img alt="" height={15} src="/sdklogo/python.svg" width={15} /> },
-  { key: 'py2', root: '/sdks/python-sdk2', icon: () => <img alt="" height={15} src="/sdklogo/python.svg" width={15} /> },
   { key: 'go', root: '/sdks/golang-sdk', bg: '#007D9C', icon: () => <img alt="" height={15} src="/sdklogo/go.svg" width={15} /> },
   { key: 'ey', root: '/sdks/easy-language-sdk', icon: (a) => <b style={{ color: a ? '#fff' : '#F97316', fontSize: 13 }}>易</b> },
   { key: 'vol', root: '/sdks/voldp-sdk', icon: (a) => <b style={{ color: a ? '#fff' : '#e8533f', fontSize: 13 }}>火</b> },

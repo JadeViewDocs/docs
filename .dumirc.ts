@@ -46,7 +46,7 @@ export default defineConfig({
       // SDK 分区迁入 /sdks 子路由后 /<sdk>/* → /sdks/<sdk>/*、/sdk → /sdks（支持 /en-US 前缀）。
       // 客户端早跳转（在 <head> 内、SPA 渲染前执行），保住旧书签 / 外链 / 搜索引擎收录不 404。
       content:
-        "(function(){if(typeof window==='undefined')return;var p=location.pathname,b='';if(p==='/en-US'||p.indexOf('/en-US/')===0){b='/en-US';p=p.slice(6)||'/';}var m=[['/v2api','/docs/api'],['/spec','/docs/spec'],['/web-sdk','/sdks/web-sdk'],['/python-sdk2','/sdks/python-sdk2'],['/python-sdk','/sdks/python-sdk'],['/golang-sdk','/sdks/golang-sdk'],['/easy-language-sdk','/sdks/easy-language-sdk'],['/voldp-sdk','/sdks/voldp-sdk'],['/sdk','/sdks']];for(var i=0;i<m.length;i++){var o=m[i][0],n=m[i][1];if(p===o||p.indexOf(o+'/')===0){location.replace(b+n+p.slice(o.length)+location.search+location.hash);return;}}})();",
+        "(function(){if(typeof window==='undefined')return;var p=location.pathname,b='';if(p==='/en-US'||p.indexOf('/en-US/')===0){b='/en-US';p=p.slice(6)||'/';}var m=[['/v2api','/docs/api'],['/spec','/docs/spec'],['/web-sdk','/sdks/web-sdk'],['/python-sdk','/sdks/python-sdk'],['/golang-sdk','/sdks/golang-sdk'],['/easy-language-sdk','/sdks/easy-language-sdk'],['/voldp-sdk','/sdks/voldp-sdk'],['/sdk','/sdks']];for(var i=0;i<m.length;i++){var o=m[i][0],n=m[i][1];if(p===o||p.indexOf(o+'/')===0){location.replace(b+n+p.slice(o.length)+location.search+location.hash);return;}}})();",
     },
     {
       content:

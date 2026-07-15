@@ -30,6 +30,9 @@ app.initialize(
     enable_dev_tools=False,  # 是否启用开发者工具 (F12)
     log_file=None,           # 日志文件路径
     data_directory=None,     # WebView 数据目录
+    app_name=None,           # 应用名称 (JadeView 2.x)
+    app_signature=None,      # 应用签名，占位值至少 6 个字符 (JadeView 2.x)
+    single_instance=False,   # 单实例模式 (JadeView 2.x)
 )
 ```
 
@@ -38,6 +41,9 @@ app.initialize(
 | enable_dev_tools | bool | 启用开发者工具 |
 | log_file | str \| None | 日志文件路径 |
 | data_directory | str \| None | WebView 数据存储目录 |
+| app_name | str \| None | 应用名称；未传入时 SDK 自动生成 |
+| app_signature | str \| None | 应用签名；JadeView 2.x 要求非空且 trim 后不少于 6 个字符，SDK 会自动补足缺省值 |
+| single_instance | bool | 是否启用单实例模式 |
 
 **返回值**: `JadeUIApp` (支持链式调用)
 
@@ -152,6 +158,10 @@ window = Window(
 | focus | bool | True | 创建时获取焦点 |
 | hide_window | bool | False | 创建时隐藏 |
 | use_page_icon | bool | True | 使用页面图标 |
+| frame_style | str \| None | None | JadeView 2.x 窗口框架样式：`normal` / `no-titlebar` / `borderless` / `title-overlay` |
+| auto_save_state | bool | False | 自动保存窗口状态 |
+| skip_taskbar | bool | False | v2.3：不显示在任务栏 / Alt-Tab |
+| no_activate | bool | False | v2.3：显示或点击时不抢焦点 |
 | autoplay | bool | False | 允许媒体自动播放 |
 | disable_right_click | bool | False | 禁用右键菜单 |
 | user_agent | str \| None | None | 自定义 User-Agent |
@@ -376,6 +386,42 @@ window.set_resizable(False)
 
 **返回值**: `Window`
 
+#### set_skip_taskbar()
+
+设置窗口是否不显示在任务栏 / Alt-Tab 中。需要 JadeView 2.3+。
+
+```python
+window.set_skip_taskbar(True)
+window.set_skip_taskbar(False)
+```
+
+**返回值**: `Window`
+
+#### set_no_activate()
+
+设置窗口显示或点击时是否不抢焦点。需要 JadeView 2.3+。
+
+```python
+window.set_no_activate(True)
+window.set_no_activate(False)
+```
+
+**返回值**: `Window`
+
+#### set_level()
+
+设置窗口层级。需要 JadeView 2.3+。
+
+```python
+window.set_level("topmost")  # topmost / normal / bottom / desktop
+```
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| level | str | `topmost`、`normal`、`bottom` 或 `desktop` |
+
+**返回值**: `Window`
+
 ### 主题方法
 
 #### set_theme()
@@ -470,6 +516,18 @@ window.reload()
 | is_focused | bool | 是否获得焦点 |
 | is_fullscreen | bool | 是否全屏 (需 Jadeui 0.2.1) |
 
+### 原生句柄
+
+#### get_hwnd()
+
+获取窗口的原生 HWND。JadeView 2.3 起，普通 `create_webview_window` 创建的窗口也可返回有效句柄。
+
+```python
+hwnd = window.get_hwnd()
+```
+
+**返回值**: `int`
+
 ### 静态方法
 
 #### get_window_count()
@@ -486,6 +544,14 @@ count = Window.get_window_count()
 
 ```python
 window = Window.get_window_by_id(1)
+```
+
+#### get_id_from_hwnd()
+
+根据原生 HWND 反查 JadeView window id。需要 JadeView 2.3+。
+
+```python
+window_id = Window.get_id_from_hwnd(hwnd)
 ```
 
 #### get_all_windows()
@@ -516,6 +582,7 @@ Window 类提供两种事件监听方式：**类型化装饰器**（推荐）和
 | `@window.on_state_changed` | `(is_maximized: bool)` | 窗口状态改变 |
 | `@window.on_fullscreen_changed` | `(is_fullscreen: bool)` | 全屏状态改变 (需 1.2+) |
 | `@window.on_file_dropped` | `(files: List[str], x: int, y: int)` | 文件拖放 |
+| `@window.on("drag-drop")` | `(data: dict)` | v2.x 底层拖拽生命周期事件 |
 | `@window.on_navigate` | `(url: str) -> bool` | 即将导航，返回 True 阻止 |
 | `@window.on_page_loaded` | `(url: str)` | 页面加载完成 |
 | `@window.on_title_updated` | `(title: str)` | 页面标题更新 |
@@ -602,9 +669,9 @@ window.show()
 | closed | - | 窗口已关闭 |
 | page-loaded | url, status | 页面加载完成 |
 
-#### file-drop 事件详解
+#### drag-drop / file-drop 事件详解
 
-`file-drop` 事件在用户将文件拖放到窗口时触发。
+JadeView 2.x 底层事件名为 `drag-drop`，会在 `enter`、`over`、`drop`、`leave` 阶段触发。SDK 仍保留 `file-drop` / `on_file_dropped` 作为兼容封装，只在最终 drop 阶段触发。
 
 **回调参数**：
 
@@ -628,6 +695,14 @@ def on_file_drop(files: list, x: int, y: int):
         print(f"  - {file_path}")
 
 window.show()
+```
+
+```python
+@window.on("drag-drop")
+def on_drag_drop(data):
+    print(data["type"], data.get("paths", []))
+    # JadeView 2.3 起，enter/drop 阶段返回 True 或非空字符串可同步拦截/消费
+    return False
 ```
 
 :::warning{title="注意"}
@@ -776,8 +851,9 @@ server = LocalServer()
 
 ```python
 url = server.start(
+    app_name="myapp",    # 兼容保留，JadeView 2.x 底层不再使用
     root_path="./web",   # 根目录
-    app_name="myapp"     # 应用名称
+    hot_reload=False     # 是否启用热重载
 )
 print(f"服务器运行在: {url}")
 ```
@@ -786,6 +862,7 @@ print(f"服务器运行在: {url}")
 |------|------|------|
 | root_path | str | 静态文件根目录 |
 | app_name | str | 应用标识符 |
+| hot_reload | bool | 是否启用热重载 |
 
 **返回值**: `str` - 服务器 URL
 
@@ -1232,6 +1309,140 @@ Notification.with_buttons(
 
 ---
 
+## Clipboard
+
+系统剪贴板文本读写 API。需要 JadeView 2.x。
+
+```python
+from jadeui import Clipboard
+
+Clipboard.write_text("Hello JadeUI")
+text = Clipboard.read_text()
+```
+
+| 方法 | 描述 |
+|------|------|
+| `Clipboard.write_text(text)` | 写入文本，成功返回 `True` |
+| `Clipboard.read_text(buffer_size=65536)` | 读取文本，失败或为空返回 `None` |
+
+---
+
+## System
+
+系统信息与 v2.3 系统集成 API。
+
+```python
+from jadeui import System
+
+print(System.is_windows_11())
+print(System.locale())
+print(System.displays())
+print(System.get_path("desktop"))
+print(System.jadeview_version())
+print(System.webview_version())
+```
+
+| 方法 | 描述 |
+|------|------|
+| `System.is_windows_11()` | 当前系统是否为 Windows 11 |
+| `System.locale()` | 系统语言，如 `zh-CN` |
+| `System.displays()` | 显示器信息列表 |
+| `System.cursor_position()` | 当前鼠标光标位置 |
+| `System.get_path(name)` | 获取系统路径，如 `desktop`、`documents`、`appdata`、`temp` |
+| `System.webview_version()` | WebView2 Runtime 版本 |
+| `System.jadeview_version()` | JadeView DLL 版本 |
+| `System.set_login_autostart(enable=True, args=None)` | v2.3：设置开机自启 |
+| `System.get_login_autostart()` | v2.3：查询开机自启状态 |
+| `System.get_file_icon(path, size=48, window_id=0, ttl_seconds=0)` | v2.3：提取文件/目录图标，返回 `jade://` URL |
+| `System.ntp_now(server=None)` | v2.3：获取 NTP UTC 毫秒时间戳，网络失败返回 `None` |
+
+---
+
+## Storage
+
+YAML 持久化存储 API。需要 JadeView 2.3+，建议在 `app.on_ready` 后使用。
+
+```python
+from jadeui import Storage
+
+Storage.set("settings", "window.width", 1024)
+Storage.set_str("settings", "literal", "true")
+
+print(Storage.get("settings", "window.width"))
+print(Storage.get_all("settings", {}))
+print(Storage.keys("settings", "window"))
+print(Storage.length("settings", "window"))
+```
+
+| 方法 | 描述 |
+|------|------|
+| `Storage.set(file_name, key_path, value)` | 写入值；非字符串会序列化为 JSON |
+| `Storage.set_str(file_name, key_path, value)` | 按字面字符串写入 |
+| `Storage.get(file_name, key_path, default=None)` | 读取路径值 |
+| `Storage.get_str(file_name, key_path, default=None)` | 按字面字符串读取（与 `set_str` 配对；`"123"` 保持字符串不被强转） |
+| `Storage.get_all(file_name, default=None)` | 读取整个 YAML 文件 |
+| `Storage.has(file_name, key_path)` | 路径是否存在 |
+| `Storage.delete(file_name, key_path)` | 删除路径 |
+| `Storage.clear(file_name)` | 清空文件为 `{}` |
+| `Storage.delete_file(file_name)` | 删除 YAML 文件 |
+| `Storage.keys(file_name, key_path="")` | 列出路径下 key |
+| `Storage.length(file_name, key_path="")` | 返回对象 key 数或数组长度 |
+
+---
+
+## Tray
+
+系统托盘 API。需要 JadeView 2.x，通常在 `app.on_ready` 后创建。
+
+```python
+from jadeui import Tray
+
+tray = Tray()
+tray.set_tooltip("JadeUI App")
+tray.set_icon("C:/app/icon.ico")
+tray.set_menu([
+    {"key": "show", "label": "显示窗口", "on_click": lambda: window.show()},
+    {"type": "separator", "key": "sep"},
+    {"key": "quit", "label": "退出", "dangerous": True, "on_click": app.quit},
+])
+tray.show()
+```
+
+| 方法 | 描述 |
+|------|------|
+| `set_tooltip(text)` | 设置悬浮提示 |
+| `set_icon(icon_path)` | 从文件设置托盘图标 |
+| `set_icon_from_bytes(data)` | 从内存字节设置托盘图标 |
+| `set_menu(items)` | 设置右键菜单 |
+| `on_click(callback)` | 监听托盘点击事件 |
+| `show()` / `hide()` | 显示或隐藏托盘 |
+| `destroy()` | 销毁托盘 |
+
+---
+
+## HotKey
+
+全局热键 API。需要 JadeView 2.x。
+
+```python
+from jadeui import HotKey
+
+@HotKey.register("Ctrl+Alt+J")
+def on_hotkey():
+    window.flash(3)
+
+hotkey_id = HotKey.register("Alt+F1", lambda: print("F1"))
+HotKey.unregister(hotkey_id)
+```
+
+| 方法 | 描述 |
+|------|------|
+| `HotKey.register(combo, callback=None)` | 注册全局热键；可作为装饰器使用 |
+| `HotKey.unregister(hotkey_id)` | 注销指定热键 |
+| `HotKey.unregister_all()` | 注销全部热键 |
+
+---
+
 ## EventEmitter
 
 事件发射器基类，提供事件订阅和发布功能。
@@ -1603,4 +1814,8 @@ from jadeui import get_architecture
 
 arch = get_architecture()  # "x64" 或 "x86"
 ```
+
+:::info{title="v2.3 DLL 规则"}
+`get_architecture()` 按当前 Python 解释器架构返回 `x86`、`x64` 或 `arm64`。下载器只会在 SDK 已适配的 release tag 内自动选择最新 build，不会自动跨 `2.2 -> 2.3` 这样的兼容边界。
+:::
 
