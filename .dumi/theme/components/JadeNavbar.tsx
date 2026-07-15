@@ -14,37 +14,26 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
 import { useLiquidGlass, GLASS_PARAMS, GLASS_SATURATION } from './JadeGlass';
 
-type SdkKey = 'web' | 'py' | 'py2' | 'go' | 'ey' | 'vol';
+type SdkKey = 'web' | 'py' | 'go' | 'ey' | 'vol';
 
 // 图标：能用真实品牌 logo 的用真实 logo（彩色 SVG，存于 public/sdk/，devicon 来源）；
 // 易语言 / 火山无公开 logo，用品牌色「字徽」（比抽象线条统一、清晰）。
 const SDK_ICON: Record<string, { type: 'img'; src: string; bg?: string } | { type: 'char'; char: string; color: string }> = {
   web: { type: 'img', src: '/sdklogo/javascript.svg' },
   py: { type: 'img', src: '/sdklogo/python.svg' },
-  py2: { type: 'img', src: '/sdklogo/python.svg' },
   go: { type: 'img', src: '/sdklogo/go.svg', bg: '#007D9C' }, // 白色 GO logo → Go 品牌深蓝底
   ey: { type: 'char', char: '易', color: '#F97316' },
   vol: { type: 'char', char: '火', color: '#e8533f' },
 };
 
 // 结构（key/链接）固定；标题与描述走 useT()（见 ../locales/strings）。
-const SDK_GROUPS: { key: 'frontend' | 'more'; items: { key: SdkKey; link: string }[] }[] = [
-  {
-    key: 'frontend',
-    items: [
-      { key: 'web', link: '/sdks/web-sdk' },
-      { key: 'py', link: '/sdks/python-sdk' },
-      { key: 'py2', link: '/sdks/python-sdk2' },
-    ],
-  },
-  {
-    key: 'more',
-    items: [
-      { key: 'go', link: '/sdks/golang-sdk' },
-      { key: 'ey', link: '/sdks/easy-language-sdk' },
-      { key: 'vol', link: '/sdks/voldp-sdk' },
-    ],
-  },
+// 扁平列表（不分类）：所有 SDK 平铺一列，无分组标题。
+const SDK_ITEMS: { key: SdkKey; link: string }[] = [
+  { key: 'web', link: '/sdks/web-sdk' },
+  { key: 'py', link: '/sdks/python-sdk' },
+  { key: 'go', link: '/sdks/golang-sdk' },
+  { key: 'ey', link: '/sdks/easy-language-sdk' },
+  { key: 'vol', link: '/sdks/voldp-sdk' },
 ];
 
 // SDK 分区已统一收纳在 /sdks 子路由下，激活态只需匹配该前缀
@@ -172,25 +161,10 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
     max-width: 560px;
   `,
   cols: css`
-    display: flex;
-    gap: 28px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    gap: 2px 28px;
     padding: 20px 22px;
-  `,
-  col: css`
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 200px;
-  `,
-  colTitle: css`
-    margin: 0 0 6px;
-    padding-inline-start: 10px;
-
-    font-size: 12px;
-    font-weight: 500;
-    color: ${token.colorTextTertiary};
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
   `,
   menuItem: css`
     display: flex;
@@ -562,31 +536,26 @@ export default memo(function JadeNavbar() {
   const megaCard = (
     <div className={styles.card}>
       <div className={styles.cols}>
-        {SDK_GROUPS.map((g) => (
-          <div key={g.key} className={styles.col}>
-            <p className={styles.colTitle}>{t.navbar.sdkGroupTitles[g.key]}</p>
-            {g.items.map((it) => {
-              const ic = SDK_ICON[it.key];
-              return (
-                <Link key={it.link} className={styles.menuItem} to={L(it.link)}>
-                  {ic.type === 'img' ? (
-                    <span className={styles.icon} style={ic.bg ? { background: ic.bg, boxShadow: 'none' } : undefined}>
-                      <img alt="" src={ic.src} />
-                    </span>
-                  ) : (
-                    <span className={styles.iconChar} style={{ background: ic.color }}>
-                      {ic.char}
-                    </span>
-                  )}
-                  <span>
-                    <span className={styles.mTitle}>{t.navbar.sdk[it.key].title}</span>
-                    <span className={styles.mDesc}>{t.navbar.sdk[it.key].desc}</span>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+        {SDK_ITEMS.map((it) => {
+          const ic = SDK_ICON[it.key];
+          return (
+            <Link key={it.link} className={styles.menuItem} to={L(it.link)}>
+              {ic.type === 'img' ? (
+                <span className={styles.icon} style={ic.bg ? { background: ic.bg, boxShadow: 'none' } : undefined}>
+                  <img alt="" src={ic.src} />
+                </span>
+              ) : (
+                <span className={styles.iconChar} style={{ background: ic.color }}>
+                  {ic.char}
+                </span>
+              )}
+              <span>
+                <span className={styles.mTitle}>{t.navbar.sdk[it.key].title}</span>
+                <span className={styles.mDesc}>{t.navbar.sdk[it.key].desc}</span>
+              </span>
+            </Link>
+          );
+        })}
       </div>
       <div className={styles.footer}>
         <Link className={styles.downloadCard} to={L('/download')}>

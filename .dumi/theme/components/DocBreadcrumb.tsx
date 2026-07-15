@@ -22,10 +22,9 @@ import { localeHref, useLocaleBase, useT } from '../locales/strings';
 const REPO_EDIT_BASE = 'https://github.com/JadeViewDocs/docs/edit/main/';
 
 // SDK 分区路由段 → strings.ts navbar.sdk 词条 key（标题双语走文案字典）
-const SDK_SECTIONS: Record<string, 'web' | 'py' | 'py2' | 'go' | 'ey' | 'vol'> = {
+const SDK_SECTIONS: Record<string, 'web' | 'py' | 'go' | 'ey' | 'vol'> = {
   'web-sdk': 'web',
   'python-sdk': 'py',
-  'python-sdk2': 'py2',
   'golang-sdk': 'go',
   'easy-language-sdk': 'ey',
   'voldp-sdk': 'vol',

@@ -58,6 +58,7 @@ python build.py app.py
 - 单文件模式（onefile）
 - 压缩级别 1（基础 LTO 优化）
 - 自动包含 JadeUI DLL
+- DLL 会按 Python 解释器架构匹配：32 位 Python 使用 x86 DLL，64 位 Python 使用 x64 DLL，ARM64 Python 使用 arm64 DLL
 - 自动包含 `web` 目录（如果存在）
 - 自动使用 `web/favicon.png` 作为图标（如果存在）
 
@@ -181,6 +182,12 @@ dist/
 pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
 ```
 
+也请确认打包产物中的 JadeView DLL 与 Python 解释器架构一致。JadeUI 会按解释器架构选择 `x86` / `x64` / `arm64`，不要用操作系统位数代替解释器位数判断。
+
+### Q: SDK 会自动升级到最新 JadeView 吗？
+
+**A:** 只会在 SDK 已适配的 release tag 内自动选择最新 build。例如当前 SDK 适配 `v2.3.0`，可自动使用同一 tag 下的后续修订号；但不会自动跨到 `2.4` 或其它 release tag。跨 minor/major 的版本升级需要 SDK 先完成 ABI/API 适配。
+
 ### Q: 如何减小打包后的文件大小？
 
 **A:** 
@@ -210,7 +217,7 @@ app.initialize(
 **C:** 允许右键菜单
 ```python
 window = Window(
-    disable_right_click=True,
+    disable_right_click=False,
 )
 ```
 

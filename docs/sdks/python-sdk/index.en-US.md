@@ -4,7 +4,7 @@ order: 0
 
 # Introduction
 
-The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, and Web front-end integration based on JadeView WebView technology.
+The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, system integration, and Web front-end integration based on JadeView WebView technology. The current SDK version is **2.3.0**, aligned with JadeView **v2.3.0 (Build 26G02)**.
 
 ## What is the JadeUI Python SDK
 
@@ -18,6 +18,10 @@ The JadeUI Python SDK is an object-oriented Python library that gives Python dev
 - **Local server**: The `LocalServer` class provides a built-in HTTP server for hosting Web content
 - **Routing system**: The `Router` class provides a backend-driven routing system that supports built-in and custom templates
 - **Event system**: The `EventEmitter` class provides a flexible mechanism for subscribing to and publishing events
+- **Dialogs and notifications**: `Dialog` and `Notification` wrap system file dialogs, message boxes, and desktop notifications
+- **System integration**: `Tray`, `HotKey`, `Clipboard`, and `System` support tray icons, global shortcuts, clipboard access, system paths, display info, and version queries
+- **YAML storage**: `Storage` wraps the JadeView 2.3 YAML persistence APIs
+- **Window enhancements**: DevTools, zoom, taskbar progress/flash, content protection, window levels, skip taskbar, no activate, and HWND-to-window-id lookup
 
 ## Use Cases
 
@@ -64,9 +68,23 @@ The JadeUI Python SDK uses the following technical architecture:
 
 ## System Requirements
 
-- **Python version**: Python 3.8+
-- **Operating system**: Windows 10+ (current version)
-- **Runtime**: WebView2 Runtime (Windows)
+- **Python version**: Python 3.7+
+- **Operating system**: Windows 10/11
+- **Runtime**: WebView2 Runtime on Windows
+- **Python architecture**: Windows supports x86 / x64 / arm64. The SDK downloads and loads the matching JadeView native library for the active Python interpreter architecture.
+- **Not supported**: Upstream JadeView does not ship a Linux native library yet (still in development), so the SDK currently supports Windows only.
+
+## Version and DLL Update Rules
+
+JadeUI automatically downloads the adapted JadeView DLL. The current SDK targets `v2.3.0` and may select the latest build within the same release tag, such as a later build after `26G02`.
+
+:::warning{title="Compatibility Boundary"}
+Automatic updates are limited to build revisions within the same API version / release tag. Minor or major jumps such as `2.2 -> 2.3` or `2.3 -> 2.4` may include ABI or behavior changes and require an explicit SDK adaptation first.
+:::
+
+:::info{title="IPC Message Limit"}
+Keep a single business `jade.invoke` payload below `1000KB`; an exact `1MiB` payload plus IPC framing exceeds the native bridge limit and is rejected. Use chunks, temporary files, or resource URLs for larger content.
+:::
 
 ## Installation
 

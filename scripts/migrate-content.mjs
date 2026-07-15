@@ -17,7 +17,6 @@ const SECTIONS = [
   { id: 'v2api', sidebar: 'sidebars-v2api.js' },
   { id: 'web-sdk', sidebar: 'sidebars-web-sdk.js' },
   { id: 'python-sdk', sidebar: 'sidebars-python-sdk.js' },
-  { id: 'python-sdk2', sidebar: 'sidebars-python-sdk2.js' },
   { id: 'easy-language-sdk', sidebar: 'sidebars-easy-language-sdk.js' },
   { id: 'voldp-sdk', sidebar: 'sidebars-voldp-sdk.js' },
 ];
