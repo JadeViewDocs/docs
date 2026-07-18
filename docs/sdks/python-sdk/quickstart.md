@@ -20,6 +20,17 @@ order: 1
 pip install jadeui
 ```
 
+## 使用 CLI 脚手架（推荐）
+
+```bash
+jadeui init my-app --frontend html   # 也可选 vue / react
+cd my-app
+jadeui doctor
+jadeui run
+```
+
+命令说明与 `pyproject.toml` 约定见 [CLI 工具](./cli)；打包见 [应用打包](./packaging)。
+
 ## 基本使用
 
 ### 创建第一个应用

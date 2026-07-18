@@ -853,8 +853,10 @@ Starts the server.
 ```python
 url = server.start(
     app_name="myapp",    # Kept for compatibility; not used by JadeView 2.x
-    root_path="./web",   # Root directory
-    hot_reload=False     # Enable hot reload
+    root_path="./web",   # Static root
+    hot_reload=False,    # Hot reload (forced off for .japk files)
+    japk=None,           # Optional .japk path (overrides root_path)
+    from_memory=False,   # True when a JAPK is already loaded in memory
 )
 print(f"Server running at: {url}")
 ```
@@ -864,6 +866,8 @@ print(f"Server running at: {url}")
 | root_path | str | Static file root directory |
 | app_name | str | Application identifier |
 | hot_reload | bool | Whether to enable hot reload |
+| japk | str \| None | Path to a `.japk` file; overrides `root_path` when set |
+| from_memory | bool | Set `True` when a JAPK is already loaded in memory |
 
 **Return value**: `str` - The server URL
 
@@ -1354,8 +1358,43 @@ print(System.webview_version())
 | `System.jadeview_version()` | JadeView DLL version |
 | `System.set_login_autostart(enable=True, args=None)` | v2.3: set login autostart |
 | `System.get_login_autostart()` | v2.3: query login autostart status |
+| `System.register_url_scheme(scheme, ...)` / `unregister_url_scheme` | v2.3: register / unregister a custom URL scheme |
+| `System.register_file_association(...)` | v2.3: register a file association |
+| `System.register_resource` / `unregister_resource` / `clear_window_resources` | v2.3: per-window resources (`None/0` default TTL, `-1` never expire) |
+| `System.printer_list()` / `System.print_file(...)` | v2.3: list printers / print a file |
+| `System.clear_data_directory(confirm=True)` | v2.3: clear data directory (requires `CLEAR_DATA_CONFIRM_TOKEN`) |
+| `System.convert_encoding` / `gbk_to_utf8` / `utf8_to_gbk` | v2.3: encoding helpers |
 | `System.get_file_icon(path, size=48, window_id=0, ttl_seconds=0)` | v2.3: extract a file/folder icon and return a `jade://` URL |
 | `System.ntp_now(server=None)` | v2.3: get an NTP UTC millisecond timestamp; returns `None` on network failure |
+
+---
+
+## Menu
+
+Native context menus. Prefer `Menu.attach_context_menu`: items are created inside the `context-menu` callback (official flow).
+
+```python
+from jadeui import Menu, Window
+
+window = Window(title="Menu Demo", disable_right_click=False)
+
+Menu.attach_context_menu(window, [
+    {"label": "Reload", "on_click": lambda: window.reload()},
+    {"type": "separator"},
+    {"label": "copy", "type": "native"},  # WebView2 native menu Name
+    {
+        "label": "More",
+        "type": "submenu",
+        "children": [
+            {"label": "About", "on_click": lambda: print("about")},
+        ],
+    },
+])
+```
+
+Item fields: `label` / `on_click` / `type` (`normal` \| `separator` \| `checkbox` \| `radio` \| `submenu` \| `native`) / `children` / `disabled` / `checked` / `item_id`.
+
+When `type="native"`, `label` must be a WebView2 native menu Name such as `"copy"` or `"paste"`.
 
 ---
 
@@ -1775,6 +1814,8 @@ utils.ensure_directory("./data/cache")
 ---
 
 ## DLL Download Tools
+
+Prefer the CLI: `jadeui download` (see [CLI](../cli)). The following are Python APIs.
 
 ### download_dll()
 

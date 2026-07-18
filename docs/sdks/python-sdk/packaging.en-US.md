@@ -1,235 +1,194 @@
 ---
-order: 2
+order: 3
 ---
 
-# Application Packaging
+# Application packaging
 
-This guide explains how to package a JadeUI Python application into a standalone executable (.exe).
+Packaging a JadeUI Python app is usually two steps:
 
-## Packaging Tool
+1. **Front-end assets**: plaintext JAPK (development) or a [JadePack](/jadepack) signed package (production)
+2. **Python host**: `jadeui build` into a standalone `.exe` (Nuitka by default, PyInstaller optional)
 
-JadeUI provides a packaging script based on [Nuitka](https://nuitka.net/) that can package a Python application into a standalone executable, without requiring Python to be installed on the target system.
+See [CLI](./cli) for the full command surface and project conventions.
 
-## Installing Nuitka
+## Front-end assets (JAPK)
 
-:::warning{title="Important: Nuitka 4.0rc7 Recommended"}
-The onefile mode of Nuitka's official stable release (2.x) has a bug where the VC++ runtime is not packaged correctly, causing the generated exe to fail to run on a clean Windows system (missing `vcruntime140.dll`).
+```bash
+# Requires Node.js and: npm install -g @electron/asar
+jadeui japk
+jadeui japk --src web -o dist/my-app.japk
+```
 
-**Nuitka 4.0rc7** fixes this issue; the onefile bootstrap uses static linking.
+Load at runtime:
+
+```python
+from jadeui import Window
+
+Window(title="My App").run(japk="dist/my-app.japk")
+```
+
+Or via `LocalServer`:
+
+```python
+from jadeui import LocalServer
+
+server = LocalServer()
+url = server.start("myapp", japk="dist/my-app.japk")
+```
+
+:::info{title="Plaintext vs production"}
+`jadeui japk` produces an Electron ASAR-compatible plaintext package for development / internal tools. For signed and obfuscated production packages, use [JadePack](/jadepack). Format details: [JAPK](/docs/api/japk).
 :::
 
-Install the recommended version:
+## Host exe (`jadeui build`)
+
+### Install a packager
+
+:::warning{title="Important: Nuitka 4.0rc7 recommended"}
+Nuitka's stable 2.x onefile mode may omit the VC++ runtime, so the exe can fail on a clean Windows machine (`vcruntime140.dll` missing).
+
+**Nuitka 4.0rc7** fixes this with a statically linked onefile bootstrap.
+:::
 
 ```bash
+# Recommended (onefile does not need VC++ runtime on the target)
 pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
-```
 
-Or install the PyPI stable release (onefile requires the VC++ runtime on the target system):
-
-```bash
+# Or PyPI stable (onefile may need VC++ runtime on the target)
 pip install nuitka
+
+# Optional: PyInstaller
+pip install jadeui[pyinstaller]
 ```
 
-## Installing the Build Environment
+Toolchain checks:
+
 ```bash
 pip install jadeui[dev]
+jadeui doctor
 ```
 
-## Downloading the Packaging Script
-
-Download the packaging script from GitHub:
+### Basic usage
 
 ```bash
-# Download build.py
-curl -O https://raw.githubusercontent.com/HG-ha/Jadeui/main/scripts/build.py
+jadeui build
+jadeui build app.py
+jadeui build app.py -o MyApp
+jadeui build --packager pyinstaller
+jadeui build -i app.ico -o MyApp --output-dir dist
+jadeui build --include-data-dir assets=assets --console
+jadeui build --no-onefile -c 2
 ```
 
-Or visit it directly: [build.py](https://github.com/HG-ha/Jadeui/blob/main/scripts/build.py)
+Defaults:
 
-## Basic Usage
+- Onefile mode
+- Compress level 1 (basic LTO)
+- Auto-include JadeView DLL (matched to the current Python arch: `x86` / `x64` / `arm64`)
+- Auto-include sibling `web/` when present
+- Auto-use `web/favicon.png` as icon when present
+- Without `-o`, the output name follows `pyproject.toml` (see [CLI conventions](./cli#project-conventions-pyprojecttoml))
 
-### The Simplest Packaging
+### Flags
 
-```bash
-python build.py app.py
-```
+| Flag | Description |
+|------|-------------|
+| `source` | Python entry (default `tool.jadeui.entry` or `app.py`) |
+| `--packager` | `nuitka` (default) or `pyinstaller` |
+| `-i, --icon` | Icon (`.ico` / `.png`) |
+| `-o, --output` | Output basename (no extension) |
+| `--output-dir` | Output directory (default `dist`) |
+| `--include-data-dir` | Data dir mapping `src=dest` (repeatable) |
+| `--include-data-file` | Data file mapping `src=dest` (repeatable) |
+| `--console` | Show a console window |
+| `--upx` | Enable UPX (Nuitka) |
+| `--no-jadeui-dll` | Do not auto-include JadeView DLL |
+| `-c, --compress` | Nuitka compress level `0-3` (default `1`) |
+| `--no-onefile` | Directory build instead of onefile |
 
-This packages using the default configuration:
-- Single-file mode (onefile)
-- Compression level 1 (basic LTO optimization)
-- Automatically includes the JadeUI DLL
-- The DLL matches the Python interpreter architecture: 32-bit Python uses the x86 DLL, 64-bit Python uses the x64 DLL, and ARM64 Python uses the arm64 DLL
-- Automatically includes the `web` directory (if present)
-- Automatically uses `web/favicon.png` as the icon (if present)
+### Compress levels (Nuitka)
 
-### Specifying the Output File Name
+| Level | Notes | Speed | Size |
+|------|-------|-------|------|
+| 0 | No extra compression | Fastest | Largest |
+| 1 | Basic LTO | Fast | Larger |
+| 2 | LTO + strip docstrings / asserts | Slower | Smaller |
+| 3 | Full opts + Python `-OO` | Slowest | Smallest |
 
-```bash
-python build.py app.py --output MyApp
-```
+`-c 2` is a good daily default.
 
-### Using a Custom Icon
-
-```bash
-python build.py app.py --icon custom.ico
-```
-
-### Setting the Compression Level
-
-```bash
-python build.py app.py -c 2  # Medium compression (recommended)
-python build.py app.py -c 3  # Maximum compression
-```
-
-### Packaging into a Directory (Non-Single-File)
-
-```bash
-python build.py app.py --no-onefile
-```
-
-### Including Additional Data Directories
-
-```bash
-python build.py app.py --include-data-dir assets=assets
-```
-
-## Command-Line Parameters
-
-| Parameter | Description |
-|------|------|
-| `source` | The Python source file to compile |
-| `-i, --icon` | Application icon file (.ico or .png) |
-| `-o, --output` | Output executable name (without the .exe extension) |
-| `--output-dir` | Output directory (default: dist) |
-| `--include-data-dir` | Include a data directory, format: source_dir=target_dir (can be used multiple times) |
-| `--include-data-file` | Include a data file, format: source_file=target_file (can be used multiple times) |
-| `--console` | Show the console window (hidden by default) |
-| `--upx` | Enable UPX compression |
-| `--no-jadeui-dll` | Do not automatically include the JadeUI DLL |
-| `-c, --compress` | Compression level 0-3 (default: 1) |
-| `--no-onefile` | Do not package as a single file; generate a directory |
-
-## Compression Level Description
-
-| Level | Description | Compile Speed | File Size |
-|------|------|----------|----------|
-| 0 | No compression | Fastest | Largest |
-| 1 | Basic optimization (LTO enabled) | Faster | Larger |
-| 2 | Medium compression (LTO + remove docstrings and asserts) | Slower | Smaller |
-| 3 | Maximum compression (all optimizations + Python -OO mode) | Slowest | Smallest |
-
-**Level 2 is recommended**, striking a balance between file size and compile time.
-
-## Project Structure Recommendation
-
-Recommended project structure:
+## Suggested layout
 
 ```
 my_app/
-├── app.py              # Main program entry point
-├── web/                # Web frontend files (automatically included)
+├── app.py
+├── pyproject.toml      # [project] + [tool.jadeui]
+├── web/                # front end (auto-included / japk source)
 │   ├── index.html
-│   ├── favicon.png     # Automatically used as the icon
-│   ├── css/
-│   └── js/
-├── assets/             # Other resources (must be specified manually if present)
-└── build.py            # Packaging script
+│   └── favicon.png
+└── assets/             # extra data (pass --include-data-dir)
 ```
 
-## Complete Packaging Example
+## End-to-end example
 
 ```bash
-# Recommended packaging command
-python build.py app.py --output myapp
-
-# Package additional resource directories
-python build.py app.py --output myapp --include-data-dir assets=assets
+jadeui init my-app --frontend html
+cd my-app
+jadeui doctor
+jadeui run
+jadeui japk
+jadeui build -o MyApp -c 2
 ```
 
-Output:
-
-```
-============================================================
-JadeUI Application Packaging
-============================================================
-Source file: app.py
-Output directory: dist
-Output file: MyApp.exe
-Packaging mode: single file (onefile)
-Compression level: 2 - medium compression (LTO + no docs/asserts)
-Icon: web/favicon.ico
-JadeUI DLL: 2 files
-Data directory: ['assets=assets']
-============================================================
-```
-
-## Packaged Files
-
-After packaging completes, the executable is generated in the `dist` directory:
+Typical output:
 
 ```
 dist/
-└── MyApp.exe    # Standalone executable, ready to distribute
+├── my-app.japk    # front-end assets (if you ran japk)
+└── MyApp.exe      # host executable
 ```
 
-## Frequently Asked Questions
+## Legacy script
 
-### Q: The packaged program won't run and reports a missing DLL?
+`scripts/build.py` in the repo still forwards to the same implementation. New projects should call `jadeui build` directly.
 
-**A:** This is usually because the onefile mode of the Nuitka 2.x stable release was used. Please upgrade to Nuitka 4.0rc7:
+## FAQ
 
-```bash
-pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
-```
+### Q: Missing DLL / VC++ runtime after packaging?
 
-Also make sure the packaged JadeView DLL matches the Python interpreter architecture. JadeUI selects `x86` / `x64` / `arm64` based on the interpreter, not the operating system bitness.
+**A:** Prefer Nuitka 4.0rc7, and make sure the bundled JadeView DLL matches the Python interpreter architecture used for the build.
 
-### Q: Does the SDK automatically upgrade to the latest JadeView?
+### Q: Does the SDK auto-upgrade JadeView?
 
-**A:** Only within the release tag that the SDK has adapted to. For example, the current SDK targets `v2.3.0` and can automatically use later build revisions in the same tag, but it will not automatically jump to `2.4` or another release tag. Minor/major upgrades require an explicit SDK ABI/API adaptation first.
+**A:** Only within the adapted release tag (for example builds under `v2.3.0`). It will not jump to `2.4` automatically.
 
-### Q: How can I reduce the size of the packaged file?
+### Q: How do I shrink the binary?
+
+**A:** Raise `-c`, optionally `--upx`, drop unused data dirs, or use an older Python.
+
+### Q: `web/` was not included?
+
+**A:** Keep `web` next to the entry script, or pass `--include-data-dir`.
+
+### Q: How do I debug the packaged app?
 
 **A:**
-1. Use a higher compression level: `-c 3`
-2. Enable UPX compression: `--upx` (requires UPX to be installed)
-3. Make sure no unnecessary files are included
-4. Use a lower version of Python, such as Python 3.8
-
-### Q: The web directory wasn't automatically included?
-
-**A:** Make sure the `web` directory is located in the same directory as the source file. If it is elsewhere, specify it manually with `--include-data-dir`.
-
-### Q: How do I debug the packaged program?
-
-**A:** Add the `--console` parameter to show the console window so you can see error output:
 
 ```bash
-python build.py app.py --console
+jadeui build app.py --console
 ```
-**B:** Enable developer tools
+
+During development, enable DevTools / context menu:
+
 ```python
-app.initialize(
-    enable_dev_tools=False,  # Whether to enable developer tools (F12)
-)
+app.initialize(enable_dev_tools=True)
+window = Window(disable_right_click=False, ...)
 ```
 
-**C:** Allow the right-click menu
-```python
-window = Window(
-    disable_right_click=False,
-)
-```
+## Links
 
-### Q: The packaging process is very slow?
-
-**A:**
-- Use a lower compression level (`-c 0` or `-c 1`)
-- The first packaging needs to download dependencies; subsequent runs are faster
-- Consider using `--no-onefile` to package in directory mode (faster)
-
-## Reference Links
-
-- [Packaging script source](https://github.com/HG-ha/Jadeui/blob/main/scripts/build.py)
-- [Nuitka Official Documentation](https://nuitka.net/doc/user-manual.html)
-- [JadeUI GitHub Repository](https://github.com/HG-ha/Jadeui)
+- [CLI](./cli)
+- [JAPK](/docs/api/japk)
+- [JadePack](/jadepack)
+- [Nuitka docs](https://nuitka.net/doc/user-manual.html)
+- [JadeUI GitHub](https://github.com/HG-ha/Jadeui)
