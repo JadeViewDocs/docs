@@ -91,7 +91,7 @@ For signed / obfuscated production packages, use the [JadePack](/jadepack) deskt
 
 ### build — pack host exe
 
-See [Application packaging](./packaging).
+See [Application packaging](./packaging). Missing Nuitka / PyInstaller is **installed automatically** (disable with `--no-auto-deps`).
 
 ```bash
 jadeui build

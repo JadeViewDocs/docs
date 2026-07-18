@@ -91,7 +91,7 @@ jadeui japk --list dist/my-app.japk
 
 ### build — 打包宿主 exe
 
-详见 [应用打包](./packaging)。
+详见 [应用打包](./packaging)。缺少 Nuitka / PyInstaller 时会**自动安装**（可用 `--no-auto-deps` 关闭）。
 
 ```bash
 jadeui build

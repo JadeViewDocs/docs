@@ -42,22 +42,24 @@ url = server.start("myapp", japk="dist/my-app.japk")
 
 ## Host exe (`jadeui build`)
 
-### Install a packager
+### Packagers (auto-install)
 
-:::warning{title="Important: Nuitka 4.0rc7 recommended"}
-Nuitka's stable 2.x onefile mode may omit the VC++ runtime, so the exe can fail on a clean Windows machine (`vcruntime140.dll` missing).
+`jadeui build` **installs a missing packager automatically by default**:
 
-**Nuitka 4.0rc7** fixes this with a statically linked onefile bootstrap.
+- Nuitka (default): installs the recommended **4.0rc7** build (onefile does not need VC++ runtime on the target)
+- `--packager pyinstaller`: runs `pip install pyinstaller`
+
+Use `--no-auto-deps` for offline environments or when you do not want the environment mutated.
+
+:::warning{title="Why Nuitka 4.0rc7"}
+Nuitka's stable 2.x onefile mode may omit the VC++ runtime (`vcruntime140.dll` missing on clean Windows). 4.0rc7 uses a statically linked onefile bootstrap.
 :::
 
+You can still preinstall manually:
+
 ```bash
-# Recommended (onefile does not need VC++ runtime on the target)
 pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
-
-# Or PyPI stable (onefile may need VC++ runtime on the target)
-pip install nuitka
-
-# Optional: PyInstaller
+# or
 pip install jadeui[pyinstaller]
 ```
 
@@ -105,6 +107,7 @@ Defaults:
 | `--no-jadeui-dll` | Do not auto-include JadeView DLL |
 | `-c, --compress` | Nuitka compress level `0-3` (default `1`) |
 | `--no-onefile` | Directory build instead of onefile |
+| `--no-auto-deps` | Do not auto-install missing Nuitka / PyInstaller |
 
 ### Compress levels (Nuitka)
 

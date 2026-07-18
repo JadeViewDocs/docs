@@ -42,22 +42,24 @@ url = server.start("myapp", japk="dist/my-app.japk")
 
 ## 宿主 exe（jadeui build）
 
-### 安装打包器
+### 打包器（自动安装）
 
-:::warning{title="重要：推荐使用 Nuitka 4.0rc7"}
-Nuitka 官方稳定版 (2.x) 的 onefile 模式存在 bug，没有正确打包 VC++ 运行时，导致生成的 exe 在纯净 Windows 上可能缺少 `vcruntime140.dll`。
+`jadeui build` **默认会自动安装缺失的打包器**：
 
-**Nuitka 4.0rc7** 修复了此问题（onefile bootstrap 静态链接）。
+- 默认 Nuitka：自动安装推荐的 **4.0rc7**（onefile 无需目标机 VC++ 运行时）
+- `--packager pyinstaller`：自动 `pip install pyinstaller`
+
+离线或不希望改动环境时可用 `--no-auto-deps` 关闭。
+
+:::warning{title="为何推荐 Nuitka 4.0rc7"}
+Nuitka 官方稳定版 (2.x) 的 onefile 模式可能未正确打包 VC++ 运行时，导致 exe 在纯净 Windows 上缺少 `vcruntime140.dll`。4.0rc7 的 onefile bootstrap 使用静态链接。
 :::
 
+也可手动预装：
+
 ```bash
-# 推荐（onefile 无需目标机 VC++ 运行时）
 pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
-
-# 或 PyPI 稳定版（onefile 可能需要目标机 VC++ 运行时）
-pip install nuitka
-
-# 可选：PyInstaller
+# 或
 pip install jadeui[pyinstaller]
 ```
 
@@ -105,6 +107,7 @@ jadeui build --no-onefile -c 2
 | `--no-jadeui-dll` | 不自动包含 JadeView DLL |
 | `-c, --compress` | Nuitka 压缩级别 `0-3`（默认 `1`） |
 | `--no-onefile` | 打包为目录而非单文件 |
+| `--no-auto-deps` | 禁止自动安装缺失的 Nuitka / PyInstaller |
 
 ### 压缩级别（Nuitka）
 
