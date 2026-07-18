@@ -46,19 +46,19 @@ url = server.start("myapp", japk="dist/my-app.japk")
 
 `jadeui build` **默认会自动安装缺失的打包器**：
 
-- 默认 Nuitka：自动安装推荐的 **4.0rc7**（onefile 无需目标机 VC++ 运行时）
+- 默认 Nuitka：自动安装 **`nuitka>=4.0`**（PyPI 正式版）
 - `--packager pyinstaller`：自动 `pip install pyinstaller`
 
 离线或不希望改动环境时可用 `--no-auto-deps` 关闭。
 
-:::warning{title="为何推荐 Nuitka 4.0rc7"}
-Nuitka 官方稳定版 (2.x) 的 onefile 模式可能未正确打包 VC++ 运行时，导致 exe 在纯净 Windows 上缺少 `vcruntime140.dll`。4.0rc7 的 onefile bootstrap 使用静态链接。
+:::info{title="Nuitka 版本说明"}
+Nuitka **2.x** 的 onefile 在纯净 Windows 上可能缺少 `VCRUNTIME140.dll`。该问题已在正式版 **4.0** 修复（[Nuitka#3706](https://github.com/Nuitka/Nuitka/issues/3706)）。请使用 4.0 及以上；当前 PyPI 已发布 4.1.x。
 :::
 
 也可手动预装：
 
 ```bash
-pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
+pip install "nuitka>=4.0"
 # 或
 pip install jadeui[pyinstaller]
 ```
@@ -159,7 +159,7 @@ dist/
 
 ### Q: 打包后提示缺少 DLL / VC++ 运行时？
 
-**A:** 优先改用 Nuitka 4.0rc7；并确认产物中的 JadeView DLL 与打包时使用的 Python 架构一致（不要用「系统是 64 位」代替「解释器是 64 位」）。
+**A:** 使用 Nuitka **>=4.0**（`pip install "nuitka>=4.0"`）；并确认产物中的 JadeView DLL 与打包时使用的 Python 架构一致（不要用「系统是 64 位」代替「解释器是 64 位」）。
 
 ### Q: SDK 会自动升到最新 JadeView 吗？
 

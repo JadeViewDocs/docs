@@ -46,19 +46,19 @@ url = server.start("myapp", japk="dist/my-app.japk")
 
 `jadeui build` **installs a missing packager automatically by default**:
 
-- Nuitka (default): installs the recommended **4.0rc7** build (onefile does not need VC++ runtime on the target)
+- Nuitka (default): installs **`nuitka>=4.0`** from PyPI
 - `--packager pyinstaller`: runs `pip install pyinstaller`
 
 Use `--no-auto-deps` for offline environments or when you do not want the environment mutated.
 
-:::warning{title="Why Nuitka 4.0rc7"}
-Nuitka's stable 2.x onefile mode may omit the VC++ runtime (`vcruntime140.dll` missing on clean Windows). 4.0rc7 uses a statically linked onefile bootstrap.
+:::info{title="Nuitka version notes"}
+Nuitka **2.x** onefile builds may miss `VCRUNTIME140.dll` on clean Windows. This was fixed in stable **4.0** ([Nuitka#3706](https://github.com/Nuitka/Nuitka/issues/3706)). Use 4.0+; PyPI currently ships 4.1.x.
 :::
 
 You can still preinstall manually:
 
 ```bash
-pip install https://github.com/HG-ha/jadeui/raw/main/scripts/nuitka-4.0.rc7.zip
+pip install "nuitka>=4.0"
 # or
 pip install jadeui[pyinstaller]
 ```
@@ -159,7 +159,7 @@ dist/
 
 ### Q: Missing DLL / VC++ runtime after packaging?
 
-**A:** Prefer Nuitka 4.0rc7, and make sure the bundled JadeView DLL matches the Python interpreter architecture used for the build.
+**A:** Use Nuitka **>=4.0** (`pip install "nuitka>=4.0"`), and make sure the bundled JadeView DLL matches the Python interpreter architecture used for the build.
 
 ### Q: Does the SDK auto-upgrade JadeView?
 
