@@ -151,10 +151,6 @@ jade.on('response', function(content) {
 });
 ```
 
-:::warning{title="IPC 大小限制"}
-单次 `jade.invoke` payload 建议控制在 `1000KB` 以内；精确 `1MiB` payload 加上 IPC 封装后会超过原生 bridge 上限并被拒绝，更大的内容请使用分片、临时文件或资源 URL。
-:::
-
 ### 使用路由系统
 
 `Router` 提供后端主导的路由系统，自动生成带侧边栏的应用框架：

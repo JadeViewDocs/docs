@@ -84,10 +84,6 @@ JadeUI automatically downloads the adapted JadeView DLL. The current SDK targets
 Automatic updates are limited to build revisions within the same API version / release tag. Minor or major jumps such as `2.2 -> 2.3` or `2.3 -> 2.4` may include ABI or behavior changes and require an explicit SDK adaptation first.
 :::
 
-:::info{title="IPC Message Limit"}
-Keep a single business `jade.invoke` payload below `1000KB`; an exact `1MiB` payload plus IPC framing exceeds the native bridge limit and is rejected. Use chunks, temporary files, or resource URLs for larger content.
-:::
-
 ## Installation
 
 Install the JadeUI Python SDK via pip:

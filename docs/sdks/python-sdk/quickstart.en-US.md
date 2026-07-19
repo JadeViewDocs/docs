@@ -151,10 +151,6 @@ jade.on('response', function(content) {
 });
 ```
 
-:::warning{title="IPC Size Limit"}
-Keep one `jade.invoke` payload below `1000KB`; an exact `1MiB` payload plus IPC framing exceeds the native bridge limit and is rejected. Use chunks, temporary files, or resource URLs for larger content.
-:::
-
 ### Using the Routing System
 
 `Router` provides a backend-driven routing system that automatically generates an application frame with a sidebar:

@@ -84,10 +84,6 @@ JadeUI SDK 会自动下载已适配的 JadeView DLL。当前版本适配 `v2.3.0
 自动更新只限同一 API 版本 / release tag 内的 build 修订号。类似 `2.2 -> 2.3`、`2.3 -> 2.4` 这类 minor/major 升级可能包含 ABI 或行为变化，需要 SDK 明确适配后再升级。
 :::
 
-:::info{title="IPC 消息上限"}
-单次业务 `jade.invoke` payload 建议不超过 `1000KB`；精确 `1MiB` payload 加上 IPC 封装后会超过原生 bridge 上限并被拒绝。更大的数据请使用分片、临时文件或资源 URL。
-:::
-
 ## 安装方式
 
 通过 pip 安装 JadeUI Python SDK：
