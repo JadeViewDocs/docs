@@ -44,15 +44,15 @@ url = server.start("myapp", japk="dist/my-app.japk")
 
 ### Packagers (auto-install)
 
-`jadeui build` **installs a missing packager automatically by default**:
+`jadeui build` **installs a missing packager automatically by default** — you no longer need the old GitHub Nuitka rc zip:
 
-- Nuitka (default): installs **`nuitka>=4.0`** from PyPI
+- Nuitka (default): installs **`nuitka>=4.0`** from PyPI (do **not** use the obsolete `4.0rc7` zip)
 - `--packager pyinstaller`: runs `pip install pyinstaller`
 
 Use `--no-auto-deps` for offline environments or when you do not want the environment mutated.
 
 :::info{title="Nuitka version notes"}
-Nuitka **2.x** onefile builds may miss `VCRUNTIME140.dll` on clean Windows. This was fixed in stable **4.0** ([Nuitka#3706](https://github.com/Nuitka/Nuitka/issues/3706)). Use 4.0+; PyPI currently ships 4.1.x.
+Nuitka **2.x** onefile builds may miss `VCRUNTIME140.dll` on clean Windows. This was fixed in stable **4.0** ([Nuitka#3706](https://github.com/Nuitka/Nuitka/issues/3706)). Use PyPI **4.0+** (currently 4.1.x); do **not** install the old in-repo `nuitka-4.0.rc7.zip`.
 :::
 
 You can still preinstall manually:

@@ -44,15 +44,15 @@ url = server.start("myapp", japk="dist/my-app.japk")
 
 ### 打包器（自动安装）
 
-`jadeui build` **默认会自动安装缺失的打包器**：
+`jadeui build` **默认会自动安装缺失的打包器**，无需再手动装 GitHub 上的 Nuitka rc 包：
 
-- 默认 Nuitka：自动安装 **`nuitka>=4.0`**（PyPI 正式版）
+- 默认 Nuitka：自动安装 **`nuitka>=4.0`**（PyPI 正式版；勿再使用已过时的 `4.0rc7` zip）
 - `--packager pyinstaller`：自动 `pip install pyinstaller`
 
 离线或不希望改动环境时可用 `--no-auto-deps` 关闭。
 
 :::info{title="Nuitka 版本说明"}
-Nuitka **2.x** 的 onefile 在纯净 Windows 上可能缺少 `VCRUNTIME140.dll`。该问题已在正式版 **4.0** 修复（[Nuitka#3706](https://github.com/Nuitka/Nuitka/issues/3706)）。请使用 4.0 及以上；当前 PyPI 已发布 4.1.x。
+Nuitka **2.x** 的 onefile 在纯净 Windows 上可能缺少 `VCRUNTIME140.dll`。该问题已在正式版 **4.0** 修复（[Nuitka#3706](https://github.com/Nuitka/Nuitka/issues/3706)）。请直接使用 PyPI 上的 **4.0+**（当前为 4.1.x），**不要**再安装仓库内旧的 `nuitka-4.0.rc7.zip`。
 :::
 
 也可手动预装：
