@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-07-19T19:00:27.615Z",
+  "updated_at": "2026-07-20T12:33:42.043Z",
   "releases": [
+    {
+      "tag_name": "v2.3.1",
+      "name": "v2.3.1 (Build 26G03)",
+      "published_at": "2026-07-20T12:33:26Z",
+      "prerelease": false,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.3.1",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.3.1",
+      "body": "- 修复 Windows 下从主程序 EXE 提取图标后，任务栏图标被当作窗口小图标设置，导致系统重复缩放并出现透明边缘暗边的问题。\n- 修复 Windows 标题栏图标直接提取 16px HICON 时半透明边缘质量下降的问题。现在统一提取高分辨率源图，由 JadeView 使用 Lanczos3 生成系统标题栏尺寸的小图标。\n- 窗口标题栏图标与任务栏图标现在分别缓存和设置：`set_window_icon` 设置 `ICON_SMALL`，`set_taskbar_icon` 设置 `ICON_BIG`，避免不同显示位置复用错误尺寸。\n"
+    },
     {
       "tag_name": "v2.3.0",
       "name": "v2.3.0 (Build 26G02)",
