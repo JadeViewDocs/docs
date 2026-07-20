@@ -5,7 +5,7 @@
 // 其它页面（产品落地页、发行版本、案例等）不渲染。
 // 由 DocumentLayout 作为 <Docs> 的首个子节点注入 → 落在正文 <Content> 顶部、页面 H1 之上，并随正文居中对齐。
 //
-// 行最右侧：「文档贡献者」（antd Avatar.Group）+「编辑此页」（跳 GitHub 仓库对应源文件）。
+// 行最右侧：「文档贡献者」（悬浮展开的头像列表）+「编辑此页」（跳 GitHub 仓库对应源文件）。
 // 数据读本站静态快照 /contributors/data.json（scripts/update-contributors.mjs 生成：
 // pages=按路由的贡献者、sources=路由→zh/en 源文件；CI 构建时头像已下载为同源文件，
 // 运行时不连 GitHub）。快照缺失时贡献者安静不渲染；编辑链接回退按路由猜 docs<route>.md
@@ -14,6 +14,7 @@ import { EditOutlined } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Button, Tooltip } from 'antd';
 import { Link, useLocation } from 'dumi';
 import isEqual from 'fast-deep-equal';
+import { motion, useReducedMotion } from 'motion/react';
 import { memo, useEffect, useState } from 'react';
 // @ts-ignore 主题 store，深层路径无类型声明
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
@@ -53,6 +54,90 @@ const loadSnapshot = () =>
     .then((d) => ({ pages: d?.pages ?? {}, sources: d?.sources ?? {} }))
     .catch(() => ({ pages: {}, sources: {} })));
 
+const AVATAR_SIZE = 24;
+const COLLAPSED_STEP = 14;
+const EXPANDED_STEP = 30;
+
+function ContributorAvatars({ list, locale }: { list: Contributor[]; locale: LocaleId }) {
+  const t = useT();
+  const reduceMotion = useReducedMotion();
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const expanded = hovered || focused;
+  const step = expanded ? EXPANDED_STEP : COLLAPSED_STEP;
+  const width = AVATAR_SIZE + Math.max(0, list.length - 1) * step;
+
+  return (
+    <motion.div
+      animate={{ width }}
+      aria-label={locale === 'zh-CN' ? '文档贡献者' : 'Document contributors'}
+      initial={false}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+      }}
+      onFocus={() => setFocused(true)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      role="group"
+      style={{ flexShrink: 0, height: AVATAR_SIZE, position: 'relative' }}
+      tabIndex={0}
+      transition={reduceMotion ? { duration: 0 } : { bounce: 0.18, duration: 0.32, type: 'spring' }}
+    >
+      {list.map((c, index) => (
+        <Tooltip
+          key={c.login ?? `${c.name}-${index}`}
+          title={t.doc.contributorsTip(c.name, c.commits)}
+        >
+          <motion.span
+            animate={{ x: index * step }}
+            initial={false}
+            style={{
+              display: 'block',
+              height: AVATAR_SIZE,
+              left: 0,
+              lineHeight: 0,
+              position: 'absolute',
+              top: 0,
+              width: AVATAR_SIZE,
+              zIndex: list.length - index,
+            }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : {
+                    bounce: 0.22,
+                    delay: expanded ? index * 0.025 : (list.length - index - 1) * 0.018,
+                    duration: 0.34,
+                    type: 'spring',
+                  }
+            }
+          >
+            {c.url ? (
+              <a href={c.url} rel="noreferrer" style={{ display: 'block' }} target="_blank">
+                <Avatar
+                  size={AVATAR_SIZE}
+                  src={c.avatar ?? undefined}
+                  style={{ border: '2px solid var(--ant-color-bg-container)' }}
+                >
+                  {c.name?.[0]?.toUpperCase()}
+                </Avatar>
+              </a>
+            ) : (
+              <Avatar
+                size={AVATAR_SIZE}
+                src={c.avatar ?? undefined}
+                style={{ border: '2px solid var(--ant-color-bg-container)' }}
+              >
+                {c.name?.[0]?.toUpperCase()}
+              </Avatar>
+            )}
+          </motion.span>
+        </Tooltip>
+      ))}
+    </motion.div>
+  );
+}
+
 // 面包屑行右端：贡献者头像组 + 编辑此页（两者共用同一份快照）
 const DocPageActions = memo(function DocPageActions({
   route,
@@ -81,28 +166,7 @@ const DocPageActions = memo(function DocPageActions({
 
   return (
     <div style={{ alignItems: 'center', display: 'flex', flexShrink: 0, gap: 8 }}>
-      {list.length > 0 && (
-        <Avatar.Group max={{ count: 5 }} size={24}>
-          {list.map((c) => {
-            const avatar = (
-              <Avatar key={c.login ?? c.name} src={c.avatar ?? undefined}>
-                {c.name?.[0]?.toUpperCase()}
-              </Avatar>
-            );
-            return (
-              <Tooltip key={c.login ?? c.name} title={t.doc.contributorsTip(c.name, c.commits)}>
-                {c.url ? (
-                  <a href={c.url} rel="noreferrer" target="_blank">
-                    {avatar}
-                  </a>
-                ) : (
-                  avatar
-                )}
-              </Tooltip>
-            );
-          })}
-        </Avatar.Group>
-      )}
+      {list.length > 0 && <ContributorAvatars list={list} locale={locale} />}
       <Button
         href={`${REPO_EDIT_BASE}${file}`}
         icon={<EditOutlined />}
