@@ -61,8 +61,10 @@ const DOCS_SECTIONS = [
 // 「产品」下拉的两张卡片（复用「文档」的 docBig 卡壳）：JadePack / Jade EC 查看器。
 // 标题/描述走 useT()（见 ../locales/strings 的 navbar.products）；logo 为各产品自带的 app 图标（public/product/）。
 const PRODUCTS = [
-  { key: 'jadepack' as const, link: '/jadepack', logo: '/product/jadepack.svg' },
-  { key: 'jadeEc' as const, link: '/jade-ec', logo: '/product/jade-ec.svg' },
+  { key: 'jadepack' as const, link: '/jadepack', logo: '/product/jadepack.svg', external: false },
+  { key: 'jadeEc' as const, link: '/jade-ec', logo: '/product/jade-ec.svg', external: false },
+  // Clean Pro 为站外链接（Microsoft Store），点击直接跳转，不走站内路由
+  { key: 'cleanPro' as const, link: 'https://apps.microsoft.com/detail/9pmt4mmz1fks', logo: '/product/clean-pro.png', external: true },
 ];
 
 const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
@@ -573,10 +575,11 @@ export default memo(function JadeNavbar() {
   );
 
   // 「产品」下拉：复用「文档」的卡壳（docBig），展示各产品自带 app 图标 + 标题/描述。
+  // 站内用 Link 走路由；站外（external=true，如 Clean Pro 跳 Microsoft Store）用 <a> 新标签打开。
   const productsCard = (
     <div className={styles.docCard}>
-      {PRODUCTS.map((p) => (
-        <Link key={p.link} className={styles.docBig} to={L(p.link)}>
+      {PRODUCTS.map((p) => {
+        const inner = (
           <div className={styles.prodInner}>
             <img className={styles.prodLogo} src={p.logo} alt="" />
             <span className={styles.docCardTitle}>
@@ -585,8 +588,17 @@ export default memo(function JadeNavbar() {
             </span>
             <span className={styles.docCardDesc}>{t.navbar.products[p.key].desc}</span>
           </div>
-        </Link>
-      ))}
+        );
+        return p.external ? (
+          <a key={p.link} className={styles.docBig} href={p.link} target="_blank" rel="noreferrer">
+            {inner}
+          </a>
+        ) : (
+          <Link key={p.link} className={styles.docBig} to={L(p.link)}>
+            {inner}
+          </Link>
+        );
+      })}
     </div>
   );
 

@@ -25,6 +25,7 @@ const zh = {
     products: {
       jadepack: { title: 'JadePack', desc: '官方图形化打包工具：JAPK 混淆 / 签名加密与安装包构建。' },
       jadeEc: { title: 'Jade EC 查看器', desc: '易语言 .ec 模块现代化查看器，三栏布局 + 多维度搜索。' },
+      cleanPro: { title: 'Clean Pro', desc: '分析磁盘空间、清理 Windows 系统垃圾、识别应用残留，并安全迁移文件夹。' },
     },
   },
   // 首页 HomeExtra
@@ -297,6 +298,7 @@ const en: typeof zh = {
     products: {
       jadepack: { title: 'JadePack', desc: 'Official GUI packaging tool: JAPK obfuscation / signing and installer builds.' },
       jadeEc: { title: 'Jade EC Viewer', desc: 'A modern viewer for E-Language .ec modules — three-column layout + search.' },
+      cleanPro: { title: 'Clean Pro', desc: 'Analyze disk space, clean Windows system junk, identify app leftovers, and safely migrate folders.' },
     },
   },
   home: {
