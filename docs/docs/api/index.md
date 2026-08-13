@@ -115,7 +115,7 @@ int32_t jadeview_exit(void);
 | 符号 / 能力 | 是干什么的 | 文档 |
 |------|------------|------|
 | `webview_go_back` / `webview_go_forward` / `webview_can_go_back` / `webview_can_go_forward` | 原生前进 / 后退导航，以及同步查询是否可前进 / 后退。 | [WebView API](/docs/api/webview-api#后退--前进--可导航状态webview_go_back--webview_go_forward--webview_can_go_back--webview_can_go_forward) |
-| `webview-permission-request` | 统一网页权限拦截事件，可集中允许 / 拒绝摄像头、麦克风、录屏、文件访问等权限。 | [网页权限 API](/docs/api/permission-api) |
+| `set_webview_permission_handler` / `clear_webview_permission_handler` | 注册 / 清除统一网页权限处理器，集中允许或拒绝摄像头、麦克风、录屏、文件访问等权限。 | [网页权限 API](/docs/api/permission-api) |
 | `WebViewSettings.profile_name` | Windows 命名 Profile 会话隔离，用于隔离 Cookie、存储与缓存；Linux 接受但忽略。 | [核心结构体](/docs/api/index#webview-settings) |
 
 :::info

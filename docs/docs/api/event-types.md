@@ -13,7 +13,7 @@ group:
 **`IpcCallback` 的返回值**在「拦截类」事件与 **`register_ipc_handler`** 中含义不同，务必先看下文 **速查表**。[IPC 通信 API](/docs/api/ipc-api) 中有与 `jade.invoke` 配套的补充说明。
 
 :::info
-**回调派发线程**：**通知类事件**（如各 `window-*`、`notification-*`、`theme-changed` 等）经库内 worker 线程池**异步**派发，回调不在 GUI 线程上执行，可放心做较重的处理；**拦截类事件**（`window-closing`、`webview-will-navigate`、`webview-new-window`、`webview-download-started`、`webview-permission-request`、`drag-drop` 的 `enter`/`drop`）在 GUI 线程**内联同步**调用，库会即时读取返回值决定放行/阻止，**务必尽快返回、不要阻塞**。
+**回调派发线程**：**通知类事件**（如各 `window-*`、`notification-*`、`theme-changed` 等）经库内 worker 线程池**异步**派发，回调不在 GUI 线程上执行，可放心做较重的处理；**拦截类事件**（`window-closing`、`webview-will-navigate`、`webview-new-window`、`webview-download-started`、`drag-drop` 的 `enter`/`drop`）在 GUI 线程**内联同步**调用，库会即时读取返回值决定放行/阻止，**务必尽快返回、不要阻塞**。
 :::
 
 ---
@@ -38,11 +38,6 @@ group:
 
 - 返回 **`NULL`**：放行（`enter`）/ 走默认逻辑（`drop`）。
 - 返回 **非 `NULL`**：拒绝拖入（`enter`）/ 表示主进程已消费（`drop`）。详见 [`drag-drop` · 同步拦截](#同步拦截23)。
-
-对 **`webview-permission-request`**（2.4 新增）：
-
-- 返回 **`0`**：使用浏览器默认行为；**`1`**：允许；**`-1`**：拒绝。
-- 完整返回值规则、`kind` 类型与平台差异见 [网页权限 API](/docs/api/permission-api)。
 
 ### 调用处理器场景：例外（`register_ipc_handler` / `jade.invoke`）
 
@@ -241,14 +236,6 @@ JadeView 初始化完成后触发。所有窗口创建、API 调用都必须在�
 
 - **`event_data`**：JSON，含下载结果信息
 - **`window_id`**：目标窗口的 id
-
----
-
-### `webview-permission-request` <span class="jv-version-badge">v2.4</span>
-
-网页发起权限请求（摄像头、麦克风、录屏、文件系统访问、剪贴板读取、地理位置、通知等）时触发，主进程可集中决定允许或拒绝。`window_id` 为发起请求的窗口 id。
-
-事件名、回调签名、`kind` 类型、返回值规则、示例与平台差异统一见 [网页权限 API](/docs/api/permission-api)。
 
 ---
 

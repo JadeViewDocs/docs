@@ -9,18 +9,18 @@ group:
 
 # Web Permission API
 
-JadeView 2.4 provides a unified web permission interception system. When a page requests camera, microphone, display capture, file access, clipboard read, geolocation, notifications, and other permissions, the main process can centrally decide whether to allow or deny them through this event.
+JadeView 2.4 provides a unified web permission interception system. When a page requests camera, microphone, display capture, file access, clipboard read, geolocation, notifications, and other permissions, the main process can centrally decide whether to allow or deny them through a unified handler.
 
-## Event Name
+## Register Handler
 
 ```c
-jade_on("webview-permission-request", permission_callback);
+set_webview_permission_handler(permission_callback);
 ```
 
-Corresponding event constant:
+Clear the handler:
 
 ```c
-#define JADEVIEW_EVENT_WEBVIEW_PERMISSION_REQUEST "webview-permission-request"
+clear_webview_permission_handler();
 ```
 
 ## Callback Signature
@@ -75,13 +75,9 @@ The integer returned by the callback determines the permission result:
 | `0` | Use the browser default behavior |
 | `1` | Allow the permission |
 | `-1` | Deny the permission |
+| Any other value | Deny the permission |
 
-## Multiple-Callback Rules
-
-- If any callback returns `-1`, the final result is deny.
-- If no callback returns `-1` and all callbacks return `1`, the final result is allow.
-- Otherwise, the default behavior is used.
-- The default behavior is used when no `webview-permission-request` callback is registered.
+The browser default behavior is used when no handler is set.
 
 ## Example
 
@@ -97,7 +93,7 @@ int32_t JADEVIEW_CALL on_permission(uint32_t window_id, const char* data) {
     return -1;
 }
 
-jade_on("webview-permission-request", on_permission);
+set_webview_permission_handler(on_permission);
 ```
 
 ## Platform Support
@@ -108,5 +104,5 @@ jade_on("webview-permission-request", on_permission);
 ## Error Handling Recommendations
 
 - The permission callback is synchronous; do not block for a long time or perform time-consuming work inside it.
-- When this event is not registered, the browser default behavior is used; if you need strict unified allow/deny, register `webview-permission-request` first.
-- This event is an interception event and is called inline synchronously on the GUI thread; see [Event Types](/en-US/docs/api/event-types#ipc-callback-returns).
+- When no handler is set, the browser default behavior is used; if you need strict unified allow/deny, call `set_webview_permission_handler` first.
+- The permission handler is called inline synchronously on the GUI thread; see [Event Types](/en-US/docs/api/event-types#ipc-callback-returns).

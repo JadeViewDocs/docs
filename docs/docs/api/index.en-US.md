@@ -115,7 +115,7 @@ The context menu APIs (`jade_menu_item_create`, etc.) have been moved to the sep
 | Symbol / Capability | What it does | Doc |
 |------|------------|------|
 | `webview_go_back` / `webview_go_forward` / `webview_can_go_back` / `webview_can_go_forward` | Native back/forward navigation, plus synchronous queries for whether back/forward is possible. | [WebView API](/en-US/docs/api/webview-api) |
-| `webview-permission-request` | Unified web permission interception event for centrally allowing or denying camera, microphone, display capture, file access, and other permissions. | [Web Permission API](/en-US/docs/api/permission-api) |
+| `set_webview_permission_handler` / `clear_webview_permission_handler` | Register / clear the unified web permission handler for centrally allowing or denying camera, microphone, display capture, file access, and other permissions. | [Web Permission API](/en-US/docs/api/permission-api) |
 | `WebViewSettings.profile_name` | Named Profile session isolation on Windows, isolating cookies, storage, and cache; Linux accepts but ignores it. | [Core Structs](/en-US/docs/api/index#webview-settings) |
 
 :::info

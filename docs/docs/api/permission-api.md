@@ -9,18 +9,18 @@ group:
 
 # 网页权限 API
 
-JadeView 2.4 提供统一网页权限拦截系统。当页面请求摄像头、麦克风、录屏、文件访问、剪贴板读取、地理位置、通知等权限时，主进程可通过本事件集中决定允许或拒绝。
+JadeView 2.4 提供统一网页权限拦截系统。当页面请求摄像头、麦克风、录屏、文件访问、剪贴板读取、地理位置、通知等权限时，主进程可通过统一处理器集中决定允许或拒绝。
 
-## 事件名
+## 注册处理器
 
 ```c
-jade_on("webview-permission-request", permission_callback);
+set_webview_permission_handler(permission_callback);
 ```
 
-对应事件常量：
+清除处理器：
 
 ```c
-#define JADEVIEW_EVENT_WEBVIEW_PERMISSION_REQUEST "webview-permission-request"
+clear_webview_permission_handler();
 ```
 
 ## 回调签名
@@ -75,13 +75,9 @@ int32_t JADEVIEW_CALL permission_callback(
 | `0` | 使用浏览器默认行为 |
 | `1` | 允许该权限 |
 | `-1` | 拒绝该权限 |
+| 其它值 | 拒绝该权限 |
 
-## 多回调规则
-
-- 任一回调返回 `-1`，最终拒绝。
-- 没有 `-1` 且所有回调都返回 `1`，最终允许。
-- 其它情况使用默认行为。
-- 未注册 `webview-permission-request` 时使用默认行为。
+未设置处理器时使用浏览器默认行为。
 
 ## 示例
 
@@ -97,7 +93,7 @@ int32_t JADEVIEW_CALL on_permission(uint32_t window_id, const char* data) {
     return -1;
 }
 
-jade_on("webview-permission-request", on_permission);
+set_webview_permission_handler(on_permission);
 ```
 
 ## 平台支持
@@ -108,5 +104,5 @@ jade_on("webview-permission-request", on_permission);
 ## 错误处理建议
 
 - 权限回调是同步调用，不要在回调中长时间阻塞或执行耗时操作。
-- 未注册该事件时使用浏览器默认行为；需要严格统一放行 / 拒绝时，请先注册 `webview-permission-request`。
-- 该事件属于拦截类事件，在 GUI 线程内联同步调用，相关说明见 [事件类型](/docs/api/event-types#ipc-callback-returns)。
+- 未设置处理器时使用浏览器默认行为；需要严格统一放行 / 拒绝时，请先调用 `set_webview_permission_handler`。
+- 权限处理器在 GUI 线程内联同步调用，相关说明见 [事件类型](/docs/api/event-types#ipc-callback-returns)。
