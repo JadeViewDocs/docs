@@ -201,6 +201,26 @@ const useStyles = createStyles(({ css, token }) => ({
       background: ${token.colorFillSecondary};
     }
   `,
+  badge: css`
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 30px;
+    height: 18px;
+    margin-inline-start: 6px;
+    padding-inline: 6px;
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    vertical-align: 1px;
+
+    background: #f97316;
+  `,
 }));
 
 // 「文档」主路由下的子分区（title 走 useT 本地化；仅在 /docs/* 页面顶部展示切换）。
@@ -322,6 +342,7 @@ export default memo(function Sidebar() {
               {item.children.map((child: any) => (
                 <NavLink key={child.link} className={styles.link} end title={child.title} to={child.link}>
                   {child.title}
+                  {child.frontmatter?.badge && <span className={styles.badge}>{child.frontmatter.badge}</span>}
                 </NavLink>
               ))}
             </div>

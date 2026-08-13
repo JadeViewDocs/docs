@@ -350,11 +350,7 @@ int32_t JADEVIEW_CALL jade_dialog_show_message_box_async(
 
 ## Print Dialog
 
-### Print a Local File (`jade_print_dialog`)
-
-:::warning
-Supported since v2.2.
-:::
+### Print a Local File (`jade_print_dialog`) <span class="jv-version-badge">v2.2</span>
 
 Prints the specified file using the system's associated program, popping up the system print dialog.
 
@@ -382,11 +378,7 @@ Available on both Windows and Linux:
 
 ## About Dialog
 
-### Show the About Dialog (`show_about_dialog`)
-
-:::warning
-Supported since v2.2.
-:::
+### Show the About Dialog (`show_about_dialog`) <span class="jv-version-badge">v2.2</span>
 
 Pops up the system's standard "About" dialog.
 

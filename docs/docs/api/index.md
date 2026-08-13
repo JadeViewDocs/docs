@@ -87,11 +87,7 @@ int32_t cleanup_all_windows(void);
 
 ---
 
-### 退出应用（`jadeview_exit`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 退出应用（`jadeview_exit`） <span class="jv-version-badge">v2.2</span>
 
 **用途**：替代 `cleanup_all_windows`，关掉所有 JadeView 窗口、收尾资源、让事件循环结束。
 
@@ -113,6 +109,18 @@ int32_t jadeview_exit(void);
 ---
 
 ## 版本变化速览
+
+### 2.4 新增与增强
+
+| 符号 / 能力 | 是干什么的 | 文档 |
+|------|------------|------|
+| `webview_go_back` / `webview_go_forward` / `webview_can_go_back` / `webview_can_go_forward` | 原生前进 / 后退导航，以及同步查询是否可前进 / 后退。 | [WebView API](/docs/api/webview-api#后退--前进--可导航状态webview_go_back--webview_go_forward--webview_can_go_back--webview_can_go_forward) |
+| `webview-permission-request` | 统一网页权限拦截事件，可集中允许 / 拒绝摄像头、麦克风、录屏、文件访问等权限。 | [网页权限 API](/docs/api/permission-api) |
+| `WebViewSettings.profile_name` | Windows 命名 Profile 会话隔离，用于隔离 Cookie、存储与缓存；Linux 接受但忽略。 | [核心结构体](/docs/api/index#webview-settings) |
+
+:::info
+`WebViewSettings` 的 `profile_name` 字段追加在结构体末尾，旧字段偏移不变；但仍需使用新版头文件重新编译，确保传入的结构体内存包含新增字段区域。
+:::
 
 ### 2.3 新增与增强
 
@@ -200,6 +208,7 @@ int32_t jadeview_exit(void);
 | `disable_clipboard` | 是否禁用剪贴板读写权限。`0` = 允许，`1` = 禁用。*(2.2 新增)* |
 | `proxy_url` | 代理URL，支持 HTTP 和 SOCKS5 代理（如 `"http://127.0.0.1:7890"` 或 `"socks5://127.0.0.1:1080"`）。`NULL` 表示不使用代理。*(2.2 新增)* |
 | `focused` | WebView 初始是否自动获取焦点。`0` = 不获取焦点，`1` = 自动聚焦（默认 `1`）。*(2.2 新增)* |
+| `profile_name` | Windows 命名 Profile 会话隔离：不同名称之间 Cookie、LocalStorage、IndexedDB、缓存相互隔离；相同名称共享。`NULL` 或空字符串使用默认 Profile。当前仅 Windows 生效，Linux 接受但忽略。*(2.4 新增)* |
 
 ---
 

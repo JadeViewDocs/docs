@@ -87,11 +87,7 @@ int32_t cleanup_all_windows(void);
 
 ---
 
-### Exit the application (`jadeview_exit`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Exit the application (`jadeview_exit`) <span class="jv-version-badge">v2.2</span>
 
 **Purpose**: Replaces `cleanup_all_windows`; closes all JadeView windows, tears down resources, and lets the event loop end.
 
@@ -113,6 +109,18 @@ The context menu APIs (`jade_menu_item_create`, etc.) have been moved to the sep
 ---
 
 ## Version Changes at a Glance
+
+### Added and enhanced in 2.4
+
+| Symbol / Capability | What it does | Doc |
+|------|------------|------|
+| `webview_go_back` / `webview_go_forward` / `webview_can_go_back` / `webview_can_go_forward` | Native back/forward navigation, plus synchronous queries for whether back/forward is possible. | [WebView API](/en-US/docs/api/webview-api) |
+| `webview-permission-request` | Unified web permission interception event for centrally allowing or denying camera, microphone, display capture, file access, and other permissions. | [Web Permission API](/en-US/docs/api/permission-api) |
+| `WebViewSettings.profile_name` | Named Profile session isolation on Windows, isolating cookies, storage, and cache; Linux accepts but ignores it. | [Core Structs](/en-US/docs/api/index#webview-settings) |
+
+:::info
+`WebViewSettings.profile_name` is appended at the end of the struct, so old field offsets are unchanged; however, you must still recompile with the new header so the passed struct memory includes the new field.
+:::
 
 ### Added and enhanced in 2.3
 
@@ -200,6 +208,7 @@ The context menu APIs (`jade_menu_item_create`, etc.) have been moved to the sep
 | `disable_clipboard` | Whether to disable clipboard read/write permissions. `0` = allowed, `1` = disabled. *(Added in 2.2)* |
 | `proxy_url` | The proxy URL, supporting HTTP and SOCKS5 proxies (such as `"http://127.0.0.1:7890"` or `"socks5://127.0.0.1:1080"`). `NULL` means no proxy is used. *(Added in 2.2)* |
 | `focused` | Whether WebView automatically gains focus initially. `0` = does not gain focus, `1` = automatically focuses (default `1`). *(Added in 2.2)* |
+| `profile_name` | Named Profile session isolation on Windows: different names isolate cookies, LocalStorage, IndexedDB, and cache from each other; the same name shares them. `NULL` or an empty string uses the default profile. Currently Windows-only; Linux accepts but ignores it. *(Added in 2.4)* |
 
 ---
 

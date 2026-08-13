@@ -130,7 +130,7 @@ export default memo(function DocumentLayout({ children }: any) {
     const id = hash.replace('#', '');
     if (!id) return;
     setTimeout(() => {
-      const elm = document.querySelector(`#${decodeURIComponent(id)}`);
+      const elm = document.getElementById(decodeURIComponent(id));
       if (elm) {
         elm.scrollIntoView();
         window?.scrollBy({ top: -80 });

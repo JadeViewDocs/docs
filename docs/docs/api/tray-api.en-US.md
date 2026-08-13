@@ -104,11 +104,7 @@ int32_t tray_set_icon_from_file(uint32_t tray_id, const char* icon_path_utf8);
 
 ---
 
-## Set Tray Icon from Binary Data (`set_tray_icon_from_data`)
-
-:::warning
-Supported since v2.2.
-:::
+## Set Tray Icon from Binary Data (`set_tray_icon_from_data`) <span class="jv-version-badge">v2.2</span>
 
 Supports passing binary data (such as the byte content of an ICO/PNG file) as the tray icon, without writing to a temporary file.
 

@@ -75,11 +75,7 @@ int32_t unregister_global_hotkey(uint32_t hotkey_id);
 
 ## 鼠标位置
 
-### 获取鼠标位置（`get_cursor_position`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 获取鼠标位置（`get_cursor_position`） <span class="jv-version-badge">v2.2</span>
 
 获取当前鼠标屏幕坐标（全局，不绑定窗口）。
 
@@ -96,19 +92,11 @@ Windows（`GetCursorPos`）与 Linux/X11（x11rb `QueryPointer`）均可用。�
 
 ---
 
-## 剪贴板
-
-:::warning
-v2.2 开始支持。
-:::
+## 剪贴板 <span class="jv-version-badge">v2.2</span>
 
 依赖新增 `arboard` crate。
 
-### 读取剪贴板文本（`clipboard_read_text`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 读取剪贴板文本（`clipboard_read_text`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t clipboard_read_text(char* buffer, int buffer_size);
@@ -119,11 +107,7 @@ int32_t clipboard_read_text(char* buffer, int buffer_size);
 
 ---
 
-### 写入剪贴板文本（`clipboard_write_text`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 写入剪贴板文本（`clipboard_write_text`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t clipboard_write_text(const char* text);
@@ -134,17 +118,9 @@ int32_t clipboard_write_text(const char* text);
 
 ---
 
-## 打印
+## 打印 <span class="jv-version-badge">v2.2</span>
 
-:::warning
-v2.2 开始支持。
-:::
-
-### 获取打印机列表（`jade_get_printer_list`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 获取打印机列表（`jade_get_printer_list`） <span class="jv-version-badge">v2.2</span>
 
 获取系统打印机列表，返回 JSON 数组字符串。
 
@@ -185,11 +161,7 @@ Windows 走 `ShellExecute` 的 `"print"` 动词，由文件关联的默认程序
 
 ---
 
-## 开机自启
-
-:::warning
-v2.3.0-beta.6 开始支持。
-:::
+## 开机自启 <span class="jv-version-badge">v2.3.0-beta.6</span>
 
 设置 / 查询应用是否随系统登录自动启动，跨平台（Windows / Linux）。自启的**标识名**取 `JadeView_init` 传入的 `app_name`（缺省回退到可执行文件名）；自启**命令**为当前可执行文件路径（`current_exe`）加上你传入的 `args`。
 
@@ -224,11 +196,7 @@ int32_t get_login_autostart(void);
 
 ## 文件图标
 
-### 提取文件 / 程序图标（`get_file_icon`）
-
-:::warning
-v2.3.0-beta.6 开始支持。
-:::
+### 提取文件 / 程序图标（`get_file_icon`） <span class="jv-version-badge">v2.3.0-beta.6</span>
 
 取任意路径（`.exe` / `.lnk` / 普通文件 / 文件夹）的**系统关联图标**，缩放为指定尺寸的 PNG，注册成 `jade://` 安全资源并把可访问 URL 写入你的缓冲区——前端直接拿这个 URL 当 `<img src>` 即可显示。常用于文件管理器、启动器、最近文件列表等需要展示系统图标的界面。
 
@@ -267,11 +235,7 @@ GTK `IconTheme` / `Pixbuf` 有主线程亲和性，内部经 `glib::idle_add_onc
 
 ## 网络时间（NTP）
 
-### 获取网络时间戳（`jade_ntp_now`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 获取网络时间戳（`jade_ntp_now`） <span class="jv-version-badge">v2.3</span>
 
 通过 NTP 协议（UDP/123）从网络授时服务器获取当前 UTC 时间戳，**不依赖本机系统时钟**，可用于防作弊、license 校验、日志时间对齐等场景。
 

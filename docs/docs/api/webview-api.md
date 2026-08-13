@@ -30,6 +30,72 @@ int32_t navigate_to_url(uint32_t window_id, const char* url, const char* headers
 
 ---
 
+### 后退（`webview_go_back`）<span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_go_back(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`，由 `create_webview_window` 或 `create_borderless_webview_window` 返回。
+- **返回值**：`1` 表示指令已进入消息队列，`0` 表示参数无效或消息队列不可用。
+
+---
+
+### 前进（`webview_go_forward`）<span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_go_forward(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`，由 `create_webview_window` 或 `create_borderless_webview_window` 返回。
+- **返回值**：`1` 表示指令已进入消息队列，`0` 表示参数无效或消息队列不可用。
+
+---
+
+### 查询是否可后退（`webview_can_go_back`）<span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_can_go_back(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`，目标窗口 id。
+- **返回值**：`1` 表示可以后退，`0` 表示不可以或窗口不存在。
+
+---
+
+### 查询是否可前进（`webview_can_go_forward`）<span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_can_go_forward(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`，目标窗口 id。
+- **返回值**：`1` 表示可以前进，`0` 表示不可以或窗口不存在。
+
+---
+
+### 使用说明
+
+- 前进 / 后退操作的是 WebView 原生历史栈，对 `window.history.pushState` 产生的历史条目同样生效。
+- `webview_can_go_back` / `webview_can_go_forward` 是同步查询，适合用于更新工具栏按钮状态。
+- 页面刚创建且没有历史记录时，`webview_can_go_back()` 通常返回 `0`；建议在 `window-created` 或 `webview-did-finish-load` 之后再查询。
+- 同步查询接口不要在 JadeView 事件回调内部调用，避免事件循环线程死锁。
+
+```c
+uint32_t win = create_webview_window("https://example.com/page-a", 0, NULL, NULL);
+
+/* 等待 webview-did-finish-load 后再调用 */
+if (webview_can_go_back(win)) {
+    webview_go_back(win);
+}
+
+if (webview_can_go_forward(win)) {
+    webview_go_forward(win);
+}
+```
+
+---
+
 ### 刷新页面（`reload_webview_window`）
 
 重新加载当前页，和用户按 F5 类似。
@@ -81,11 +147,7 @@ int32_t set_webview_zoom(uint32_t window_id, double level);
 
 ---
 
-### 清除浏览数据（`clear_browsing_data`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 清除浏览数据（`clear_browsing_data`） <span class="jv-version-badge">v2.2</span>
 
 清除指定窗口的所有浏览数据（Cookie / 缓存 / LocalStorage 等）。
 
@@ -115,19 +177,11 @@ int32_t set_content_protection(uint32_t window_id, int32_t content_protection);
 
 ---
 
-## DevTools
-
-:::warning
-v2.2 开始支持。
-:::
+## DevTools <span class="jv-version-badge">v2.2</span>
 
 > 需在创建窗口时启用 devtools（`JadeView_init` 的 `enable_devmod` 参数）。
 
-### 打开 DevTools（`open_devtools`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 打开 DevTools（`open_devtools`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t open_devtools(uint32_t window_id);
@@ -138,11 +192,7 @@ int32_t open_devtools(uint32_t window_id);
 
 ---
 
-### 关闭 DevTools（`close_devtools`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 关闭 DevTools（`close_devtools`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t close_devtools(uint32_t window_id);
@@ -154,11 +204,7 @@ int32_t close_devtools(uint32_t window_id);
 
 ---
 
-### 查询 DevTools 是否打开（`is_devtools_open`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 查询 DevTools 是否打开（`is_devtools_open`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int is_devtools_open(uint32_t window_id);

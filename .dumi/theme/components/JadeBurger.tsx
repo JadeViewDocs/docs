@@ -37,6 +37,28 @@ export default memo(function JadeBurger() {
         label: (
           <Link onClick={close} to={it.link}>
             {it.title}
+            {it.frontmatter?.badge && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: 30,
+                  height: 18,
+                  marginInlineStart: 6,
+                  paddingInline: 6,
+                  borderRadius: 999,
+                  background: '#f97316',
+                  color: '#fff',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  verticalAlign: 1,
+                }}
+              >
+                {it.frontmatter.badge}
+              </span>
+            )}
           </Link>
         ),
       }));

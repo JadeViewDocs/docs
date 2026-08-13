@@ -135,11 +135,7 @@ free(buf);
 
 ---
 
-### 强制字符串存储（`yaml_set_str`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 强制字符串存储（`yaml_set_str`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_set_str(const char* file_name, const char* key_path, const char* value);
@@ -154,11 +150,7 @@ yaml_set_str("config", "user.id", "12345");
 
 ---
 
-### 获取值（指针版，`yaml_get_str`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 获取值（指针版，`yaml_get_str`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 char* yaml_get_str(const char* file_name, const char* key_path);
@@ -178,11 +170,7 @@ if (ptr) {
 
 ---
 
-### 读取整个文件（`yaml_get_all`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 读取整个文件（`yaml_get_all`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_get_all(const char* file_name, char* buffer, size_t buffer_size);
@@ -196,11 +184,7 @@ int yaml_get_all(const char* file_name, char* buffer, size_t buffer_size);
 
 ---
 
-### 检查路径是否存在（`yaml_has`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 检查路径是否存在（`yaml_has`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_has(const char* file_name, const char* key_path);
@@ -210,11 +194,7 @@ int yaml_has(const char* file_name, const char* key_path);
 
 ---
 
-### 删除路径（`yaml_delete`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 删除路径（`yaml_delete`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_delete(const char* file_name, const char* key_path);
@@ -226,11 +206,7 @@ int yaml_delete(const char* file_name, const char* key_path);
 
 ---
 
-### 清空文件（`yaml_clear`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 清空文件（`yaml_clear`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_clear(const char* file_name);
@@ -240,11 +216,7 @@ int yaml_clear(const char* file_name);
 
 ---
 
-### 删除文件（`yaml_delete_file`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 删除文件（`yaml_delete_file`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_delete_file(const char* file_name);
@@ -254,11 +226,7 @@ int yaml_delete_file(const char* file_name);
 
 ---
 
-### 列出 key（`yaml_keys`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 列出 key（`yaml_keys`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_keys(const char* file_name, const char* key_path, char* buffer, size_t buffer_size);
@@ -274,11 +242,7 @@ int yaml_keys(const char* file_name, const char* key_path, char* buffer, size_t 
 
 ---
 
-### 返回长度（`yaml_len`）
-
-:::warning
-v2.3 开始支持。
-:::
+### 返回长度（`yaml_len`） <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_len(const char* file_name, const char* key_path);

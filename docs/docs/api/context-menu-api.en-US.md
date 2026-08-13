@@ -6,11 +6,7 @@ group:
   order: 4
 ---
 
-# Context Menu
-
-:::warning
-Supported since v2.2.
-:::
+# Context Menu <span class="jv-version-badge">v2.2</span>
 
 Leverage the WebView2 native context menu API to build an Electron-like custom context menu system.
 

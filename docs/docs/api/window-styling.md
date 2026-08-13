@@ -36,11 +36,7 @@ group:
 
 ---
 
-## 自定义窗口拖动区（`jade-region-drag`）
-
-:::warning
-v2.3 开始支持。
-:::
+## 自定义窗口拖动区（`jade-region-drag`） <span class="jv-version-badge">v2.3</span>
 
 除了 CSS 的 `-webkit-app-region: drag`，2.3 新增一套基于 **HTML 自定义属性**的拖动方式，用于在无边框 / 自定义标题栏窗口中拖动窗口、双击最大化。
 

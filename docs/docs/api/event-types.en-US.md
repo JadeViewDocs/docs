@@ -13,7 +13,7 @@ This page lists the events the library may dispatch to the main process after su
 **The return value of `IpcCallback`** has different meanings in "interception" events versus **`register_ipc_handler`**, so be sure to read the **quick reference** below first. The [IPC Communication API](/en-US/docs/api/ipc-api) provides supplementary notes that complement `jade.invoke`.
 
 :::info
-**Callback dispatch thread**: **notification events** (such as the various `window-*`, `notification-*`, `theme-changed`, etc.) are dispatched **asynchronously** by an internal worker thread pool — the callback does not run on the GUI thread, so heavier processing is fine; **interception events** (`window-closing`, `webview-will-navigate`, `webview-new-window`, `webview-download-started`, and the `enter`/`drop` of `drag-drop`) are called **inline synchronously on the GUI thread**, where the library reads the return value immediately to decide allow/block, so **return as quickly as possible and do not block**.
+**Callback dispatch thread**: **notification events** (such as the various `window-*`, `notification-*`, `theme-changed`, etc.) are dispatched **asynchronously** by an internal worker thread pool — the callback does not run on the GUI thread, so heavier processing is fine; **interception events** (`window-closing`, `webview-will-navigate`, `webview-new-window`, `webview-download-started`, `webview-permission-request`, and the `enter`/`drop` of `drag-drop`) are called **inline synchronously on the GUI thread**, where the library reads the return value immediately to decide allow/block, so **return as quickly as possible and do not block**.
 :::
 
 ---
@@ -38,6 +38,11 @@ For **`drag-drop`** (synchronous interception added in 2.3, only for the `enter`
 
 - Return **`NULL`**: allow (`enter`) / fall through to default logic (`drop`).
 - Return **non-`NULL`**: reject the drag-in (`enter`) / indicate the main process has consumed it (`drop`). See [`drag-drop` · Synchronous Interception](#synchronous-interception-23).
+
+For **`webview-permission-request`** (added in 2.4):
+
+- Return **`0`**: use the browser default behavior; **`1`**: allow; **`-1`**: deny.
+- See [Web Permission API](/en-US/docs/api/permission-api) for the full return rules, `kind` types, and platform differences.
 
 ### Call handler scenario: the exception (`register_ipc_handler` / `jade.invoke`)
 
@@ -230,16 +235,20 @@ A download started. **Blocked by default**; you must return `NULL` in the callba
 
 ---
 
-### `webview-download-completed`
-
-:::warning
-Supported since v2.2.
-:::
+### `webview-download-completed` <span class="jv-version-badge">v2.2</span>
 
 Fired when a download completes (whether it succeeds or fails).
 
 - **`event_data`**: JSON containing the download result information
 - **`window_id`**: id of the target window
+
+---
+
+### `webview-permission-request` <span class="jv-version-badge">v2.4</span>
+
+Fired when the web page requests a permission (camera, microphone, display capture, file-system access, clipboard read, geolocation, notifications, and so on), allowing the main process to decide centrally whether to allow or deny it. `window_id` is the id of the window that initiated the request.
+
+For the event name, callback signature, `kind` types, return rules, examples, and platform differences, see [Web Permission API](/en-US/docs/api/permission-api).
 
 ---
 
@@ -258,11 +267,7 @@ Fired when a file is dragged into the WebView. Once registered, it takes over dr
 
 ---
 
-### `drag-drop`
-
-:::warning
-Supported since v2.2, replaces `file-drop`.
-:::
+### `drag-drop` <span class="jv-version-badge">v2.2</span>
 
 A drag lifecycle event covering the complete drag flow (enter, move, drop, leave), similar to Tauri's `onDragDropEvent`.
 
@@ -297,11 +302,7 @@ jade_on("drag-drop", my_callback);
 {"type": "leave"}
 ```
 
-#### Synchronous Interception (2.3)
-
-:::warning
-Supported since v2.3.
-:::
+#### Synchronous Interception (2.3) <span class="jv-version-badge">v2.3</span>
 
 As of 2.3, the `drag-drop` callback supports **synchronous interception** for `enter` and `drop`, controlled via the [`IpcCallback` return value](/en-US/docs/api/ipc-api#jade-on-callback-return):
 
@@ -447,11 +448,7 @@ Fired when a JAPK resource pack fails to load (public key not set, signature ver
 
 ---
 
-### `crash`
-
-:::warning
-Supported since v2.2.
-:::
+### `crash` <span class="jv-version-badge">v2.2</span>
 
 Fired when the program crashes (SEH exception, Rust panic, or WebView2 process crash). `event_data` is an error code string that does not leak source-code information.
 
