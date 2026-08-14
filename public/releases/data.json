@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-08-13T18:50:00.708Z",
+  "updated_at": "2026-08-14T18:41:20.546Z",
   "releases": [
+    {
+      "tag_name": "v2.4.0-beta.2",
+      "name": "v2.4.0-beta.2 (Build 26H01)",
+      "published_at": "2026-08-14T12:05:20Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.0-beta.2",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.0-beta.2",
+      "body": "- 修复 IPC 回调野指针崩溃：`register_ipc_handler` 改为替换式注册，`invoke` 分发改为取最新注册的回调（`.last()`），`jade_on` 增加按函数指针的幂等去重。此前宿主 SDK（如 JadeUI）在 `JadeView_init` 后重绑定回调并释放旧回调对象后，DLL 回调表仍残留旧函数指针，`jade.invoke` 或事件派发会跳入已释放的可执行内存，随机触发 `0xc0000005`（ACCESS_VIOLATION）或 `0xc0000409`（Rust abort）崩溃。\n---\n本版本的文档参考在 beta 目录中\n"
+    },
     {
       "tag_name": "v2.4.0-beta.1",
       "name": "v2.4.0-beta.1 (Build 26H01)",
@@ -9,6 +18,15 @@
       "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.0-beta.1",
       "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.0-beta.1",
       "body": "## 新增\n\n- **原生前进/后退**：新增 `webview_go_back`、`webview_go_forward`、`webview_can_go_back`、`webview_can_go_forward`。\n- **统一网页权限拦截**：新增 `set_webview_permission_handler` / `clear_webview_permission_handler`，支持摄像头、录屏、文件访问等网页权限。\n- **Windows 独立 Profile**：`WebViewSettings` 新增 `profile_name`，支持多窗口 Cookie / 存储隔离。\n\n## 优化\n\n- **IPC 大消息优化**：大消息改用共享内存方式传输，减少内存占用，避免大量消息并发时堆积卡顿。\n- **IPC 健壮性提升**：当 WebView 当前文档 URL 不是合法 `http::Uri` 格式时（如 `file://` 本地地址、含空格 / 非 ASCII 字符的 URL），IPC 处理器不再直接 panic 导致进程崩溃，改为记录日志（开启 `tracing` 特性时）并静默丢弃无效请求，与 WKWebView 后端行为保持一致。\n## 修复：\n- **窗口创建兼容**：WebView 初始化阶段忽略设置焦点的报错，解决宿主窗口最小化时 WebView 创建失败的问题。\n- **销毁崩溃修复**：修复 WebView2 父窗口子类化在销毁流程中，控制器引用数据被清除后发生重入，进而导致程序崩溃的问题。\n\n## 移除\n- 移除 JAPK 混淆包载入支持，内存载入仅支持 JAPK v2 签名包。\n\n## 性能验证\n\n- **IPC 大消息**：Windows 下 1MB 消息，8 线程并发发送 20,000 条，宿主发送成功 20,000 条，前端收到 20,000 条，无丢失。\n- 宿主发送耗时约 28.4 秒，前端处理耗时约 28.6 秒，吞吐约 700 条/秒（约 700 MB/s）。\n"
+    },
+    {
+      "tag_name": "v2.3.2",
+      "name": "v2.3.2 (Build 26H01)",
+      "published_at": "2026-08-14T12:03:43Z",
+      "prerelease": false,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.3.2",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.3.2",
+      "body": "- 修复 IPC 回调野指针崩溃：`register_ipc_handler` 改为替换式注册，`invoke` 分发改为取最新注册的回调（`.last()`），`jade_on` 增加按函数指针的幂等去重。此前宿主 SDK（如 JadeUI）在 `JadeView_init` 后重绑定回调并释放旧回调对象后，DLL 回调表仍残留旧函数指针，`jade.invoke` 或事件派发会跳入已释放的可执行内存，随机触发 `0xc0000005`（ACCESS_VIOLATION）或 `0xc0000409`（Rust abort）崩溃。\n"
     },
     {
       "tag_name": "v2.3.1",
