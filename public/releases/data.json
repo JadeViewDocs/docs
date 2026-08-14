@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-08-14T12:04:01.194Z",
+  "updated_at": "2026-08-14T12:05:37.330Z",
   "releases": [
+    {
+      "tag_name": "v2.4.0-beta.2",
+      "name": "v2.4.0-beta.2 (Build 26H01)",
+      "published_at": "2026-08-14T12:05:20Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.0-beta.2",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.0-beta.2",
+      "body": "- 修复 IPC 回调野指针崩溃：`register_ipc_handler` 改为替换式注册，`invoke` 分发改为取最新注册的回调（`.last()`），`jade_on` 增加按函数指针的幂等去重。此前宿主 SDK（如 JadeUI）在 `JadeView_init` 后重绑定回调并释放旧回调对象后，DLL 回调表仍残留旧函数指针，`jade.invoke` 或事件派发会跳入已释放的可执行内存，随机触发 `0xc0000005`（ACCESS_VIOLATION）或 `0xc0000409`（Rust abort）崩溃。\n---\n本版本的文档参考在 beta 目录中\n"
+    },
     {
       "tag_name": "v2.4.0-beta.1",
       "name": "v2.4.0-beta.1 (Build 26H01)",
