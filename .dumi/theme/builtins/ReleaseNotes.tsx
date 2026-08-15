@@ -569,6 +569,24 @@ export default memo(function ReleaseNotes() {
   const prerelease = releases.filter((r) => r.prerelease);
   const latest = stable[0];
 
+  // 预发布展示策略：只展示最新的一个 beta；若对应正式版已发布，则隐藏该 beta。
+  // baseVer：去掉 v 前缀与 -beta.x / -rc.x 等预发布后缀，得到对应正式版号（v2.4.0-beta.1 → 2.4.0）。
+  const baseVer = (tag: string) => {
+    let v = tag.replace(/^v/i, '');
+    const dash = v.indexOf('-');
+    return dash > -1 ? v.slice(0, dash) : v;
+  };
+  const stableBaseSet = new Set(stable.map((r) => baseVer(r.tag_name)));
+  // releases 按时间倒序，首个即最新；同一 base 只保留最新一个，且跳过已有正式版的。
+  const visiblePre: Release[] = [];
+  const seenBase = new Set<string>();
+  for (const r of prerelease) {
+    const base = baseVer(r.tag_name);
+    if (stableBaseSet.has(base) || seenBase.has(base)) continue;
+    seenBase.add(base);
+    visiblePre.push(r);
+  }
+
   // —— 所有发行（筛选 + 分页）——
   const filtered = allFilter === 'stable' ? stable : allFilter === 'prerelease' ? prerelease : releases;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -649,14 +667,14 @@ export default memo(function ReleaseNotes() {
                 </div>
               </div>
 
-              {prerelease.length > 0 && (
+              {visiblePre.length > 0 && (
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>
                     <span className={styles.dot} style={{ background: theme.colorWarning }} />
                     {t.prerelease}
                   </h3>
                   <div className={styles.rows}>
-                    {prerelease.slice(0, 3).map((r) => (
+                    {visiblePre.slice(0, 1).map((r) => (
                       <Row key={r.tag_name} r={r} />
                     ))}
                   </div>
