@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-08-15T18:22:13.120Z",
+  "updated_at": "2026-08-16T11:25:16.013Z",
   "releases": [
+    {
+      "tag_name": "v2.4.0-beta.3",
+      "name": "v2.4.0-beta.3 (Build 26H01)",
+      "published_at": "2026-08-16T11:24:57Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.0-beta.3",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.0-beta.3",
+      "body": "- **JAPK 平台根证书链**：内置 JadeTweak 平台根公钥，验证证书证明和应用身份。\n- **JAPK v3 签名**：JAPK 容器仍为 v2，签名协议升级为 v3。\n\n\n- **严格离线验签**：统一验证证书链、包签名、宿主进程和内容完整性。\n\n\n- **旧信任方式**：不再接受任意运行时公钥、自签包或缺少平台证明的旧 JAPK。\n---\n本版本的文档参考在 beta 目录中\n"
+    },
     {
       "tag_name": "v2.4.0-beta.2",
       "name": "v2.4.0-beta.2 (Build 26H01)",
