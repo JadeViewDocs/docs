@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-08-16T18:15:32.620Z",
+  "updated_at": "2026-08-17T18:24:31.936Z",
   "releases": [
+    {
+      "tag_name": "v2.4.0-beta.4",
+      "name": "v2.4.0-beta.4 (Build 26H01)",
+      "published_at": "2026-08-17T16:14:12Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.0-beta.4",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.0-beta.4",
+      "body": "- IPC 协议请求现在会在执行前校验 `cors_origin_whitelist`。当请求带有不在白名单中的 `Origin` 时，invoke、event 和 bulk 端点返回 HTTP 403，不再继续执行。\n- `postMessage` 来源校验改为逗号/分号分隔后的精确匹配，移除不安全的后缀匹配。\n\n\n- `jadeview_exit()` 现在默认等待 GUI 事件循环和 JadeView 后台线程完成退出。\n- 新增 `jadeview_exit_wait(timeout_ms)`，可使用明确超时等待退出。若从 GUI 线程回调中调用，只会发起异步退出，宿主应从其它线程再次调用等待。\n- GUI、invoke 回调、分片清理、事件回调、日志、托盘和单实例线程均提供停止与 join 路径，便于 DLL 卸载和重复初始化。\n\n\n- 保留现有 `jade.invoke()` 字符串接口和响应格式不变；大消息继续使用现有 bulk 资源机制。\n\n\n- Linux invoke 分片缓冲增加单请求、单窗口和全局字节/请求预算。\n- 分片缓冲由独立清理线程主动按 TTL 过期，并在窗口运行时、退出时统一释放。\n- IPC 回调和事件回调不再因为短暂锁竞争而误报 Command not found 或静默丢事件。\n\n\n- 配置了来源白名单时，应将实际页面 Origin（包括协议、主机和端口）作为完整条目配置。未携带 `Origin` 的原生 custom-protocol 请求保持兼容。\n---\n本版本的文档参考在 beta 目录中\n"
+    },
     {
       "tag_name": "v2.4.0-beta.3",
       "name": "v2.4.0-beta.3 (Build 26H01)",
