@@ -179,7 +179,7 @@ const loadAssets = () => {
  */
 export default memo(function JadeLogo3D({
   size = 32,
-  fallback = '/favicon.png',
+  fallback = '/favicon-ca0d8df22450.png',
   fallbackRadius = 9,
   overscan = 1.35,
   alt = 'JadeView',
