@@ -87,9 +87,9 @@ int32_t cleanup_all_windows(void);
 
 ---
 
-### Exit the application (`jadeview_exit`) <span class="jv-version-badge">v2.2</span>
+### Exit the application (`jadeview_exit`) <span class="jv-version-badge">v2.4</span>
 
-**Purpose**: Replaces `cleanup_all_windows`; closes all JadeView windows, tears down resources, and lets the event loop end.
+**Purpose**: Replaces `cleanup_all_windows`; closes all JadeView windows, tears down resources, and lets the event loop end. Starting with **v2.4**, this function waits for the GUI event loop and JadeView-owned background threads to finish before it returns successfully, making it suitable as the final step before unloading the DLL.
 
 ```c
 int32_t jadeview_exit(void);
@@ -97,8 +97,33 @@ int32_t jadeview_exit(void);
 
 | Return value | Meaning |
 |--------|------|
-| `1` | Shutdown and cleanup have been initiated. |
+| `1` | Shutdown, cleanup, and waiting have completed. |
 | `0` | Failed (for example, initialization has not yet completed). |
+
+> The original `jadeview_exit` API was introduced in v2.2; the badge above denotes its v2.4 wait-for-shutdown behavior update.
+
+---
+
+### Exit with a timeout (`jadeview_exit_wait`) <span class="jv-version-badge">v2.4</span>
+
+**Purpose**: Starts a complete shutdown and waits for the GUI event loop to stop, with a host-specified timeout. Use it in DLL integrations to confirm that JadeView is no longer executing code before calling `FreeLibrary`.
+
+```c
+int32_t jadeview_exit_wait(uint32_t timeout_ms);
+```
+
+| Parameter | Description |
+|------|------|
+| `timeout_ms` | Maximum wait in milliseconds. Passing `0` uses the minimum wait duration. |
+
+| Return value | Meaning |
+|--------|------|
+| `1` | Shutdown cleanup completed; the GUI thread and JadeView-owned background threads finished their cleanup. |
+| `0` | Shutdown did not complete in time. Do not unload the DLL yet; call the function again later to continue waiting. |
+
+:::warning{title=Calling thread}
+Do not wait for the GUI thread from one of its own callbacks. When called on the GUI thread, the function only initiates asynchronous shutdown. Call `jadeview_exit_wait` again from another host thread and unload the DLL only after it returns `1`.
+:::
 
 ---
 
@@ -114,6 +139,7 @@ The context menu APIs (`jade_menu_item_create`, etc.) have been moved to the sep
 
 | Symbol / Capability | What it does | Doc |
 |------|------------|------|
+| `jadeview_exit_wait` | Wait for the GUI event loop and JadeView-owned background threads to exit with a timeout, allowing the host to confirm shutdown before unloading the DLL. | [Exit with a timeout](/en-US/docs/api/index#exit-with-a-timeout-jadeview_exit_wait) |
 | `webview_go_back` / `webview_go_forward` / `webview_can_go_back` / `webview_can_go_forward` | Native back/forward navigation, plus synchronous queries for whether back/forward is possible. | [WebView API](/en-US/docs/api/webview-api) |
 | `set_webview_permission_handler` / `clear_webview_permission_handler` | Register / clear the unified web permission handler for centrally allowing or denying camera, microphone, display capture, file access, and other permissions. | [Web Permission API](/en-US/docs/api/permission-api) |
 | `WebViewSettings.profile_name` | Named Profile session isolation on Windows, isolating cookies, storage, and cache; Linux accepts but ignores it. | [Core Structs](/en-US/docs/api/index#webview-settings) |
