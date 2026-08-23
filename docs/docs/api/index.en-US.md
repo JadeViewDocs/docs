@@ -68,28 +68,9 @@ int32_t run_message_loop(void);
 
 ---
 
-### Clean up all windows (`cleanup_all_windows`) ⚠️ Planned for deprecation
-
-:::warning
-`cleanup_all_windows` has entered the deprecation plan since 2.2; please use [`jadeview_exit()`](#jadeview_exit) instead.
-:::
-
-**Purpose**: Close all JadeView windows, tear down resources, and let the event loop end. Equivalent to the cleanup performed before the application exits.
-
-```c
-int32_t cleanup_all_windows(void);
-```
-
-| Return value | Meaning |
-|--------|------|
-| `1` | Shutdown and cleanup have been initiated. |
-| `0` | Failed (for example, initialization has not yet completed). |
-
----
-
 ### Exit the application (`jadeview_exit`) <span class="jv-version-badge">v2.4</span>
 
-**Purpose**: Replaces `cleanup_all_windows`; closes all JadeView windows, tears down resources, and lets the event loop end. Starting with **v2.4**, this function waits for the GUI event loop and JadeView-owned background threads to finish before it returns successfully, making it suitable as the final step before unloading the DLL.
+**Purpose**: Closes all JadeView windows, tears down resources, and lets the event loop end. Starting with **v2.4**, this function waits for the GUI event loop and JadeView-owned background threads to finish before it returns successfully, making it suitable as the final step before unloading the DLL.
 
 ```c
 int32_t jadeview_exit(void);

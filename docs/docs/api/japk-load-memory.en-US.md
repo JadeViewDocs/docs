@@ -17,42 +17,23 @@ To build an obfuscated JAPK package, use the [JadePack](/en-US/docs/api/jadepack
 
 ## Overview
 
-`JadeView_load_from_bytes` loads a JAPK package from memory, internally selecting the load path automatically based on the magic number and public-key setting:
+`JadeView_load_from_bytes` loads a JAPK package from memory, detecting the package format via the magic number:
 
-- Public key set → only **JAPK v2 signed packages** are accepted, decrypted and loaded after signature verification
-- No public key set → **obfuscated package v2** is accepted, deobfuscated and loaded
+- Only **JAPK v2 signed packages** are accepted, decrypted and loaded after verification against the JadeTweak platform root public key embedded in JadeView
+- The verification public key is compiled into the DLL; hosts do not need to (and cannot) inject one at runtime
 
-> 💡 **Tip**: Both signed and obfuscated packages are built by [JadePack](/en-US/docs/api/jadepack). A signed package requires injecting the public key via `JadeView_set_public_key` before loading.
+> 💡 **Tip**: Both signed and obfuscated packages are built by [JadePack](/en-US/docs/api/jadepack). Memory loading only accepts signed packages; load obfuscated packages from a local file instead.
 
 | Format | Magic number | Description | Build tool |
 |------|------|------|----------|
 | **JAPK v2 signed package** | `JAPKV002` | Ed25519 signature + AES-256-GCM encryption | [JadePack](/en-US/docs/api/jadepack) |
 | **Obfuscated package v2** | `JPKBIN02` | SHA256 dynamic key derivation + 3-layer reversible transform | [JadePack](/en-US/docs/api/jadepack) |
 
-**Key security constraint**: Once the public key is set, a failed signed-package load **will never fall back** to the obfuscated-package logic.
+**Key security constraint**: Memory loading only accepts JAPK v2 signed packages; a failed signature verification **will never fall back** to the obfuscated-package logic.
 
 ---
 
 ## Core API
-
-### JadeView_set_public_key
-
-Sets the Ed25519 public key. After it is called, `JadeView_load_from_bytes` will only accept signed packages.
-
-```c
-int JadeView_set_public_key(const char* public_key);
-```
-
-**Parameters:**
-
-- `public_key` `string` - Base64-encoded Ed25519 public key (44 characters)
-
-**Return value:**
-
-- `0` - Success
-- Negative number - Error code
-
----
 
 ### JadeView_load_from_bytes
 
@@ -75,8 +56,7 @@ int JadeView_load_from_bytes(const uint8_t* japk_data, size_t data_size);
 **Call order**:
 
 1. `JadeView_init` — Initialize the runtime
-2. `JadeView_set_public_key` — (Optional) Set the public key
-3. `JadeView_load_from_bytes` — Load the JAPK data
+2. `JadeView_load_from_bytes` — Load the JAPK data
 
 ---
 
@@ -203,7 +183,7 @@ void load_from_memory_example() {
     fread(data, 1, size, f);
     fclose(f);
 
-    // 3. Load from memory (obfuscated package, no public key required)
+    // 3. Load from memory (JAPK v2 signed package)
     int rc = JadeView_load_from_bytes(data, size);
     if (rc != 0) {
         printf("Load failed: %d\n", rc);
@@ -227,16 +207,6 @@ void load_from_memory_example() {
 
     free(data);
 }
-```
-
-### Loading a Signed Package
-
-```c
-// After setting the public key, only signed packages are accepted
-JadeView_set_public_key("QeeOu5LQdQooeyOID6h/ChFEo5RhbAFoKgslznp5Nbk=");
-
-int rc = JadeView_load_from_bytes(data, size);
-// Now only JAPKV002 signed packages are accepted
 ```
 
 ### Python (ctypes)
@@ -263,7 +233,7 @@ dll.JadeView_init(1, None, b"./data", b"MyApp", b"com.example.app", 0)
 with open("app.japk", "rb") as f:
     japk_data = f.read()
 
-# 3. Load from memory (obfuscated package)
+# 3. Load from memory (JAPK v2 signed package)
 data_ptr = (c_uint8 * len(japk_data)).from_buffer_copy(japk_data)
 rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
 if rc != 0:
@@ -282,16 +252,6 @@ loaded = dll.JadeView_is_loaded()
 print(f"JAPK loaded: {loaded}")
 ```
 
-Loading a signed package requires additionally setting the public key:
-
-```python
-dll.JadeView_set_public_key.argtypes = [c_char_p]
-dll.JadeView_set_public_key.restype = c_int
-
-dll.JadeView_set_public_key(b"QeeOu5LQdQooeyOID6h/ChFEo5RhbAFoKgslznp5Nbk=")
-rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
-```
-
 ---
 
 ## Full Call Sequence
@@ -301,12 +261,10 @@ Caller                          JadeView DLL
   │                                 │
   ├─ JadeView_init ────────────────►│ Initialize
   │                                 │
-  ├─ JadeView_set_public_key ──────►│ (Optional) Set verification public key
-  │                                 │
   ├─ jade_on("japk-load-success")──►│ Register success callback
   ├─ jade_on("japk-load-failed") ──►│ Register failure callback
   │                                 │
-  ├─ JadeView_load_from_bytes ─────►│ Magic detection → signed/obfuscated → ASAR
+  ├─ JadeView_load_from_bytes ─────►│ Magic detection → signature verification/decryption → ASAR
   │                                 │
   │  ◄── japk-load-success ────────┤ Asynchronous event
   │                                 │

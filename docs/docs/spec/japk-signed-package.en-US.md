@@ -357,11 +357,10 @@ Legacy examples may contain:
 JadeView_set_public_key(public_key);
 ```
 
-Do not call this in current applications. JadeView embeds the only trusted JadeTweak platform root public key:
+This API has been removed in the current version; the DLL no longer exports the symbol. JadeView embeds the only trusted JadeTweak platform root public key:
 
-- Passing the exact platform root is only a compatibility no-op;
-- Passing any other key returns `-11` (policy denied);
-- A host-provided key cannot make a self-signed package trusted.
+- A host-provided key cannot make a self-signed package trusted;
+- After upgrading, hosts should remove any leftover `JadeView_set_public_key` calls.
 
 No JAPK public-key file is required in the application distribution.
 
@@ -421,7 +420,7 @@ To change the main executable name, request a certificate for the intended ident
 - [ ] Match the `JadeView_init` App ID and app name to the certificate;
 - [ ] Match the final EXE filename to certificate `main_exe`;
 - [ ] Do not post-process or rewrite `app.japk` after signing;
-- [ ] Remove calls to `JadeView_set_public_key`;
+- [ ] No leftover `JadeView_set_public_key` calls in host code (the API has been removed);
 - [ ] Match the x86, x64, or ARM64 JadeView DLL to the host architecture;
 - [ ] Test the final EXE and JAPK from a clean installation directory;
 - [ ] Apply appropriate release integrity controls to the host, DLL, and installer.

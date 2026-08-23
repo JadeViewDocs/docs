@@ -17,42 +17,23 @@ JadeView 2.0 支持从内存直接加载 JAPK 包，无需本地文件系统。�
 
 ## 概述
 
-`JadeView_load_from_bytes` 从内存加载 JAPK 包，内部根据魔数和公钥设置自动选择加载路径：
+`JadeView_load_from_bytes` 从内存加载 JAPK 包，通过魔数检测包格式：
 
-- 设置了公钥 → 只接受 **JAPK v2 签名包**，验证签名后解密加载
-- 未设置公钥 → 接受 **混淆包 v2**，解混淆后加载
+- 仅接受 **JAPK v2 签名包**，使用 JadeView 内置的 JadeTweak 平台根公钥验证签名后解密加载
+- 验证公钥已编译进 DLL，宿主无需也无法在运行时注入公钥
 
-> 💡 **提示**：签名包和混淆包均由 [JadePack](/docs/api/jadepack) 构建。签名包需先通过 `JadeView_set_public_key` 注入公钥再加载。
+> 💡 **提示**：签名包和混淆包均由 [JadePack](/docs/api/jadepack) 构建。内存加载仅接受签名包；混淆包请通过本地文件方式加载。
 
 | 格式 | 魔数 | 说明 | 构建工具 |
 |------|------|------|----------|
 | **JAPK v2 签名包** | `JAPKV002` | Ed25519 签名 + AES-256-GCM 加密 | [JadePack](/docs/api/jadepack) |
 | **混淆包 v2** | `JPKBIN02` | SHA256 动态密钥派生 + 3 层可逆变换 | [JadePack](/docs/api/jadepack) |
 
-**关键安全约束**：公钥设置后，签名包加载失败 **绝不会回退** 到混淆包逻辑。
+**关键安全约束**：内存加载仅接受 JAPK v2 签名包，签名验证失败 **绝不会回退** 到混淆包逻辑。
 
 ---
 
 ## 核心 API
-
-### JadeView_set_public_key
-
-设置 Ed25519 公钥。调用后 `JadeView_load_from_bytes` 将只接受签名包。
-
-```c
-int JadeView_set_public_key(const char* public_key);
-```
-
-**参数：**
-
-- `public_key` `string` - Base64 编码的 Ed25519 公钥（44 字符）
-
-**返回值：**
-
-- `0` - 成功
-- 负数 - 错误码
-
----
 
 ### JadeView_load_from_bytes
 
@@ -75,8 +56,7 @@ int JadeView_load_from_bytes(const uint8_t* japk_data, size_t data_size);
 **调用顺序**：
 
 1. `JadeView_init` — 初始化运行时
-2. `JadeView_set_public_key` — （可选）设置公钥
-3. `JadeView_load_from_bytes` — 加载 JAPK 数据
+2. `JadeView_load_from_bytes` — 加载 JAPK 数据
 
 ---
 
@@ -203,7 +183,7 @@ void load_from_memory_example() {
     fread(data, 1, size, f);
     fclose(f);
 
-    // 3. 从内存加载（混淆包，无需公钥）
+    // 3. 从内存加载（JAPK v2 签名包）
     int rc = JadeView_load_from_bytes(data, size);
     if (rc != 0) {
         printf("加载失败: %d\n", rc);
@@ -227,16 +207,6 @@ void load_from_memory_example() {
 
     free(data);
 }
-```
-
-### 签名包加载
-
-```c
-// 设置公钥后，只接受签名包
-JadeView_set_public_key("QeeOu5LQdQooeyOID6h/ChFEo5RhbAFoKgslznp5Nbk=");
-
-int rc = JadeView_load_from_bytes(data, size);
-// 此时只接受 JAPKV002 签名包
 ```
 
 ### Python (ctypes)
@@ -263,7 +233,7 @@ dll.JadeView_init(1, None, b"./data", b"MyApp", b"com.example.app", 0)
 with open("app.japk", "rb") as f:
     japk_data = f.read()
 
-# 3. 内存加载（混淆包）
+# 3. 内存加载（JAPK v2 签名包）
 data_ptr = (c_uint8 * len(japk_data)).from_buffer_copy(japk_data)
 rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
 if rc != 0:
@@ -282,16 +252,6 @@ loaded = dll.JadeView_is_loaded()
 print(f"JAPK loaded: {loaded}")
 ```
 
-签名包加载需额外设置公钥：
-
-```python
-dll.JadeView_set_public_key.argtypes = [c_char_p]
-dll.JadeView_set_public_key.restype = c_int
-
-dll.JadeView_set_public_key(b"QeeOu5LQdQooeyOID6h/ChFEo5RhbAFoKgslznp5Nbk=")
-rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
-```
-
 ---
 
 ## 完整调用时序
@@ -301,12 +261,10 @@ rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
   │                                 │
   ├─ JadeView_init ────────────────►│ 初始化
   │                                 │
-  ├─ JadeView_set_public_key ──────►│ (可选) 设置验证公钥
-  │                                 │
   ├─ jade_on("japk-load-success")──►│ 注册成功回调
   ├─ jade_on("japk-load-failed") ──►│ 注册失败回调
   │                                 │
-  ├─ JadeView_load_from_bytes ─────►│ 魔数检测 → 签名/混淆 → ASAR
+  ├─ JadeView_load_from_bytes ─────►│ 魔数检测 → 签名验证/解密 → ASAR
   │                                 │
   │  ◄── japk-load-success ────────┤ 异步事件
   │                                 │

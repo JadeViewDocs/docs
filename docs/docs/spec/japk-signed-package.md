@@ -359,11 +359,10 @@ int32_t mounted = set_protocol_service_path(
 JadeView_set_public_key(public_key);
 ```
 
-当前版本不要再调用它。JadeView 已经内置唯一受信任的 JadeTweak 平台根公钥：
+该 API 已从当前版本移除，DLL 不再导出该符号。JadeView 内置唯一受信任的 JadeTweak 平台根公钥：
 
-- 传入完全相同的平台根只会执行兼容性 no-op；
-- 传入任意其他公钥会返回 `-11`（策略拒绝）；
-- 自签名包不会因为宿主提供了公钥而获得信任。
+- 自签名包不会因为宿主提供了公钥而获得信任；
+- 宿主升级后应删除残留的 `JadeView_set_public_key` 调用。
 
 应用发布物中不需要附带 JAPK 公钥文件。
 
@@ -425,7 +424,7 @@ if (signature_info) {
 - [ ] `JadeView_init` 的 App ID 和应用名称与证书一致；
 - [ ] 最终 EXE 文件名与证书 `main_exe` 一致；
 - [ ] `app.japk` 未在签名完成后被处理或改写；
-- [ ] 宿主不再调用 `JadeView_set_public_key`；
+- [ ] 宿主代码中没有 `JadeView_set_public_key` 残留调用（该 API 已移除）；
 - [ ] x86、x64 或 ARM64 的 JadeView DLL 与宿主架构一致；
 - [ ] 在干净机器上测试安装目录中的最终 EXE 和 JAPK；
 - [ ] 对宿主 EXE、DLL 和安装包实施适合自己的发布完整性保护。

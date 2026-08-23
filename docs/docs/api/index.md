@@ -68,28 +68,9 @@ int32_t run_message_loop(void);
 
 ---
 
-### 清理全部窗口（`cleanup_all_windows`）⚠️ 计划报废
-
-:::warning
-`cleanup_all_windows` 自 2.2 起进入计划报废阶段，请使用 [`jadeview_exit()`](#jadeview_exit) 代替。
-:::
-
-**用途**：关掉所有 JadeView 窗口、收尾资源、让事件循环结束。相当于应用退出前的清理。
-
-```c
-int32_t cleanup_all_windows(void);
-```
-
-| 返回值 | 含义 |
-|--------|------|
-| `1` | 已发起关闭与清理。 |
-| `0` | 失败（例如尚未完成初始化）。 |
-
----
-
 ### 退出应用（`jadeview_exit`） <span class="jv-version-badge">v2.4</span>
 
-**用途**：替代 `cleanup_all_windows`，关掉所有 JadeView 窗口、收尾资源、让事件循环结束。自 **v2.4** 起，该函数默认等待 GUI 事件循环和 JadeView 自有后台线程完成退出，成功返回后才适合卸载 DLL。
+**用途**：关掉所有 JadeView 窗口、收尾资源、让事件循环结束。自 **v2.4** 起，该函数默认等待 GUI 事件循环和 JadeView 自有后台线程完成退出，成功返回后才适合卸载 DLL。
 
 ```c
 int32_t jadeview_exit(void);
