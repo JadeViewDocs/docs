@@ -5,7 +5,7 @@
 // 注意：此 slot 为新增覆盖，需「清 .dumi/tmp + dumi setup + 重启」才注册（改已有 slot 才走 HMR）。
 import { Button } from '@lobehub/ui';
 import { AuroraBackground } from '@lobehub/ui/awesome';
-import { createStyles, useResponsive } from 'antd-style';
+import { createStyles, useResponsive, useTheme } from 'antd-style';
 import { Link } from 'dumi';
 import { Github } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -17,7 +17,7 @@ import { floatContainer as container, floatItem as item, floatStyle } from '../.
 import JadeStartButton from '../../components/JadeStartButton';
 // 3D 品牌吉祥物（与标题栏同源，GLB 只加载一次）：首屏大尺寸展示位
 import Logo3D from '../../components/JadeLogo3D';
-
+import WarpText from '../../components/WarpText';
 const useStyles = createStyles(({ css, token }) => ({
   // @lobehub/ui 的 AuroraBackground 在 ≤575.98px 把极光强制 `transform: scale(2); max-height: 25vh`，
   // 极光被裁到只剩屏幕顶部 1/4 并被放大成一片纯色，叠加低 opacity + 收向右上角的 mask 后手机端几乎不可见。
@@ -102,7 +102,7 @@ const useStyles = createStyles(({ css, token }) => ({
   `,
 }));
 
-// 3D 吉祥物专用入场：仅 2D 位移 + 淡入（弹性与共享 floatItem 一致）。
+// WebGL 画布子元素（3D 吉祥物 / WarpText 标题）专用入场：仅 2D 位移 + 淡入（弹性与共享 floatItem 一致）。
 // 不能复用 floatItem——它的 transformPerspective/rotateX/filter 会把 canvas 压进 3D 变换 + filter
 // 合成层，Chrome 对该层里的 WebGL 画布走低质量重采样，2 倍超采样抗锯齿直接报废（踩过坑：锯齿严重）。
 const logoFloat = {
@@ -123,6 +123,8 @@ const logoFloat = {
 export default memo(function Hero() {
   const { styles } = useStyles();
   const { mobile } = useResponsive();
+  const theme = useTheme() as any;
+  const dark = theme.isDarkMode ?? (theme.appearance ? theme.appearance === 'dark' : true);
   const hero = useSiteStore((s: any) => s.routeMeta?.frontmatter?.hero) || {};
   const { title, description, actions = [] } = hero;
 
@@ -137,12 +139,33 @@ export default memo(function Hero() {
           <Logo3D alt="JadeView" fallbackRadius={40} overscan={1.3} size={mobile ? 128 : 180} />
         </motion.div>
         {title && (
-          <motion.h1
+          /* WarpText 是 WebGL 画布，内容无固有宽度：wrap 为 align-items:center 的纵向 flex，
+             flex item 会按内容收缩成 0 宽 → 画布 0×0 → WarpText.rasterize 检测到 0 宽直接跳过（标题消失）。
+             必须显式 width:100%。入场动画复用 logoFloat（纯 2D 位移），理由见其上方注释。 */
+          <motion.div
             className={styles.title}
-            dangerouslySetInnerHTML={{ __html: title }}
-            style={floatStyle}
-            variants={item}
-          />
+            style={{ width: '100%' }}
+            variants={logoFloat}
+          >
+            <WarpText
+              text={title}
+              color={dark ? '#f8f5ff' : '#0f0f0f'}
+              warpStrength={0.08}
+              warpScale={1.7}
+              speed={0.55}
+              pointerInfluence={0.42}
+              pointerStrength={0.38}
+              refraction={0.018}
+              ripple
+              fontSize={116}
+              fontWeight={600}
+              style={{ height: '220px' }}
+              fontFamily="inherit"
+              letterSpacing={-0.06}
+              lineHeight={0.9}
+            />
+
+          </motion.div>
         )}
         {description && (
           <motion.p
