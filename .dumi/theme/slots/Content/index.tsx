@@ -8,7 +8,8 @@
 //   主题内部组件 / 样式一律走 `dumi-theme-lobehub/dist/*`。
 import { Block, Typography } from '@lobehub/ui';
 import { Skeleton } from 'antd';
-import { useResponsive } from 'antd-style';
+import { createStyles, useResponsive } from 'antd-style';
+import { useRouteMeta } from 'dumi';
 import { memo, useEffect } from 'react';
 import { Flexbox } from 'react-layout-kit';
 // @ts-ignore 主题内部组件 / 样式，深层路径无类型声明
@@ -18,9 +19,63 @@ import { styles } from 'dumi-theme-lobehub/dist/slots/Content/style';
 // @ts-ignore
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 
+const useTitleStyles = createStyles(({ css }) => ({
+  versionBadge: css`
+    .markdown .jv-version-badge {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+
+      min-width: 34px;
+      height: 20px;
+      margin-inline-start: 6px;
+      padding-inline: 7px;
+      border-radius: 999px;
+
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      color: #fff;
+      vertical-align: 2px;
+      background: #f97316;
+    }
+  `,
+  titleWithBadge: css`
+    .markdown > h1 {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .markdown > h1::after {
+      content: var(--jv-title-badge);
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+
+      min-width: 34px;
+      height: 22px;
+      padding-inline: 8px;
+      border-radius: 999px;
+
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      color: #fff;
+      background: #f97316;
+    }
+  `,
+}));
+
 export default memo(function Content({ children, ...props }: any) {
   const loading = useSiteStore((s: any) => s.siteData.loading);
   const { mobile } = useResponsive();
+  const { styles: titleStyles } = useTitleStyles();
+  const routeMeta = useRouteMeta();
+  const badge = (routeMeta?.frontmatter as any)?.badge;
 
   useEffect(() => {
     document.body.scrollTo(0, 0);
@@ -29,9 +84,13 @@ export default memo(function Content({ children, ...props }: any) {
   return (
     <Flexbox gap={mobile ? 0 : 24} width="100%" {...props}>
       <Block
-        className={styles.content}
+        className={`${styles.content} ${titleStyles.versionBadge}${badge ? ` ${titleStyles.titleWithBadge}` : ''}`}
         shadow={false}
-        style={{ padding: mobile ? '8px 16px' : 0, background: 'transparent' }}
+        style={{
+          padding: mobile ? '8px 16px' : 0,
+          background: 'transparent',
+          ['--jv-title-badge' as any]: badge ? `"${badge}"` : undefined,
+        }}
         variant="borderless"
       >
         <Skeleton active loading={loading} paragraph />

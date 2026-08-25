@@ -230,11 +230,7 @@ A download started. **Blocked by default**; you must return `NULL` in the callba
 
 ---
 
-### `webview-download-completed`
-
-:::warning
-Supported since v2.2.
-:::
+### `webview-download-completed` <span class="jv-version-badge">v2.2</span>
 
 Fired when a download completes (whether it succeeds or fails).
 
@@ -258,11 +254,7 @@ Fired when a file is dragged into the WebView. Once registered, it takes over dr
 
 ---
 
-### `drag-drop`
-
-:::warning
-Supported since v2.2, replaces `file-drop`.
-:::
+### `drag-drop` <span class="jv-version-badge">v2.2</span>
 
 A drag lifecycle event covering the complete drag flow (enter, move, drop, leave), similar to Tauri's `onDragDropEvent`.
 
@@ -297,11 +289,7 @@ jade_on("drag-drop", my_callback);
 {"type": "leave"}
 ```
 
-#### Synchronous Interception (2.3)
-
-:::warning
-Supported since v2.3.
-:::
+#### Synchronous Interception (2.3) <span class="jv-version-badge">v2.3</span>
 
 As of 2.3, the `drag-drop` callback supports **synchronous interception** for `enter` and `drop`, controlled via the [`IpcCallback` return value](/en-US/docs/api/ipc-api#jade-on-callback-return):
 
@@ -447,11 +435,7 @@ Fired when a JAPK resource pack fails to load (public key not set, signature ver
 
 ---
 
-### `crash`
-
-:::warning
-Supported since v2.2.
-:::
+### `crash` <span class="jv-version-badge">v2.2</span>
 
 Fired when the program crashes (SEH exception, Rust panic, or WebView2 process crash). `event_data` is an error code string that does not leak source-code information.
 

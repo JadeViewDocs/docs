@@ -12,6 +12,8 @@ group:
 
 页面导航、脚本执行、DevTools、打印等 WebView 相关操作见 [WebView API](/docs/api/webview-api)。
 
+网页权限请求（摄像头、麦克风、录屏、文件访问等）的统一拦截见 [网页权限 API](/docs/api/permission-api)。
+
 以下函数都针对某个 **`window_id`**（创建窗口时返回的整数）。没有特殊说明时，成功多为 `1`，失败为 `0`。
 
 ---
@@ -87,6 +89,7 @@ uint32_t create_webview_window(
   - `disable_clipboard` `int32_t` - 是否禁用剪贴板读写权限。`0` = 允许，`1` = 禁用。
   - `proxy_url` `string` - 代理URL，支持 HTTP 和 SOCKS5 代理（如 `"http://127.0.0.1:7890"` 或 `"socks5://127.0.0.1:1080"`）。`NULL` 表示不使用代理。
   - `focused` `int32_t` - WebView 初始是否自动获取焦点。`0` = 不获取焦点，`1` = 自动聚焦（默认 `1`）。
+  - `profile_name` `string` - **v2.4 新增**，追加在结构体末尾。`NULL` 或空字符串使用默认 Profile，行为和 2.3.x 一致；非空字符串使用命名 WebView2 Profile，用于隔离 Cookie、LocalStorage、IndexedDB、缓存（当前仅 Windows 生效，Linux 接受但忽略）。名称长度不超过 64 个字符，只能包含字母、数字、`.`、`_`、`-`、空格，且不能以 `.` 或空格开头或结尾；非法名称回退默认 Profile。
 
 **返回值：**
 
@@ -136,7 +139,7 @@ size_t get_window_hwnd(uint32_t window_id);
 - `window_id` `uint32_t` - 目标窗口 id
 
 ---
-### 获取窗口ID （v2.3）
+### 获取窗口ID（v2.3） <span class="jv-version-badge">v2.3</span>
 
 通过窗口句柄获取Jadeview创建的窗口ID
 
@@ -197,11 +200,7 @@ int32_t set_window_position(uint32_t window_id, int32_t x, int32_t y);
 
 ---
 
-### 获取窗口位置和尺寸（`get_window_bounds`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 获取窗口位置和尺寸（`get_window_bounds`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t get_window_bounds(uint32_t window_id, char* buffer, int buffer_size);
@@ -263,11 +262,7 @@ int32_t set_window_always_on_top(uint32_t window_id, int32_t always_on_top);
 
 ---
 
-### 设置忽略鼠标事件（`set_window_ignore_cursor_events`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 设置忽略鼠标事件（`set_window_ignore_cursor_events`） <span class="jv-version-badge">v2.2</span>
 
 设置窗口是否忽略鼠标事件（鼠标穿透），适用于悬浮窗 / overlay 场景。
 
@@ -280,11 +275,7 @@ int32_t set_window_ignore_cursor_events(uint32_t window_id, int ignore);
 
 ---
 
-## 窗口标志与层级
-
-:::warning
-v2.3.0-beta.6 开始支持，全部跨平台（Windows / Linux）。
-:::
+## 窗口标志与层级 <span class="jv-version-badge">v2.3.0-beta.6</span>
 
 适用于侧边 Dock、悬浮面板、桌面挂件、启动器等场景：让窗口不出现在任务栏 / Alt-Tab、常驻时不抢焦点，或把窗口压到桌面壁纸层。
 
@@ -411,11 +402,7 @@ int32_t set_window_fullscreen(uint32_t window_id, int32_t fullscreen);
 
 ---
 
-### 查询窗口是否最小化（`is_window_minimized`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 查询窗口是否最小化（`is_window_minimized`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_minimized(uint32_t window_id);
@@ -426,11 +413,7 @@ int32_t is_window_minimized(uint32_t window_id);
 
 ---
 
-### 查询窗口是否可见（`is_window_visible`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 查询窗口是否可见（`is_window_visible`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_visible(uint32_t window_id);
@@ -441,11 +424,7 @@ int32_t is_window_visible(uint32_t window_id);
 
 ---
 
-### 查询窗口是否聚焦（`is_window_focused`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 查询窗口是否聚焦（`is_window_focused`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_focused(uint32_t window_id);
@@ -456,11 +435,7 @@ int32_t is_window_focused(uint32_t window_id);
 
 ---
 
-### 查询窗口是否全屏（`is_window_fullscreen`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 查询窗口是否全屏（`is_window_fullscreen`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_fullscreen(uint32_t window_id);
@@ -473,11 +448,7 @@ int32_t is_window_fullscreen(uint32_t window_id);
 
 ## 窗口约束
 
-### 设置窗口最小尺寸（`set_window_min_size`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 设置窗口最小尺寸（`set_window_min_size`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t set_window_min_size(uint32_t window_id, int32_t width, int32_t height);
@@ -488,11 +459,7 @@ int32_t set_window_min_size(uint32_t window_id, int32_t width, int32_t height);
 
 ---
 
-### 设置窗口最大尺寸（`set_window_max_size`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 设置窗口最大尺寸（`set_window_max_size`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t set_window_max_size(uint32_t window_id, int32_t width, int32_t height);
@@ -503,11 +470,7 @@ int32_t set_window_max_size(uint32_t window_id, int32_t width, int32_t height);
 
 ---
 
-### 设置窗口是否可调整大小（`set_window_resizable`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 设置窗口是否可调整大小（`set_window_resizable`） <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t set_window_resizable(uint32_t window_id, int32_t resizable);
@@ -670,11 +633,7 @@ int32_t request_redraw(uint32_t window_id);
 
 ## 任务栏特效
 
-### 设置任务栏进度条（`set_window_progress`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 设置任务栏进度条（`set_window_progress`） <span class="jv-version-badge">v2.2</span>
 
 在任务栏按钮上显示进度条（如下载进度、安装进度等）。
 
@@ -694,11 +653,7 @@ int32_t set_window_progress(uint32_t window_id, int progress, int state);
 
 ---
 
-### 任务栏图标闪烁（`flash_window`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 任务栏图标闪烁（`flash_window`） <span class="jv-version-badge">v2.2</span>
 
 闪烁任务栏图标以吸引用户注意（如收到消息时）。
 

@@ -25,6 +25,7 @@ const zh = {
     products: {
       jadepack: { title: 'JadePack', desc: '官方图形化打包工具：JAPK 混淆 / 签名加密与安装包构建。' },
       jadeEc: { title: 'Jade EC 查看器', desc: '易语言 .ec 模块现代化查看器，三栏布局 + 多维度搜索。' },
+      cleanPro: { title: 'Clean Pro', desc: '分析磁盘空间、清理 Windows 系统垃圾、识别应用残留，并安全迁移文件夹。' },
     },
   },
   // 首页 HomeExtra
@@ -126,7 +127,7 @@ jade.on('backend-event', (data) => {});`,
     policy: [
       { t: '主版本号', d: '含破坏性更新和新特性，不在发布周期内' },
       { t: '次版本号', d: '每月发布带有新特性的向下兼容版本' },
-      { t: '修订版本号', d: '每周末日常 bugfix 更新，紧急修复随时发布' },
+      { t: '修订版本号', d: '日常 bugfix 与紧急修复，随时发布，不固定周期' },
     ],
     week: ['日', '一', '二', '三', '四', '五', '六'],
     months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
@@ -297,6 +298,7 @@ const en: typeof zh = {
     products: {
       jadepack: { title: 'JadePack', desc: 'Official GUI packaging tool: JAPK obfuscation / signing and installer builds.' },
       jadeEc: { title: 'Jade EC Viewer', desc: 'A modern viewer for E-Language .ec modules — three-column layout + search.' },
+      cleanPro: { title: 'Clean Pro', desc: 'Analyze disk space, clean Windows system junk, identify app leftovers, and safely migrate folders.' },
     },
   },
   home: {
@@ -396,7 +398,7 @@ jade.on('backend-event', (data) => {});`,
     policy: [
       { t: 'Major', d: 'Breaking changes and new features; outside the regular release cadence.' },
       { t: 'Minor', d: 'Backward-compatible feature releases, shipped monthly.' },
-      { t: 'Patch', d: 'Routine weekly bugfix updates; urgent fixes ship anytime.' },
+      { t: 'Patch', d: 'Routine bugfixes and urgent fixes — shipped anytime, no fixed cadence.' },
     ],
     week: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],

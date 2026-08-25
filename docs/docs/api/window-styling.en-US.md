@@ -36,11 +36,7 @@ group:
 
 ---
 
-## Custom Window Drag Region (`jade-region-drag`)
-
-:::warning
-Supported since v2.3.
-:::
+## Custom Window Drag Region (`jade-region-drag`) <span class="jv-version-badge">v2.3</span>
 
 In addition to the CSS `-webkit-app-region: drag`, v2.3 adds a new dragging mechanism based on **HTML custom attributes**, used to drag the window and double-click to maximize in frameless / custom title bar windows.
 

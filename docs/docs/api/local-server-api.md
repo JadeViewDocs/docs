@@ -45,7 +45,7 @@ int32_t set_protocol_service_path(
 
 ---
 
-## 安全资源访问系统 *(2.2 新增)*
+## 安全资源访问系统 <span class="jv-version-badge">v2.2</span>
 
 通过 token 机制安全地暴露本地文件给渲染进程。主进程注册资源 → 生成 token 路径 → 渲染进程仅访问已授权资源 → 协议服务动态映射。渲染进程只能看到 token 路径，无法推断真实文件路径。
 
@@ -140,7 +140,7 @@ int clear_window_resources(unsigned int window_id);
 
 ---
 
-## 热载模式 *(2.2 新增)*
+## 热载模式 <span class="jv-version-badge">v2.2</span>
 
 开发阶段文件修改后自动刷新前端页面，无需手动刷新。
 

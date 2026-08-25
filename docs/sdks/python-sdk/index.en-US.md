@@ -4,7 +4,7 @@ order: 0
 
 # Introduction
 
-The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, system integration, and Web front-end integration based on JadeView WebView technology. The current SDK version is **2.3.0**, aligned with JadeView **v2.3.0 (Build 26G02)**.
+The JadeUI Python SDK is a library for building desktop apps with Python. It provides window management, IPC communication, system integration, and Web front-end integration based on JadeView WebView technology. This documentation tracks SDK **2.3.x**, aligned with JadeView **v2.3.0 (Build 26G02)**.
 
 ## What is the JadeUI Python SDK
 
@@ -21,7 +21,9 @@ The JadeUI Python SDK is an object-oriented Python library that gives Python dev
 - **Dialogs and notifications**: `Dialog` and `Notification` wrap system file dialogs, message boxes, and desktop notifications
 - **System integration**: `Tray`, `HotKey`, `Clipboard`, and `System` support tray icons, global shortcuts, clipboard access, system paths, display info, and version queries
 - **YAML storage**: `Storage` wraps the JadeView 2.3 YAML persistence APIs
+- **Native menus**: `Menu.attach_context_menu` for context menus (including WebView2 native items)
 - **Window enhancements**: DevTools, zoom, taskbar progress/flash, content protection, window levels, skip taskbar, no activate, and HWND-to-window-id lookup
+- **CLI toolchain**: `jadeui init` / `run` / `doctor` / `japk` / `build` / `download` / `clean`, with `pyproject.toml` project conventions
 
 ## Use Cases
 
@@ -82,10 +84,6 @@ JadeUI automatically downloads the adapted JadeView DLL. The current SDK targets
 Automatic updates are limited to build revisions within the same API version / release tag. Minor or major jumps such as `2.2 -> 2.3` or `2.3 -> 2.4` may include ABI or behavior changes and require an explicit SDK adaptation first.
 :::
 
-:::info{title="IPC Message Limit"}
-Keep a single business `jade.invoke` payload below `1000KB`; an exact `1MiB` payload plus IPC framing exceeds the native bridge limit and is rejected. Use chunks, temporary files, or resource URLs for larger content.
-:::
-
 ## Installation
 
 Install the JadeUI Python SDK via pip:
@@ -99,6 +97,16 @@ Or use poetry:
 ```bash
 poetry add jadeui
 ```
+
+Then use the CLI:
+
+```bash
+jadeui init my-app --frontend html
+cd my-app
+jadeui run
+```
+
+See [CLI](./cli) and [Application packaging](./packaging).
 
 ## Quick Example
 

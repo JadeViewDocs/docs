@@ -4,7 +4,7 @@ order: 0
 
 # 介绍
 
-JadeUI Python SDK 是一个用于 Python 开发桌面应用的库，提供了基于 JadeView WebView 技术的窗口管理、IPC 通信、系统集成和 Web 前端集成功能。当前 SDK 版本为 **2.3.0**，对齐 JadeView **v2.3.0 (Build 26G02)**。
+JadeUI Python SDK 是一个用于 Python 开发桌面应用的库，提供了基于 JadeView WebView 技术的窗口管理、IPC 通信、系统集成和 Web 前端集成功能。当前文档对应 SDK **2.3.x**，对齐 JadeView **v2.3.0 (Build 26G02)**。
 
 ## 什么是 JadeUI Python SDK
 
@@ -21,7 +21,9 @@ JadeUI Python SDK 是一套面向对象的 Python 库，为 Python 开发者提�
 - **对话框与通知**：`Dialog`、`Notification` 封装系统文件对话框、消息框和桌面通知
 - **系统集成**：`Tray`、`HotKey`、`Clipboard`、`System` 支持托盘、全局热键、剪贴板、系统路径/显示器/版本信息
 - **YAML 存储**：`Storage` 封装 JadeView 2.3 的 YAML 持久化 API
+- **原生菜单**：`Menu.attach_context_menu` 绑定右键菜单（含 WebView2 native 项）
 - **窗口增强**：支持 DevTools、缩放、任务栏进度/闪烁、内容保护、窗口层级、跳过任务栏、不抢焦点和 HWND 反查
+- **CLI 工具链**：`jadeui init` / `run` / `doctor` / `japk` / `build` / `download` / `clean`，支持 `pyproject.toml` 项目约定
 
 ## 适用场景
 
@@ -82,10 +84,6 @@ JadeUI SDK 会自动下载已适配的 JadeView DLL。当前版本适配 `v2.3.0
 自动更新只限同一 API 版本 / release tag 内的 build 修订号。类似 `2.2 -> 2.3`、`2.3 -> 2.4` 这类 minor/major 升级可能包含 ABI 或行为变化，需要 SDK 明确适配后再升级。
 :::
 
-:::info{title="IPC 消息上限"}
-单次业务 `jade.invoke` payload 建议不超过 `1000KB`；精确 `1MiB` payload 加上 IPC 封装后会超过原生 bridge 上限并被拒绝。更大的数据请使用分片、临时文件或资源 URL。
-:::
-
 ## 安装方式
 
 通过 pip 安装 JadeUI Python SDK：
@@ -99,6 +97,16 @@ pip install jadeui
 ```bash
 poetry add jadeui
 ```
+
+安装后即可使用 CLI：
+
+```bash
+jadeui init my-app --frontend html
+cd my-app
+jadeui run
+```
+
+完整命令见 [CLI 工具](./cli)，打包见 [应用打包](./packaging)。
 
 ## 快速示例
 

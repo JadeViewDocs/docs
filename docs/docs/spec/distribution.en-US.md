@@ -82,13 +82,10 @@ JadeView supports loading a JAPK package directly from memory, with no need for 
 // 1. Initialize
 JadeView_init(1, NULL, NULL, "MyApp", "com.example.app", 0);
 
-// 2. (Optional) Set the public key to accept signed packages only
-JadeView_set_public_key("QeeOu5LQdQooeyOID6h/ChFEo5RhbAFoKgslznp5Nbk=");
-
-// 3. Load the JAPK from memory
+// 2. Load the JAPK from memory
 int rc = JadeView_load_from_bytes(japk_data, data_size);
 
-// 4. Get the protocol URL and create a window
+// 3. Get the protocol URL and create a window
 char url_buffer[256];
 set_protocol_service_path("", url_buffer, sizeof(url_buffer), 0);  // 4th arg hot_reload: 0 = disabled, 1 = enabled
 create_webview_window(url_buffer, 0, &options, NULL);

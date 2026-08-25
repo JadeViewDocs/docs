@@ -852,8 +852,10 @@ server = LocalServer()
 ```python
 url = server.start(
     app_name="myapp",    # 兼容保留，JadeView 2.x 底层不再使用
-    root_path="./web",   # 根目录
-    hot_reload=False     # 是否启用热重载
+    root_path="./web",   # 静态根目录
+    hot_reload=False,    # 是否启用热重载（JAPK 文件上会强制关闭）
+    japk=None,           # 可选：.japk 路径（优先于 root_path）
+    from_memory=False,   # True：配合已内存加载的 JAPK（见 jadeui.japk.Japk）
 )
 print(f"服务器运行在: {url}")
 ```
@@ -863,6 +865,8 @@ print(f"服务器运行在: {url}")
 | root_path | str | 静态文件根目录 |
 | app_name | str | 应用标识符 |
 | hot_reload | bool | 是否启用热重载 |
+| japk | str \| None | `.japk` 文件路径；提供时覆盖 `root_path` |
+| from_memory | bool | 已通过内存加载 JAPK 时设为 `True` |
 
 **返回值**: `str` - 服务器 URL
 
@@ -1353,8 +1357,43 @@ print(System.webview_version())
 | `System.jadeview_version()` | JadeView DLL 版本 |
 | `System.set_login_autostart(enable=True, args=None)` | v2.3：设置开机自启 |
 | `System.get_login_autostart()` | v2.3：查询开机自启状态 |
+| `System.register_url_scheme(scheme, ...)` / `unregister_url_scheme` | v2.3：注册 / 注销自定义 URL 协议 |
+| `System.register_file_association(...)` | v2.3：注册文件关联 |
+| `System.register_resource` / `unregister_resource` / `clear_window_resources` | v2.3：窗口级资源注册（TTL：`None/0` 默认，`-1` 永不过期） |
+| `System.printer_list()` / `System.print_file(...)` | v2.3：打印机列表与打印文件 |
+| `System.clear_data_directory(confirm=True)` | v2.3：清理数据目录（需确认令牌 `CLEAR_DATA_CONFIRM_TOKEN`） |
+| `System.convert_encoding` / `gbk_to_utf8` / `utf8_to_gbk` | v2.3：编码转换 |
 | `System.get_file_icon(path, size=48, window_id=0, ttl_seconds=0)` | v2.3：提取文件/目录图标，返回 `jade://` URL |
 | `System.ntp_now(server=None)` | v2.3：获取 NTP UTC 毫秒时间戳，网络失败返回 `None` |
+
+---
+
+## Menu
+
+原生右键菜单。推荐使用 `Menu.attach_context_menu`：在 `context-menu` 回调内才真正创建菜单项（符合官方流程）。
+
+```python
+from jadeui import Menu, Window
+
+window = Window(title="Menu Demo", disable_right_click=False)
+
+Menu.attach_context_menu(window, [
+    {"label": "刷新", "on_click": lambda: window.reload()},
+    {"type": "separator"},
+    {"label": "copy", "type": "native"},  # WebView2 原生菜单 Name
+    {
+        "label": "更多",
+        "type": "submenu",
+        "children": [
+            {"label": "关于", "on_click": lambda: print("about")},
+        ],
+    },
+])
+```
+
+菜单项字段：`label` / `on_click` / `type`（`normal` \| `separator` \| `checkbox` \| `radio` \| `submenu` \| `native`）/ `children` / `disabled` / `checked` / `item_id`。
+
+`type="native"` 时，`label` 应为 WebView2 原生菜单 Name（如 `"copy"`、`"paste"`）。
 
 ---
 
@@ -1774,6 +1813,8 @@ utils.ensure_directory("./data/cache")
 ---
 
 ## DLL 下载工具
+
+命令行推荐使用 `jadeui download`（见 [CLI 工具](../cli)）。以下为 Python API。
 
 ### download_dll()
 

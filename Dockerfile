@@ -1,5 +1,5 @@
 # 阶段1：构建 dumi 静态产物（dist）
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 # 复制全部源码（含 CI 预生成的 public/releases/data.json）。

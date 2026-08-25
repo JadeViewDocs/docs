@@ -68,32 +68,9 @@ int32_t run_message_loop(void);
 
 ---
 
-### 清理全部窗口（`cleanup_all_windows`）⚠️ 计划报废
+### 退出应用（`jadeview_exit`） <span class="jv-version-badge">v2.4</span>
 
-:::warning
-`cleanup_all_windows` 自 2.2 起进入计划报废阶段，请使用 [`jadeview_exit()`](#jadeview_exit) 代替。
-:::
-
-**用途**：关掉所有 JadeView 窗口、收尾资源、让事件循环结束。相当于应用退出前的清理。
-
-```c
-int32_t cleanup_all_windows(void);
-```
-
-| 返回值 | 含义 |
-|--------|------|
-| `1` | 已发起关闭与清理。 |
-| `0` | 失败（例如尚未完成初始化）。 |
-
----
-
-### 退出应用（`jadeview_exit`）
-
-:::warning
-v2.2 开始支持。
-:::
-
-**用途**：替代 `cleanup_all_windows`，关掉所有 JadeView 窗口、收尾资源、让事件循环结束。
+**用途**：关掉所有 JadeView 窗口、收尾资源、让事件循环结束。自 **v2.4** 起，该函数默认等待 GUI 事件循环和 JadeView 自有后台线程完成退出，成功返回后才适合卸载 DLL。
 
 ```c
 int32_t jadeview_exit(void);
@@ -101,8 +78,33 @@ int32_t jadeview_exit(void);
 
 | 返回值 | 含义 |
 |--------|------|
-| `1` | 已发起关闭与清理。 |
+| `1` | 关闭、清理和等待均已完成。 |
 | `0` | 失败（例如尚未完成初始化）。 |
+
+> `jadeview_exit` 原始 API 自 v2.2 提供；上面的版本角标表示 v2.4 的退出等待行为更新。
+
+---
+
+### 带超时退出（`jadeview_exit_wait`） <span class="jv-version-badge">v2.4</span>
+
+**用途**：发起完整退出并等待 GUI 事件循环结束，可由宿主指定最大等待时间。适合 DLL 集成场景在 `FreeLibrary` 前确认 JadeView 已停止执行代码。
+
+```c
+int32_t jadeview_exit_wait(uint32_t timeout_ms);
+```
+
+| 参数 | 说明 |
+|------|------|
+| `timeout_ms` | 等待超时时间，单位为毫秒。传 `0` 时按最小等待时间处理。 |
+
+| 返回值 | 含义 |
+|--------|------|
+| `1` | 退出清理已完成，GUI 线程和 JadeView 自有后台线程已完成收尾。 |
+| `0` | 在指定时间内未完成退出，宿主不得立即卸载 DLL；应稍后再次调用等待。 |
+
+:::warning{title=调用线程}
+不要在 GUI 线程回调中等待自身。若从 GUI 线程调用，函数只会发起异步退出；请由宿主从其它线程再次调用 `jadeview_exit_wait`，并在返回 `1` 后再卸载 DLL。
+:::
 
 ---
 
@@ -113,6 +115,19 @@ int32_t jadeview_exit(void);
 ---
 
 ## 版本变化速览
+
+### 2.4 新增与增强
+
+| 符号 / 能力 | 是干什么的 | 文档 |
+|------|------------|------|
+| `jadeview_exit_wait` | 带超时等待 GUI 事件循环和 JadeView 自有后台线程退出，供 DLL 卸载前确认运行时已停止。 | [带超时退出](/docs/api/index#带超时退出jadeview_exit_wait) |
+| `webview_go_back` / `webview_go_forward` / `webview_can_go_back` / `webview_can_go_forward` | 原生前进 / 后退导航，以及同步查询是否可前进 / 后退。 | [WebView API](/docs/api/webview-api#后退--前进--可导航状态webview_go_back--webview_go_forward--webview_can_go_back--webview_can_go_forward) |
+| `set_webview_permission_handler` / `clear_webview_permission_handler` | 注册 / 清除统一网页权限处理器，集中允许或拒绝摄像头、麦克风、录屏、文件访问等权限。 | [网页权限 API](/docs/api/permission-api) |
+| `WebViewSettings.profile_name` | Windows 命名 Profile 会话隔离，用于隔离 Cookie、存储与缓存；Linux 接受但忽略。 | [核心结构体](/docs/api/index#webview-settings) |
+
+:::info
+`WebViewSettings` 的 `profile_name` 字段追加在结构体末尾，旧字段偏移不变；但仍需使用新版头文件重新编译，确保传入的结构体内存包含新增字段区域。
+:::
 
 ### 2.3 新增与增强
 
@@ -200,6 +215,7 @@ int32_t jadeview_exit(void);
 | `disable_clipboard` | 是否禁用剪贴板读写权限。`0` = 允许，`1` = 禁用。*(2.2 新增)* |
 | `proxy_url` | 代理URL，支持 HTTP 和 SOCKS5 代理（如 `"http://127.0.0.1:7890"` 或 `"socks5://127.0.0.1:1080"`）。`NULL` 表示不使用代理。*(2.2 新增)* |
 | `focused` | WebView 初始是否自动获取焦点。`0` = 不获取焦点，`1` = 自动聚焦（默认 `1`）。*(2.2 新增)* |
+| `profile_name` | Windows 命名 Profile 会话隔离：不同名称之间 Cookie、LocalStorage、IndexedDB、缓存相互隔离；相同名称共享。`NULL` 或空字符串使用默认 Profile。当前仅 Windows 生效，Linux 接受但忽略。*(2.4 新增)* |
 
 ---
 

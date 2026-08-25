@@ -20,6 +20,17 @@ Install the JadeUI Python SDK via pip:
 pip install jadeui
 ```
 
+## Scaffold with the CLI (recommended)
+
+```bash
+jadeui init my-app --frontend html   # or vue / react
+cd my-app
+jadeui doctor
+jadeui run
+```
+
+See [CLI](./cli) for commands and `pyproject.toml` conventions, and [Application packaging](./packaging) for builds.
+
 ## Basic Usage
 
 ### Create Your First App
@@ -139,10 +150,6 @@ jade.on('response', function(content) {
     console.log('Push received:', content);
 });
 ```
-
-:::warning{title="IPC Size Limit"}
-Keep one `jade.invoke` payload below `1000KB`; an exact `1MiB` payload plus IPC framing exceeds the native bridge limit and is rejected. Use chunks, temporary files, or resource URLs for larger content.
-:::
 
 ### Using the Routing System
 

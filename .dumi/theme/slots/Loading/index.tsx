@@ -34,7 +34,7 @@ export default function Loading() {
   const { styles } = useStyles();
   return (
     <div className={styles.wrap}>
-      <img className={styles.logo} src="/favicon.png" alt="JadeView" />
+      <img className={styles.logo} src="/favicon-ca0d8df22450.png" alt="JadeView" />
       <div className={styles.name}>JadeView</div>
     </div>
   );

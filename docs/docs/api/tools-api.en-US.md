@@ -134,11 +134,7 @@ int32_t clear_data_directory(const char* confirm_token);
 
 ## Text Processing
 
-### Smart text re-encoding (`smart_convert_encoding`)
-
-:::warning
-Supported since v2.2.
-:::
+### Smart text re-encoding (`smart_convert_encoding`) <span class="jv-version-badge">v2.2</span>
 
 Automatically detects the encoding of the input text and converts it to the target encoding.
 

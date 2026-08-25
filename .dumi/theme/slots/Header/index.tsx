@@ -107,7 +107,7 @@ export default memo(function Header() {
   if (!hasHeader) return null;
 
   const showBrand = tablet; // ≥768 才显示「JadeView」文字（窄桌面收起，给横排导航腾空间）
-  const logoSrc = (config && (config as any).logo) || '/favicon.png';
+  const logoSrc = (config && (config as any).logo) || '/favicon-ca0d8df22450.png';
   const brand = (config && (config as any).name) || 'JadeView';
 
   const dark = theme.isDarkMode ?? (theme.appearance ? theme.appearance === 'dark' : true);

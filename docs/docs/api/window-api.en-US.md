@@ -12,6 +12,8 @@ The Window API provides everything you need to create and manage windows, includ
 
 For WebView-related operations such as page navigation, script execution, DevTools, and printing, see [WebView API](/en-US/docs/api/webview-api).
 
+For unified interception of web permission requests (camera, microphone, display capture, file access, etc.), see [Web Permission API](/en-US/docs/api/permission-api).
+
 All of the following functions target a specific **`window_id`** (the integer returned when the window was created). Unless otherwise noted, success is usually `1` and failure is `0`.
 
 ***
@@ -85,6 +87,7 @@ uint32_t create_webview_window(
   - `disable_clipboard` `int32_t` - Whether to disable clipboard read/write permissions. `0` = allowed, `1` = disabled.
   - `proxy_url` `string` - Proxy URL; supports HTTP and SOCKS5 proxies (e.g. `"http://127.0.0.1:7890"` or `"socks5://127.0.0.1:1080"`). `NULL` means no proxy is used.
   - `focused` `int32_t` - Whether the WebView automatically gains focus initially. `0` = does not gain focus, `1` = autofocus (default `1`).
+  - `profile_name` `string` - **Added in v2.4**, appended at the end of the struct. `NULL` or an empty string uses the default profile, matching 2.3.x behavior; a non-empty string uses a named WebView2 profile to isolate cookies, LocalStorage, IndexedDB, and cache (currently Windows-only; Linux accepts the field but ignores it). The name must be at most 64 characters, contain only letters, digits, `.`, `_`, `-`, or spaces, and must not start or end with `.` or a space; invalid names fall back to the default profile.
 
 **Return value:**
 
@@ -135,7 +138,7 @@ size_t get_window_hwnd(uint32_t window_id);
 
 ***
 
-### Get Window ID (v2.3)
+### Get Window ID (v2.3) <span class="jv-version-badge">v2.3</span>
 
 Retrieve the Jadeview window ID from its window handle
 
@@ -198,11 +201,7 @@ int32_t set_window_position(uint32_t window_id, int32_t x, int32_t y);
 
 ***
 
-### Get Window Position and Size (`get_window_bounds`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Get Window Position and Size (`get_window_bounds`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t get_window_bounds(uint32_t window_id, char* buffer, int buffer_size);
@@ -264,11 +263,7 @@ int32_t set_window_always_on_top(uint32_t window_id, int32_t always_on_top);
 
 ***
 
-### Set Ignore Cursor Events (`set_window_ignore_cursor_events`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Set Ignore Cursor Events (`set_window_ignore_cursor_events`) <span class="jv-version-badge">v2.2</span>
 
 Sets whether the window ignores mouse events (mouse pass-through), suitable for floating window / overlay scenarios.
 
@@ -281,11 +276,7 @@ int32_t set_window_ignore_cursor_events(uint32_t window_id, int ignore);
 
 ***
 
-## Window Flags & Level
-
-:::warning
-Supported starting from v2.3.0-beta.6, all cross-platform (Windows / Linux).
-:::
+## Window Flags & Level <span class="jv-version-badge">v2.3.0-beta.6</span>
 
 For scenarios such as side docks, floating panels, desktop widgets, and launchers: keep the window out of the taskbar / Alt-Tab, avoid stealing focus while it stays resident, or push the window down to the desktop wallpaper layer.
 
@@ -412,11 +403,7 @@ int32_t set_window_fullscreen(uint32_t window_id, int32_t fullscreen);
 
 ***
 
-### Query Whether the Window Is Minimized (`is_window_minimized`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Query Whether the Window Is Minimized (`is_window_minimized`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_minimized(uint32_t window_id);
@@ -427,11 +414,7 @@ int32_t is_window_minimized(uint32_t window_id);
 
 ***
 
-### Query Whether the Window Is Visible (`is_window_visible`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Query Whether the Window Is Visible (`is_window_visible`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_visible(uint32_t window_id);
@@ -442,11 +425,7 @@ int32_t is_window_visible(uint32_t window_id);
 
 ***
 
-### Query Whether the Window Is Focused (`is_window_focused`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Query Whether the Window Is Focused (`is_window_focused`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_focused(uint32_t window_id);
@@ -457,11 +436,7 @@ int32_t is_window_focused(uint32_t window_id);
 
 ***
 
-### Query Whether the Window Is Fullscreen (`is_window_fullscreen`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Query Whether the Window Is Fullscreen (`is_window_fullscreen`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t is_window_fullscreen(uint32_t window_id);
@@ -474,11 +449,7 @@ int32_t is_window_fullscreen(uint32_t window_id);
 
 ## Window Constraints
 
-### Set the Window Minimum Size (`set_window_min_size`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Set the Window Minimum Size (`set_window_min_size`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t set_window_min_size(uint32_t window_id, int32_t width, int32_t height);
@@ -489,11 +460,7 @@ int32_t set_window_min_size(uint32_t window_id, int32_t width, int32_t height);
 
 ***
 
-### Set the Window Maximum Size (`set_window_max_size`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Set the Window Maximum Size (`set_window_max_size`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t set_window_max_size(uint32_t window_id, int32_t width, int32_t height);
@@ -504,11 +471,7 @@ int32_t set_window_max_size(uint32_t window_id, int32_t width, int32_t height);
 
 ***
 
-### Set Whether the Window Is Resizable (`set_window_resizable`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Set Whether the Window Is Resizable (`set_window_resizable`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t set_window_resizable(uint32_t window_id, int32_t resizable);
@@ -671,11 +634,7 @@ int32_t request_redraw(uint32_t window_id);
 
 ## Taskbar Effects
 
-### Set the Taskbar Progress Bar (`set_window_progress`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Set the Taskbar Progress Bar (`set_window_progress`) <span class="jv-version-badge">v2.2</span>
 
 Displays a progress bar on the taskbar button (e.g. download progress, install progress, etc.).
 
@@ -695,11 +654,7 @@ Windows platform only.
 
 ***
 
-### Flash the Taskbar Icon (`flash_window`)
-
-:::warning
-Supported starting from v2.2.
-:::
+### Flash the Taskbar Icon (`flash_window`) <span class="jv-version-badge">v2.2</span>
 
 Flashes the taskbar icon to attract the user's attention (e.g. when a message arrives).
 
@@ -739,4 +694,3 @@ Queries how many windows are still open in the current JadeView.
 ```c
 uint32_t get_window_count(void);
 ```
-

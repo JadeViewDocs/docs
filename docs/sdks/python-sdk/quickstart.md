@@ -20,6 +20,17 @@ order: 1
 pip install jadeui
 ```
 
+## 使用 CLI 脚手架（推荐）
+
+```bash
+jadeui init my-app --frontend html   # 也可选 vue / react
+cd my-app
+jadeui doctor
+jadeui run
+```
+
+命令说明与 `pyproject.toml` 约定见 [CLI 工具](./cli)；打包见 [应用打包](./packaging)。
+
 ## 基本使用
 
 ### 创建第一个应用
@@ -139,10 +150,6 @@ jade.on('response', function(content) {
     console.log('收到推送:', content);
 });
 ```
-
-:::warning{title="IPC 大小限制"}
-单次 `jade.invoke` payload 建议控制在 `1000KB` 以内；精确 `1MiB` payload 加上 IPC 封装后会超过原生 bridge 上限并被拒绝，更大的内容请使用分片、临时文件或资源 URL。
-:::
 
 ### 使用路由系统
 

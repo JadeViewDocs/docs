@@ -7,7 +7,7 @@ export default defineConfig({
   // 构建产物目录，与部署链路（amplify.yml / Dockerfile / nginx）对齐
   outputPath: 'dist',
   // 浏览器标签页图标
-  favicons: ['/favicon.png'],
+  favicons: ['/favicon-ca0d8df22450.png'],
   // SEO meta 标签：Algolia 验证 + 全局 SEO 优化
   metas: [
     // Algolia DocSearch 站点归属验证
@@ -438,7 +438,7 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
     name: 'JadeView',
     title: 'JadeView',
     description: '基于 Rust 的轻量、安全、易用的 WebView 窗口库',
-    logo: '/favicon.png', // JadeView 方形图标（lobehub 以 36px Avatar 渲染）+ name 文本
+    logo: '/favicon-ca0d8df22450.png', // JadeView 方形图标（lobehub 以 36px Avatar 渲染）+ name 文本
     // 加高顶栏（默认 64）：让悬浮胶囊离顶部留出空间（胶囊 56 + 上下各 12 = 80）。
     // 注意键名是 siteToken（store/selectors/site.js: merge(fm.token, themeConfig.siteToken) → customToken），
     // 用 token 不生效。
@@ -449,9 +449,9 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
     // 顺带把 OG / Twitter 的 lobehub 品牌也改成 JadeView。
     metadata: {
       icons: {
-        apple: '/favicon.png',
-        icon: '/favicon.png',
-        shortcut: '/favicon.png',
+        apple: '/favicon-ca0d8df22450.png',
+        icon: '/favicon-ca0d8df22450.png',
+        shortcut: '/favicon-ca0d8df22450.png',
       },
       openGraph: { siteName: 'JadeView' },
       twitter: { site: '' },
