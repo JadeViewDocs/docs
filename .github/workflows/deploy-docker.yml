@@ -24,6 +24,12 @@ concurrency:
   group: docker-deploy
   cancel-in-progress: false
 
+# packages:write：GITHUB_TOKEN 推 ghcr.io 需要（默认只读，推包会报
+# "installation not allowed to Create organization package"）
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
