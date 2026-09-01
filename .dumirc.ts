@@ -9,11 +9,10 @@ export default defineConfig({
   // Rust Bundler utoopack：大幅加速 dev/build（dumi 2.4 原生适配 md loader，需 Node 20+）。
   // 注意：utoopack dev 会把产物写进 dist（覆盖生产构建），部署前需重新构建（CI 全新检出无此问题）。
   utoopack: {},
-  // SEO 静态化：umi 自带 ssr + exportStatic（构建时 Node 端渲染，产出含正文的静态 HTML）。
-  // 环境变量 USE_SSG 门控：Windows 下 umi exportStatic 有上游 bug（「D:\..」盘符被 ESM
-  // import() 解析成 URL scheme 'd:' 直接崩溃），本机不带此变量、构建仍是空 SPA 壳；
-  // CI/Linux（Dockerfile 内 USE_SSG=1）正常启用。
-  ...(process.env.USE_SSG ? { ssr: {}, exportStatic: {} } : {}),
+  // SEO 静态化见 scripts/prerender.mjs（构建后无头浏览器预渲染）。
+  // 不用 umi ssr+exportStatic：SSG 服务端无 matchMedia，antd-style 按 light 主题渲染
+  // 烤死进 HTML，深色用户水合后白卡片（antd-style SSR 样式机制不随主题切换更新）。
+
   // 浏览器标签页图标
   favicons: ['/favicon-ca0d8df22450.png'],
   // SEO meta 标签：Algolia 验证 + 全局 SEO 优化

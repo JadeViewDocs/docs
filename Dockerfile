@@ -2,6 +2,9 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
+# chromium 供构建后 SEO 预渲染（puppeteer-core 驱动，无需下完整 Chrome）
+RUN apk add --no-cache chromium nss
+
 # 复制全部源码（含 CI 预生成的 public/releases/data.json）。
 # 先 COPY 再 npm ci：确保 postinstall 的 `dumi setup` 能读到 .dumirc / 主题 / 文档，正常生成 .dumi/tmp。
 COPY . .
@@ -13,9 +16,11 @@ RUN npm ci
 # 用 `npx dumi build` 跳过 package.json 的 prebuild 钩子：
 #   发行快照已由部署工作流在构建机上先行生成（带 GITHUB_TOKEN）并随源码 COPY 进来，
 #   故镜像构建内不再直连 GitHub。
-# USE_SSG=1：启用 umi 自带 ssr + exportStatic（见 .dumirc.ts），构建时 Node 端直接
-#   渲染出含正文的静态 HTML（SEO 伪静态化），无需浏览器（Linux 下无 Windows 盘符 bug）。
-RUN USE_SSG=1 npx dumi build
+# 预渲染：dumi 导出的是空 SPA 壳，用无头浏览器把每页完整 DOM 写回 index.html（SEO 伪静态化）。
+#   不用 umi SSG：服务端无 matchMedia，antd-style 按 light 渲染烤死进 HTML，深色用户看到白卡片。
+#   预渲染只喂爬虫，客户端 React 全量接管，主题按用户偏好渲染。失败路由自动回退空壳。
+RUN npx dumi build && \
+    CHROME_PATH=/usr/bin/chromium-browser node scripts/prerender.mjs
 
 # 阶段2：生产环境（nginx 提供静态文件）
 FROM nginx:alpine
