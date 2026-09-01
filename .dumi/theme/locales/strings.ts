@@ -38,41 +38,31 @@ const zh = {
       { image: '🧩', title: 'MCP 协议支持', desc: '基于 Model Context Protocol 标准，支持 AI 模型直接调用 JadeView API，实现智能体驱动的桌面应用开发。', link: '/docs/spec/mcp' },
       { image: '🔒', title: '资源安全 · JAPK', desc: 'JAPK 资源包支持代码混淆、AES-256-GCM 加密与 Ed25519 签名，可内存载入、无需落地磁盘。', link: '/docs/api/japk' },
     ],
-    stepsTitle: '三步上手',
-    stepsSub: '用熟悉的 C 接口，三步即可跑起一个 WebView 窗口。',
-    steps: [
+    bentoTitle: '快速上手',
+    bentoSub: '用熟悉的 C 接口，几分钟跑起第一个 WebView 窗口。',
+    bento: [
+      { label: 'STEP 1', title: '初始化库', desc: '注册 app-ready 事件后初始化 DLL，完整流程仅需约 16ms。', code: 'JadeView_init(...)' },
+      { label: 'STEP 2', title: '创建窗口', desc: '一行调用创建 WebView 窗口，支持自定义标题栏与无边框窗口。', code: 'create_webview_window(...)' },
       {
-        no: '1', title: '初始化库', lang: 'c',
-        desc: '注册 app-ready 事件后初始化 DLL，完整流程仅需约 16ms（不含 HTML 加载）。',
+        label: 'STEP 3', title: 'IPC 通信',
+        desc: '前后端双向 IPC，延迟低于 1ms，jade.invoke / jade.on 高效互通。',
+        code: `const res = await jade.invoke('getData', {});
+jade.on('backend-event', (data) => {});`,
+      },
+      {
+        label: 'C EXAMPLE', title: 'Hello JadeView',
         code: `#include "jadeview.h"
 
 int main() {
     jade_on("app-ready", app_ready_callback);
-    JadeView_init(1, NULL, NULL, "我的应用", "com.example.myapp", 0);
+    JadeView_init(1, NULL, NULL, "我的应用",
+                  "com.example.myapp", 0);
     run_message_loop();
     return 0;
 }`,
       },
-      {
-        no: '2', title: '创建窗口', lang: 'c',
-        desc: '配置参数，一行调用即可创建 WebView 窗口，支持自定义标题栏、无边框窗口。',
-        code: `WebViewWindowOptions opts = {
-    .title = "我的桌面应用",
-    .width = 1024, .height = 768,
-    .resizable = 1, .remove_titlebar = 0
-};
-uint32_t win = create_webview_window(
-    "https://myapp.com", 0, &opts, NULL
-);`,
-      },
-      {
-        no: '3', title: 'IPC 通信与运行', lang: 'javascript',
-        desc: '前后端双向 IPC，低于 1ms 延迟，jade.invoke / jade.on 即可高效通信。',
-        code: `// 前端调用后端 API
-const res = await jade.invoke('getData', {});
-// 前端监听后端事件
-jade.on('backend-event', (data) => {});`,
-      },
+      { label: 'PERFORMANCE', title: '16ms', desc: '完整启动耗时（不含 HTML 加载）' },
+      { label: 'LIGHTWEIGHT', title: '~3MB', desc: '运行时体积' },
     ],
     techTitle: '使用你喜欢的前端技术栈',
     techSub: '从 React、Vue 到原生 HTML，用任何熟悉的前端技术构建桌面应用。',
@@ -310,41 +300,31 @@ const en: typeof zh = {
       { image: '🧩', title: 'MCP Protocol Support', desc: 'Based on the Model Context Protocol standard, enabling AI models to directly invoke JadeView APIs for intelligent agent-driven desktop application development.', link: '/docs/spec/mcp' },
       { image: '🔒', title: 'Asset Security · JAPK', desc: 'JAPK asset packages support code obfuscation, AES-256-GCM encryption and Ed25519 signing, and can be loaded in memory without touching disk.', link: '/docs/api/japk' },
     ],
-    stepsTitle: 'Get Started in 3 Steps',
-    stepsSub: 'Spin up a WebView window in three steps using the familiar C API.',
-    steps: [
+    bentoTitle: 'Quick Start',
+    bentoSub: 'Spin up your first WebView window in minutes using the familiar C API.',
+    bento: [
+      { label: 'STEP 1', title: 'Initialize', desc: 'Register the app-ready event then initialize the DLL — takes ~16ms in total.', code: 'JadeView_init(...)' },
+      { label: 'STEP 2', title: 'Create a Window', desc: 'Create a WebView window in one call, with custom title bars and frameless windows.', code: 'create_webview_window(...)' },
       {
-        no: '1', title: 'Initialize', lang: 'c',
-        desc: 'Register the app-ready event then initialize the DLL — the whole flow takes ~16ms (excluding HTML loading).',
+        label: 'STEP 3', title: 'IPC',
+        desc: 'Two-way IPC with sub-1ms latency — communicate via jade.invoke / jade.on.',
+        code: `const res = await jade.invoke('getData', {});
+jade.on('backend-event', (data) => {});`,
+      },
+      {
+        label: 'C EXAMPLE', title: 'Hello JadeView',
         code: `#include "jadeview.h"
 
 int main() {
     jade_on("app-ready", app_ready_callback);
-    JadeView_init(1, NULL, NULL, "My App", "com.example.myapp", 0);
+    JadeView_init(1, NULL, NULL, "My App",
+                  "com.example.myapp", 0);
     run_message_loop();
     return 0;
 }`,
       },
-      {
-        no: '2', title: 'Create a Window', lang: 'c',
-        desc: 'Configure the options and create a WebView window in one call — with custom title bars and frameless windows.',
-        code: `WebViewWindowOptions opts = {
-    .title = "My Desktop App",
-    .width = 1024, .height = 768,
-    .resizable = 1, .remove_titlebar = 0
-};
-uint32_t win = create_webview_window(
-    "https://myapp.com", 0, &opts, NULL
-);`,
-      },
-      {
-        no: '3', title: 'IPC & Run', lang: 'javascript',
-        desc: 'Two-way IPC with sub-1ms latency — communicate efficiently via jade.invoke / jade.on.',
-        code: `// Frontend calls a backend API
-const res = await jade.invoke('getData', {});
-// Frontend listens for backend events
-jade.on('backend-event', (data) => {});`,
-      },
+      { label: 'PERFORMANCE', title: '16ms', desc: 'Full startup time (excluding HTML loading)' },
+      { label: 'LIGHTWEIGHT', title: '~3MB', desc: 'Runtime size' },
     ],
     techTitle: 'Use the Front-end Stack You Love',
     techSub: 'From React and Vue to plain HTML — build desktop apps with any front-end tech you know.',

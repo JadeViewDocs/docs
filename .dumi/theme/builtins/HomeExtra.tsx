@@ -1,10 +1,11 @@
 import { Avatar, theme } from 'antd';
 import { SpotlightCard } from '@lobehub/ui/awesome';
 import { motion, useReducedMotion } from 'motion/react';
+import MagicBento from '../components/MagicBento';
 import { scrollContainer, scrollItem, scrollViewport } from '../components/scrollIn';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
 
-// 文案（特性 / 三步 / 套餐 / 开发者 / 各区标题）已抽到 ../locales/strings 的 home.*，按语言取值。
+// 文案（特性 / Bento / 套餐 / 开发者 / 各区标题）已抽到 ../locales/strings 的 home.*，按语言取值。
 // 技术栈是中性专有名词，保持单一来源。
 const techs = [
   'HTML5', 'React', 'Vue.js', 'TypeScript', 'Tailwind CSS', 'Next.js',
@@ -48,18 +49,6 @@ export default function HomeExtra() {
     gridTemplateColumns: `repeat(auto-fit, minmax(${min}px, 1fr))`,
     gap: 16,
   });
-  const preStyle: React.CSSProperties = {
-    margin: 0,
-    padding: '12px 14px',
-    borderRadius: token.borderRadius,
-    background: token.colorFillQuaternary,
-    border: `1px solid ${token.colorBorderSecondary}`,
-    color: token.colorText,
-    fontFamily: token.fontFamilyCode,
-    fontSize: 12,
-    lineHeight: 1.6,
-    overflowX: 'auto',
-  };
 
   return (
     <div style={{ width: '100%', maxWidth: 1080, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1, userSelect: 'text' }}>
@@ -96,25 +85,12 @@ export default function HomeExtra() {
         />
       </motion.div>
 
-      {/* 三步上手 */}
+      {/* 快速上手：Magic Bento 卡片墙（reactbits 风格，品牌橙光晕） */}
       <motion.section style={{ marginTop: 64 }} variants={scrollContainer} {...reveal}>
-        <motion.h2 style={sectionTitle} variants={scrollItem}>{t.home.stepsTitle}</motion.h2>
-        <motion.p style={sectionSub} variants={scrollItem}>{t.home.stepsSub}</motion.p>
-        <motion.div style={grid(320)} variants={scrollContainer}>
-          {t.home.steps.map((s) => (
-            <motion.div key={s.no} style={card} variants={scrollItem}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: 28, height: 28, borderRadius: '50%', fontSize: 14, fontWeight: 700,
-                  background: BRAND, color: '#fff',
-                }}>{s.no}</span>
-                <span style={{ fontSize: 17, fontWeight: 600, color: token.colorText }}>{s.title}</span>
-              </div>
-              <p style={{ color: token.colorTextSecondary, minHeight: 44, marginBottom: 12 }}>{s.desc}</p>
-              <pre style={preStyle}><code>{s.code}</code></pre>
-            </motion.div>
-          ))}
+        <motion.h2 style={sectionTitle} variants={scrollItem}>{t.home.bentoTitle}</motion.h2>
+        <motion.p style={sectionSub} variants={scrollItem}>{t.home.bentoSub}</motion.p>
+        <motion.div variants={scrollItem}>
+          <MagicBento items={t.home.bento} glowColor="249, 115, 22" disableAnimations={!!reduce} />
         </motion.div>
       </motion.section>
 

@@ -19,6 +19,7 @@
     "@lobehub/icons": "^4.0.0",
     "@lobehub/ui": "^4.3.3",
     "antd": "^6.4.4",
+    "gsap": "^3.15.0",
     "motion": "^12.23.26",
     "ogl": "^1.0.11",
     "react": "^19.0.0",
@@ -31,7 +32,6 @@
     "@types/three": "^0.185.1",
     "dumi": "^2.4.17",
     "dumi-theme-lobehub": "^5.0.0",
-    "puppeteer-core": "^25.1.0",
     "typescript": "^5.4.0"
   },
   "engines": {
