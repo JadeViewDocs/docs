@@ -57,6 +57,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # 同时登录 ghcr.io：国内服务器拉 docker.io 基本不通（直连超时、公共加速器 403），
+      # ghcr 国内可达性好，作为服务器实际拉取源。
+      - name: 登录 ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 构建并推送镜像
         uses: docker/build-push-action@v6
         with:
@@ -65,6 +74,8 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/jadeviewdocs/docs:latest
+            ghcr.io/jadeviewdocs/docs:${{ github.sha }}
 
       # MCP 服务镜像：与站点同源，打包 docs/ markdown，启动时建索引。
       - name: 构建并推送 MCP 镜像
@@ -76,6 +87,8 @@ jobs:
           tags: |
             ${{ env.MCP_IMAGE_NAME }}:latest
             ${{ env.MCP_IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/jadeviewdocs/docs-mcp:latest
+            ghcr.io/jadeviewdocs/docs-mcp:${{ github.sha }}
 
       - name: 触发服务器 webhook 拉取部署
         run: |
@@ -83,7 +96,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "X-Webhook-Token: ${{ secrets.WEBHOOK_TOKEN }}" \
             -d '{
-              "image": "${{ env.IMAGE_NAME }}:latest",
+              "image": "ghcr.io/jadeviewdocs/docs:latest",
               "repository": "${{ github.repository }}",
               "commit": "${{ github.sha }}"
             }' \
