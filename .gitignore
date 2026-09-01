@@ -11,6 +11,10 @@ src/.umi-production/
 # build output
 dist/
 
+# utoopack 构建缓存 / umi SSR 测试残留（Linux CI 的 SSG 产物在容器内，不进 git）
+.turbopack/
+server/
+
 # python 编译产物（deploy/webhook-server.py 语法检查等会生成）
 __pycache__/
 *.pyc
