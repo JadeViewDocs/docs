@@ -111,15 +111,21 @@ def pull_image(client, image: str):
     """按「daemon 默认 → 各加速器」顺序拉镜像；429/超时退避重试，仍失败换下一个源。
 
     走加速器前缀拉到后，重新打成 image 规范标签，后续按 IMAGE_NAME 起容器不受影响。
+    带 registry 主机的镜像（如 ghcr.io/...）只走 daemon 默认直连——公共加速器只代理 docker.io，
+    加前缀反而 404/403；ghcr 国内直连可达。
     全部失败才抛异常——此时调用方不会拆旧容器，站点保持在线。
     """
     repo, tag = _split_image(image)
 
+    # repo 首段含 '.' 视为带 registry 主机（ghcr.io 等），跳过 docker.io 加速器
+    has_registry = '.' in repo.split('/', 1)[0]
+
     candidates = ['']  # daemon 默认（直连 / daemon.json 里配置的 registry-mirrors）
-    for m in PULL_MIRRORS.split(','):
-        m = m.strip().rstrip('/')
-        if m and m not in candidates:
-            candidates.append(m)
+    if not has_registry:
+        for m in PULL_MIRRORS.split(','):
+            m = m.strip().rstrip('/')
+            if m and m not in candidates:
+                candidates.append(m)
 
     last_err = None
     for prefix in candidates:
@@ -152,6 +158,10 @@ def do_deploy(data: dict):
     logger.info(f"开始部署: {data.get('repository', 'unknown')}")
     commit = data.get('commit', '')
     logger.info(f"Commit: {commit[:8] if commit else 'unknown'}")
+    # 镜像优先取请求体 image（CI 每次部署指明，如 ghcr.io/jadeviewdocs/docs:latest），
+    # 兜底环境变量 IMAGE_NAME（docker.io 域名，国内拉不动，仅兼容旧调用方）
+    image = data.get('image') or IMAGE_NAME
+    logger.info(f"镜像: {image}")
     logger.info("=" * 50)
 
     try:
@@ -165,7 +175,7 @@ def do_deploy(data: dict):
             except Exception as e:
                 logger.warning(f"登录失败（继续尝试拉取公开镜像）: {e}")
 
-        pull_image(client, IMAGE_NAME)
+        pull_image(client, image)
 
         try:
             old = client.containers.get(CONTAINER_NAME)
@@ -184,7 +194,7 @@ def do_deploy(data: dict):
 
         logger.info(f"启动新容器: {CONTAINER_NAME}  (host {SITE_PORT} -> container 80)")
         container = client.containers.run(
-            IMAGE_NAME,
+            image,
             name=CONTAINER_NAME,
             detach=True,
             restart_policy={'Name': 'unless-stopped'},
