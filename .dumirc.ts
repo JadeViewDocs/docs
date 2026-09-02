@@ -15,6 +15,10 @@ export default defineConfig({
 
   // 浏览器标签页图标
   favicons: ['/favicon-ca0d8df22450.png'],
+  // iOS 全面屏适配：viewport-fit=cover 让视口延伸到灵动岛/刘海区域（工具栏收起时内容
+  // 才能真正铺满、由下方 styles 里的 env(safe-area-inset-*) 给顶栏/页底留出安全区）。
+  // 生产构建另由 scripts/prerender.mjs 兜底补写（防该配置在某些 umi 版本未生效）。
+  viewport: { width: 'device-width', initialScale: 1, viewportFit: 'cover' },
   // SEO meta 标签：Algolia 验证 + 全局 SEO 优化
   // 注意：这里的 description / og / twitter 是全站兜底值；每页专属 title/description
   // 由 scripts/prerender.mjs 在构建后预渲染时按页重写（改全局文案需同步该脚本顶部常量）。
@@ -39,7 +43,9 @@ export default defineConfig({
     { name: 'twitter:description', content: 'JadeView - 现代化跨平台开发框架，提供高性能、易用的 API 和工具链，支持 Web、桌面端和移动端开发' },
     { name: 'twitter:image', content: 'https://jade.run/logo/light.svg' },
     // 其他
-    { name: 'theme-color', content: '#F97316' },
+    // theme-color：iOS Safari 工具栏收起后状态栏（灵动岛周边）的底色。必须跟页面背景一致
+    // （品牌橙会在灵动岛四周形成突兀纯色块）；站内明暗切换后由 headScripts 的同步脚本实时改写。
+    { name: 'theme-color', content: '#000000' },
     { name: 'color-scheme', content: 'light dark' },
   ],
   // 站点主机名：lobehub 主题用它生成 canonical / og:url / JSON-LD；不设会回退成
@@ -71,6 +77,13 @@ export default defineConfig({
       // 客户端把 <link rel=canonical> 升级成「当前页 URL(去尾斜杠)」，定时纠正 Helmet 的回写。
       content:
         "(function(){if(typeof window==='undefined')return;function c(){var p=location.pathname;if(p.length>1&&p.charAt(p.length-1)==='/')p=p.slice(0,-1);var u=location.origin+p;var l=document.querySelector('link[rel=canonical]');if(!l){l=document.createElement('link');l.setAttribute('rel','canonical');document.head.appendChild(l);}if(l.href!==u)l.href=u;}setInterval(c,1000);c();})();",
+    },
+    {
+      // theme-color 跟随页面实际背景色：iOS Safari 工具栏收起后，状态栏（灵动岛周边）底色取
+      // theme-color。站内明暗切换会改 html/body 背景，这里定时同步 meta，避免灵动岛四周
+      // 出现与页面不符的固定纯色块。body 背景透明时回退取 html 的。
+      content:
+        "(function(){function t(){try{var b=document.body;var bg=b?getComputedStyle(b).backgroundColor:'';if(!bg||bg==='rgba(0, 0, 0, 0)')bg=getComputedStyle(document.documentElement).backgroundColor;if(!bg||bg==='rgba(0, 0, 0, 0)')return;var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.setAttribute('name','theme-color');document.head.appendChild(m);}if(m.getAttribute('content')!==bg)m.setAttribute('content',bg);}catch(e){}}if(typeof window!=='undefined'){t();setInterval(t,1000);}})();",
     },
   ],
   // lobehub 主题在 Windows 上建议关闭 mfsu，规避兼容问题
@@ -110,6 +123,11 @@ header:has(> .jade-capsule-header) {
   /* 胶囊 56px + 顶部留白：header 高度 80（themeConfig.token.headerHeight）− 上下各 12px = 56px */
   padding-block: 12px !important;
   padding-inline: 16px !important;
+  /* iOS 全面屏（灵动岛/刘海）：viewport-fit=cover 下工具栏收起时视口顶到状态栏后面，
+     顶部让出安全区高度并把 header 同步加高，胶囊不会被灵动岛压住。
+     非 iOS / 不支持 env() 时整条声明失效，自动退回上面的 padding-block:12px。 */
+  padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+  height: calc(80px + env(safe-area-inset-top, 0px)) !important;
 }
 
 /* 移动端顶栏（无胶囊，含 +36 的 TOC 行）：去掉 header 自身的 backdrop-filter。
@@ -119,6 +137,8 @@ header:not(:has(> .jade-capsule-header)) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   background: var(--ant-color-bg-layout) !important;
+  /* iOS 全面屏：移动端顶栏同样让出灵动岛/刘海安全区（不支持 env 时为 0，无副作用） */
+  padding-top: env(safe-area-inset-top, 0px) !important;
 }
 
 /* 胶囊内的导航（antd Tabs）：去掉底部分割线与激活下划线（白条），改为「胶囊按钮」——
@@ -151,7 +171,8 @@ header:not(:has(> .jade-capsule-header)) {
    -64px，顶部会残留 (80−64)=16px 白边（即顶部留白）。 */
 main:has(> .layoutkit-flexbox[style*="64vh"]),
 main:has(.layoutkit-flexbox[style*="64vh"]) {
-  margin-top: -80px !important;
+  /* iOS 安全区：header 顶部加高了 safe-area-inset-top，首页上移量同步跟上，极光仍铺到 y=0 */
+  margin-top: calc(-80px - env(safe-area-inset-top, 0px)) !important;
 }
 .layoutkit-flexbox[style*="64vh"] {
   padding-top: 40px !important;
@@ -208,6 +229,8 @@ footer {
   isolation: isolate;
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  /* iOS 底部 Home 指示条安全区：viewport-fit=cover 下页底内容不贴到手势条 */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 /* 顶部边框「跟随鼠标」高光：--footer-spot-x / --footer-spot-o 由 headScripts 更新，离开淡出 */
 footer::after {

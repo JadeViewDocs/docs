@@ -154,6 +154,18 @@ async function renderRoute(page, route) {
 
     const html = await page.evaluate(
       (siteName, globalDesc) => {
+        // —— iOS 全面屏适配兜底 ——
+        // 确保 viewport meta 带 viewport-fit=cover（.dumirc 的 viewport 配置若未生效，
+        // 由这里补写；已带则跳过），保证真机上 env(safe-area-inset-*) CSS 生效。
+        const vm = document.querySelector('meta[name=viewport]');
+        if (vm && !/viewport-fit/i.test(vm.getAttribute('content') || '')) {
+          vm.setAttribute('content', `${vm.getAttribute('content')},viewport-fit=cover`);
+        }
+        // 预渲染快照按 light 主题渲染，但站点默认暗色：theme-color 统一烤成暗色底，
+        // 真机加载后由客户端脚本按实际主题再同步。
+        const tc = document.querySelector('meta[name=theme-color]');
+        if (tc) tc.setAttribute('content', '#000000');
+
         // —— 每页专属 SEO meta ——
         // 1) 标题：Helmet 已按 frontmatter title 写入 document.title；
         //    无 frontmatter title 的页面（多数 SDK 文档）会回退成 siteName，

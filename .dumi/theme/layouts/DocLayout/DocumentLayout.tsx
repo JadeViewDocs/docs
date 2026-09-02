@@ -174,9 +174,11 @@ export default memo(function DocumentLayout({ children }: any) {
               style={{
                 position: 'sticky',
                 zIndex: 2,
-                top: 'var(--layout-header-height, 80px)',
+                // iOS 全面屏：header 顶部加高了 safe-area-inset-top（全局 CSS），sticky 吸顶
+                // 位置与可粘滞行程同步加上该值；env() 不支持时加 0，无副作用。
+                top: 'calc(var(--layout-header-height, 80px) + env(safe-area-inset-top, 0px))',
                 alignSelf: 'flex-start', // 关键：抵消 main 的 align-items:stretch，避免 aside 被拉到正文全高而 sticky 失效
-                height: 'calc(100dvh - var(--layout-header-height, 80px))',
+                height: 'calc(100dvh - var(--layout-header-height, 80px) - env(safe-area-inset-top, 0px))',
                 flexShrink: 0,
                 overflow: 'hidden', // 宽度收起时裁剪内容（作用于 sticky 元素自身，不影响其吸顶）
               }}
