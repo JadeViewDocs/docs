@@ -16,6 +16,8 @@ export default defineConfig({
   // 浏览器标签页图标
   favicons: ['/favicon-ca0d8df22450.png'],
   // SEO meta 标签：Algolia 验证 + 全局 SEO 优化
+  // 注意：这里的 description / og / twitter 是全站兜底值；每页专属 title/description
+  // 由 scripts/prerender.mjs 在构建后预渲染时按页重写（改全局文案需同步该脚本顶部常量）。
   metas: [
     // Algolia DocSearch 站点归属验证
     { name: 'algolia-site-verification', content: '70B112895FD5CB2F' },
