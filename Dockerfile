@@ -21,6 +21,7 @@ RUN npm ci
 #   预渲染只喂爬虫，客户端 React 全量接管，主题按用户偏好渲染。失败路由自动回退空壳。
 RUN npx dumi build && \
     CHROME_PATH=/usr/bin/chromium-browser node scripts/prerender.mjs && \
+    node scripts/defingerprint.mjs && \
     # 预压缩 .gz 配合 nginx gzip_static：省去线上每请求实时压缩的 CPU（文件均带指纹，可长期复用）
     find dist -type f \( -name '*.js' -o -name '*.css' -o -name '*.wasm' -o -name '*.json' -o -name '*.html' \) \
       -exec gzip -k -9 {} \;
