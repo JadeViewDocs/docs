@@ -2,12 +2,15 @@
 // 数据：消费工作流生成的 /releases/data.json（GitHub Releases 快照：tag_name/name/published_at/prerelease/
 //   html_url/gitee_url/body-markdown）。后续 CI 改成写本站 public/releases/data.json 即可。
 // 功能保留：发行版本(语义化说明 + 最新稳定版 + 稳定/预发布列表) / 发行日历(热力图) / 所有发行(筛选+分页) / 详情(Markdown)。
-import { Markdown } from '@lobehub/ui';
 import { Segmented, theme as antdTheme } from 'antd';
 import { createStyles } from 'antd-style';
 import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react';
 import { useT } from '../locales/strings';
+
+// Markdown（@lobehub/ui）内部静态依赖 katex/shiki，builtins 又是静态注册的，
+// 会拖进所有页面的首屏 chunk。lazy 化后只在打开版本详情时加载。
+const Markdown = lazy(() => import('@lobehub/ui').then((m) => ({ default: m.Markdown })));
 
 const DATA_URL = '/releases/data.json';
 const PAGE_SIZE = 10;
@@ -556,7 +559,13 @@ export default memo(function ReleaseNotes() {
                 {!r.prerelease && <GhLink href={r.gitee_url} label="Gitee" />}
               </span>
             </div>
-            {r.body ? <Markdown>{r.body}</Markdown> : <p className={styles.state}>{t.noDetail}</p>}
+            {r.body ? (
+              <Suspense>
+                <Markdown>{r.body}</Markdown>
+              </Suspense>
+            ) : (
+              <p className={styles.state}>{t.noDetail}</p>
+            )}
           </div>
         ) : (
           <div className={styles.state}>{t.notFound}</div>

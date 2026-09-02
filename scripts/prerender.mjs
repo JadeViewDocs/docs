@@ -144,7 +144,11 @@ async function renderRoute(page, route) {
       });
 
     const html = await page.evaluate(() => {
-      // 移除水合/接管无关的运行时痕迹，保留 antd-style 注入的 <style>
+      // umi 运行时动态注入的 <script> 默认非阻塞，但序列化进 HTML 后若缺 async/defer
+      // 会变成同步脚本阻塞 HTML 解析（首屏 JS 数 MB，阻塞明显）。统一补 async 恢复非阻塞语义。
+      document.querySelectorAll('script[src]').forEach((s) => {
+        if (!s.async && !s.defer) s.setAttribute('async', '');
+      });
       return '<!DOCTYPE html>' + document.documentElement.outerHTML;
     });
 

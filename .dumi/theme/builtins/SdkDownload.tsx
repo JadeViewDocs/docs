@@ -2,12 +2,16 @@
 // 逻辑保留：运行时从 GitHub API 拉取 SDK 列表，失败回退 Gitee；每个 SDK 读 Info.json / README.md / 文件列表；
 //   下载统一走 Gitee API（base64 → blob，规避直链文件名带引号）。
 // 布局：每个 SDK 一整行 —— 左侧字徽 + 标题/名称/平台架构作者，右侧版本下拉 + 下载按钮，下方更新日志/介绍可展开。
-import { Markdown, Select, Skeleton, Tag } from '@lobehub/ui';
+import { Select, Skeleton, Tag } from '@lobehub/ui';
 import { Segmented, theme as antdTheme } from 'antd';
 import { createStyles } from 'antd-style';
 import { Download } from 'lucide-react';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react';
 import { useT } from '../locales/strings';
+
+// Markdown（@lobehub/ui）内部静态依赖 katex/shiki，builtins 又是静态注册的，
+// 会拖进所有页面的首屏 chunk。lazy 化后只在展开 SDK 介绍时加载。
+const Markdown = lazy(() => import('@lobehub/ui').then((m) => ({ default: m.Markdown })));
 
 const GITHUB_API = 'https://api.github.com/repos/JadeViewDocs/JadeView/contents/SDK';
 const GITEE_API = 'https://gitee.com/api/v5/repos/ilinxuan/JadeView_library/contents/SDK';
@@ -409,7 +413,9 @@ const SdkRow = memo(function SdkRow({ sdk, index }: { sdk: Sdk; index: number })
 
           {seg === 'readme' && sdk.readme && (
             <div className={styles.expand}>
-              <Markdown fontSize={13}>{sdk.readme}</Markdown>
+              <Suspense>
+                <Markdown fontSize={13}>{sdk.readme}</Markdown>
+              </Suspense>
             </div>
           )}
         </div>

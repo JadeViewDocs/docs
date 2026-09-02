@@ -20,7 +20,10 @@ RUN npm ci
 #   不用 umi SSG：服务端无 matchMedia，antd-style 按 light 渲染烤死进 HTML，深色用户看到白卡片。
 #   预渲染只喂爬虫，客户端 React 全量接管，主题按用户偏好渲染。失败路由自动回退空壳。
 RUN npx dumi build && \
-    CHROME_PATH=/usr/bin/chromium-browser node scripts/prerender.mjs
+    CHROME_PATH=/usr/bin/chromium-browser node scripts/prerender.mjs && \
+    # 预压缩 .gz 配合 nginx gzip_static：省去线上每请求实时压缩的 CPU（文件均带指纹，可长期复用）
+    find dist -type f \( -name '*.js' -o -name '*.css' -o -name '*.wasm' -o -name '*.json' -o -name '*.html' \) \
+      -exec gzip -k -9 {} \;
 
 # 阶段2：生产环境（nginx 提供静态文件）
 FROM nginx:alpine
