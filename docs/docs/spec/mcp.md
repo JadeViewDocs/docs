@@ -29,6 +29,24 @@ JadeView 文档提供官方 **MCP（Model Context Protocol）** 服务——npm 
 这是一个**本地只读检索** server：首次运行时 npx 自动从 npm 下载并缓存（文档 markdown 随包分发，之后离线也能启动），无需登录、无需 token。它只能搜索 JadeView 公开文档，不涉及任何写操作或私有数据。
 :::
 
+## 国内镜像加速
+
+国内网络环境拉取 npm 包慢或失败时，可改用 npmmirror 镜像源，任选其一：
+
+```bash
+# 方式一：仅本次使用
+npx -y --registry=https://registry.npmmirror.com jadeview-docs-mcp
+
+# 方式二：全局切换（影响所有 npm / npx 操作）
+npm config set registry https://registry.npmmirror.com
+```
+
+或在用户目录的 `.npmrc` 里写入一行：`registry=https://registry.npmmirror.com`。
+
+:::warning{title=镜像同步延迟}
+npmmirror 从官方源同步新版本有几分钟延迟，刚发版后镜像里暂时找不到最新版本属正常现象，稍后重试即可。
+:::
+
 ## 各客户端放哪里
 
 - **Claude Code**：命令行一行接入：
