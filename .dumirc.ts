@@ -20,6 +20,11 @@ export default defineConfig({
   // 注意：umi 没有 viewport 配置键（写了会直接报 Invalid config keys: viewport），
   // 因此通过下方 metas 注入标准 <meta name="viewport">；生产构建另由
   // scripts/prerender.mjs 兜底补写。
+  // iOS 全面屏适配（viewport-fit=cover）见 scripts/prerender.mjs：构建后预渲染时给每页
+  // 的 <meta name=viewport> 追加 viewport-fit=cover，下方 styles 里的 env(safe-area-inset-*)
+  // 给顶栏/页底留出安全区。
+  // ⚠️ 不能用 `viewport:` 配置键——dumi 校验不认（Invalid config keys: viewport），
+  //    postinstall 的 `dumi setup` 直接 fatal，npm ci 跟着 exit 1（CI 构建失败的根因）。
   // SEO meta 标签：Algolia 验证 + 全局 SEO 优化
   // 注意：这里的 description / og / twitter 是全站兜底值；每页专属 title/description
   // 由 scripts/prerender.mjs 在构建后预渲染时按页重写（改全局文案需同步该脚本顶部常量）。
