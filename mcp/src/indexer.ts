@@ -164,7 +164,7 @@ export async function buildIndex(docsDir: string, opts: BuildOptions = {}): Prom
       (typeof fm.group === 'object' ? fm.group?.title : (fm.group as string)) ?? '';
     const route = fileToRoute(rel, lang);
 
-    // repo-relative path (relative to the JadeView_docs root, i.e. under docs/)
+    // package-relative content path (e.g. docs/api/window-api.md)
     const repoPath = path.posix.join('docs', rel);
 
     pages.set(route, { path: repoPath, route, url: baseUrl + route, lang, pageTitle, group, raw: parsed.content });
