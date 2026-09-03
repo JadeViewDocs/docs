@@ -8,7 +8,7 @@ order: 5
 
 ### Golang SDK 支持哪些操作系统？
 
-**Windows 10 / 11**（amd64 / 386 / arm64）；macOS 暂不支持。
+**Windows 10 / 11**（amd64 / 386 / arm64）。Linux 支持计划随 JadeView 上游后续版本（2.4 / 2.5）提供；macOS 暂不支持。
 
 ### Go 版本要求是什么？
 
@@ -131,7 +131,7 @@ YAML 等持久化 API 依赖 `Init` 的数据目录就绪，请在 **app-ready �
 ### JAPK 加载失败怎么排查？
 
 - `LoadFromBytes` 返回负数错误码，详情经 `EventJapkLoadFailed` 事件回报；
-- v2.4.0 起仅支持签名包（混淆包 JPKBIN02 已不再支持；`SetPublicKey` 已随上游移除，无需也不能再调用）；
+- 混淆包（JPKBIN02）不要调 `SetPublicKey`；签名包必须先设公钥；
 - 打包时的 app_name / app_signature 须与 `Init` 一致。
 
 ---

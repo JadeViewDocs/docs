@@ -8,7 +8,7 @@ order: 5
 
 ### Which operating systems does the Golang SDK support?
 
-**Windows 10 / 11** (amd64 / 386 / arm64); macOS is not supported yet.
+**Windows 10 / 11** (amd64 / 386 / arm64). Linux support is planned to arrive with upcoming upstream JadeView releases (2.4 / 2.5); macOS is not supported yet.
 
 ### What Go version is required?
 
@@ -131,7 +131,7 @@ An empty string `""` selects the **in-memory JAPK mode**: it serves the package 
 ### How do I debug JAPK loading failures?
 
 - `LoadFromBytes` returns a negative error code; details arrive via the `EventJapkLoadFailed` event;
-- as of v2.4.0 only signed packages are supported (obfuscated JPKBIN02 packages are no longer supported; `SetPublicKey` was removed upstream — there is nothing to call);
+- don't call `SetPublicKey` for obfuscated packages (JPKBIN02); signed packages require the public key first;
 - the app_name / app_signature used at packaging time must match `Init`.
 
 ---

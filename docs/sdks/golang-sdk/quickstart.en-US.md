@@ -117,12 +117,12 @@ The SDK is a **single Go package** (`jadeview`), organized by feature area:
 |------|----------|
 | Lifecycle | `Init` / `Version` / `RunMessageLoop` / `Exit` / `Preload` |
 | Windows | `CreateWindow` / `CreateBorderlessWindow` / `SetTitle` / `SetSize` / `Close` … |
-| WebView | `Navigate` / `Reload` / `GoBack` / `GoForward` / `ExecuteJavaScript` / `SetZoom` / DevTools |
+| WebView | `Navigate` / `Reload` / `ExecuteJavaScript` / `SetZoom` / DevTools |
 | Events & IPC | `On` / `Off` / `RegisterIPCHandler` / `SendIPCMessage` |
 | Dialogs | `ShowOpenDialog` / `ShowSaveDialog` / `ShowMessageBox` (plus `*Async` variants) |
 | Tray / Menus | `TrayCreate` / `TraySetMenu` / `MenuItemCreate` / `SetContextMenuItems` |
 | Notifications | `ShowNotification` |
 | YAML store | `YAMLSet` / `YAMLGet` / `YAMLGetAll` / `YAMLKeys` … |
-| JAPK packages | `LoadFromBytes` / `SetProtocolServicePath` |
+| JAPK packages | `SetPublicKey` / `LoadFromBytes` / `SetProtocolServicePath` |
 | System tools | clipboard / `GetPath` / global hotkeys / autostart / URL schemes / NTP … |
 | Enums & constants | `Theme` / `FrameStyle` / `Backdrop` / `Event*` event-name constants |

@@ -116,12 +116,12 @@ SDK 是**单个 Go 包**（`jadeview`），按功能分区如下：
 |------|----------|
 | 生命周期 | `Init` / `Version` / `RunMessageLoop` / `Exit` / `Preload` |
 | 窗口 | `CreateWindow` / `CreateBorderlessWindow` / `SetTitle` / `SetSize` / `Close` … |
-| WebView | `Navigate` / `Reload` / `GoBack` / `GoForward` / `ExecuteJavaScript` / `SetZoom` / DevTools |
+| WebView | `Navigate` / `Reload` / `ExecuteJavaScript` / `SetZoom` / DevTools |
 | 事件与 IPC | `On` / `Off` / `RegisterIPCHandler` / `SendIPCMessage` |
 | 对话框 | `ShowOpenDialog` / `ShowSaveDialog` / `ShowMessageBox`（含 `*Async` 异步版） |
 | 托盘 / 菜单 | `TrayCreate` / `TraySetMenu` / `MenuItemCreate` / `SetContextMenuItems` |
 | 通知 | `ShowNotification` |
 | YAML 存储 | `YAMLSet` / `YAMLGet` / `YAMLGetAll` / `YAMLKeys` … |
-| JAPK 资源包 | `LoadFromBytes` / `SetProtocolServicePath` |
+| JAPK 资源包 | `SetPublicKey` / `LoadFromBytes` / `SetProtocolServicePath` |
 | 系统工具 | 剪贴板 / `GetPath` / 全局热键 / 开机自启 / URL Scheme / NTP … |
 | 枚举与常量 | `Theme` / `FrameStyle` / `Backdrop` / `Event*` 事件名常量 |

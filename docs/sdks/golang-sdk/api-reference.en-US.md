@@ -4,7 +4,7 @@ order: 2
 
 # API Reference
 
-SDK current version: **v2.4.0** (upstream Build 26H03). Pure Go implementation (direct syscall, no CGO); everything lives in the single package `jadeview`.
+The SDK is a pure Go implementation (direct syscall, no CGO). Everything lives in the single package `jadeview`.
 
 ## Core Functions
 
@@ -34,10 +34,6 @@ Starts the message loop (blocks the current goroutine). Call after `Init()`.
 ### `jadeview.Exit()`
 
 Cleans up all windows and ends the message loop. Usually called in the `window-all-closed` event callback.
-
-### `jadeview.ExitWait(timeoutMs uint32)`
-
-New in v2.4.0 (Windows builds only). Cleans up all windows and **waits for the event loop and the JadeView background thread to fully exit** — for scenarios that need reliable teardown (unloading the DLL, re-running `Init` after exit).
 
 ### `jadeview.Version()`
 
@@ -109,7 +105,6 @@ Start from `jadeview.DefaultWebViewSettings()` (autoplay/right-click/fullscreen/
 | `DisableClipboard` | bool | Disable clipboard permission |
 | `ProxyURL` | string | Proxy, e.g. `http://host:port` / `socks5://host:port` |
 | `Focused` | bool | WebView takes focus after creation |
-| `ProfileName` | string | New in v2.4.0: Windows WebView2 Profile name; non-empty isolates cookies / storage / cache between windows, empty = default Profile |
 
 :::info
 Passing `nil` for `settings` in `CreateWindow` lets the library use its internal defaults, which are not guaranteed to match `DefaultWebViewSettings()` item by item; when you only want to tweak a couple of fields on top of defaults, start from that function.
@@ -181,8 +176,6 @@ Creates a standalone borderless WebView window.
 |------|------|
 | `Navigate(windowID, url, headersJSON)` | Navigate to a URL (optionally with custom request headers as JSON) |
 | `Reload(windowID)` | Reload the current page |
-| `GoBack` / `GoForward (windowID)` | Navigate back / forward in history |
-| `CanGoBack` / `CanGoForward (windowID)` | Whether back / forward is possible |
 | `ExecuteJavaScript(windowID, script)` | Execute JS; returns a unique id, result arrives asynchronously via the `javascript-result` event |
 | `SetZoom(windowID, level)` | Zoom level (1.0 = 100%) |
 | `OpenDevtools` / `CloseDevtools` / `IsDevtoolsOpen` | DevTools control |
@@ -231,18 +224,6 @@ Sends an IPC message to a window's frontend (received via `jade.on(type, ...)`).
 jadeview.SendIPCMessage(windowID uint32, messageType, messageContent string) bool
 ```
 
-### Web permission interception (new in v2.4.0, Windows only)
-
-When a page requests camera, microphone, screen capture, file access, clipboard-read, or geolocation permissions, you can register a single handler to allow or deny them centrally; without a handler the browser default applies.
-
-```go
-// type PermissionHandler func(windowID uint32, data string) bool   // return true = allow
-jadeview.SetWebviewPermissionHandler(handler jadeview.PermissionHandler) bool
-jadeview.ClearWebviewPermissionHandler() bool   // passing nil to SetWebviewPermissionHandler also unregisters
-```
-
-The handler must return promptly and must not block.
-
 ### Event Constants (`Event*`)
 
 #### Application Lifecycle
@@ -251,31 +232,7 @@ The handler must return promptly and must not block.
 |------|---|------|
 | `EventAppReady` | `app-ready` | App initialization finished (success only when windowID==1 in the callback) |
 | `EventSecondInstance` | `second-instance` | A second instance started (single-instance mode) |
-| `EventCrash` | `crash` | Program crash (data is one of the `Crash*` error-code constants below) |
-
-<details>
-<summary><code>Crash*</code> crash-code constants (mirroring the <code>JADEVIEW_CRASH_*</code> header macros)</summary>
-
-| Constant | Value | Description |
-|------|---|------|
-| `CrashSEHAccessViolation` | `SEH_ACCESS_VIOLATION` | SEH: memory access violation |
-| `CrashSEHStackOverflow` | `SEH_STACK_OVERFLOW` | SEH: stack overflow |
-| `CrashSEHIllegalInstruction` | `SEH_ILLEGAL_INSTRUCTION` | SEH: illegal instruction |
-| `CrashSEHInvalidHandle` | `SEH_INVALID_HANDLE` | SEH: invalid handle |
-| `CrashSEHUnknown` | `SEH_UNKNOWN` | SEH: unknown |
-| `CrashRuntimePanic` | `RUNTIME_PANIC` | Runtime panic |
-| `CrashWV2BrowserExited` | `WV2_BROWSER_EXITED` | WebView2: browser process exited |
-| `CrashWV2RenderExited` | `WV2_RENDER_EXITED` | WebView2: render process exited |
-| `CrashWV2RenderUnresponsive` | `WV2_RENDER_UNRESPONSIVE` | WebView2: render process unresponsive |
-| `CrashWV2FrameRenderExited` | `WV2_FRAME_RENDER_EXITED` | WebView2: frame render process exited |
-| `CrashWV2UtilityExited` | `WV2_UTILITY_EXITED` | WebView2: utility process exited |
-| `CrashWV2SandboxExited` | `WV2_SANDBOX_HELPER_EXITED` | WebView2: sandbox helper process exited |
-| `CrashWV2GPUExited` | `WV2_GPU_EXITED` | WebView2: GPU process exited |
-| `CrashWV2PPAPIPluginExited` | `WV2_PPAPI_PLUGIN_EXITED` | WebView2: PPAPI plugin process exited |
-| `CrashWV2PPAPIBrokerExited` | `WV2_PPAPI_BROKER_EXITED` | WebView2: PPAPI broker process exited |
-| `CrashWV2UnknownExited` | `WV2_UNKNOWN_EXITED` | WebView2: unknown process exited |
-
-</details>
+| `EventCrash` | `crash` | Program crash (data is a `Crash*` error-code constant) |
 
 #### Window Lifecycle & State
 
@@ -379,7 +336,6 @@ jadeview.ShowNotification(jadeview.NotificationParams{
     Timeout: -1,           // milliseconds, -1 = system default
     Button1: "Open",       // buttons (optional)
     Button2: "",
-    Text3:   "",           // third button label (optional)
     Action:  "open",       // sent back via the notification-action event
 })
 ```
@@ -453,15 +409,14 @@ Encrypted/signed frontend bundles, served via the `jade://` protocol after loadi
 
 | Function | Description |
 |------|------|
-| `LoadFromBytes(data []byte)` | Load a JAPK from memory; **signed packages only** (obfuscated JPKBIN02 packages are no longer supported as of v2.4.0); error details also arrive via the `japk-load-failed` event |
+| `SetPublicKey(publicKey)` | Set the Base64 Ed25519 public key (44 chars); must precede `LoadFromBytes`; only needed for signed packages |
+| `LoadFromBytes(data []byte)` | Load a JAPK from memory (only obfuscated packages without a public key set); error details also arrive via the `japk-load-failed` event |
 | `IsLoaded()` | Whether a JAPK is loaded |
 | `GetAppSignature()` | Current app_signature |
 | `GetSignatureInfo()` | Signature info JSON |
 | `Unload()` | Clear the loaded state |
 
 The JAPK's app_name / app_signature must match `Init`. See `SetProtocolServicePath` below for accessing loaded content.
-
-> Note: `SetPublicKey` was **removed** in v2.4.0 (the upstream dropped `JadeView_set_public_key`, retiring the public-key injection mechanism); JAPKs must be signed resource packages.
 
 ---
 
@@ -488,7 +443,7 @@ Returns a URL that can be used directly for window navigation. `rootPath` has th
 | `RegisterResource(path, windowID, ttlSeconds)` | Register a local file as a secure resource; returns a jade:// URL (windowID=0 global, ttl=0 never expires) |
 | `UnregisterResource(tokenOrURL)` | Unregister a resource |
 | `ClearWindowResources(windowID)` | Clear all of a window's resources; returns the count |
-| `GetFileIcon(path, size, windowID, ttlSeconds)` | Extract a file icon as a PNG resource; returns its URL; size accepts 16 / 32 / 48 / 64 / 128 / 256, ≤0 uses 48 |
+| `GetFileIcon(path, size, windowID, ttlSeconds)` | Extract a file icon as a PNG resource; returns its URL |
 
 ### Other Tools
 
