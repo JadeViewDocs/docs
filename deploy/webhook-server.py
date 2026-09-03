@@ -144,13 +144,11 @@ def pull_image(client, image: str):
 
     # digest 引用分隔符是 @；tag 是 :
     sep = '@' if is_digest else ':'
-    tag_ref_for_log = ref if is_digest else f':{ref}'
 
     last_err = None
     for prefix in candidates:
         if prefix:
             candidate_ref = f"{prefix}/{repo}{sep}{ref}"
-            tag_canonical = f"{repo}:{ref}"   # 重打标签：让容器按 IMAGE_NAME / 规范 repo:tag 引用
         else:
             candidate_ref = f"{repo}{sep}{ref}"
         source = prefix or 'daemon 默认'

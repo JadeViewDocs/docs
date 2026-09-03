@@ -130,21 +130,29 @@ jobs:
             ghcr.io/jadeviewdocs/docs-mcp:${{ github.sha }}
 
       # —— 关键：触发服务器部署 ——
-      # 执行条件缺一不可（全部为 AND）：
-      #   1. success()            —— 当前 job 前面所有步骤（build_site/build_mcp）都 true
-      #   2. build_site 真成功    —— outputs.digest 非空（build-push-action 只有 push 成
-      #                             功才会写 digest）；buildx 单 RUN npm ci exit 1 时，
-      #                             build_site 自身会报错，outputs.digest 就是空串。
-      #   3. WEBHOOK 凭证配置了  —— 没配 secrets 时不去请求，避免 curl 因 URL 为空挂掉。
+      # 执行条件（AND）：
+      #   1. success()          —— 前面所有步骤（build_site/build_mcp）都成功
+      #   2. build_site 真成功  —— outputs.digest 非空（build-push-action 只有 push 成
+      #                           功才写 digest）；npm ci exit 1 时 build_site 失败，digest 为空串
+      #   ⚠️ 不能在这里判断 secrets：GitHub Actions 的 `if:` 表达式不允许引用
+      #      secrets 上下文（报 Unrecognized named-value: 'secrets'，整个 workflow
+      #      解析失败、静默不跑）。凭证是否配置改在 run 里检查。
       - name: 触发服务器 webhook 拉取部署
         if: >-
           success() &&
           steps.build_site.outcome == 'success' &&
-          steps.build_site.outputs.digest != '' &&
-          secrets.WEBHOOK_URL != '' &&
-          secrets.WEBHOOK_TOKEN != ''
+          steps.build_site.outputs.digest != ''
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
         run: |
           set -euo pipefail
+
+          # 未配置凭证时跳过部署（构建/推送已完成，只是不触发服务器）
+          if [ -z "${WEBHOOK_URL}" ] || [ -z "${WEBHOOK_TOKEN}" ]; then
+            echo "::warning::未配置 WEBHOOK_URL / WEBHOOK_TOKEN，跳过部署触发"
+            exit 0
+          fi
 
           # 拿到实际推送到 ghcr.io 的 digest（@sha256:…），比 latest tag 更可靠：
           # latest 可能因为竞态被另一个并发 run 覆盖，服务器 pull 拉到旧内容；
@@ -152,9 +160,9 @@ jobs:
           DIGEST="${{ steps.build_site.outputs.digest }}"
           echo "本次构建 digest: ${DIGEST}"
 
-          curl -X POST "${{ secrets.WEBHOOK_URL }}" \
+          curl -X POST "${WEBHOOK_URL}" \
             -H "Content-Type: application/json" \
-            -H "X-Webhook-Token: ${{ secrets.WEBHOOK_TOKEN }}" \
+            -H "X-Webhook-Token: ${WEBHOOK_TOKEN}" \
             -d "$(cat <<JSON
           {
             "image":      "ghcr.io/jadeviewdocs/docs@${DIGEST}",
@@ -172,4 +180,4 @@ jobs:
             --retry-delay 5 \
             --retry-max-time 120 \
             --fail --show-error \
-            --silent --show-error | tail -20
+            --silent | tail -20

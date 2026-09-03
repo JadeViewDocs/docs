@@ -38,8 +38,10 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 # 用 `npx dumi build` 跳过 package.json 的 prebuild 钩子：
 #   发行快照已由部署工作流在构建机上先行生成（带 GITHUB_TOKEN）并随源码 COPY 进来，
 #   故镜像构建内不再直连 GitHub。
+# ⚠️ 必须 -o pipefail：下面用 `| tail -40` 截断日志，无 pipefail 时管道退出码取
+#   tail 的（恒 0），dumi build 真失败也会被当成功继续走——上次事故根源之一。
 # 构建重试：dumi/utoopack 在高并发下偶有缓存锁竞争失败，重试一轮能解。
-RUN set -eux; \
+RUN set -euxo pipefail; \
     for i in 1 2; do \
       if npx dumi build 2>&1 | tail -40; then break; fi; \
       echo "dumi build 第 ${i} 次失败，5s 后重试…" >&2; \

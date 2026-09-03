@@ -1,0 +1,153 @@
+# PR 预构建（自动化审核）：与 deploy-docker.yml 相同的构建链路，但只构建不部署。
+#
+# 作用：
+#   PR 打开/更新时跑一遍完整镜像构建（npm ci → dumi build → 预渲染 → defingerprint → gzip），
+#   提前暴露 main 分支上才会发现的构建失败（依赖装不上、原生模块编译失败、构建超时等），
+#   结果以评论形式回复到 PR —— 构建失败能在合并前被拦住，而不是等 main 部署时挂掉。
+#
+# 与部署工作流的差异：
+#   - 不 docker push（无凭证要求，fork 的 PR 也能跑构建，只是 secrets 都为空时快照脚本会降级）
+#   - 不触发服务器 webhook
+#   - 构建结果评论到 PR（更新同一条评论，不堆叠）
+#
+# 触发：PR 指向 main 的 opened / synchronize（新提交）/ reopened
+name: PR 预构建审核
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  # 同一 PR 的新提交取消旧构建（省 runner 时间）；不同 PR 互不影响
+  group: pr-prebuild-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  # GITHUB_TOKEN 评论构建结果需要写 PR 权限
+  pull-requests: write
+
+jobs:
+  prebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        # 同 deploy-docker.yml：fail-fast，任何子命令失败立即停
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # 贡献者快照脚本需要完整提交历史（按 git log 归属作者）
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # —— 以下准备步骤与 deploy-docker.yml 完全一致（保证 PR 上验证的就是部署时会发生的事）——
+
+      - name: 生成发行快照
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-changelog.mjs
+
+      - name: 生成文档贡献者快照
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-contributors.mjs
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 只构建、不推送（push: false）：
+      #   - 走与部署完全相同的 Dockerfile，验证 npm ci 重试 / node-gyp 工具链 /
+      #     dumi build / 预渲染 / defingerprint / gzip 全链路
+      #   - 复用 main 分支构建缓存（scope 同名），PR 构建不会比 main 慢太多
+      #   - 不需要 Docker Hub / ghcr 登录
+      - name: 预构建站点镜像（不推送）
+        id: build_site
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          # push:false 时默认不 load 进本地 daemon；开启后才能用 docker images 量体积
+          load: true
+          provenance: false
+          # 只读 main 的缓存（PR 不回写，避免分支缓存污染 main 的缓存链）
+          cache-from: type=gha,scope=docs-site
+          tags: pr-prebuild:local
+
+      - name: 记录构建产物信息
+        if: steps.build_site.outcome == 'success'
+        run: |
+          set -euo pipefail
+          # 用 docker images 拿本地镜像大小（build-push-action push:false 会 load 进本地 daemon）
+          SIZE=$(docker images pr-prebuild:local --format '{{.Size}}')
+          echo "IMAGE_SIZE=${SIZE}" >> "$GITHUB_ENV"
+          echo "镜像大小: ${SIZE}"
+
+      # —— 把结果评论到 PR ——
+      # 不论成功/失败都评论（if: always()），失败时贴日志尾部，作者不用翻 Actions 页。
+      # 用 marker 定位本工作流自己的旧评论：同 PR 后续 push 更新同一条，不堆叠刷屏。
+      - name: 评论构建结果到 PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- pr-prebuild-review -->';
+            const buildOk = '${{ steps.build_site.outcome }}' === 'success';
+            const prNumber = context.payload.pull_request.number;
+            const commitSha = context.payload.pull_request.head.sha.slice(0, 7);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const imageSize = process.env.IMAGE_SIZE || '-';
+
+            const body = [
+              marker,
+              `## ${buildOk ? '✅ 预构建通过' : '❌ 预构建失败'}`,
+              '',
+              `| 项目 | 值 |`,
+              `|---|---|`,
+              `| 提交 | \`${commitSha}\` |`,
+              `| 镜像大小 | ${imageSize} |`,
+              `| 构建链路 | npm ci → dumi build → 预渲染 → gzip（与部署一致，未推送未部署） |`,
+              `| 日志 | [查看完整日志](${runUrl}) |`,
+              '',
+              buildOk
+                ? '构建全链路通过，可以合并。合并后 main 的部署工作流会执行同样的构建并推送部署。'
+                : `构建失败，合并前请修复。常见原因：依赖安装失败（网络/registry）、原生模块编译失败（node-gyp 工具链）、dumi build 报错。\n\n请到 [构建日志](${runUrl}) 查看第一个 \`ERROR\` 及其上下文。`,
+            ].join('\n');
+
+            // 查找本工作流已有的评论（含 marker 的），有则更新，无则新建
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            const existing = comments.find(c => (c.body || '').includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+              core.info(`已更新既有评论 #${existing.id}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body,
+              });
+              core.info('已创建新评论');
+            }
+
+            // 构建失败时把 job 标红（github-script 自身成功不算通过）
+            if (!buildOk) core.setFailed('预构建失败，详见评论与构建日志');
