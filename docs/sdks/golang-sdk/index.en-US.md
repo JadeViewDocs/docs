@@ -4,7 +4,7 @@ order: 0
 
 # Introduction
 
-The Golang SDK (JadeViewGo) is a Go wrapper for JadeView 2.x that lets you build Windows desktop applications with Go + HTML/CSS/JS. Windows, events, bidirectional IPC, tray, dialogs, notifications, YAML persistence, JAPK resource packages and NTP time — every exported function in the header is wrapped.
+The Golang SDK (JadeViewGo, current version **v2.4.0**, upstream Build 26H03) is a Go wrapper for JadeView 2.x that lets you build Windows desktop applications with Go + HTML/CSS/JS. Windows, events, bidirectional IPC, tray, dialogs, notifications, YAML persistence, JAPK resource packages and NTP time — 128 of the header's 129 exported functions are wrapped (only `yaml_get_str` is unwrapped due to cross-platform memory-management differences).
 
 The SDK's API naming follows the JadeView frontend JS API, lowering the learning cost when working across languages.
 
@@ -16,7 +16,7 @@ The SDK's API naming follows the JadeView frontend JS API, lowering the learning
 - **IPC**: event subscription (`On`/`Off`), IPC channel handlers (`RegisterIPCHandler`), push messages (`SendIPCMessage`)
 - **Dialogs**: open/save file dialogs, message boxes, error boxes — both synchronous and asynchronous APIs
 - **System tray & menus**: tray icon with flat-table menus, window context menus
-- **JAPK resource packages**: encrypted/obfuscated frontend bundles, loadable directly from memory (zero frontend files on disk)
+- **JAPK resource packages**: encrypted, signed frontend bundles, loadable directly from memory (zero frontend files on disk)
 - **System tools**: clipboard, system paths, display info, global hotkeys, login autostart, URL schemes, file associations, printing, encoding conversion, NTP network time
 - **YAML config store**: built-in persistent configuration with key-path access
 - **Type-safe enums**: two-level namespaced enums like `Theme.Dark`, `FrameStyle.TitleOverlay`, `Backdrop.Mica` — no bare strings
@@ -55,10 +55,6 @@ The SDK's API naming follows the JadeView frontend JS API, lowering the learning
 
 - **Go version**: Go 1.23+
 - **External Go dependencies**: none (standard library only)
-
-:::info
-Windows is currently supported. Linux support is planned to arrive with upcoming upstream JadeView releases (2.4 / 2.5).
-:::
 
 ## Installation
 
