@@ -1,33 +1,45 @@
 {
   "name": "jadeview-docs-mcp",
-  "version": "2.0.0",
-  "private": true,
+  "version": "1.0.1",
+  "description": "JadeView 文档 MCP 服务（stdio）：全文搜索 + 整页读取随包分发的 markdown 文档",
   "type": "module",
-  "description": "Self-hosted MCP server for JadeView docs (search + full-text over local markdown)",
-  "main": "dist/server.js",
+  "main": "dist/mcp.js",
   "bin": {
-    "jadeview-docs-mcp": "dist/server.js"
+    "jadeview-docs-mcp": "dist/stdio.js"
   },
+  "files": [
+    "dist",
+    "content",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "start": "node dist/server.js",
     "build": "tsc -p tsconfig.json",
-    "reindex": "tsx src/cli.ts"
+    "sync-content": "node scripts/sync-content.mjs",
+    "test:client": "node test/client.mjs",
+    "test:npx": "npm pack && node test/npx-sim.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "jadeview",
+    "docs",
+    "search",
+    "stdio"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "express": "^4.21.2",
+    "@modelcontextprotocol/sdk": "^1.17.0",
     "gray-matter": "^4.0.3",
     "minisearch": "^7.1.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
     "@types/node": "^22.10.0",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
