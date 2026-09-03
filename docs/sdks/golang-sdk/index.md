@@ -4,7 +4,7 @@ order: 0
 
 # 介绍
 
-Golang SDK（JadeViewGo）是 JadeView 2.x 的 Go 封装库，用 Go + HTML/CSS/JS 编写 Windows 桌面应用程序。窗口、事件、双向 IPC、托盘、对话框、通知、YAML 持久化、JAPK 资源包、NTP 授时一应俱全，头文件全部导出函数均已封装。
+Golang SDK（JadeViewGo，当前版本 **v2.4.0**，对应上游 Build 26H03）是 JadeView 2.x 的 Go 封装库，用 Go + HTML/CSS/JS 编写 Windows 桌面应用程序。窗口、事件、双向 IPC、托盘、对话框、通知、YAML 持久化、JAPK 资源包、NTP 授时一应俱全，头文件 129 个导出函数已封装 128 个（仅 `yaml_get_str` 因跨平台内存管理差异未封装）。
 
 SDK 的 API 命名风格与 JadeView 前端 JS API 保持一致，降低跨语言使用的学习成本。
 
@@ -16,7 +16,7 @@ SDK 的 API 命名风格与 JadeView 前端 JS API 保持一致，降低跨语�
 - **IPC 通信**：事件订阅（`On`/`Off`）、IPC 通道处理器（`RegisterIPCHandler`）、主动推送（`SendIPCMessage`）
 - **对话框**：打开/保存文件对话框、消息框、错误框，同步与异步两套 API
 - **系统托盘与菜单**：托盘图标 + 扁平表菜单、窗口右键上下文菜单
-- **JAPK 资源包**：前端资源加密/混淆打包，支持从内存直接加载（磁盘零前端文件）
+- **JAPK 资源包**：前端资源加密签名打包，支持从内存直接加载（磁盘零前端文件）
 - **系统工具**：剪贴板、系统路径、显示器信息、全局热键、开机自启、URL Scheme、文件关联、打印、编码转换、NTP 网络时间
 - **YAML 配置存储**：内置键路径读写的持久化配置
 - **类型安全枚举**：`Theme.Dark`、`FrameStyle.TitleOverlay`、`Backdrop.Mica` 等二级命名空间枚举，不必裸写字符串
@@ -54,10 +54,6 @@ SDK 的 API 命名风格与 JadeView 前端 JS API 保持一致，降低跨语�
 
 - **Go 版本**：Go 1.23+
 - **外部 Go 依赖**：无（仅标准库）
-
-:::info
-当前支持 Windows。Linux 支持计划随 JadeView 上游后续版本（2.4 / 2.5）提供。
-:::
 
 ## 安装方式
 
