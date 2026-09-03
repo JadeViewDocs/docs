@@ -4,7 +4,7 @@ order: 2
 
 # API 参考
 
-SDK 当前版本 **v2.4.0**（对应上游 Build 26H03）。纯 Go 实现（syscall 直调，无 CGO），所有 API 都在单个包 `jadeview` 下。
+SDK 为纯 Go 实现（syscall 直调，无 CGO）。所有 API 都在单个包 `jadeview` 下。
 
 ## 核心函数
 
@@ -34,10 +34,6 @@ jadeview.Init(
 ### `jadeview.Exit()`
 
 清理所有窗口并结束消息循环。通常在 `window-all-closed` 事件回调中调用。
-
-### `jadeview.ExitWait(timeoutMs uint32)`
-
-v2.4.0 新增（仅 Windows 构建）。清理所有窗口并**等待事件循环与 JadeView 后台线程完全退出**，适合退出前需要可靠收尾的场景（卸载 DLL、退出后再次 `Init`）。
 
 ### `jadeview.Version()`
 
@@ -109,7 +105,6 @@ jadeview.CreateWindow(
 | `DisableClipboard` | bool | 禁用剪贴板权限 |
 | `ProxyURL` | string | 代理，如 `http://host:port` / `socks5://host:port` |
 | `Focused` | bool | 创建后 WebView 自动获取焦点 |
-| `ProfileName` | string | v2.4.0 新增：Windows WebView2 Profile 名称；非空时多窗口的 Cookie / 存储 / 缓存相互隔离，空 = 默认 Profile |
 
 :::info
 `CreateWindow` 的 `settings` 传 `nil` 表示交给库用内部默认值，与 `DefaultWebViewSettings()` 不保证逐项一致；需要在默认基础上只改个别项时从该函数出发即可。
@@ -181,8 +176,6 @@ jadeview.CreateBorderlessWindow(url string, settings *WebViewSettings) uint32
 |------|------|
 | `Navigate(windowID, url, headersJSON)` | 导航到指定 URL（可带自定义请求头 JSON） |
 | `Reload(windowID)` | 重新加载当前页面 |
-| `GoBack` / `GoForward (windowID)` | 导航历史后退 / 前进 |
-| `CanGoBack` / `CanGoForward (windowID)` | 查询能否后退 / 前进 |
 | `ExecuteJavaScript(windowID, script)` | 执行 JS，返回唯一 id；结果经 `javascript-result` 事件异步返回 |
 | `SetZoom(windowID, level)` | 缩放级别（1.0 = 100%） |
 | `OpenDevtools` / `CloseDevtools` / `IsDevtoolsOpen` | DevTools 控制 |
@@ -231,18 +224,6 @@ jadeview.RegisterIPCHandler(channel string, handler jadeview.EventHandler) bool
 jadeview.SendIPCMessage(windowID uint32, messageType, messageContent string) bool
 ```
 
-### 网页权限拦截（v2.4.0 新增，仅 Windows）
-
-页面请求摄像头、麦克风、录屏、文件访问、剪贴板读取、地理位置等权限时，可注册统一处理器集中决策；未注册时使用浏览器默认行为。
-
-```go
-// type PermissionHandler func(windowID uint32, data string) bool   // 返回 true = 允许
-jadeview.SetWebviewPermissionHandler(handler jadeview.PermissionHandler) bool
-jadeview.ClearWebviewPermissionHandler() bool   // 对 SetWebviewPermissionHandler 传 nil 等价于注销
-```
-
-handler 需尽快返回、不要阻塞。
-
 ### 事件常量（`Event*`）
 
 #### 应用生命周期
@@ -251,31 +232,7 @@ handler 需尽快返回、不要阻塞。
 |------|---|------|
 | `EventAppReady` | `app-ready` | 应用初始化完成（回调里判断 windowID==1 才算成功） |
 | `EventSecondInstance` | `second-instance` | 第二个实例启动（单实例模式） |
-| `EventCrash` | `crash` | 程序崩溃（data 为下方 `Crash*` 错误代码常量） |
-
-<details>
-<summary><code>Crash*</code> 崩溃代码常量（对应头文件 <code>JADEVIEW_CRASH_*</code> 宏）</summary>
-
-| 常量 | 值 | 说明 |
-|------|---|------|
-| `CrashSEHAccessViolation` | `SEH_ACCESS_VIOLATION` | SEH：内存访问违规 |
-| `CrashSEHStackOverflow` | `SEH_STACK_OVERFLOW` | SEH：栈溢出 |
-| `CrashSEHIllegalInstruction` | `SEH_ILLEGAL_INSTRUCTION` | SEH：非法指令 |
-| `CrashSEHInvalidHandle` | `SEH_INVALID_HANDLE` | SEH：无效句柄 |
-| `CrashSEHUnknown` | `SEH_UNKNOWN` | SEH：未知 |
-| `CrashRuntimePanic` | `RUNTIME_PANIC` | 运行时 Panic |
-| `CrashWV2BrowserExited` | `WV2_BROWSER_EXITED` | WebView2：浏览器进程已退出 |
-| `CrashWV2RenderExited` | `WV2_RENDER_EXITED` | WebView2：渲染进程已退出 |
-| `CrashWV2RenderUnresponsive` | `WV2_RENDER_UNRESPONSIVE` | WebView2：渲染进程无响应 |
-| `CrashWV2FrameRenderExited` | `WV2_FRAME_RENDER_EXITED` | WebView2：框架渲染进程已退出 |
-| `CrashWV2UtilityExited` | `WV2_UTILITY_EXITED` | WebView2：工具进程已退出 |
-| `CrashWV2SandboxExited` | `WV2_SANDBOX_HELPER_EXITED` | WebView2：沙箱辅助进程已退出 |
-| `CrashWV2GPUExited` | `WV2_GPU_EXITED` | WebView2：GPU 进程已退出 |
-| `CrashWV2PPAPIPluginExited` | `WV2_PPAPI_PLUGIN_EXITED` | WebView2：PPAPI 插件进程已退出 |
-| `CrashWV2PPAPIBrokerExited` | `WV2_PPAPI_BROKER_EXITED` | WebView2：PPAPI 代理进程已退出 |
-| `CrashWV2UnknownExited` | `WV2_UNKNOWN_EXITED` | WebView2：未知进程已退出 |
-
-</details>
+| `EventCrash` | `crash` | 程序崩溃（data 为 `Crash*` 错误代码常量） |
 
 #### 窗口生命周期与状态
 
@@ -379,7 +336,6 @@ jadeview.ShowNotification(jadeview.NotificationParams{
     Timeout: -1,           // 毫秒，-1 = 系统默认
     Button1: "打开",       // 按钮（可选）
     Button2: "",
-    Text3:   "",           // 按钮3文本（可选）
     Action:  "open",       // 经 notification-action 事件回传
 })
 ```
@@ -453,15 +409,14 @@ jadeview.SetContextMenuItems(windowID uint32, menuIDs []uint32) bool
 
 | 函数 | 说明 |
 |------|------|
-| `LoadFromBytes(data []byte)` | 从内存加载 JAPK；**仅支持带签名的资源包**（v2.4.0 起混淆包 JPKBIN02 不再支持）；错误详情也经 `japk-load-failed` 事件回报 |
+| `SetPublicKey(publicKey)` | 设置 Base64 Ed25519 公钥（44 字符），须在 `LoadFromBytes` 之前；仅签名包需要 |
+| `LoadFromBytes(data []byte)` | 从内存加载 JAPK（未设公钥时仅支持混淆包）；错误详情也经 `japk-load-failed` 事件回报 |
 | `IsLoaded()` | JAPK 是否已加载 |
 | `GetAppSignature()` | 当前 app_signature |
 | `GetSignatureInfo()` | 签名信息 JSON |
 | `Unload()` | 清除加载状态 |
 
 JAPK 的 app_name / app_signature 必须与 `Init` 一致。加载后的访问方式见下方 `SetProtocolServicePath`。
-
-> 注：`SetPublicKey` 已在 v2.4.0 **移除**（上游删除了 `JadeView_set_public_key`，公钥注入机制一并废弃），JAPK 只能加载带签名的资源包。
 
 ---
 
@@ -488,7 +443,7 @@ jadeview.SetProtocolServicePath(rootPath string, hotReload bool) (string, bool)
 | `RegisterResource(path, windowID, ttlSeconds)` | 注册本地文件为安全资源，返回 jade:// URL（windowID=0 全局，ttl=0 永不过期） |
 | `UnregisterResource(tokenOrURL)` | 注销资源 |
 | `ClearWindowResources(windowID)` | 清理窗口的全部资源，返回数量 |
-| `GetFileIcon(path, size, windowID, ttlSeconds)` | 提取文件图标为 PNG 资源，返回 URL；size 支持 16 / 32 / 48 / 64 / 128 / 256，≤0 时取 48 |
+| `GetFileIcon(path, size, windowID, ttlSeconds)` | 提取文件图标为 PNG 资源，返回 URL |
 
 ### 其它工具
 

@@ -66,7 +66,10 @@ console.log(user.name); // "张三"
 
 ## JAPK 资源包详解
 
-JAPK 是 JadeView 的前端资源打包格式。**v2.4.0 起仅支持签名包**（严格离线验签）：打包时签名，加载时自动校验签名及 app_name / app_signature（须与 `Init` 一致）；旧版的混淆包（JPKBIN02）与 `SetPublicKey` 公钥注入已随上游废弃移除。
+JAPK 是 JadeView 的前端资源打包格式，分两种：
+
+- **混淆包**（JPKBIN02）：无需公钥，直接 `LoadFromBytes` 加载；
+- **签名包**（v2）：须先 `SetPublicKey` 设置 Base64 Ed25519 公钥（44 字符）再加载，且严格校验 app_name / app_signature 与 `Init` 一致。
 
 内存加载完整流程：
 
