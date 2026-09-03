@@ -1,0 +1,72 @@
+name: publish-npm
+
+# 文档内容（docs/**）或 MCP 包源码变更时，同步 content/ 并自动发版到 npm。
+# 内容无变化的运行会直接跳过发布步骤（空跑）。
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "docs/**"
+      - "mcp/src/**"
+      - "mcp/scripts/**"
+      - "mcp/test/**"
+      - "mcp/package.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write # 提交同步后的 content/ 与版本号回 main
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  sync-and-publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Sync docs content
+        run: node scripts/sync-content.mjs ../docs
+
+      - name: Detect content changes
+        id: diff
+        run: echo "changed=$(git status --porcelain -- content/ | wc -l)" >> "$GITHUB_OUTPUT"
+
+      - name: Version, build, test, publish
+        if: steps.diff.outputs.changed != '0'
+        run: |
+          npm run build
+          npm run test:client
+          ok=0
+          for i in 1 2 3; do
+            npm version patch --no-git-tag-version
+            if npm publish; then ok=1; break; fi
+            echo "retry $i/3: publish failed (version conflict?), bumping again"
+          done
+          [ "$ok" = "1" ]
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit synced content and version bump
+        if: steps.diff.outputs.changed != '0'
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mcp/content mcp/package.json mcp/package-lock.json
+          git commit -m "chore(mcp): sync docs snapshot; publish jadeview-docs-mcp@$(node -p "require('./mcp/package.json').version")"
+          git fetch origin main
+          git rebase origin/main
+          git push

@@ -9,23 +9,8 @@ services:
     ports:
       - "${SITE_PORT:-8088}:80"
 
-  # 文档 MCP 服务（search_docs / get_doc）。容器内监听 8848，映射到 host MCP_PORT。
-  # 反代把它挂到你想要的路径/子域即可（TLS 你自己在前置反代终结）。
-  mcp:
-    image: ${MCP_IMAGE_NAME:-yiminger/jadeview_docs_mcp:latest}
-    # 若服务器上有完整仓库、想本地构建：注释掉上面 image，改用下面两行
-    # build:
-    #   context: ..
-    #   dockerfile: mcp/Dockerfile
-    container_name: docs-mcp
-    restart: unless-stopped
-    environment:
-      HOST: 0.0.0.0
-      PORT: 8848
-      BASE_URL: ${BASE_URL:-https://jade.run}
-      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:-}
-    ports:
-      - "${MCP_PORT:-8848}:8848"
+  # （HTTP 版文档 MCP 服务已下线：由 npm 包 jadeview-docs-mcp 的本地 stdio 服务替代，
+  #  见仓库 mcp/ 目录。服务器上旧的 docs-mcp 容器与 mcp.jade.run 反代可手动移除。）
 
   webhook:
     image: python:3.11-slim
@@ -40,6 +25,10 @@ services:
       WEBHOOK_TOKEN: ${WEBHOOK_TOKEN}
       DOCKERHUB_USER: ${DOCKERHUB_USER}
       DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}
+      # ghcr.io 凭据：组织 JadeViewDocs 禁止公开镜像包，服务器拉 ghcr 私有包必须登录。
+      # classic PAT 勾选 read:packages；令牌账号需是组织成员。
+      GHCR_USER: ${GHCR_USER:-}
+      GHCR_TOKEN: ${GHCR_TOKEN:-}
       IMAGE_NAME: ${IMAGE_NAME:-yiminger/jadeview_docs:latest}
       CONTAINER_NAME: docs-site
       SITE_PORT: ${SITE_PORT:-8088}

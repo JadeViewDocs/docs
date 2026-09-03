@@ -1,0 +1,294 @@
+---
+order: 1
+---
+
+# 快速开始
+
+本指南将帮助您快速了解如何使用 JadeView Web SDK 与 JadeView WebView 进行通信。
+
+## 环境要求
+
+- TypeScript 4.0+
+- 现代浏览器（支持 ES6+ 语法）
+- JadeView WebView
+
+## 安装
+
+通过 npm 安装 JadeView Web SDK：
+
+```bash
+npm install --save-dev jadeview-ipc-types
+```
+
+或者使用 yarn：
+
+```bash
+yarn add --dev jadeview-ipc-types
+```
+
+## 基本使用
+
+JadeView Web SDK 提供了与 JadeView WebView 进行 IPC 通信的 API，主要包括以下功能：
+
+### 调用后端 API
+
+使用 `window.jade?.invoke` 方法调用后端 API 并获取结果：
+
+```javascript
+// 调用后端 API
+async function sendMessage() {
+  try {
+    const messageData = {
+      timestamp: Date.now(),
+      data: '测试消息',
+    };
+    const result = await window.jade?.invoke('message', messageData);
+    console.log('Backend return result:', result);
+  } catch (error) {
+    console.error('Call failed:', error);
+  }
+}
+
+// 设置窗口背景
+async function setBackdrop(backdropType) {
+  try {
+    await window.jade?.invoke('setBackdrop', backdropType);
+    console.log('Backdrop set successfully:', backdropType);
+  } catch (error) {
+    console.error('Set backdrop failed:', error);
+  }
+}
+```
+
+### 订阅事件
+
+使用 `window.jade?.on` 方法订阅后端事件：
+
+```javascript
+// 订阅主题变化事件
+const unsubscribeTheme = window.jade?.on('setTheme', (payload) => {
+  console.log('Theme change event:', payload);
+  // 处理主题变化逻辑
+});
+
+// 订阅窗口状态变化事件
+const unsubscribeWindowState = window.jade?.on('window-state-changed', (payload) => {
+  console.log('Window state changed:', payload);
+  // 处理窗口状态变化逻辑
+});
+
+// 取消订阅
+// unsubscribeTheme();
+// unsubscribeWindowState();
+```
+
+### 使用 Dialog API
+
+JadeView Web SDK 提供了原生对话框 API，用于显示文件选择、保存文件、消息框等：
+
+```javascript
+// 打开文件对话框
+async function openFile() {
+  try {
+    const result = await window.jade?.dialog.showOpenDialog({
+      title: '选择文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: 'Text Files', extensions: ['txt', 'md'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (!result?.canceled) {
+      console.log('Selected files:', result.filePaths);
+    }
+  } catch (error) {
+    console.error('Open file dialog failed:', error);
+  }
+}
+
+// 保存文件对话框
+async function saveFile() {
+  try {
+    const result = await window.jade?.dialog.showSaveDialog({
+      title: '保存文件',
+      defaultPath: 'document.txt',
+      filters: [
+        { name: 'Text File', extensions: ['txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (!result?.canceled) {
+      console.log('Save path:', result.filePath);
+    }
+  } catch (error) {
+    console.error('Save file dialog failed:', error);
+  }
+}
+
+// 显示消息框
+async function showConfirm() {
+  try {
+    const result = await window.jade?.dialog.showMessageBox({
+      title: '确认操作',
+      message: '确定要删除此文件吗？',
+      detail: '此操作不可撤销',
+      buttons: ['删除', '取消'],
+      defaultId: 1,
+      cancelId: 1,
+      type: 'warning'
+    });
+
+    if (result?.response === 0) {
+      console.log('User confirmed deletion');
+    } else {
+      console.log('User canceled deletion');
+    }
+  } catch (error) {
+    console.error('Show message box failed:', error);
+  }
+}
+
+// 显示错误框
+async function showError() {
+  try {
+    await window.jade?.dialog.showErrorBox('错误', '操作失败，请重试');
+    console.log('Error box closed');
+  } catch (error) {
+    console.error('Show error box failed:', error);
+  }
+}
+```
+
+## 类型导入
+
+您也可以导入特定类型：
+
+```typescript
+import type { JadeView } from 'jadeview-ipc-types';
+
+// 使用导入的类型
+const handleInvoke = async () => {
+  const jadeInstance = window.jade as JadeView;
+  if (jadeInstance) {
+    const result = await jadeInstance.invoke('testCommand', { key: 'value' });
+    console.log('Invoke result:', result);
+  }
+};
+```
+
+### Dialog 相关类型导入
+
+```typescript
+import type {
+  JadeView,
+  DialogAPI,
+  OpenDialogOptions,
+  SaveDialogOptions,
+  MessageBoxOptions,
+  FileFilter,
+  DialogProperty,
+  MessageBoxType
+} from 'jadeview-ipc-types';
+
+// 使用导入的类型
+const handleInvoke = async () => {
+  const jadeInstance = window.jade as JadeView;
+  if (jadeInstance) {
+    const result = await jadeInstance.invoke('testCommand', { key: 'value' });
+    console.log('Invoke result:', result);
+  }
+};
+
+// 定义对话框选项，获得类型安全
+const openDialogOptions: OpenDialogOptions = {
+  title: '选择图片',
+  properties: ['openFile', 'multiSelections'],
+  filters: [
+    { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+    { name: 'All Files', extensions: ['*'] }
+  ]
+};
+```
+
+## 注意事项
+
+1. **可选链使用**：`window.jade` 对象可能在某些环境中未定义，因此建议使用可选链 `?.` 访问其方法
+2. **异步初始化**：确保 JadeView IPC 系统在使用前已初始化
+3. **类型安全**：使用 TypeScript 获得完整的类型安全和 IntelliSense 支持
+4. **回调管理**：妥善管理订阅的回调，避免内存泄漏
+
+## 完整示例
+
+以下是一个完整的示例，展示了如何使用 JadeView Web SDK 进行通信：
+
+```typescript
+import type { JadeView } from 'jadeview-ipc-types';
+
+// 应用初始化
+function initApp() {
+  // 检查 jade 对象是否可用
+  if (!window.jade) {
+    console.error('JadeView IPC system not available');
+    return;
+  }
+
+  // 订阅应用就绪事件
+  const unsubscribeAppReady = window.jade.on('app-ready', (payload) => {
+    console.log('App ready:', payload);
+    
+    // 发送初始化完成消息
+    window.jade?.invoke('app-init', { status: 'ready' })
+      .then(result => {
+        console.log('Init result:', result);
+      })
+      .catch(error => {
+        console.error('Init failed:', error);
+      });
+  });
+
+  // 订阅主题变化消息
+  const unsubscribeTheme = window.jade.on('setTheme', (payload) => {
+    console.log('Theme changed:', payload);
+    // 处理主题变化
+    document.body.className = payload.theme;
+  });
+
+  // 订阅窗口状态变化消息
+  const unsubscribeWindowState = window.jade.on('window-state-changed', (payload) => {
+    console.log('Window state changed:', payload);
+    // 处理窗口状态变化
+  });
+
+  // 清理函数
+  return () => {
+    // 取消订阅
+    unsubscribeAppReady?.();
+    unsubscribeTheme?.();
+    unsubscribeWindowState?.();
+  };
+}
+
+// 启动应用
+const cleanup = initApp();
+
+// 应用卸载时清理
+window.addEventListener('beforeunload', () => {
+  cleanup?.();
+});
+```
+
+## 下一步
+
+- 查看 [API 参考](./reference/methods.mdx) 了解详细的 API 文档
+- 探索更多高级用法和最佳实践
+- 参与社区讨论，分享您的经验和建议
+
+## 参考实现
+
+您可以查看官方提供的 DemoWeb 实现，了解如何在实际项目中使用 JadeView Web SDK：
+
+- **DemoWeb 实现**：[https://github.com/JadeViewDocs/JadeView/tree/main/DemoWeb](https://github.com/JadeViewDocs/JadeView/tree/main/DemoWeb)
+
+现在您已经成功安装并使用了 JadeView Web SDK，开始构建您的 JadeView WebView 应用吧！

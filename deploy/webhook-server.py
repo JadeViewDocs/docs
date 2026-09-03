@@ -32,6 +32,11 @@ sys.stdout.reconfigure(line_buffering=True)
 WEBHOOK_TOKEN = os.environ.get('WEBHOOK_TOKEN', '')
 DOCKERHUB_USER = os.environ.get('DOCKERHUB_USER', '')
 DOCKERHUB_TOKEN = os.environ.get('DOCKERHUB_TOKEN', '')
+# ghcr.io 凭据：组织 JadeViewDocs 策略禁止公开镜像包（Package visibility 的 Public 选项
+# 被组织管理员禁用），服务器拉取 ghcr.io/jadeviewdocs/docs 必须带凭据。
+# 用 GitHub classic PAT，勾选 read:packages 权限；令牌所属账号需是该组织成员。
+GHCR_USER = os.environ.get('GHCR_USER', '')
+GHCR_TOKEN = os.environ.get('GHCR_TOKEN', '')
 IMAGE_NAME = os.environ.get('IMAGE_NAME', 'yiminger/jadeview_docs:latest')
 CONTAINER_NAME = os.environ.get('CONTAINER_NAME', 'docs-site')
 # 站点对外端口：重建容器时映射 host:SITE_PORT -> container:80。
@@ -72,6 +77,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"镜像: {IMAGE_NAME}")
     logger.info(f"容器: {CONTAINER_NAME}  端口: {SITE_PORT} -> 80")
     logger.info(f"Docker Hub 用户: {DOCKERHUB_USER or '未配置'}")
+    logger.info(f"ghcr.io 用户: {GHCR_USER or '未配置'}")
     logger.info(f"拉镜像回退源: daemon 默认 -> {PULL_MIRRORS}")
     logger.info("端点: POST /webhook/deploy")
     logger.info("=" * 50)
@@ -90,13 +96,26 @@ def verify_token(token: str) -> bool:
 
 
 def _split_image(image: str):
-    """把 'yiminger/jadeview_docs:latest' 拆成 (repo, tag)。"""
+    """把镜像引用拆成 (repo, tag_or_digest, is_digest)。
+
+    支持三种形式：
+      - 'yiminger/jadeview_docs:latest'              → repo=…/jadeview_docs,     ref='latest',        is_digest=False
+      - 'ghcr.io/jadeviewdocs/docs@sha256:deadbeef'  → repo=ghcr.io/…/docs,     ref='sha256:deadbeef', is_digest=True
+      - 'ghcr.io/jadeviewdocs/docs'                  → repo=ghcr.io/…/docs,     ref='latest',        is_digest=False
+
+    CI 现在优先传 digest 形式——避免两个并发 workflow 同时 push :latest 时，
+    webhook 收到请求时 latest 标签已被后一条 run 覆盖，pull 拉到错内容。
+    """
+    # digest 形式：@sha256:<hex>（优先级高于 tag，防止 @sha256:...:64 被当作 tag 分隔错）
+    if '@sha256:' in image:
+        repo, digest = image.rsplit('@', 1)
+        return repo, digest, True
     last = image.rsplit('/', 1)[-1]
     if ':' in last:
         repo, tag = image.rsplit(':', 1)
     else:
         repo, tag = image, 'latest'
-    return repo, tag
+    return repo, tag, False
 
 
 def _is_transient(err_msg: str) -> bool:
@@ -115,29 +134,46 @@ def pull_image(client, image: str):
     加前缀反而 404/403；ghcr 国内直连可达。
     全部失败才抛异常——此时调用方不会拆旧容器，站点保持在线。
     """
-    repo, tag = _split_image(image)
+    repo, ref, is_digest = _split_image(image)
 
     # repo 首段含 '.' 视为带 registry 主机（ghcr.io 等），跳过 docker.io 加速器
     has_registry = '.' in repo.split('/', 1)[0]
 
+    # digest 是 registry 绑定的不可变引用，不能走 docker.io 前缀加速器
+    # （加速器只代理 docker.io，前缀会命中 404/403）。digest 始终走 daemon 默认直连。
     candidates = ['']  # daemon 默认（直连 / daemon.json 里配置的 registry-mirrors）
-    if not has_registry:
+    if not has_registry and not is_digest:
         for m in PULL_MIRRORS.split(','):
             m = m.strip().rstrip('/')
             if m and m not in candidates:
                 candidates.append(m)
 
+    # digest 引用分隔符是 @；tag 是 :
+    sep = '@' if is_digest else ':'
+
     last_err = None
     for prefix in candidates:
-        ref = f"{prefix}/{repo}:{tag}" if prefix else f"{repo}:{tag}"
+        if prefix:
+            candidate_ref = f"{prefix}/{repo}{sep}{ref}"
+        else:
+            candidate_ref = f"{repo}{sep}{ref}"
         source = prefix or 'daemon 默认'
         for attempt in range(1, PULL_RETRIES + 1):
             try:
-                logger.info(f"拉取镜像: {ref}  (源: {source}, 第 {attempt}/{PULL_RETRIES} 次)")
-                img = client.images.pull(ref)
-                if prefix:  # 经加速器拉到，重打成规范名供后续使用
-                    img.tag(repo, tag)
-                    logger.info(f"已重打标签: {repo}:{tag}")
+                logger.info(f"拉取镜像: {candidate_ref}  (源: {source}, 第 {attempt}/{PULL_RETRIES} 次)")
+                # docker-py 的 images.pull(image=repo, tag=tag) 形式对 digest 不适用；
+                # digest/ref 直接拼成完整字符串走单参数 pull（docker SDK 支持 repo@digest）。
+                if is_digest:
+                    img = client.images.pull(candidate_ref)
+                elif prefix:
+                    img = client.images.pull(f"{prefix}/{repo}", tag=ref)
+                else:
+                    img = client.images.pull(repo, tag=ref)
+                # 不论 digest/tag，最后都打一份 repo:latest 的标准标签，
+                # 兼容后续 client.containers.run(image) 用 image_tag/latest 启动旧语义。
+                if prefix or is_digest:
+                    img.tag(repo, 'latest')
+                    logger.info(f"已重打标准标签: {repo}:latest")
                 logger.info("镜像拉取成功")
                 return
             except Exception as e:
@@ -158,10 +194,21 @@ def do_deploy(data: dict):
     logger.info(f"开始部署: {data.get('repository', 'unknown')}")
     commit = data.get('commit', '')
     logger.info(f"Commit: {commit[:8] if commit else 'unknown'}")
-    # 镜像优先取请求体 image（CI 每次部署指明，如 ghcr.io/jadeviewdocs/docs:latest），
-    # 兜底环境变量 IMAGE_NAME（docker.io 域名，国内拉不动，仅兼容旧调用方）
-    image = data.get('image') or IMAGE_NAME
-    logger.info(f"镜像: {image}")
+    # 镜像选择：
+    #   1) 优先请求体 image（CI 传 digest，如 ghcr.io/jadeviewdocs/docs@sha256:abc）
+    #      —— 不可变引用，保证 pull 的就是本次构建，不被并发 run 的 latest 覆盖。
+    #   2) 次选请求体 image_tag（CI 同时传，如 ghcr.io/jadeviewdocs/docs:latest）
+    #      —— 老版 webhook 没做 digest 兼容时的兜底。
+    #   3) 最后兜底环境变量 IMAGE_NAME（docker.io 域名，兼容最老调用方）。
+    pull_image_ref = data.get('image') or data.get('image_tag') or IMAGE_NAME
+    # containers.run() 不支持 image@digest；但 pull_image 成功后已经把标准标签
+    # repo:latest 打回，run 阶段用 image_tag/latest 即可（层完全一致，id 相同），
+    # 不会出现"pull 了 digest 但 run 时拉了另一个 latest"的 race。
+    run_image_ref = data.get('image_tag') or IMAGE_NAME
+    if data.get('digest'):
+        logger.info(f"构建 digest: {data['digest']}")
+    logger.info(f"拉取镜像: {pull_image_ref}")
+    logger.info(f"启动镜像: {run_image_ref}")
     logger.info("=" * 50)
 
     try:
@@ -175,7 +222,21 @@ def do_deploy(data: dict):
             except Exception as e:
                 logger.warning(f"登录失败（继续尝试拉取公开镜像）: {e}")
 
-        pull_image(client, image)
+        # ghcr.io 私有包登录：CI 推送到 ghcr.io/jadeviewdocs/docs（组织包禁止公开），
+        # 匿名拉取会 401 unauthorized。配置了 GHCR_USER/GHCR_TOKEN（classic PAT, read:packages）
+        # 就在拉取前登录；登录凭据写入 docker config，后续 images.pull 自动携带。
+        if GHCR_USER and GHCR_TOKEN:
+            logger.info(f"登录 ghcr.io: {GHCR_USER}")
+            try:
+                client.login(username=GHCR_USER, password=GHCR_TOKEN, registry='ghcr.io')
+                logger.info("ghcr.io 登录成功")
+            except Exception as e:
+                logger.warning(f"ghcr.io 登录失败: {e}")
+        elif 'ghcr.io' in pull_image_ref:
+            logger.warning("目标镜像在 ghcr.io 但未配置 GHCR_USER/GHCR_TOKEN，"
+                           "组织包为私有，匿名拉取将 401 unauthorized")
+
+        pull_image(client, pull_image_ref)
 
         try:
             old = client.containers.get(CONTAINER_NAME)
@@ -194,7 +255,7 @@ def do_deploy(data: dict):
 
         logger.info(f"启动新容器: {CONTAINER_NAME}  (host {SITE_PORT} -> container 80)")
         container = client.containers.run(
-            image,
+            run_image_ref,
             name=CONTAINER_NAME,
             detach=True,
             restart_policy={'Name': 'unless-stopped'},

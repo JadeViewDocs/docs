@@ -1,92 +1,55 @@
-# JadeView Docs MCP
+# jadeview-docs-mcp
 
-自建的 JadeView 文档 MCP 服务，**替代官方 Algolia MCP**。数据直接读本地 markdown 源文件（`../docs`），所以官方 Algolia 索引里缺失的正文（如 `window-api` 的 `create_webview_window` 签名）这里都查得到。
+JadeView 官方文档的本地 MCP 服务（stdio 传输）。文档 markdown **随 npm 包一起分发**，npx 拉起即用，无需克隆文档仓库、无需联网。
 
-- 传输：**Streamable HTTP**（无状态），可本地跑也可部署
-- 索引：启动时扫描 `docs/**/*.md`，按标题切成 section（复刻 docsearch 的 `hierarchy + content + url + anchor + lang`）
-- 搜索：MiniSearch + 中文 bigram 分词（中文没有空格，标准分词搜不到）
-- 中英文都索引（`.md`=zh，`.en-US.md`=en）
-
-## 线上服务
-
-已部署，公网入口（前置反代终结 HTTPS）：
-
-- **MCP 端点**：`https://mcp.jade.run/mcp`
-- **健康检查**：`https://mcp.jade.run/health` → `{"ok":true,"pages":...,"sections":...}`
-
-反代把 `mcp.jade.run` 反向代理到服务器容器 `docs-mcp` 的 `http://127.0.0.1:8848`。
-
-## 工具
+提供两个工具：
 
 | 工具 | 作用 |
 |------|------|
-| `search_docs(query, lang?, limit?)` | 全文搜索，返回排序后的 section：面包屑、url、源文件 path、片段 |
-| `get_doc(path)` | 读整页完整 markdown；`path` 用 search 返回的 `path`（如 `docs/docs/api/window-api.md`）或路由（`/docs/api/window-api`） |
+| `search_docs(query, lang?, limit?)` | 全文搜索（MiniSearch + 中文 bigram 分词），返回排序后的 section：面包屑、url、源文件 path、片段。中英文均已索引。 |
+| `get_doc(path)` | 读整页完整 markdown；`path` 用 search 返回的 `path`（如 `docs/api/window-api.md`）或路由（`/docs/api/window-api`）。 |
 
-典型用法：先 `search_docs` 找到相关页，再 `get_doc` 拿完整 API 签名/代码示例。
+典型用法：先 `search_docs` 找到相关章节，再 `get_doc` 拿完整 API 签名 / 代码示例。
 
-## 本地运行
+## 接入 MCP 客户端
 
-```bash
-cd mcp
-bun install            # 或 npm install
-bunx tsx src/server.ts # 或  npm run dev
-# -> http://127.0.0.1:8848/mcp
-```
-
-命令行自测（不起服务）：
-
-```bash
-bunx tsx src/cli.ts 创建窗口
-bunx tsx src/cli.ts --lang en window
-```
-
-端到端自测（需先起服务）：
-
-```bash
-bunx tsx src/smoke-test.ts
-```
-
-## 环境变量
-
-| 变量 | 默认 | 说明 |
-|------|------|------|
-| `PORT` | `8848` | 监听端口 |
-| `HOST` | `127.0.0.1` | 监听地址（容器里设 `0.0.0.0`） |
-| `DOCS_DIR` | `../docs` | markdown 根目录 |
-| `BASE_URL` | `https://jade.run` | 生成 url 的站点前缀 |
-| `MCP_AUTH_TOKEN` | 空 | 设置后，`POST /mcp` 需带 `Authorization: Bearer <token>` |
-
-## 接入 Claude Code
-
-和官方 Algolia MCP 一样的写法，把 url 换成本服务：
+Claude Code / ZCode / Cursor 等客户端，在 MCP 配置里加：
 
 ```json
 {
   "mcpServers": {
-    "jadeview_docs": {
-      "url": "http://127.0.0.1:8848/mcp",
-      "transport": "http"
+    "jadeview-docs": {
+      "command": "npx",
+      "args": ["-y", "jadeview-docs-mcp"]
     }
   }
 }
 ```
 
-部署到服务器后换成公网地址，并建议开 `MCP_AUTH_TOKEN`（客户端在 `headers` 里带 `Authorization`）。
+首次运行 npx 会自动下载并缓存；之后离线也能启动（索引在进程启动时构建，135 页 / 2230+ 段约 300ms）。想锁定版本可把参数换成 `["-y", "jadeview-docs-mcp@<版本号>"]`。
 
-## 部署
+## 国内镜像加速
 
-npm 包只含服务本体（`dist`），文档目录需自备——克隆本项目后把 `DOCS_DIR` 指向 `docs/`：
+国内网络环境拉取 npm 包慢或失败时，可改用 npmmirror 镜像源，任选其一：
 
 ```bash
-npm install -g jadeview-docs-mcp
-# DOCS_DIR 指向本仓库的 docs/ 目录（默认 ../docs）
-DOCS_DIR=/path/to/JadeView_docs/docs PORT=8848 jadeview-docs-mcp
+# 方式一：仅本次使用
+npx -y --registry=https://registry.npmmirror.com jadeview-docs-mcp
+
+# 方式二：全局切换（影响所有 npm / npx 操作）
+npm config set registry https://registry.npmmirror.com
 ```
 
-内容更新后重启进程即可（索引在启动时构建，130 页 ~300ms）。
+或在用户目录的 `.npmrc` 里写入一行：`registry=https://registry.npmmirror.com`。
 
-## 说明
+> npmmirror 从官方源同步新版本有几分钟延迟，刚发版后镜像里暂时找不到最新版本属正常现象。
 
-- `get_doc` 的 `path` 形如 `docs/docs/api/window-api.md`（双 `docs` 是因为源码里 dumi 文档嵌套在 `docs/docs/` 下，这是真实的仓库相对路径）。
-- 路由规则：zh 无前缀 `/docs/...`，en 加 `/en-US`；`index.md` 映射到所在目录。锚点用 GitHub 风格 slug（中文保留原字，浏览器里会 URL 编码）。
+### 环境变量（可选）
+
+| 变量 | 默认 | 说明 |
+|------|------|------|
+| `BASE_URL` | `https://jade.run` | 生成文档链接的站点前缀 |
+
+## 许可证
+
+[MIT](LICENSE)。包内随附的文档内容版权归 JadeView 文档作者所有。

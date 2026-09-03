@@ -32,6 +32,18 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    # 关键点：把所有步骤的默认都设为 fail-fast —— 任何一步失败，后续 step 不再
+    # 执行，也不会继续 push/部署。buildx 单 RUN exit 1 被包成 step failure，
+    # 这俩属性让这个 failure 一路传到底，不"半失败半成功"地往下走。
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+    outputs:
+      # 站点镜像：构建成功后把 digest 暴露给下游；deploy step 只在 digest 非空、
+      # 且本 job 整体 success() 时才执行。用作"构建真的成功"的硬信号。
+      site_digest: ${{ steps.build_site.outputs.digest }}
+      mcp_digest:  ${{ steps.build_mcp.outputs.digest }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,6 +68,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/update-contributors.mjs
 
+      # 给 buildx 挂载的缓存路径开启 Actions 层缓存（跨 run 复用 /root/.npm），
+      # 作为 Dockerfile 里的 `--mount=type=cache,target=/root/.npm` 的进一步后端，
+      # 即便 BuildKit 自身缓存被清理，也能从 Actions cache 还原。
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: 登录 Docker Hub
         uses: docker/login-action@v3
         with:
@@ -71,64 +89,79 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 构建并推送镜像
+      - name: 构建并推送站点镜像
+        id: build_site
         uses: docker/build-push-action@v6
+        # 关键点：构建失败绝不能静默继续。默认就会 fail，但显式声明 + 用 outputs 存
+        # digest 能保证下游能"用 digest 非空"判定成功，避免把 failure 当 success 继续走。
         with:
           context: .
+          file: Dockerfile
           push: true
+          provenance: false
+          # BuildKit 自带持久化缓存（GitHub runner 本机层），再加 Actions cache
+          # 后端：npm ci 的 tarball、node-gyp 编译中间产物、dumi build 的
+          # utoopack cache 都能跨 run 复用。
+          cache-from: type=gha,scope=docs-site
+          cache-to:   type=gha,scope=docs-site,mode=max
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
             ghcr.io/jadeviewdocs/docs:latest
             ghcr.io/jadeviewdocs/docs:${{ github.sha }}
 
-      # MCP 分发只走 npm（不再构建服务器镜像）：mcp 源码有变更才发版。
-      # 版本号自动递增——本地版本高于 registry 时发本地版本（如大版本重写），
-      # 否则基于 registry 最新版 patch +1，无需手动改 mcp/package.json。
-      # npm 包只含 dist（不含 docs），故文档更新触发的重建不会发版。
-      # 发布失败（token 权限等）不阻塞站点镜像部署。
-      - name: 发布 MCP 到 npm
-        continue-on-error: true
+      # MCP 服务镜像已移除：HTTP 版 MCP 由 npm 包 jadeview-docs-mcp（stdio）替代，
+      # 见 mcp/ 与 .github/workflows/publish-npm.yml。
+
+      # —— 关键：触发服务器部署 ——
+      # 执行条件（AND）：
+      #   1. success()          —— 前面所有步骤（build_site）都成功
+      #   2. build_site 真成功  —— outputs.digest 非空（build-push-action 只有 push 成
+      #                           功才写 digest）；npm ci exit 1 时 build_site 失败，digest 为空串
+      #   ⚠️ 不能在这里判断 secrets：GitHub Actions 的 `if:` 表达式不允许引用
+      #      secrets 上下文（报 Unrecognized named-value: 'secrets'，整个 workflow
+      #      解析失败、静默不跑）。凭证是否配置改在 run 里检查。
+      - name: 触发服务器 webhook 拉取部署
+        if: >-
+          success() &&
+          steps.build_site.outcome == 'success' &&
+          steps.build_site.outputs.digest != ''
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
         run: |
-          CHANGED=$(git diff --name-only "${{ github.event.before }}"..HEAD -- mcp/src mcp/package.json mcp/tsconfig.json 2>/dev/null || true)
-          if [ -z "$CHANGED" ]; then
-            echo "mcp 源码无变化（或非 push 触发），跳过 npm 发布"
+          set -euo pipefail
+
+          # 未配置凭证时跳过部署（构建/推送已完成，只是不触发服务器）
+          if [ -z "${WEBHOOK_URL}" ] || [ -z "${WEBHOOK_TOKEN}" ]; then
+            echo "::warning::未配置 WEBHOOK_URL / WEBHOOK_TOKEN，跳过部署触发"
             exit 0
           fi
-          cd mcp
-          npm install
-          LOCAL=$(node -p "require('./package.json').version")
-          REMOTE=$(npm view jadeview-docs-mcp version 2>/dev/null || echo none)
-          if [ "$REMOTE" = "none" ]; then
-            VER=$LOCAL
-          else
-            NEWER=$(printf '%s\n' "$LOCAL" "$REMOTE" | sort -V | tail -1)
-            if [ "$NEWER" = "$LOCAL" ] && [ "$LOCAL" != "$REMOTE" ]; then
-              VER=$LOCAL
-            else
-              VER=$(printf '%s\n' "$REMOTE" | awk -F. '{$NF++; print}' OFS=.)
-            fi
-          fi
-          npm version "$VER" --no-git-tag-version
-          npm run build
-          npm publish --access public
-          echo "已发布 jadeview-docs-mcp@$VER"
 
-      - name: 触发服务器 webhook 拉取部署
-        run: |
-          curl -X POST "${{ secrets.WEBHOOK_URL }}" \
+          # 拿到实际推送到 ghcr.io 的 digest（@sha256:…），比 latest tag 更可靠：
+          # latest 可能因为竞态被另一个并发 run 覆盖，服务器 pull 拉到旧内容；
+          # digest 指向本次构建的唯一 layer，不会错位。
+          DIGEST="${{ steps.build_site.outputs.digest }}"
+          echo "本次构建 digest: ${DIGEST}"
+
+          curl -X POST "${WEBHOOK_URL}" \
             -H "Content-Type: application/json" \
-            -H "X-Webhook-Token: ${{ secrets.WEBHOOK_TOKEN }}" \
-            -d '{
-              "image": "ghcr.io/jadeviewdocs/docs:latest",
-              "repository": "${{ github.repository }}",
-              "commit": "${{ github.sha }}"
-            }' \
+            -H "X-Webhook-Token: ${WEBHOOK_TOKEN}" \
+            -d "$(cat <<JSON
+          {
+            "image":      "ghcr.io/jadeviewdocs/docs@${DIGEST}",
+            "image_tag":  "ghcr.io/jadeviewdocs/docs:latest",
+            "repository": "${{ github.repository }}",
+            "commit":     "${{ github.sha }}",
+            "actor":      "${{ github.actor }}",
+            "digest":     "${DIGEST}"
+          }
+          JSON
+          )" \
             --connect-timeout 10 \
             --max-time 300 \
             --retry 3 \
             --retry-delay 5 \
             --retry-max-time 120 \
-            --fail --show-error
+            --fail --show-error \
+            --silent | tail -20

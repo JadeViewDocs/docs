@@ -58,8 +58,9 @@ const DOCS_SECTIONS = [
   },
 ];
 
-// 「产品」下拉的两张卡片（复用「文档」的 docBig 卡壳）：JadePack / Jade EC 查看器。
+// 「产品」下拉的大卡片（复用「文档」的 docBig 卡壳）：JadePack / Jade EC 查看器。
 // 标题/描述走 useT()（见 ../locales/strings 的 navbar.products）；logo 为各产品自带的 app 图标（public/product/）。
+// 「案例」(/showcase) 不是产品，不放卡片——落在本下拉底部的「案例」菜单行（SDK 同款行式，见 productsFooter）。
 const PRODUCTS = [
   { key: 'jadepack' as const, link: '/jadepack', logo: '/product/jadepack.svg', external: false },
   { key: 'jadeEc' as const, link: '/jade-ec', logo: '/product/jade-ec.svg', external: false },
@@ -223,6 +224,25 @@ const useStyles = createStyles(({ css, token, cx, isDarkMode }) => {
     font-weight: 700;
     line-height: 1;
     color: #fff;
+  `,
+  // 「案例」字徽（产品下拉底部的案例入口，SDK 同行式）：品牌橙底 + 白字
+  caseChar: css`
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    background: linear-gradient(135deg, #FDBA74, #F97316);
+    box-shadow: 0 4px 12px -4px rgba(249, 115, 22, 0.5);
   `,
   mTitle: css`
     display: block;
@@ -413,6 +433,7 @@ export default memo(function JadeNavbar() {
     if (l === SDK_ROOT || item.title === 'SDKs') return t.nav.sdks;
     if (l === '/jadepack' || item.title === '产品') return t.nav.products;
     if (l === '/showcase') return t.nav.showcase;
+    if (l === '/dynamics') return t.nav.dynamics;
     if (l === '/releases') return t.nav.releases;
     return item.title;
   };
@@ -448,7 +469,7 @@ export default memo(function JadeNavbar() {
     return pathname === link || pathname.startsWith(link + '/');
   };
   const sdkActive = matches(SDK_ROOT);
-  const productsActive = ['/jadepack', '/jade-ec'].some((l) => matches(l));
+  const productsActive = ['/jadepack', '/jade-ec', '/showcase'].some((l) => matches(l));
 
   // 「文档」项链接到 /docs/spec，但需在整个文档主路由（含 /docs/api 子分区）下都高亮。
   const itemActive = (link: string) =>
@@ -574,31 +595,47 @@ export default memo(function JadeNavbar() {
     </div>
   );
 
-  // 「产品」下拉：复用「文档」的卡壳（docBig），展示各产品自带 app 图标 + 标题/描述。
-  // 站内用 Link 走路由；站外（external=true，如 Clean Pro 跳 Microsoft Store）用 <a> 新标签打开。
+  // 「产品」下拉：上方为产品大卡片（docBig，JadePack / Jade EC / Clean Pro），
+  //   站内用 Link 走路由；站外（external=true，如 Clean Pro 跳 Microsoft Store）用 <a> 新标签打开。
+  // 下方为「案例」菜单行（SDK 同款行式：字徽 + 标题 + 描述 + 箭头），与产品卡片视觉区分。
   const productsCard = (
-    <div className={styles.docCard}>
-      {PRODUCTS.map((p) => {
-        const inner = (
-          <div className={styles.prodInner}>
-            <img className={styles.prodLogo} src={p.logo} alt="" />
-            <span className={styles.docCardTitle}>
-              {t.navbar.products[p.key].title}
-              <ChevronRight className={cx(styles.docArrow, 'jade-doc-arrow')} size={15} />
-            </span>
-            <span className={styles.docCardDesc}>{t.navbar.products[p.key].desc}</span>
-          </div>
-        );
-        return p.external ? (
-          <a key={p.link} className={styles.docBig} href={p.link} target="_blank" rel="noreferrer">
-            {inner}
-          </a>
-        ) : (
-          <Link key={p.link} className={styles.docBig} to={L(p.link)}>
-            {inner}
-          </Link>
-        );
-      })}
+    <div>
+      {/* 产品大卡片（多卡片时自动换行成两列） */}
+      <div className={styles.docCard} style={{ flexWrap: 'wrap' }}>
+        {PRODUCTS.map((p) => {
+          const inner = (
+            <div className={styles.prodInner}>
+              <img className={styles.prodLogo} src={p.logo} alt="" />
+              <span className={styles.docCardTitle}>
+                {t.navbar.products[p.key].title}
+                <ChevronRight className={cx(styles.docArrow, 'jade-doc-arrow')} size={15} />
+              </span>
+              <span className={styles.docCardDesc}>{t.navbar.products[p.key].desc}</span>
+            </div>
+          );
+          return p.external ? (
+            <a key={p.link} className={styles.docBig} href={p.link} target="_blank" rel="noreferrer">
+              {inner}
+            </a>
+          ) : (
+            <Link key={p.link} className={styles.docBig} to={L(p.link)}>
+              {inner}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* 「案例」菜单行（产品下拉的底部入口，SDK 同款行式，点击进案例页） */}
+      <div className={styles.footer}>
+        <Link className={styles.downloadCard} to={L('/showcase')}>
+          <span className={styles.caseChar}>案</span>
+          <span className={styles.downloadBody}>
+            <span className={styles.downloadTitle}>{t.navbar.products.showcase.title}</span>
+            <span className={styles.downloadDesc}>{t.navbar.products.showcase.desc}</span>
+          </span>
+          <ChevronRight className={cx(styles.downloadArrow, 'jade-dl-arrow')} size={18} />
+        </Link>
+      </div>
     </div>
   );
 
@@ -607,6 +644,9 @@ export default memo(function JadeNavbar() {
       {nav.map((item: any) => {
         const key = String(item.activePath || item.link);
         const menu = menuOf(item);
+        // 「案例」已收纳进「产品」下拉卡片（PRODUCTS.showcase），PC 顶部导航不再单独占一位；
+        // 移动端汉堡菜单（JadeBurger）仍按 nav 渲染独立项，不受影响（只影响 PC）。
+        if (String(item.link) === '/showcase') return null;
         if (menu) {
           // 带下拉的触发器（文档 / SDKs）：悬停打开共享面板；点击仍按链接跳转。
           const itemActiveNow = menu === 'sdk' ? sdkActive : menu === 'products' ? productsActive : itemActive(item.link);

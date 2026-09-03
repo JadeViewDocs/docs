@@ -6,7 +6,7 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 
 const zh = {
   // 顶部导航项（按 link 映射，见 JadeNavbar）
-  nav: { docs: '文档', sdks: 'SDKs', products: '产品', showcase: '案例', releases: '发行版本' },
+  nav: { docs: '文档', sdks: 'SDKs', products: '产品', showcase: '案例', dynamics: '动态', releases: '发行版本' },
   // 导航「文档」「SDKs」下拉
   navbar: {
     countSuffix: ' 篇', // {n} 篇
@@ -25,6 +25,7 @@ const zh = {
     products: {
       jadepack: { title: 'JadePack', desc: '官方图形化打包工具：JAPK 混淆 / 签名加密与安装包构建。' },
       jadeEc: { title: 'Jade EC 查看器', desc: '易语言 .ec 模块现代化查看器，三栏布局 + 多维度搜索。' },
+      showcase: { title: '案例', desc: '用 JadeView 构建的真实应用与社区生态。' },
       cleanPro: { title: 'Clean Pro', desc: '分析磁盘空间、清理 Windows 系统垃圾、识别应用残留，并安全迁移文件夹。' },
     },
   },
@@ -66,15 +67,9 @@ int main() {
     ],
     techTitle: '使用你喜欢的前端技术栈',
     techSub: '从 React、Vue 到原生 HTML，用任何熟悉的前端技术构建桌面应用。',
-    freeTitle: '全功能 · 永久免费',
-    freeSub: 'DLL 与 Lib 提供完全一致的 C API，仅链接方式不同；全功能免费，无需商业授权。',
-    recommend: '推荐',
-    viewApi: '查看 API 文档 →',
-    plans: [
-      { name: 'DLL 动态库', desc: '运行时动态加载，适合快速集成。', popular: false, items: ['WebView 窗口创建', '事件系统支持', '自定义标题栏', 'IPC 双向通信', '完整 C API', '全功能免费'] },
-      { name: 'Lib 静态库', desc: '编译时静态链接，可编译进可执行文件，独立部署无依赖。', popular: true, items: ['以上 DLL 全部能力', '编译进可执行文件', '无运行时依赖', '独立分发'] },
-      { name: '企业定制', desc: '专属技术支持与定制开发。', popular: false, items: ['源码级定制', '专属技术支持', '性能优化咨询', '长期版本维护'] },
-    ],
+    newsTitle: '动态',
+    newsSub: '来自官方频道的产品更新与社区动态。',
+    newsMore: '更多动态',
     devsTitle: '核心开发者',
     devsSub: '由 JadeView 开发委员会维护。',
     devs: [
@@ -191,6 +186,11 @@ int main() {
       },
     ],
   },
+  // 动态页（Dynamics builtin）：文案
+  dynamics: {
+    loading: '加载中…',
+    empty: '暂无动态，请稍后重试。',
+  },
   jadepack: {
     hero: {
       eyebrow: '官方打包工具',
@@ -270,7 +270,7 @@ int main() {
 };
 
 const en: typeof zh = {
-  nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', releases: 'Releases' },
+  nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', dynamics: 'Dynamics', releases: 'Releases' },
   navbar: {
     countSuffix: ' docs', // {n} docs
     sdk: {
@@ -288,6 +288,7 @@ const en: typeof zh = {
     products: {
       jadepack: { title: 'JadePack', desc: 'Official GUI packaging tool: JAPK obfuscation / signing and installer builds.' },
       jadeEc: { title: 'Jade EC Viewer', desc: 'A modern viewer for E-Language .ec modules — three-column layout + search.' },
+      showcase: { title: 'Showcase', desc: 'Real apps built with JadeView and the community ecosystem.' },
       cleanPro: { title: 'Clean Pro', desc: 'Analyze disk space, clean Windows system junk, identify app leftovers, and safely migrate folders.' },
     },
   },
@@ -328,15 +329,9 @@ int main() {
     ],
     techTitle: 'Use the Front-end Stack You Love',
     techSub: 'From React and Vue to plain HTML — build desktop apps with any front-end tech you know.',
-    freeTitle: 'Full-featured · Free Forever',
-    freeSub: 'DLL and Lib expose the exact same C API — only the linking differs. Fully free, no commercial license required.',
-    recommend: 'Popular',
-    viewApi: 'View API docs →',
-    plans: [
-      { name: 'DLL (Dynamic)', desc: 'Loaded dynamically at runtime — great for quick integration.', popular: false, items: ['WebView window creation', 'Event system', 'Custom title bar', 'Two-way IPC', 'Full C API', 'All features free'] },
-      { name: 'Lib (Static)', desc: 'Statically linked at compile time — compile into your executable for dependency-free deployment.', popular: true, items: ['Everything in DLL', 'Compiled into the executable', 'No runtime dependencies', 'Standalone distribution'] },
-      { name: 'Enterprise', desc: 'Dedicated support and custom development.', popular: false, items: ['Source-level customization', 'Dedicated technical support', 'Performance consulting', 'Long-term maintenance'] },
-    ],
+    newsTitle: 'Dynamics',
+    newsSub: 'Product updates and community news from the official channel.',
+    newsMore: 'More',
     devsTitle: 'Core Developers',
     devsSub: 'Maintained by the JadeView development committee.',
     devs: [
@@ -448,6 +443,10 @@ int main() {
         badge: '',
       },
     ],
+  },
+  dynamics: {
+    loading: 'Loading…',
+    empty: 'No dynamics yet. Please try again later.',
   },
   jadepack: {
     hero: {

@@ -1,0 +1,277 @@
+---
+title: 从内存载入
+order: 3
+group:
+  title: 资源与本地服务
+  order: 6
+---
+
+# 从内存载入
+
+JadeView 2.0 支持从内存直接加载 JAPK 包，无需本地文件系统。适用于将 JAPK 数据嵌入可执行文件或从网络下载后直接使用的场景。
+
+本页介绍内存载入相关 API。如需从本地文件加载，请参阅 [从本地载入](/docs/api/japk)。
+构建 JAPK 混淆包请使用 [JadePack](/docs/api/jadepack) 桌面客户端。
+
+---
+
+## 概述
+
+`JadeView_load_from_bytes` 从内存加载 JAPK 包，通过魔数检测包格式：
+
+- 仅接受 **JAPK v2 签名包**，使用 JadeView 内置的 JadeTweak 平台根公钥验证签名后解密加载
+- 验证公钥已编译进 DLL，宿主无需也无法在运行时注入公钥
+
+> 💡 **提示**：签名包和混淆包均由 [JadePack](/docs/api/jadepack) 构建。内存加载仅接受签名包；混淆包请通过本地文件方式加载。
+
+| 格式 | 魔数 | 说明 | 构建工具 |
+|------|------|------|----------|
+| **JAPK v2 签名包** | `JAPKV002` | Ed25519 签名 + AES-256-GCM 加密 | [JadePack](/docs/api/jadepack) |
+| **混淆包 v2** | `JPKBIN02` | SHA256 动态密钥派生 + 3 层可逆变换 | [JadePack](/docs/api/jadepack) |
+
+**关键安全约束**：内存加载仅接受 JAPK v2 签名包，签名验证失败 **绝不会回退** 到混淆包逻辑。
+
+---
+
+## 核心 API
+
+### JadeView_load_from_bytes
+
+从内存加载 JAPK 包。
+
+```c
+int JadeView_load_from_bytes(const uint8_t* japk_data, size_t data_size);
+```
+
+**参数：**
+
+- `japk_data` `uint8_t*` - JAPK 文件数据指针
+- `data_size` `size_t` - 数据大小（字节）
+
+**返回值：**
+
+- `0` - 加载成功
+- 负数 - 错误码，详见下方错误码表
+
+**调用顺序**：
+
+1. `JadeView_init` — 初始化运行时
+2. `JadeView_load_from_bytes` — 加载 JAPK 数据
+
+---
+
+### JadeView_is_loaded
+
+检查 JAPK 包是否已成功加载。
+
+```c
+int JadeView_is_loaded(void);
+```
+
+**返回值：**
+
+- `1` - 已加载
+- `0` - 未加载
+
+---
+
+### JadeView_get_app_signature
+
+返回 `JadeView_init` 时设置的 `app_signature`（与是否已加载、包类型无关）。
+
+```c
+char* JadeView_get_app_signature(void);
+```
+
+**返回值：**
+
+- 非 NULL - 应用标识字符串，调用方需用 `jade_text_free` 释放
+
+---
+
+### JadeView_get_signature_info
+
+返回签名信息 JSON。仅签名包加载成功后有值。
+
+```c
+char* JadeView_get_signature_info(void);
+```
+
+**返回值：**
+
+- 非 NULL - 签名信息 JSON 字符串，调用方需用 `jade_text_free` 释放
+
+---
+
+### JadeView_unload
+
+清除加载状态，释放内存中的 JAPK 数据。
+
+```c
+int JadeView_unload(void);
+```
+
+---
+
+## 错误码
+
+| 值 | 常量 | 说明 |
+|----|------|------|
+| `0` | `JADEVIEW_JAPK_OK` | 成功 |
+| `-1` | `JADEVIEW_JAPK_ERROR_INVALID_PARAM` | 无效参数（空指针/大小为0） |
+| `-2` | `JADEVIEW_JAPK_ERROR_NOT_INITIALIZED` | 未调用 `JadeView_init` |
+| `-3` | `JADEVIEW_JAPK_ERROR_LOAD_FAILED` | 加载失败 |
+| `-4` | `JADEVIEW_JAPK_ERROR_INVALID_FORMAT` | 无效/不支持的格式 |
+| `-5` | `JADEVIEW_JAPK_ERROR_INVALID_SIGNATURE` | 签名验证失败 |
+| `-6` | `JADEVIEW_JAPK_ERROR_APP_MISMATCH` | app_signature/app_name 不匹配 |
+| `-7` | `JADEVIEW_JAPK_ERROR_DECRYPT_FAILED` | 解密/解混淆失败 |
+| `-8` | `JADEVIEW_JAPK_ERROR_UNSIGNED_NOT_ALLOWED` | 签名包缺少签名 |
+| `-9` | `JADEVIEW_JAPK_ERROR_MISSING_PUBLIC_KEY` | 未设置公钥 |
+| `-10` | `JADEVIEW_JAPK_ERROR_INVALID_PUBLIC_KEY` | 公钥格式无效 |
+| `-11` | `JADEVIEW_JAPK_ERROR_POLICY_DENIED` | 安全策略拒绝 |
+| `-12` | `JADEVIEW_JAPK_ERROR_NOT_LOADED` | 未加载 |
+
+---
+
+## 事件
+
+加载过程通过 `jade_on` 注册的回调异步通知：
+
+### japk-load-success
+
+加载成功时触发，回调收到 JSON 数据：
+
+```json
+{
+  "app_signature": "com.example.app",
+  "app_name": "MyApp",
+  "asar_size": 1048576,
+  "type": "signed"
+}
+```
+
+| 字段 | 签名包 | 混淆包 |
+|------|:------:|:------:|
+| `app_signature` | ✓ | ✗ |
+| `app_name` | ✓ | ✗ |
+| `asar_size` | ✓ | ✓ |
+| `type` | `"signed"` | `"scrambled"` |
+
+### japk-load-failed
+
+加载失败时触发，回调收到纯文本错误消息，如 `"Signature verification failed"`。
+
+---
+
+## 使用示例
+
+### C 语言
+
+```c
+#include "JadeView.h"
+
+void load_from_memory_example() {
+    // 1. 初始化
+    JadeView_init(1, NULL, NULL, "MyApp", "com.example.app", 0);
+
+    // 2. 读取 JAPK 文件到内存
+    FILE* f = fopen("app.japk", "rb");
+    fseek(f, 0, SEEK_END);
+    size_t size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    uint8_t* data = malloc(size);
+    fread(data, 1, size, f);
+    fclose(f);
+
+    // 3. 从内存加载（JAPK v2 签名包）
+    int rc = JadeView_load_from_bytes(data, size);
+    if (rc != 0) {
+        printf("加载失败: %d\n", rc);
+        free(data);
+        return;
+    }
+
+    // 4. 获取协议 URL（内存加载时传入空字符串）
+    char url_buffer[256];
+    set_protocol_service_path("", url_buffer, sizeof(url_buffer), 0);  // 第 4 参 hot_reload，内存加载传 0
+    // url_buffer 内容类似: JADE://{app_signature}/（app_signature 为 JadeView_init 第 5 参，小写）
+
+    // 5. 创建窗口使用该 URL
+    WebViewWindowOptions options = {
+        .title = "JAPK 内存加载",
+        .width = 800,
+        .height = 600,
+        .frame_style = "normal"
+    };
+    create_webview_window(url_buffer, 0, &options, NULL);
+
+    free(data);
+}
+```
+
+### Python (ctypes)
+
+```python
+import ctypes
+from ctypes import c_char_p, c_int, c_uint8, c_size_t, POINTER
+
+dll = ctypes.WinDLL("JadeView.dll")
+
+dll.JadeView_init.argtypes = [c_int, c_char_p, c_char_p, c_char_p, c_char_p, c_int]
+dll.JadeView_init.restype = c_int
+
+dll.JadeView_load_from_bytes.argtypes = [POINTER(c_uint8), c_size_t]
+dll.JadeView_load_from_bytes.restype = c_int
+
+dll.JadeView_is_loaded.argtypes = []
+dll.JadeView_is_loaded.restype = c_int
+
+# 1. 初始化
+dll.JadeView_init(1, None, b"./data", b"MyApp", b"com.example.app", 0)
+
+# 2. 读取 JAPK 到内存
+with open("app.japk", "rb") as f:
+    japk_data = f.read()
+
+# 3. 内存加载（JAPK v2 签名包）
+data_ptr = (c_uint8 * len(japk_data)).from_buffer_copy(japk_data)
+rc = dll.JadeView_load_from_bytes(data_ptr, len(japk_data))
+if rc != 0:
+    raise RuntimeError(f"JadeView_load_from_bytes failed: {rc}")
+
+# 4. 获取协议 URL（内存加载时传入空字符串）
+dll.set_protocol_service_path.argtypes = [c_char_p, c_char_p, c_size_t, c_int]
+dll.set_protocol_service_path.restype = c_int
+
+url_buffer = ctypes.create_string_buffer(256)
+dll.set_protocol_service_path(b"", url_buffer, 256, 0)  # 第 4 参 hot_reload，内存加载传 0
+print(f"协议 URL: {url_buffer.value.decode()}")
+
+# 5. 使用该 URL 创建窗口
+loaded = dll.JadeView_is_loaded()
+print(f"JAPK loaded: {loaded}")
+```
+
+---
+
+## 完整调用时序
+
+```
+调用方                          JadeView DLL
+  │                                 │
+  ├─ JadeView_init ────────────────►│ 初始化
+  │                                 │
+  ├─ jade_on("japk-load-success")──►│ 注册成功回调
+  ├─ jade_on("japk-load-failed") ──►│ 注册失败回调
+  │                                 │
+  ├─ JadeView_load_from_bytes ─────►│ 魔数检测 → 签名验证/解密 → ASAR
+  │                                 │
+  │  ◄── japk-load-success ────────┤ 异步事件
+  │                                 │
+  ├─ set_protocol_service_path("")─►│ 获取协议 URL
+  │  ◄── url_buffer ───────────────┤ JADE://{app_signature}/
+  │                                 │
+  ├─ create_webview_window(url) ───►│ 创建窗口
+  │                                 │
+  ├─ run_message_loop ─────────────►│ 进入事件循环
+```
