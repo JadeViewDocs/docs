@@ -75,11 +75,7 @@ For event field descriptions, see [Event Types](/en-US/docs/api/event-types#glob
 
 ## Cursor Position
 
-### Get Cursor Position (`get_cursor_position`)
-
-:::warning
-Supported since v2.2.
-:::
+### Get Cursor Position (`get_cursor_position`) <span class="jv-version-badge">v2.2</span>
 
 Get the current cursor screen coordinates (global, not bound to a window).
 
@@ -96,19 +92,11 @@ Available on both Windows (`GetCursorPos`) and Linux/X11 (x11rb `QueryPointer`).
 
 ---
 
-## Clipboard
-
-:::warning
-Supported since v2.2.
-:::
+## Clipboard <span class="jv-version-badge">v2.2</span>
 
 Depends on the newly added `arboard` crate.
 
-### Read Clipboard Text (`clipboard_read_text`)
-
-:::warning
-Supported since v2.2.
-:::
+### Read Clipboard Text (`clipboard_read_text`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t clipboard_read_text(char* buffer, int buffer_size);
@@ -119,11 +107,7 @@ int32_t clipboard_read_text(char* buffer, int buffer_size);
 
 ---
 
-### Write Clipboard Text (`clipboard_write_text`)
-
-:::warning
-Supported since v2.2.
-:::
+### Write Clipboard Text (`clipboard_write_text`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t clipboard_write_text(const char* text);
@@ -134,17 +118,9 @@ int32_t clipboard_write_text(const char* text);
 
 ---
 
-## Printing
+## Printing <span class="jv-version-badge">v2.2</span>
 
-:::warning
-Supported since v2.2.
-:::
-
-### Get Printer List (`jade_get_printer_list`)
-
-:::warning
-Supported since v2.2.
-:::
+### Get Printer List (`jade_get_printer_list`) <span class="jv-version-badge">v2.2</span>
 
 Get the system printer list, returned as a JSON array string.
 
@@ -185,11 +161,7 @@ Windows uses the `"print"` verb of `ShellExecute`, printed by the default progra
 
 ---
 
-## Login Autostart
-
-:::warning
-Supported since v2.3.0-beta.6.
-:::
+## Login Autostart <span class="jv-version-badge">v2.3.0-beta.6</span>
 
 Set / query whether the app starts automatically on system login, cross-platform (Windows / Linux). The autostart **identifier name** is taken from the `app_name` passed to `JadeView_init` (falling back to the executable file name if absent); the autostart **command** is the current executable path (`current_exe`) plus the `args` you pass in.
 
@@ -224,11 +196,7 @@ int32_t get_login_autostart(void);
 
 ## File Icon
 
-### Extract a File / Program Icon (`get_file_icon`)
-
-:::warning
-Supported since v2.3.0-beta.6.
-:::
+### Extract a File / Program Icon (`get_file_icon`) <span class="jv-version-badge">v2.3.0-beta.6</span>
 
 Gets the **system-associated icon** for any path (`.exe` / `.lnk` / a regular file / a folder), scales it to a PNG of the requested size, registers it as a `jade://` secure resource, and writes the accessible URL into your buffer — the frontend can use that URL directly as `<img src>`. Commonly used for file managers, launchers, recent-file lists, and other UIs that need to show system icons.
 
@@ -267,11 +235,7 @@ GTK `IconTheme` / `Pixbuf` have main-thread affinity; internally the work is dis
 
 ## Network Time (NTP)
 
-### Get Network Timestamp (`jade_ntp_now`)
-
-:::warning
-Supported since v2.3.
-:::
+### Get Network Timestamp (`jade_ntp_now`) <span class="jv-version-badge">v2.3</span>
 
 Get the current UTC timestamp from a network time server via the NTP protocol (UDP/123). It **does not depend on the local system clock** and can be used for anti-cheat, license validation, log time alignment, and similar scenarios.
 

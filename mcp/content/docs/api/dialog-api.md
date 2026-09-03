@@ -350,11 +350,7 @@ int32_t JADEVIEW_CALL jade_dialog_show_message_box_async(
 
 ## 打印对话框
 
-### 打印本地文件（`jade_print_dialog`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 打印本地文件（`jade_print_dialog`） <span class="jv-version-badge">v2.2</span>
 
 使用系统关联程序打印指定文件，弹出系统打印对话框。
 
@@ -382,11 +378,7 @@ Windows 与 Linux 均可用：
 
 ## 关于对话框
 
-### 显示关于对话框（`show_about_dialog`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 显示关于对话框（`show_about_dialog`） <span class="jv-version-badge">v2.2</span>
 
 弹出系统标准的「关于」对话框。
 

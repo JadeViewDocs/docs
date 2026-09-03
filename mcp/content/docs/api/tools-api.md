@@ -134,11 +134,7 @@ int32_t clear_data_directory(const char* confirm_token);
 
 ## 文本处理
 
-### 智能文本转码（`smart_convert_encoding`）
-
-:::warning
-v2.2 开始支持。
-:::
+### 智能文本转码（`smart_convert_encoding`） <span class="jv-version-badge">v2.2</span>
 
 自动检测输入文本编码，转换为目标编码。
 

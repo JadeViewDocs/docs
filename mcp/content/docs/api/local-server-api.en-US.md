@@ -45,7 +45,7 @@ Must be called **after `app-ready` succeeds**.
 
 ---
 
-## Secure Resource Access System *(new in 2.2)*
+## Secure Resource Access System <span class="jv-version-badge">v2.2</span>
 
 Securely expose local files to the renderer process via a token mechanism. The main process registers a resource → generates a token path → the renderer process accesses only authorized resources → the protocol service maps them dynamically. The renderer process only ever sees the token path and cannot infer the real file path.
 
@@ -140,7 +140,7 @@ int clear_window_resources(unsigned int window_id);
 
 ---
 
-## Hot-Reload Mode *(new in 2.2)*
+## Hot-Reload Mode <span class="jv-version-badge">v2.2</span>
 
 During development, the front-end page refreshes automatically after files are modified, with no manual refresh needed.
 

@@ -230,11 +230,7 @@ JadeView 初始化完成后触发。所有窗口创建、API 调用都必须在�
 
 ---
 
-### `webview-download-completed`
-
-:::warning
-v2.2 开始支持。
-:::
+### `webview-download-completed` <span class="jv-version-badge">v2.2</span>
 
 下载完成时触发（无论成功或失败）。
 
@@ -258,11 +254,7 @@ v2.2 起废弃。
 
 ---
 
-### `drag-drop`
-
-:::warning
-v2.2 开始支持，替换 `file-drop`。
-:::
+### `drag-drop` <span class="jv-version-badge">v2.2</span>
 
 拖拽生命周期事件，覆盖完整的拖拽流程（进入、移动、放下、离开），类似 Tauri 的 `onDragDropEvent`。
 
@@ -297,11 +289,7 @@ jade_on("drag-drop", my_callback);
 {"type": "leave"}
 ```
 
-#### 同步拦截（2.3）
-
-:::warning
-v2.3 开始支持。
-:::
+#### 同步拦截（2.3） <span class="jv-version-badge">v2.3</span>
 
 2.3 起，`drag-drop` 的回调对 `enter` 与 `drop` 支持**同步拦截**，通过 [`IpcCallback` 返回值](/docs/api/ipc-api#jade-on-callback-return) 控制：
 
@@ -447,11 +435,7 @@ JAPK 资源包加载失败时触发（公钥未设置、签名校验失败、解
 
 ---
 
-### `crash`
-
-:::warning
-v2.2 开始支持。
-:::
+### `crash` <span class="jv-version-badge">v2.2</span>
 
 程序崩溃时触发（SEH 异常、Rust Panic 或 WebView2 进程崩溃），`event_data` 为错误代码字符串，不泄露源码信息。
 

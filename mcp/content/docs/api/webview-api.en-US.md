@@ -30,6 +30,72 @@ int32_t navigate_to_url(uint32_t window_id, const char* url, const char* headers
 
 ---
 
+### Go Back (`webview_go_back`) <span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_go_back(uint32_t window_id);
+```
+
+- **Parameter**: `window_id` `uint32_t`, as returned by `create_webview_window` or `create_borderless_webview_window`.
+- **Return value**: `1` means the command has entered the message queue, `0` means the parameter is invalid or the message queue is unavailable.
+
+---
+
+### Go Forward (`webview_go_forward`) <span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_go_forward(uint32_t window_id);
+```
+
+- **Parameter**: `window_id` `uint32_t`, as returned by `create_webview_window` or `create_borderless_webview_window`.
+- **Return value**: `1` means the command has entered the message queue, `0` means the parameter is invalid or the message queue is unavailable.
+
+---
+
+### Query Whether Back Is Possible (`webview_can_go_back`) <span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_can_go_back(uint32_t window_id);
+```
+
+- **Parameter**: `window_id` `uint32_t`, target window id.
+- **Return value**: `1` means back is possible, `0` means it is not possible or the window does not exist.
+
+---
+
+### Query Whether Forward Is Possible (`webview_can_go_forward`) <span class="jv-version-badge">v2.4</span>
+
+```c
+int32_t webview_can_go_forward(uint32_t window_id);
+```
+
+- **Parameter**: `window_id` `uint32_t`, target window id.
+- **Return value**: `1` means forward is possible, `0` means it is not possible or the window does not exist.
+
+---
+
+### Usage Notes
+
+- Back/forward operates on the WebView native history stack and also works for history entries created by `window.history.pushState`.
+- `webview_can_go_back` / `webview_can_go_forward` are synchronous queries, suitable for updating toolbar button states.
+- When a page has just been created and has no history, `webview_can_go_back()` usually returns `0`; query after `window-created` or `webview-did-finish-load`.
+- Do not call these synchronous query APIs from inside a JadeView event callback to avoid deadlocking the event-loop thread.
+
+```c
+uint32_t win = create_webview_window("https://example.com/page-a", 0, NULL, NULL);
+
+/* Wait for webview-did-finish-load before calling */
+if (webview_can_go_back(win)) {
+    webview_go_back(win);
+}
+
+if (webview_can_go_forward(win)) {
+    webview_go_forward(win);
+}
+```
+
+---
+
 ### Reload Page (`reload_webview_window`)
 
 Reload the current page, similar to the user pressing F5.
@@ -81,11 +147,7 @@ int32_t set_webview_zoom(uint32_t window_id, double level);
 
 ---
 
-### Clear Browsing Data (`clear_browsing_data`)
-
-:::warning
-Supported since v2.2.
-:::
+### Clear Browsing Data (`clear_browsing_data`) <span class="jv-version-badge">v2.2</span>
 
 Clear all browsing data (Cookies / cache / LocalStorage, etc.) of the specified window.
 
@@ -115,19 +177,11 @@ int32_t set_content_protection(uint32_t window_id, int32_t content_protection);
 
 ---
 
-## DevTools
-
-:::warning
-Supported since v2.2.
-:::
+## DevTools <span class="jv-version-badge">v2.2</span>
 
 > DevTools must be enabled when creating the window (the `enable_devmod` parameter of `JadeView_init`).
 
-### Open DevTools (`open_devtools`)
-
-:::warning
-Supported since v2.2.
-:::
+### Open DevTools (`open_devtools`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t open_devtools(uint32_t window_id);
@@ -138,11 +192,7 @@ int32_t open_devtools(uint32_t window_id);
 
 ---
 
-### Close DevTools (`close_devtools`)
-
-:::warning
-Supported since v2.2.
-:::
+### Close DevTools (`close_devtools`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int32_t close_devtools(uint32_t window_id);
@@ -154,11 +204,7 @@ int32_t close_devtools(uint32_t window_id);
 
 ---
 
-### Query Whether DevTools Is Open (`is_devtools_open`)
-
-:::warning
-Supported since v2.2.
-:::
+### Query Whether DevTools Is Open (`is_devtools_open`) <span class="jv-version-badge">v2.2</span>
 
 ```c
 int is_devtools_open(uint32_t window_id);

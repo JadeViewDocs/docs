@@ -104,11 +104,7 @@ int32_t tray_set_icon_from_file(uint32_t tray_id, const char* icon_path_utf8);
 
 ---
 
-## 从二进制数据设置托盘图标（`set_tray_icon_from_data`）
-
-:::warning
-v2.2 开始支持。
-:::
+## 从二进制数据设置托盘图标（`set_tray_icon_from_data`） <span class="jv-version-badge">v2.2</span>
 
 支持传递二进制数据（如 ICO/PNG 文件的字节内容）作为托盘图标，无需写入临时文件。
 

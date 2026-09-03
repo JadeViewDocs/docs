@@ -98,4 +98,4 @@ JadePack 构建的 JAPK 包通过以下 API 加载：
 - **从本地方件加载**：`set_protocol_service_path`，见 [JAPK 资源包格式](/docs/api/japk)
 - **从内存加载**：`JadeView_load_from_bytes`，见 [从内存载入](/docs/api/japk-load-memory)
 
-签名包加载前需调用 `JadeView_set_public_key` 设置验证公钥。
+签名包使用 JadeView 内置的 JadeTweak 平台根公钥完成验证，无需运行时设置公钥。

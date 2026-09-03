@@ -6,11 +6,7 @@ group:
   order: 4
 ---
 
-# 右键菜单
-
-:::warning
-v2.2 开始支持。
-:::
+# 右键菜单 <span class="jv-version-badge">v2.2</span>
 
 利用 WebView2 原生上下文菜单 API，实现类似 Electron 的右键菜单自定义系统。
 

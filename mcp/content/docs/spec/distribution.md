@@ -82,13 +82,10 @@ JadeView 支持从内存直接加载 JAPK 包，无需本地文件系统。这�
 // 1. 初始化
 JadeView_init(1, NULL, NULL, "MyApp", "com.example.app", 0);
 
-// 2. （可选）设置公钥，只接受签名包
-JadeView_set_public_key("QeeOu5LQdQooeyOID6h/ChFEo5RhbAFoKgslznp5Nbk=");
-
-// 3. 从内存加载 JAPK
+// 2. 从内存加载 JAPK
 int rc = JadeView_load_from_bytes(japk_data, data_size);
 
-// 4. 获取协议 URL 并创建窗口
+// 3. 获取协议 URL 并创建窗口
 char url_buffer[256];
 set_protocol_service_path("", url_buffer, sizeof(url_buffer), 0);  // 第 4 参 hot_reload: 0=禁用, 1=启用
 create_webview_window(url_buffer, 0, &options, NULL);

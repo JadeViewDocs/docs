@@ -135,11 +135,7 @@ free(buf);
 
 ---
 
-### Force String Storage (`yaml_set_str`)
-
-:::warning
-Supported since v2.3.
-:::
+### Force String Storage (`yaml_set_str`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_set_str(const char* file_name, const char* key_path, const char* value);
@@ -154,11 +150,7 @@ yaml_set_str("config", "user.id", "12345");
 
 ---
 
-### Get a Value (Pointer Version, `yaml_get_str`)
-
-:::warning
-Supported since v2.3.
-:::
+### Get a Value (Pointer Version, `yaml_get_str`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 char* yaml_get_str(const char* file_name, const char* key_path);
@@ -178,11 +170,7 @@ Returns `NULL` when the path does not exist.
 
 ---
 
-### Read the Entire File (`yaml_get_all`)
-
-:::warning
-Supported since v2.3.
-:::
+### Read the Entire File (`yaml_get_all`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_get_all(const char* file_name, char* buffer, size_t buffer_size);
@@ -196,11 +184,7 @@ Reads the entire YAML file and writes it as a JSON string into `buffer`. Support
 
 ---
 
-### Check Whether a Path Exists (`yaml_has`)
-
-:::warning
-Supported since v2.3.
-:::
+### Check Whether a Path Exists (`yaml_has`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_has(const char* file_name, const char* key_path);
@@ -210,11 +194,7 @@ Checks whether a path exists. Returns `1` if it exists, `0` if it does not; it m
 
 ---
 
-### Delete a Path (`yaml_delete`)
-
-:::warning
-Supported since v2.3.
-:::
+### Delete a Path (`yaml_delete`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_delete(const char* file_name, const char* key_path);
@@ -226,11 +206,7 @@ Deletes the key or array element at the specified path.
 
 ---
 
-### Clear the File (`yaml_clear`)
-
-:::warning
-Supported since v2.3.
-:::
+### Clear the File (`yaml_clear`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_clear(const char* file_name);
@@ -240,11 +216,7 @@ Clears the file content to `{}`.
 
 ---
 
-### Delete the File (`yaml_delete_file`)
-
-:::warning
-Supported since v2.3.
-:::
+### Delete the File (`yaml_delete_file`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_delete_file(const char* file_name);
@@ -254,11 +226,7 @@ Deletes the data file, and also cleans up the associated lock file and temporary
 
 ---
 
-### List Keys (`yaml_keys`)
-
-:::warning
-Supported since v2.3.
-:::
+### List Keys (`yaml_keys`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_keys(const char* file_name, const char* key_path, char* buffer, size_t buffer_size);
@@ -274,11 +242,7 @@ Supports two-phase query.
 
 ---
 
-### Return Length (`yaml_len`)
-
-:::warning
-Supported since v2.3.
-:::
+### Return Length (`yaml_len`) <span class="jv-version-badge">v2.3</span>
 
 ```c
 int yaml_len(const char* file_name, const char* key_path);

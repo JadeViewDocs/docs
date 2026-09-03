@@ -78,84 +78,219 @@ JadeView adopts an asynchronous design architecture:
 
 ## IPC Communication Performance
 
-JadeView uses a custom protocol to implement IPC communication between the main process and the renderer process, featuring **low latency, high throughput, and good asynchronous support**.
+JadeView 2.4 redesigns the Windows large-message path used by `send_ipc_message`. Messages smaller than 1 MiB prefer WebView2 `PostWebMessageAsString`; messages greater than or equal to 1 MiB prefer SharedBuffer. If SharedBuffer is unavailable, JadeView can still fall back to the `bulk_ref` chunk-fetch path. The renderer continues to receive messages through [`jade.on`](/docs/api/javascript-api), so the public application interface is unchanged.
 
-### Design Philosophy
+### Python Benchmark Disclosure
 
-JadeView adopts a custom-protocol communication architecture based on modern Web standards, aiming to provide an efficient, secure, and easy-to-use way for the main process and renderer process to interact. This design combines the low-latency advantages of traditional IPC mechanisms with the ease of use of Web APIs, while avoiding complex message-passing mechanisms.
+:::info{title="The results on this page were measured with a Python test program"}
+This is not an internal Rust microbenchmark and was not measured with a C/C++ sample host. The benchmark host uses **Python 3.11**, loads `JadeView_x64.dll` through `ctypes.WinDLL`, and creates **eight Python sender threads** with `ThreadPoolExecutor` to call `send_ipc_message` concurrently.
 
-### Core Architecture
+`ctypes` releases the Python GIL while executing the foreign function, so all eight threads can enter the DLL concurrently. The reported results include Python scheduling, FFI calls, the JadeView message queue, WebView2 transport, and complete renderer-side delivery.
+:::
 
-1. **Custom protocol layer**
-   - Built on the browser-standard Fetch API
-   - Leverages a local communication channel for low-latency data transfer
-   - Supports an asynchronous request-response pattern
-   - Supports event-driven message pushing
+The renderer displays only the number of received packets and subscribes with `jade.on('perfTick', handler)`. Each callback validates that the payload:
 
-2. **Request handling mechanism**
-   - The renderer process initiates requests through a standardized API
-   - The main process efficiently handles requests and returns results
-   - Automatically handles serialization and deserialization
-   - Supports transferring multiple data types
+- is a string;
+- is exactly 1,048,576 bytes long;
+- is counted only after the complete data reaches the renderer.
 
-3. **Event system**
-   - Designed around the publish-subscribe pattern
-   - Supports concurrent subscription to multiple events
-   - Automatically manages event lifetimes
-   - Efficient event dispatch mechanism
+For 2.3.2, a `bulk_ref` is counted only after all chunks have been fetched and reassembled. For 2.4, a SharedBuffer packet is counted only after the renderer reads and decodes the complete payload. The benchmark does not count host submissions or reference delivery as completed packets.
 
-### Performance Metrics
+### Test Environment and Parameters
 
-| Metric | Value | Description |
-|---------|------|------|
-| Round-trip latency | `<1ms` | Round-trip latency of communication between the main process and renderer process, based on actual test data |
-| Concurrent requests | `>800 requests/second` | The number of supported high-concurrency requests |
-| CPU consumption reduction | `30%-50%` | Compared with traditional IPC solutions |
-| Memory usage reduction | `20%-40%` | Compared with traditional IPC solutions |
+| Item | Configuration |
+| --- | --- |
+| Operating system | Windows 11 Pro for Workstations, Build 26200 |
+| CPU | Intel Core i5-14600KF, 14 cores / 20 logical processors |
+| Memory | 31.84 GiB |
+| WebView2 Runtime | 148.0.3967.96 |
+| Python | 3.11 |
+| Resource sampling | `psutil 7.2.2`, Python host plus WebView2 child processes |
+| Packet size | 1 MiB, or 1,048,576 bytes |
+| Sender threads | Eight Python threads |
+| Packets per run | 20,000, or 19.53125 GiB |
+| Maximum in flight | 128 packets, preventing an unbounded queue from accumulating about 20 GiB and causing system OOM |
+| Warm-up | 256 packets before each formal run |
+| Formal runs | Three per version, executed in an interleaved order |
 
-### Performance Advantages
+Each version transferred 58.59375 GiB during the formal runs, for a combined total of 117.1875 GiB. The table below uses the median of three runs.
 
-- **Low-latency design**: Optimized communication path, reducing intermediate-layer overhead
-- **High throughput**: Supports handling a large number of concurrent requests
-- **Resource-efficient**: Uses a connection-reuse mechanism, reducing system resource consumption
-- **Asynchronous and non-blocking**: Fully designed around Promise/async-await, avoiding UI blocking
+### Measured 2.4 vs. 2.3.2 Results
 
-### Security Considerations
+| Metric | 2.3.2 | 2.4.0 | 2.4 change |
+| --- | ---: | ---: | ---: |
+| Complete renderer receive throughput | 315.305 packets/s | 1255.185 packets/s | **298.086% higher** |
+| Renderer data throughput | 0.307915 GiB/s | 1.225767 GiB/s | **298.086% higher** |
+| End-to-end elapsed time | 63.430612 s | 15.934096 s | 74.879% lower |
+| Python host send time | 63.162501 s | 15.881942 s | 74.855% lower |
+| Renderer drain time | 0.268111 s | 0.130052 s | 51.493% lower |
+| Python `ctypes` call P50 | 1.365400 ms | 1.201400 ms | 12.011% lower |
+| Python `ctypes` call P95 | 1.737005 ms | 1.652305 ms | 4.876% lower |
+| Python `ctypes` call P99 | 2.495606 ms | 1.922835 ms | 22.951% lower |
+| Process-tree average CPU | 463.960% | 371.130% | 20.008% lower |
+| Peak private memory | 1220.32 MiB | 269.23 MiB | **77.938% lower** |
+| Peak handle count | 3417 | 3317 | 2.927% lower |
 
-- Strict local communication restrictions to prevent external access
-- A standardized request validation mechanism
-- A secure data transfer channel
-- A protection mechanism to prevent malicious requests
+Based on complete renderer receive throughput, JadeView 2.4 is approximately **3.981x** as fast as 2.3.2 in this workload.
 
-### Comparison with Other Frameworks
+CPU percentages are summed across the Python host and WebView2 child processes. `100%` is approximately one fully utilized logical processor.
 
-| Framework | IPC Latency | Concurrency Capacity | Architectural Characteristics |
-|------|---------|-------------|----------|
-| JadeView | `<1ms` | `>800 requests/second` | Custom protocol + Rust implementation |
-| Electron 23 | `10-50ms` | `~100 requests/second` | Chromium + Node.js IPC |
-| NW.js 0.70 | `8-40ms` | `~150 requests/second` | Chromium + Node.js IPC |
-| CEF/CefSharp | `5-30ms` | `~200 requests/second` | Chromium IPC |
+### Stability and Data Integrity
 
-### Comparison with Traditional IPC
+| Check | 2.3.2 | 2.4.0 |
+| --- | ---: | ---: |
+| Formal runs completed | 3/3 | 3/3 |
+| Sent by the Python host | 60,000 | 60,000 |
+| Completely received by the renderer | 60,000 | 60,000 |
+| Invalid type/length packets | 0 | 0 |
+| Lost packets | 0 | 0 |
+| Packet loss rate | 0% | 0% |
+| `send_ipc_message` return failures | 0 | 0 |
+| Python/FFI exceptions | 0 | 0 |
+| Timeouts | 0 | 0 |
+| Crashes | 0 | 0 |
+| JadeView log ERROR/WARN | 0/0 | 0/0 |
 
-| Feature | JadeView Communication Mechanism | Traditional IPC Mechanism |
-|------|------------------|---------------|
-| Ease of use | Based on Web standards, low learning cost | Usually requires specific APIs, with a steeper learning curve |
-| Performance | Low latency (`<1ms` round trip) | Latency depends on the implementation, usually higher |
-| Compatibility | Based on modern browser features, good compatibility | May depend on a specific runtime environment |
-| Extensibility | Easy to add new commands and events | Extending may require modifying the underlying implementation |
-| Debugging convenience | Supports debugging with browser DevTools | Debugging tools are limited |
+### Memory Accounting
 
-### Use Cases
+The summed process-tree RSS is higher with 2.4 because the same SharedBuffer pages can be mapped into both the Python host and WebView2 processes. Summing per-process RSS double-counts those shared pages and must not be interpreted as 2.4 privately owning all of that memory.
 
-JadeView's high-performance IPC communication is suitable for the following scenarios:
+Peak private memory is the more relevant measurement for exclusive commit pressure. Its median fell from 1220.32 MiB to 269.23 MiB, a **77.938% reduction**.
 
-- **Real-time data transfer**: such as real-time monitoring, game data synchronization, etc.
-- **High-frequency interaction**: such as UI control events, state synchronization, etc.
-- **Large data transfer**: such as file upload/download, batch data processing, etc.
-- **Low-latency requirements**: such as audio/video processing, real-time communication, etc.
+### Scope of the Results
 
-JadeView's IPC design emphasizes a balance between performance and ease of use, providing developers with an efficient and reliable communication solution between the main process and the renderer process.
+- These results apply to host-to-renderer `send_ipc_message` traffic with 1 MiB UTF-8 payloads.
+- Python `ctypes` call latency includes Python thread scheduling and FFI overhead; it is not a pure C or Rust microbenchmark.
+- Actual performance depends on the CPU, memory, WebView2 Runtime, message size, renderer work, and maximum in-flight count.
+- Small messages, `jade.invoke` request/response traffic, Linux WebKitGTK, and unthrottled burst sending require separate benchmarks.
+
+### Suitable Workloads
+
+The 2.4 SharedBuffer path is particularly useful for large host-to-renderer messages such as:
+
+- model context, batched state, and large text synchronization;
+- real-time monitoring and high-frequency data pushes;
+- bulk processing results;
+- multi-window applications that need lower private-memory pressure.
+
+See [IPC Communication API](/docs/api/ipc-api) for interface definitions, threading rules, and return-value semantics.
+
+## `jade.invoke` Small-Request/Large-Response Performance
+
+This benchmark models a more typical application request/response flow: the renderer sends only a small notification string, the Rust host returns a large result, and the renderer waits for the Promise and validates the complete response.
+
+### Rust Benchmark Disclosure
+
+:::info{title="This section uses a Rust benchmark host, not a Python host"}
+The benchmark host is written in **Rust 1.96.0**. It loads `JadeView_x64.dll` through `libloading`, registers a `benchLarge` handler with `register_ipc_handler`, and returns a 1 MiB string through `jade_text_create`.
+
+Resource sampling also runs inside the Rust benchmark process and uses Windows process APIs to measure the Rust host and WebView2 child processes. PowerShell only starts isolated runs and aggregates JSON; it is not part of the measured process tree and is not included in CPU or memory figures.
+:::
+
+Each request follows this complete path:
+
+1. The renderer calls `jade.invoke('benchLarge', 'notify')`.
+2. The upstream payload is the six-byte string `notify`.
+3. JadeView calls the Rust `register_ipc_handler` callback.
+4. Rust returns a 1 MiB ASCII `x` string through `jade_text_create`.
+5. JadeView wraps the result as an `invoke-async-response`.
+6. Version 2.3.2 fetches and rebuilds a `bulk_ref`; version 2.4 uses WebView2 SharedBuffer.
+7. After the Promise resolves, the renderer validates the type and exact 1,048,576-byte length before counting the response.
+
+### Response-Time Definition
+
+The renderer records response time with `performance.now()`:
+
+```js
+const started = performance.now();
+const result = await jade.invoke('benchLarge', 'notify');
+const responseMs = performance.now() - started;
+```
+
+Timing starts when the renderer calls `jade.invoke` and ends when the Promise returns the complete 1 MiB result. It includes:
+
+- renderer request encoding and custom-protocol dispatch;
+- JadeView request parsing and thread scheduling;
+- Rust callback execution plus 1 MiB allocation and copying;
+- JadeView JSON result wrapping;
+- `bulk_ref` or SharedBuffer delivery;
+- renderer reading, decoding, request-ID matching, and full-length validation.
+
+The P50/P95/P99 values therefore represent application-visible end-to-end response time, not the execution time of a single C API function.
+
+### Test Parameters
+
+| Item | Configuration |
+| --- | --- |
+| Rust | 1.96.0, release-optimized build |
+| Request | `jade.invoke('benchLarge', 'notify')` |
+| Upstream payload | Six-byte `notify` string |
+| Downstream result | 1 MiB string, or 1,048,576 bytes |
+| Renderer concurrency | Eight concurrent Promises; each worker sends its next request after completion |
+| Requests per run | 20,000, returning 19.53125 GiB |
+| Warm-up | 256 requests before each formal run |
+| Formal runs | Three per version, executed in an interleaved order |
+| Resource sampling | Rust-native Windows process-tree sampling every 100 ms |
+| Environment | The same machine used by the Python push benchmark above |
+
+Each version returned 58.59375 GiB during formal runs, for a combined 117.1875 GiB. The following figures use the median of three runs.
+
+### Rust Request/Response Results
+
+| Metric | 2.3.2 | 2.4.0 | 2.4 change |
+| --- | ---: | ---: | ---: |
+| Complete renderer response throughput | 167.406 responses/s | 731.237 responses/s | **336.805% higher** |
+| Effective renderer data throughput | 0.163483 GiB/s | 0.714099 GiB/s | **336.803% higher** |
+| Time for 20,000 responses | 119.4697 s | 27.3509 s | 77.106% lower |
+| Mean response time | 47.773130 ms | 10.934035 ms | 77.113% lower |
+| Response P50 | 47.600 ms | 10.400 ms | **78.151% lower** |
+| Response P95 | 57.700 ms | 16.400 ms | 71.577% lower |
+| Response P99 | 61.900 ms | 21.100 ms | 65.913% lower |
+| Maximum response time | 77.600 ms | 51.300 ms | 33.892% lower |
+| Process-tree average CPU | 370.770% | 526.470% | 41.994% higher |
+| CPU core-seconds for the fixed workload | 444.688 | 144.154 | **67.583% lower** |
+| Peak RSS | 644.85 MiB | 811.13 MiB | 25.786% higher |
+| Peak private memory | 456.45 MiB | 523.51 MiB | 14.692% higher |
+| Peak handle count | 3548 | 3102 | 12.570% lower |
+
+Based on complete renderer response throughput, 2.4 is approximately **4.368x** as fast as 2.3.2 in this Rust small-request/large-response workload.
+
+### CPU and Memory Interpretation
+
+2.4 has higher instantaneous average CPU because it completes about 4.37 times as many requests in the same period. For the fixed 20,000-request workload:
+
+- 2.3.2 uses a median of 444.688 CPU core-seconds;
+- 2.4 uses a median of 144.154 CPU core-seconds;
+- total CPU work for the same result is 67.583% lower with 2.4.
+
+In this `jade.invoke` workload, 2.4 has higher peak RSS and private memory than 2.3.2. This path combines Rust `jade_text_create` allocation, JadeView string copying, JSON wrapping, and SharedBuffer mapping. The private-memory reduction measured by the Python one-way push benchmark must not be applied to this request/large-response workload.
+
+This demonstrates why different IPC usage patterns require separate benchmarks: one-way pushes and request/large-response traffic have different allocation lifetimes and concurrency models.
+
+### Stability and Integrity
+
+| Check | 2.3.2 | 2.4.0 |
+| --- | ---: | ---: |
+| Formal runs completed | 3/3 | 3/3 |
+| Rust callback requests | 60,000 | 60,000 |
+| Complete renderer responses | 60,000 | 60,000 |
+| Non-`notify` requests | 0 | 0 |
+| Invalid response type/length | 0 | 0 |
+| `jade.invoke` exceptions | 0 | 0 |
+| Lost responses | 0 | 0 |
+| Loss rate | 0% | 0% |
+| Rust/FFI exceptions | 0 | 0 |
+| Crashes | 0 | 0 |
+| Clean process exits | 3/3 | 3/3 |
+| Windows Application Error/WER | 0 | 0 |
+
+### Difference from the Python One-Way Push Benchmark
+
+- Python benchmark: the host calls `send_ipc_message` and the renderer passively receives data, with up to 128 packets in flight.
+- Rust benchmark: the renderer calls `jade.invoke`, the Rust callback returns the large result, and exactly eight requests remain concurrent.
+- The Rust benchmark additionally includes the upstream request, callback allocation, JSON result wrapping, and Promise request-ID matching.
+
+The absolute throughput figures from the two benchmarks should not be directly compared because they answer different questions. Both show a substantial 2.4 SharedBuffer advantage over the 2.3.2 `bulk_ref` path for large messages.
 
 ## Design Philosophy
 

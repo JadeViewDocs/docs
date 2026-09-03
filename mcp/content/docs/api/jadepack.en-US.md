@@ -98,4 +98,4 @@ JAPK packages built by JadePack are loaded through the following APIs:
 - **Load from a local file**: `set_protocol_service_path`, see [JAPK Asset Package Format](/en-US/docs/api/japk)
 - **Load from memory**: `JadeView_load_from_bytes`, see [Loading from Memory](/en-US/docs/api/japk-load-memory)
 
-Before loading a signed package, you must call `JadeView_set_public_key` to set the verification public key.
+Signed packages are verified against the JadeTweak platform root public key embedded in JadeView; no runtime public key setup is required.
