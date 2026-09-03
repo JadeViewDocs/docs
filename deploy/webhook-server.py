@@ -9,6 +9,7 @@ Webhook 服务器（FastAPI）——部署在你自己的服务器上。
 
 import os
 import sys
+import json
 import time
 import hmac
 import logging
@@ -126,6 +127,40 @@ def _is_transient(err_msg: str) -> bool:
                                 'i/o timeout', 'reset by peer'))
 
 
+def _pull_with_progress(client, repository: str, tag: str | None = None):
+    """流式拉镜像并周期打印进度，返回拉到的镜像对象。
+
+    docker-py 的 images.pull() 是静默阻塞的——大镜像（几百 MB）在慢速链路上
+    下载十几分钟毫无日志输出，看起来像卡死。改为消费 /images/create 的事件流，
+    每 20s 打一行「N/M 层就绪 + 活跃层字节数」，让下载进度可见。
+    error 事件抛异常，交由外层 pull_image 的重试/换源逻辑处理。
+    """
+    last_log = time.monotonic()
+    layers = {}  # layer_id -> (status, progressDetail)
+    stream = client.api.pull(repository, tag=tag, stream=True)
+    for raw in stream:
+        evt = json.loads(raw) if isinstance(raw, (str, bytes)) else raw
+        if 'error' in evt:
+            raise RuntimeError(evt['error'])
+        lid = evt.get('id')
+        if lid:
+            layers[lid] = (evt.get('status', ''), evt.get('progressDetail') or {})
+        now = time.monotonic()
+        if now - last_log >= 20:
+            last_log = now
+            done = sum(1 for s, _ in layers.values() if s in ('Already exists', 'Pull complete'))
+            active = [
+                f"{lid[:12]} {s} {d.get('current', 0) >> 20}/{d.get('total', 0) >> 20}MB"
+                for lid, (s, d) in layers.items()
+                if s in ('Downloading', 'Extracting', 'Download complete') and d.get('total')
+            ]
+            suffix = f"，进行中: {'; '.join(active[:3])}" if active else ''
+            logger.info(f"拉取进度: {done}/{len(layers)} 层就绪{suffix}")
+    if tag and tag.startswith('sha256:'):
+        return client.images.get(f"{repository}@{tag}")
+    return client.images.get(f"{repository}:{tag}" if tag else repository)
+
+
 def pull_image(client, image: str):
     """按「daemon 默认 → 各加速器」顺序拉镜像；429/超时退避重试，仍失败换下一个源。
 
@@ -161,14 +196,13 @@ def pull_image(client, image: str):
         for attempt in range(1, PULL_RETRIES + 1):
             try:
                 logger.info(f"拉取镜像: {candidate_ref}  (源: {source}, 第 {attempt}/{PULL_RETRIES} 次)")
-                # docker-py 的 images.pull(image=repo, tag=tag) 形式对 digest 不适用；
-                # digest/ref 直接拼成完整字符串走单参数 pull（docker SDK 支持 repo@digest）。
-                if is_digest:
-                    img = client.images.pull(candidate_ref)
-                elif prefix:
-                    img = client.images.pull(f"{prefix}/{repo}", tag=ref)
+                # 流式拉取：周期打印层进度（images.pull 是静默阻塞的，慢速链路像卡死）。
+                # digest 与 tag 都拆成 repository+ref 传（docker SDK 的 /images/create
+                # 对 tag=sha256:... 的 digest 引用同样生效）。
+                if prefix:
+                    img = _pull_with_progress(client, f"{prefix}/{repo}", ref)
                 else:
-                    img = client.images.pull(repo, tag=ref)
+                    img = _pull_with_progress(client, repo, ref)
                 # 不论 digest/tag，最后都打一份 repo:latest 的标准标签，
                 # 兼容后续 client.containers.run(image) 用 image_tag/latest 启动旧语义。
                 if prefix or is_digest:
