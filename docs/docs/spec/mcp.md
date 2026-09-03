@@ -8,7 +8,7 @@ group:
 
 # 用 MCP 接入 AI
 
-JadeView 文档已接入 **MCP（Model Context Protocol）**。在支持 MCP 的 AI 工具（Claude Code、Claude Desktop、Cursor、Cherry Studio 等）里加上下面这台 MCP server，就能让 AI **直接检索 JadeView 官方文档**来回答问题，而不必复制粘贴或凭记忆作答。
+JadeView 文档提供官方 **MCP（Model Context Protocol）** 服务——npm 包 [`jadeview-docs-mcp`](https://www.npmjs.com/package/jadeview-docs-mcp)，文档随包分发。在支持 MCP 的 AI 工具（Claude Code、Claude Desktop、Cursor、ZCode、Cherry Studio 等）里加上这台 server，AI 就能**直接检索 JadeView 官方文档**作答，而不必复制粘贴或凭记忆作答。
 
 ## 配置
 
@@ -18,39 +18,39 @@ JadeView 文档已接入 **MCP（Model Context Protocol）**。在支持 MCP 的
 {
   "mcpServers": {
     "jade_view": {
-      "url": "https://mcp.jade.run/mcp",
-      "transport": "http"
+      "command": "npx",
+      "args": ["-y", "jadeview-docs-mcp"]
     }
   }
 }
 ```
 
 :::info{title=说明}
-这是一台**只读检索** server，无需登录、无需 token，可放心分享。它只能搜索 jade.run 的公开文档，不涉及任何写操作或私有数据。
+这是一个**本地只读检索** server：首次运行时 npx 自动从 npm 下载并缓存（文档 markdown 随包分发，之后离线也能启动），无需登录、无需 token。它只能搜索 JadeView 公开文档，不涉及任何写操作或私有数据。
 :::
 
 ## 各客户端放哪里
 
-- **Claude Code**：命令行一行接入（注意 Claude Code 用 `--transport http`）：
+- **Claude Code**：命令行一行接入：
 
   ```bash
-  claude mcp add --transport http jade_view https://mcp.jade.run/mcp
+  claude mcp add jade_view -- npx -y jadeview-docs-mcp
   ```
 
-  或写进项目根的 `.mcp.json`（Claude Code 用 `"type": "http"`）：
+  或写进项目根的 `.mcp.json`：
 
   ```json
   {
     "mcpServers": {
       "jade_view": {
-        "type": "http",
-        "url": "https://mcp.jade.run/mcp"
+        "command": "npx",
+        "args": ["-y", "jadeview-docs-mcp"]
       }
     }
   }
   ```
 
-- **Claude Desktop / Cursor / Cherry Studio**：在各自的 MCP 设置（`mcpServers`）里粘贴上面第一段 JSON 即可。
+- **Claude Desktop / Cursor / ZCode / Cherry Studio**：在各自的 MCP 设置（`mcpServers`）里粘贴上面第一段 JSON 即可。
 
 ## 能做什么
 
@@ -66,5 +66,5 @@ JadeView 文档已接入 **MCP（Model Context Protocol）**。在支持 MCP 的
 AI 会先检索文档、引用 jade.run 上对应章节，必要时读取整页，再作答。
 
 :::warning{title=检索不到最新内容？}
-文档索引在服务启动时根据文档源构建。刚发布的内容若暂时搜不到，等服务随下一次文档发版重新部署后即可检索到。
+文档索引随 npm 包发布、进程启动时构建。`npx -y` 每次运行都会解析最新版本，刚发布的新版本文档通常直接可用；若被缓存，把包版本显式升到最新（如 `jadeview-docs-mcp@<版本号>`）即可。
 :::

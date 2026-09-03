@@ -8,7 +8,7 @@ group:
 
 # Connect AI via MCP
 
-The JadeView docs are now available over **MCP (Model Context Protocol)**. Add the MCP server below to any MCP-capable AI tool (Claude Code, Claude Desktop, Cursor, Cherry Studio, etc.), and the AI can **search the official JadeView docs directly** to answer your questions, instead of relying on copy-paste or memory.
+The JadeView docs ship an official **MCP (Model Context Protocol)** server — the npm package [`jadeview-docs-mcp`](https://www.npmjs.com/package/jadeview-docs-mcp) with the docs bundled inside. Add this server to any MCP-capable AI tool (Claude Code, Claude Desktop, Cursor, ZCode, Cherry Studio, etc.), and the AI can **search the official JadeView docs directly** to answer your questions, instead of relying on copy-paste or memory.
 
 ## Configuration
 
@@ -18,39 +18,39 @@ Add the following snippet to your AI tool's MCP configuration:
 {
   "mcpServers": {
     "jade_view": {
-      "url": "https://mcp.jade.run/mcp",
-      "transport": "http"
+      "command": "npx",
+      "args": ["-y", "jadeview-docs-mcp"]
     }
   }
 }
 ```
 
 :::info{title=Note}
-This is a **read-only search** server. No login or token is required, so it is safe to share. It can only search the public docs on jade.run, and it involves no write operations or private data.
+This is a **local read-only search** server: on first run npx downloads and caches it automatically (the markdown docs ship inside the package, so it even starts offline afterwards). No login or token is required. It can only search the public JadeView docs, and it involves no write operations or private data.
 :::
 
 ## Where to put it in each client
 
-- **Claude Code**: connect with a single command line (note that Claude Code uses `--transport http`):
+- **Claude Code**: connect with a single command line:
 
   ```bash
-  claude mcp add --transport http jade_view https://mcp.jade.run/mcp
+  claude mcp add jade_view -- npx -y jadeview-docs-mcp
   ```
 
-  Or add it to the `.mcp.json` at your project root (Claude Code uses `"type": "http"`):
+  Or add it to the `.mcp.json` at your project root:
 
   ```json
   {
     "mcpServers": {
       "jade_view": {
-        "type": "http",
-        "url": "https://mcp.jade.run/mcp"
+        "command": "npx",
+        "args": ["-y", "jadeview-docs-mcp"]
       }
     }
   }
   ```
 
-- **Claude Desktop / Cursor / Cherry Studio**: just paste the first JSON snippet above into their respective MCP settings (`mcpServers`).
+- **Claude Desktop / Cursor / ZCode / Cherry Studio**: just paste the first JSON snippet above into their respective MCP settings (`mcpServers`).
 
 ## What it can do
 
@@ -66,5 +66,5 @@ The typical flow is: the AI first calls `search_docs` to find the relevant secti
 The AI will first search the docs, cite the corresponding section on jade.run, read the full page if needed, and then answer.
 
 :::warning{title=Can't find the latest content?}
-The docs index is built from the documentation source when the service starts. If something you just published can't be found yet, it will become searchable once the service is redeployed with the next docs release.
+The docs index ships with the npm package and is built when the process starts. `npx -y` resolves the latest version on every run, so newly released docs are usually available right away; if a cached copy gets in the way, pin the latest version explicitly (e.g. `jadeview-docs-mcp@<version>`).
 :::
