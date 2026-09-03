@@ -29,6 +29,24 @@ Add the following snippet to your AI tool's MCP configuration:
 This is a **local read-only search** server: on first run npx downloads and caches it automatically (the markdown docs ship inside the package, so it even starts offline afterwards). No login or token is required. It can only search the public JadeView docs, and it involves no write operations or private data.
 :::
 
+## npm mirror in mainland China
+
+If pulling packages from the npm registry is slow or blocked in your network, switch to the npmmirror mirror — either of:
+
+```bash
+# Option 1: this run only
+npx -y --registry=https://registry.npmmirror.com jadeview-docs-mcp
+
+# Option 2: switch globally (affects all npm / npx operations)
+npm config set registry https://registry.npmmirror.com
+```
+
+Or add a line `registry=https://registry.npmmirror.com` to the `.npmrc` in your user directory.
+
+:::warning{title=Mirror sync delay}
+npmmirror syncs new versions from the official registry with a few minutes' delay; a just-published version may be missing from the mirror for a short while — simply retry later.
+:::
+
 ## Where to put it in each client
 
 - **Claude Code**: connect with a single command line:
