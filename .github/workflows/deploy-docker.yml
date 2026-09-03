@@ -33,6 +33,18 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    # 关键点：把所有步骤的默认都设为 fail-fast —— 任何一步失败，后续 step 不再
+    # 执行，也不会继续 push/部署。buildx 单 RUN exit 1 被包成 step failure，
+    # 这俩属性让这个 failure 一路传到底，不"半失败半成功"地往下走。
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+    outputs:
+      # 站点镜像：构建成功后把 digest 暴露给下游；deploy step 只在 digest 非空、
+      # 且本 job 整体 success() 时才执行。用作"构建真的成功"的硬信号。
+      site_digest: ${{ steps.build_site.outputs.digest }}
+      mcp_digest:  ${{ steps.build_mcp.outputs.digest }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,6 +69,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/update-contributors.mjs
 
+      # 给 buildx 挂载的缓存路径开启 Actions 层缓存（跨 run 复用 /root/.npm），
+      # 作为 Dockerfile 里的 `--mount=type=cache,target=/root/.npm` 的进一步后端，
+      # 即便 BuildKit 自身缓存被清理，也能从 Actions cache 还原。
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: 登录 Docker Hub
         uses: docker/login-action@v3
         with:
@@ -72,11 +90,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 构建并推送镜像
+      - name: 构建并推送站点镜像
+        id: build_site
         uses: docker/build-push-action@v6
+        # 关键点：构建失败绝不能静默继续。默认就会 fail，但显式声明 + 用 outputs 存
+        # digest 能保证下游能"用 digest 非空"判定成功，避免把 failure 当 success 继续走。
         with:
           context: .
+          file: Dockerfile
           push: true
+          provenance: false
+          # BuildKit 自带持久化缓存（GitHub runner 本机层），再加 Actions cache
+          # 后端：npm ci 的 tarball、node-gyp 编译中间产物、dumi build 的
+          # utoopack cache 都能跨 run 复用。
+          cache-from: type=gha,scope=docs-site
+          cache-to:   type=gha,scope=docs-site,mode=max
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -85,30 +113,63 @@ jobs:
 
       # MCP 服务镜像：与站点同源，打包 docs/ markdown，启动时建索引。
       - name: 构建并推送 MCP 镜像
+        id: build_mcp
+        if: steps.build_site.outcome == 'success'   # 站点都没推成，MCP 也没必要单独推
         uses: docker/build-push-action@v6
         with:
           context: .
           file: mcp/Dockerfile
           push: true
+          provenance: false
+          cache-from: type=gha,scope=docs-mcp
+          cache-to:   type=gha,scope=docs-mcp,mode=max
           tags: |
             ${{ env.MCP_IMAGE_NAME }}:latest
             ${{ env.MCP_IMAGE_NAME }}:${{ github.sha }}
             ghcr.io/jadeviewdocs/docs-mcp:latest
             ghcr.io/jadeviewdocs/docs-mcp:${{ github.sha }}
 
+      # —— 关键：触发服务器部署 ——
+      # 执行条件缺一不可（全部为 AND）：
+      #   1. success()            —— 当前 job 前面所有步骤（build_site/build_mcp）都 true
+      #   2. build_site 真成功    —— outputs.digest 非空（build-push-action 只有 push 成
+      #                             功才会写 digest）；buildx 单 RUN npm ci exit 1 时，
+      #                             build_site 自身会报错，outputs.digest 就是空串。
+      #   3. WEBHOOK 凭证配置了  —— 没配 secrets 时不去请求，避免 curl 因 URL 为空挂掉。
       - name: 触发服务器 webhook 拉取部署
+        if: >-
+          success() &&
+          steps.build_site.outcome == 'success' &&
+          steps.build_site.outputs.digest != '' &&
+          secrets.WEBHOOK_URL != '' &&
+          secrets.WEBHOOK_TOKEN != ''
         run: |
+          set -euo pipefail
+
+          # 拿到实际推送到 ghcr.io 的 digest（@sha256:…），比 latest tag 更可靠：
+          # latest 可能因为竞态被另一个并发 run 覆盖，服务器 pull 拉到旧内容；
+          # digest 指向本次构建的唯一 layer，不会错位。
+          DIGEST="${{ steps.build_site.outputs.digest }}"
+          echo "本次构建 digest: ${DIGEST}"
+
           curl -X POST "${{ secrets.WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
             -H "X-Webhook-Token: ${{ secrets.WEBHOOK_TOKEN }}" \
-            -d '{
-              "image": "ghcr.io/jadeviewdocs/docs:latest",
-              "repository": "${{ github.repository }}",
-              "commit": "${{ github.sha }}"
-            }' \
+            -d "$(cat <<JSON
+          {
+            "image":      "ghcr.io/jadeviewdocs/docs@${DIGEST}",
+            "image_tag":  "ghcr.io/jadeviewdocs/docs:latest",
+            "repository": "${{ github.repository }}",
+            "commit":     "${{ github.sha }}",
+            "actor":      "${{ github.actor }}",
+            "digest":     "${DIGEST}"
+          }
+          JSON
+          )" \
             --connect-timeout 10 \
             --max-time 300 \
             --retry 3 \
             --retry-delay 5 \
             --retry-max-time 120 \
-            --fail --show-error
+            --fail --show-error \
+            --silent --show-error | tail -20
