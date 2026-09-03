@@ -66,10 +66,7 @@ Mitigations:
 
 ## JAPK Packages in Depth
 
-JAPK is JadeView's frontend bundling format, in two flavors:
-
-- **Obfuscated packages** (JPKBIN02): no public key needed — just `LoadFromBytes`;
-- **Signed packages** (v2): call `SetPublicKey` with the Base64 Ed25519 public key (44 chars) first, and app_name / app_signature are strictly validated against `Init`.
+JAPK is JadeView's frontend bundling format. **As of v2.4.0 only signed packages are supported** (strict offline signature verification): packages are signed at build time and the signature plus app_name / app_signature are validated on load (they must match `Init`); the legacy obfuscated packages (JPKBIN02) and the `SetPublicKey` injection mechanism were removed upstream.
 
 Complete in-memory loading flow:
 
