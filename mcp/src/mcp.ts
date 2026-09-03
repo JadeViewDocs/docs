@@ -4,12 +4,12 @@ import type { DocStore } from './indexer.js';
 import { Searcher } from './search.js';
 
 /**
- * Build an McpServer wired to a prebuilt index. Cheap to call per request
- * (the heavy index/searcher are shared), which suits stateless HTTP.
+ * Build an McpServer wired to a prebuilt index. The heavy index/searcher are
+ * built once at startup and shared by all tool calls.
  */
 export function createMcpServer(store: DocStore, searcher: Searcher): McpServer {
   const server = new McpServer(
-    { name: 'jadeview-docs', version: '2.0.0' },
+    { name: 'jadeview-docs', version: '1.0.0' },
     {
       instructions:
         'Search and read the JadeView documentation (local markdown source). ' +

@@ -1,0 +1,555 @@
+---
+title: 快速开始
+order: 0
+group:
+  title: "教程"
+  order: 1
+---
+
+# 快速开始
+
+本指南将帮助你快速上手 JadeView 2.0，创建你的第一个 WebView 窗口。
+
+## 前置条件
+### 下载 JadeView 库
+在开始之前，请确保：
+
+- Windows 10/11 操作系统
+- 已下载 JadeView DLL 和头文件 (`JadeView_x64.dll` 和 `JadeView.h`)，可从 GitHub Releases 下载：[https://github.com/JadeViewDocs/JadeView/releases](https://github.com/JadeViewDocs/JadeView/releases)
+- 对 C 语言有基本了解
+
+### 安装 WebView2
+
+在 Windows 系统上使用 JadeView，需要安装 Microsoft Edge WebView2 Runtime：
+
+- 下载地址：[Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/#download)
+- 详细安装指南：[WebView2 安装指南](/docs/spec/webview2-installation)
+
+JadeView 是一个基于 Rust 开发的 WebView 窗口库，设计上注重性能、安全性和易用性。
+
+
+## 步骤 1：初始化运行时
+
+首先，你需要初始化 JadeView。这将启动 GUI 线程和事件循环。
+
+```c
+#include "JadeView.h"
+
+int main() {
+    // 初始化 JadeView
+    // 参数说明：
+    // 1. enable_devmod: 开发者模式（1=启用，0=禁用）
+    // 2. log_path: 日志文件路径，NULL 表示不写文件
+    // 3. data_directory: 数据根目录，NULL 使用默认
+    // 4. app_name: 应用显示名
+    // 5. app_signature: 应用唯一标识（至少6个字符）
+    // 6. single_instance: 是否单实例（1=单实例，0=多实例）
+    int result = JadeView_init(
+        1,           // enable_devmod
+        NULL,        // log_path
+        NULL,        // data_directory
+        "我的应用",   // app_name
+        "com.example.myapp",  // app_signature
+        0            // single_instance
+    );
+    
+    if (result == 0) {
+        printf("初始化失败\n");
+        return 1;
+    }
+    
+    printf("初始化成功，等待 app-ready 事件...\n");
+    
+    // 在 app-ready 事件后才能创建窗口
+    
+    return 0;
+}
+```
+
+**重要：必须在 `JadeView_init` 之前注册 `app-ready` 事件，否则可能漏！
+
+## 步骤 2：注册 app-ready 事件
+
+初始化完成后，你需要注册 `app-ready` 事件器。**重要：窗口必须在 `app-ready` 事件触发后才能创建**。
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include "JadeView.h"
+
+// app-ready 事件回调函数
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    // 判断是否成功
+    if (window_id == 1) {  // window_id==1 即成功；event_data 为 JSON，失败时（window_id==0）为纯文本错误码
+        printf("JadeView 准备就绪，现在可以创建窗口了\n");
+        
+        // 创建窗口选项
+        WebViewWindowOptions options = {
+            .title = "我的第一个窗口",
+            .width = 800,
+            .height = 600,
+            .resizable = 1,
+            .frame_style = "normal",  // normal, no-titlebar, borderless, title-overlay
+            .transparent = 0,
+            .theme = "System",  // Light, Dark, System
+            .maximized = 0,
+            .maximizable = 1,
+            .minimizable = 1,
+            .x = -1,  // -1, -1 表示居中
+            .y = -1,
+            .min_width = 0,
+            .min_height = 0,
+            .max_width = 0,
+            .max_height = 0,
+            .fullscreen = 0,
+            .focus = 1,
+            .hide_window = 0,
+            .use_page_icon = 0,
+            .content_protection = 0,
+            .auto_save_state = 0
+        };
+        
+        // 创建 WebView 设置
+        WebViewSettings settings = {
+            .autoplay = 0,
+            .background_throttling = 0,
+            .allow_right_click = 1,
+            .ua = NULL,
+            .preload_js = NULL,
+            .allow_fullscreen = 0,
+            .postmessage_whitelist = NULL
+        };
+        
+        // 创建窗口
+        uint32_t new_window_id = create_webview_window(
+            "https://www.example.com",
+            0,
+            &options,
+            &settings
+        );
+        
+        if (new_window_id == 0) {
+            printf("窗口创建失败\n");
+        } else {
+            printf("窗口创建成功，窗口 ID：%u\n", new_window_id);
+        }
+    } else {
+        printf("JadeView 初始化失败：%s\n", event_data ? event_data : "未知错误");
+    }
+    
+    return NULL;
+}
+
+int main() {
+    // 先注册 app-ready 事件
+    jade_on("app-ready", app_ready_callback);
+    
+    // 初始化
+    int result = JadeView_init(
+        1,
+        NULL,
+        NULL,
+        "我的应用",
+        "com.example.myapp",
+        0
+    );
+    
+    if (result == 0) {
+        printf("初始化失败\n");
+        return 1;
+    }
+    
+    printf("初始化成功，等待 app-ready 事件...\n");
+    
+    // 运行消息循环（可选，在 DLL 嵌入场景下通常不需要
+    // run_message_loop();
+    
+    return 0;
+}
+```
+
+## 步骤 3：使用 JAPK 资源包
+
+JadeView 2.0 支持 JAPK 资源包格式。下面是使用 JAPK 的示例：
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include "JadeView.h"
+
+// app-ready 事件回调函数
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1) {  // window_id==1 即成功；event_data 为 JSON，失败时（window_id==0）为纯文本错误码
+        printf("JadeView 准备就绪\n");
+        
+        // 设置本地协议服务路径 - 使用 JAPK 文件
+        char url_buffer[256];
+        const char* japk_path = "C:\\path\\to\\your\\app.japk";
+        
+        int32_t protocol_result = set_protocol_service_path(
+            japk_path,
+            url_buffer,
+            sizeof(url_buffer),
+            0  // hot_reload: 0=禁用, 1=启用
+        );
+        
+        if (protocol_result == 1) {
+            printf("协议 URL：%s\n", url_buffer);
+            
+            // 创建窗口选项
+            WebViewWindowOptions options = {
+                .title = "JAPK 示例",
+                .width = 800,
+                .height = 600,
+                .resizable = 1,
+                .frame_style = "normal"
+            };
+            
+            // 导航到 JAPK 中的 index.html
+            uint32_t new_window_id = create_webview_window(
+                url_buffer,  // 使用协议 URL
+                0,
+                &options,
+                NULL
+            );
+            
+            if (new_window_id == 0) {
+                printf("窗口创建失败\n");
+            } else {
+                printf("窗口创建成功\n");
+            }
+        }
+    }
+    return NULL;
+}
+
+int main() {
+    jade_on("app-ready", app_ready_callback);
+    
+    int result = JadeView_init(
+        1,
+        NULL,
+        NULL,
+        "我的应用",
+        "com.example.myapp",
+        0
+    );
+    
+    if (result == 0) {
+        printf("初始化失败\n");
+        return 1;
+    }
+    
+    printf("初始化成功\n");
+    
+    return 0;
+}
+```
+
+## 步骤 4：注册其他事件
+
+你可以使用 `jade_on` 注册各种事件：
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include "JadeView.h"
+
+// 窗口关闭事件回调
+const char* window_close_callback(uint32_t window_id, const char* event_data) {
+    printf("窗口 %u 即将关闭\n", window_id);
+    return NULL;  // 返回 NULL 允许关闭，返回错误信息阻止关闭
+}
+
+// 页面加载完成事件回调
+const char* page_loaded_callback(uint32_t window_id, const char* event_data) {
+    printf("页面已加载：%s\n", event_data);
+    return NULL;
+}
+
+// app-ready 事件回调
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1) {  // window_id==1 即成功；event_data 为 JSON，失败时（window_id==0）为纯文本错误码
+        printf("JadeView 准备就绪\n");
+        
+        // 创建窗口
+        WebViewWindowOptions options = {
+            .title = "事件示例",
+            .width = 800,
+            .height = 600
+        };
+        
+        uint32_t new_window_id = create_webview_window(
+            "https://www.example.com",
+            0,
+            &options,
+            NULL
+        );
+        
+        if (new_window_id != 0) {
+            // 注册窗口特定事件
+            jade_on("window-closed", window_close_callback);
+            jade_on("webview-did-finish-load", page_loaded_callback);
+        }
+    }
+    return NULL;
+}
+
+int main() {
+    jade_on("app-ready", app_ready_callback);
+    
+    int result = JadeView_init(
+        1,
+        NULL,
+        NULL,
+        "我的应用",
+        "com.example.myapp",
+        0
+    );
+    
+    if (result == 0) {
+        printf("初始化失败\n");
+        return 1;
+    }
+    
+    printf("初始化成功\n");
+    
+    return 0;
+}
+```
+
+## 步骤 5：清理资源
+
+当所有窗口关闭时，监听 `window-all-closed` 事件，在其中调用 `jadeview_exit` 清理资源。
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include "JadeView.h"
+
+// 窗口全部关闭事件回调
+const char* window_all_closed_callback(uint32_t window_id, const char* event_data) {
+    printf("所有窗口已关闭，准备清理资源\n");
+    jadeview_exit();
+    return NULL;
+}
+
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1) {  // window_id==1 即成功；event_data 为 JSON，失败时（window_id==0）为纯文本错误码
+        printf("JadeView 准备就绪\n");
+        
+        WebViewWindowOptions options = {
+            .title = "清理示例",
+            .width = 800,
+            .height = 600
+        };
+        
+        create_webview_window(
+            "https://www.example.com",
+            0,
+            &options,
+            NULL
+        );
+    }
+    return NULL;
+}
+
+int main() {
+    jade_on("app-ready", app_ready_callback);
+    jade_on("window-all-closed", window_all_closed_callback);
+    
+    int result = JadeView_init(
+        1,
+        NULL,
+        NULL,
+        "我的应用",
+        "com.example.myapp",
+        0
+    );
+    
+    if (result == 0) {
+        printf("初始化失败\n");
+        return 1;
+    }
+    
+    printf("初始化成功\n");
+    
+    return 0;
+}
+```
+
+## 完整示例
+
+以下是一个完整的示例程序，展示了正确的窗口创建流程：
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include "JadeView.h"
+
+// 窗口全部关闭事件回调
+const char* window_all_closed_callback(uint32_t window_id, const char* event_data) {
+    printf("所有窗口已关闭，准备清理资源\n");
+    jadeview_exit();
+    return NULL;
+}
+
+// app-ready 事件回调函数
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1) {  // window_id==1 即成功；event_data 为 JSON，失败时（window_id==0）为纯文本错误码
+        printf("JadeView 准备就绪，现在可以创建窗口了\n");
+        
+        // 创建窗口选项
+        WebViewWindowOptions options = {
+            .title = "我的第一个窗口",
+            .width = 800,
+            .height = 600,
+            .resizable = 1,
+            .frame_style = "normal",
+            .theme = "System",
+            .x = -1,
+            .y = -1,
+            .focus = 1
+        };
+        
+        // 创建窗口
+        uint32_t new_window_id = create_webview_window(
+            "https://www.example.com",
+            0,
+            &options,
+            NULL
+        );
+        
+        if (new_window_id == 0) {
+            printf("窗口创建失败\n");
+            return NULL;
+        }
+        
+        printf("窗口创建成功，窗口 ID：%u\n", new_window_id);
+    } else {
+        printf("JadeView 初始化失败：%s\n", event_data ? event_data : "未知错误");
+    }
+    
+    return NULL;
+}
+
+int main() {
+    // 注册事件
+    jade_on("app-ready", app_ready_callback);
+    jade_on("window-all-closed", window_all_closed_callback);
+    
+    // 初始化
+    int result = JadeView_init(
+        1,                    // enable_devmod
+        NULL,                 // log_path
+        NULL,                 // data_directory
+        "我的应用",            // app_name
+        "com.example.myapp",  // app_signature
+        0                     // single_instance
+    );
+    
+    if (result == 0) {
+        printf("初始化失败\n");
+        return 1;
+    }
+    
+    printf("初始化成功，等待 app-ready 事件...\n");
+    
+    // 运行消息循环（DLL 嵌入场景可选）
+    // run_message_loop();
+    
+    return 0;
+}
+```
+
+## 更多示例
+
+### 使用无边框窗口
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include "JadeView.h"
+
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1) {  // window_id==1 即成功；event_data 为 JSON，失败时（window_id==0）为纯文本错误码
+        printf("创建无边框窗口\n");
+        
+        // 使用 create_borderless_webview_window 创建无边框窗口
+        uint32_t new_window_id = create_borderless_webview_window(
+            "https://www.example.com",
+            NULL
+        );
+        
+        if (new_window_id != 0) {
+            printf("无边框窗口创建成功，ID：%u\n", new_window_id);
+            
+            // 获取 HWND 用于 Win32 API
+            size_t hwnd = get_window_hwnd(new_window_id);
+            printf("窗口句柄：%p\n", (void*)hwnd);
+        }
+    }
+    return NULL;
+}
+
+int main() {
+    jade_on("app-ready", app_ready_callback);
+    
+    JadeView_init(1, NULL, NULL, "无边框窗口示例", "com.example.borderless", 0);
+    
+    return 0;
+}
+```
+
+### 使用主题设置
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include "JadeView.h"
+
+const char* app_ready_callback(uint32_t window_id, const char* event_data) {
+    if (window_id == 1) {  // window_id==1 即成功；event_data 为 JSON，失败时（window_id==0）为纯文本错误码
+        printf("创建带主题的窗口\n");
+        
+        WebViewWindowOptions options = {
+            .title = "主题示例",
+            .width = 800,
+            .height = 600,
+            .theme = "Dark",  // 使用深色主题
+            .background_color = "#1e1e1e"
+        };
+        
+        uint32_t new_window_id = create_webview_window(
+            "https://www.example.com",
+            0,
+            &options,
+            NULL
+        );
+        
+        if (new_window_id != 0) {
+            // 运行时切换主题
+            set_window_theme(new_window_id, "Light");
+            // 设置窗口背景
+            set_window_background_color(new_window_id, "#ffffff");
+        }
+    }
+    return NULL;
+}
+
+int main() {
+    jade_on("app-ready", app_ready_callback);
+    JadeView_init(1, NULL, NULL, "主题示例", "com.example.theme", 0);
+    return 0;
+}
+```
+
+## 下一步
+
+现在你已经成功创建了第一个 WebView 窗口！接下来你可以：
+
+- 探索更多 [窗口管理 API](/docs/api/window-api)
+- 了解 [事件系统](/docs/api/event-types)
+- 学习如何 [设置主题](/docs/api/theme-management)
+- 查看 [JAPK 资源包](/docs/api/japk)
+- 查看 [完整 API 参考](/docs/api)
