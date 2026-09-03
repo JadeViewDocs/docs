@@ -73,10 +73,7 @@ Pages loaded from external `http(s)://` origins are gated by `源站白名单` (
 JAPK is JadeView's encrypted / signed frontend bundle format. Loading from memory:
 
 ```wsv
-// 1. (signed packages) set the Ed25519 public key — once set, only signed packages load
-Jade.应用包.设置公钥 ("base64PublicKey44Chars")
-
-// 2. Load from a byte set (or use 加载视窗文件资源 to read an embedded resource —
+// 1. Load from a byte set (or use 加载视窗文件资源 to read an embedded resource —
 //    frontend assets fully hidden inside the exe)
 变量 结果 <类型 = 整数>
 结果 = Jade.应用包.加载字节集 (读入文件 ("app.japk"))
@@ -85,10 +82,12 @@ Jade.应用包.设置公钥 ("base64PublicKey44Chars")
     调试输出 ("JAPK load failed, code:", 结果)   // negative error codes, see the API reference
 }
 
-// 3. Empty root = serve the in-memory package; returns JADE://<app signature>
+// 2. Empty root = serve the in-memory package; returns JADE://<app signature>
 变量 地址 <类型 = 文本型>
 地址 = Jade.置协议服务目录 ("")
 ```
+
+> Note: upstream v2.4.0 removed SetPublicKey (public-key injection retired); JAPKs must be **signed packages** — signed at packaging time and strictly verified automatically on load; obfuscated packages (JPKBIN02) are no longer supported.
 
 Notes:
 
