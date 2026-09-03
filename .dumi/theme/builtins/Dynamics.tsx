@@ -6,7 +6,8 @@
 import { createStyles } from 'antd-style';
 import { CalendarDays } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
-import { useT } from '../locales/strings';
+import { formatPostDate } from './_date';
+import { useLocaleBase, useT } from '../locales/strings';
 
 const API_BASE = 'https://api.jade.run/posts';
 
@@ -16,6 +17,7 @@ interface Thread {
   author_id: string;
   title: string;
   content: string;
+  cover?: string;
   date_time: string;
 }
 
@@ -25,7 +27,7 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
     max-width: 1040px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 320px 1fr;
     gap: 24px;
     align-items: start;
 
@@ -36,28 +38,55 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
   list: css`
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     ${responsive.mobile} {
-      max-height: 280px;
+      max-height: 300px;
       overflow-y: auto;
     }
   `,
   item: css`
     cursor: pointer;
     text-align: left;
-    border: 1px solid ${token.colorBorderSecondary};
+    border: none;
     border-radius: ${token.borderRadiusLG}px;
     padding: 12px 14px;
     background: transparent;
     color: ${token.colorText};
-    transition: border-color 0.18s ease, background 0.18s ease;
+    transition: background 0.18s ease;
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: center;
     &:hover {
-      border-color: ${token.colorBorder};
+      background: ${token.colorFillTertiary};
     }
   `,
-  itemActive: css`
-    border-color: ${token.colorPrimary};
+  itemThumb: css`
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+    object-fit: cover;
+    display: block;
     background: ${token.colorFillTertiary};
+  `,
+  itemBody: css`
+    flex: 1;
+    min-width: 0;
+  `,
+  itemActive: css`
+    background: ${token.colorFillTertiary};
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 12px;
+      bottom: 12px;
+      width: 3px;
+      border-radius: 2px;
+      background: ${token.colorPrimary};
+    }
   `,
   itemTitle: css`
     font-size: 14px;
@@ -67,6 +96,7 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    color: ${token.colorText};
   `,
   itemDate: css`
     margin-top: 6px;
@@ -76,21 +106,29 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
   detail: css`
     border: 1px solid ${token.colorBorderSecondary};
     border-radius: ${token.borderRadiusLG}px;
-    padding: 24px 26px;
+    padding: 28px 30px;
+    background: ${token.colorBgContainer};
   `,
   detailTitle: css`
-    margin: 0 0 8px;
-    font-size: 22px;
+    margin: 0 0 10px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 1.4;
     color: ${token.colorText};
+  `,
+  detailMeta: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid ${token.colorSplit};
+    font-size: 13px;
+    color: ${token.colorTextSecondary};
   `,
   detailDate: css`
     display: inline-flex;
     gap: 6px;
     align-items: center;
-    font-size: 13px;
-    color: ${token.colorTextSecondary};
   `,
   detailBody: css`
     margin-top: 18px;
@@ -109,6 +147,8 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
 export default memo(function Dynamics() {
   const { styles, cx } = useStyles();
   const t = useT();
+  const isEn = useLocaleBase().startsWith('/en-US');
+  const dateOpts = { locale: (isEn ? 'en-US' : 'zh-CN') as 'en-US' | 'zh-CN' };
   const [threads, setThreads] = useState<Thread[] | null>(null);
   const [detail, setDetail] = useState<Thread | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -166,8 +206,11 @@ export default memo(function Dynamics() {
             className={cx(styles.item, activeId === th.thread_id && styles.itemActive)}
             onClick={() => open(th.thread_id)}
           >
-            <div className={styles.itemTitle}>{th.title}</div>
-            <div className={styles.itemDate}>{th.date_time}</div>
+            {th.cover && <img className={styles.itemThumb} src={th.cover} alt="" loading="lazy" />}
+            <span className={styles.itemBody}>
+              <span className={styles.itemTitle}>{th.title}</span>
+              <span className={styles.itemDate}>{formatPostDate(th.date_time, dateOpts)}</span>
+            </span>
           </button>
         ))}
         {threads?.length === 0 && <div className={styles.hint}>{t.dynamics.empty}</div>}
@@ -177,8 +220,10 @@ export default memo(function Dynamics() {
         {shown ? (
           <>
             <h1 className={styles.detailTitle}>{shown.title}</h1>
-            <div className={styles.detailDate}>
-              <CalendarDays size={15} /> {shown.date_time}
+            <div className={styles.detailMeta}>
+              <span className={styles.detailDate}>
+                <CalendarDays size={15} /> {formatPostDate(shown.date_time, dateOpts)}
+              </span>
             </div>
             <div className={styles.detailBody}>{shown.content}</div>
           </>

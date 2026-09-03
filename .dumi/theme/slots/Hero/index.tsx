@@ -18,6 +18,8 @@ import JadeStartButton from '../../components/JadeStartButton';
 // 3D 品牌吉祥物（与标题栏同源，GLB 只加载一次）：首屏大尺寸展示位
 import Logo3D from '../../components/JadeLogo3D';
 import WarpText from '../../components/WarpText';
+// 首屏三个 CTA 按钮下方的动态预览（紧凑版，复用 HomeNews）
+import HomeNews from '../../builtins/HomeNews';
 const useStyles = createStyles(({ css, token }) => ({
   // @lobehub/ui 的 AuroraBackground 在 ≤575.98px 把极光强制 `transform: scale(2); max-height: 25vh`，
   // 极光被裁到只剩屏幕顶部 1/4 并被放大成一片纯色，叠加低 opacity + 收向右上角的 mask 后手机端几乎不可见。
@@ -206,6 +208,8 @@ export default memo(function Hero() {
             })}
           </motion.div>
         )}
+        {/* 三个 CTA 按钮下方的动态预览（Hero 首屏） */}
+        <HomeNews compact />
       </motion.div>
     </>
   );

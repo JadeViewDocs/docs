@@ -2,7 +2,6 @@ import { Avatar, theme } from 'antd';
 import { SpotlightCard } from '@lobehub/ui/awesome';
 import { motion, useReducedMotion } from 'motion/react';
 import MagicBento from '../components/MagicBento';
-import HomeNews from './HomeNews';
 import { scrollContainer, scrollItem, scrollViewport } from '../components/scrollIn';
 import { useT } from '../locales/strings';
 
@@ -77,13 +76,6 @@ export default function HomeExtra() {
         <motion.p style={sectionSub} variants={scrollItem}>{t.home.bentoSub}</motion.p>
         <motion.div variants={scrollItem}>
           <MagicBento items={t.home.bento} glowColor="249, 115, 22" disableAnimations={!!reduce} />
-        </motion.div>
-      </motion.section>
-
-      {/* 动态 / 新闻（最近 3 条，横向带封面） */}
-      <motion.section style={{ marginTop: 64 }} variants={scrollContainer} {...reveal}>
-        <motion.div variants={scrollItem}>
-          <HomeNews />
         </motion.div>
       </motion.section>
 
