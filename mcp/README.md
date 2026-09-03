@@ -28,6 +28,22 @@ Claude Code / ZCode / Cursor 等客户端，在 MCP 配置里加：
 
 首次运行 npx 会自动下载并缓存；之后离线也能启动（索引在进程启动时构建，135 页 / 2230+ 段约 300ms）。想锁定版本可把参数换成 `["-y", "jadeview-docs-mcp@<版本号>"]`。
 
+## 国内镜像加速
+
+国内网络环境拉取 npm 包慢或失败时，可改用 npmmirror 镜像源，任选其一：
+
+```bash
+# 方式一：仅本次使用
+npx -y --registry=https://registry.npmmirror.com jadeview-docs-mcp
+
+# 方式二：全局切换（影响所有 npm / npx 操作）
+npm config set registry https://registry.npmmirror.com
+```
+
+或在用户目录的 `.npmrc` 里写入一行：`registry=https://registry.npmmirror.com`。
+
+> npmmirror 从官方源同步新版本有几分钟延迟，刚发版后镜像里暂时找不到最新版本属正常现象。
+
 ### 环境变量（可选）
 
 | 变量 | 默认 | 说明 |
