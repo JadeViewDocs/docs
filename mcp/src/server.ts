@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+// npm bin 入口（jadeview-docs-mcp）需要 shebang，tsc 编译会原样保留在 dist 顶部
 import express, { type Request, type Response } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { config } from './config.js';

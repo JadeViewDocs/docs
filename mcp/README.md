@@ -76,15 +76,15 @@ bunx tsx src/smoke-test.ts
 
 ## 部署
 
-`mcp/Dockerfile` 从项目根构建（需要能 `COPY docs`）：
+npm 包只含服务本体（`dist`），文档目录需自备——克隆本项目后把 `DOCS_DIR` 指向 `docs/`：
 
 ```bash
-# 在 JadeView_docs 项目根执行
-docker build -f mcp/Dockerfile -t jadeview-docs-mcp .
-docker run -p 8848:8848 jadeview-docs-mcp
+npm install -g jadeview-docs-mcp
+# DOCS_DIR 指向本仓库的 docs/ 目录（默认 ../docs）
+DOCS_DIR=/path/to/JadeView_docs/docs PORT=8848 jadeview-docs-mcp
 ```
 
-内容更新后重建镜像即可（索引在启动时构建，130 页 ~300ms）。也可挂载 `docs` 卷 + 重启容器免重建。
+内容更新后重启进程即可（索引在启动时构建，130 页 ~300ms）。
 
 ## 说明
 

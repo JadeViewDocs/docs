@@ -1,8 +1,10 @@
 {
   "name": "jadeview-docs-mcp",
   "version": "2.0.0",
-  "private": true,
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "description": "Self-hosted MCP server for JadeView docs (search + full-text over local markdown)",
   "main": "dist/server.js",
   "bin": {
