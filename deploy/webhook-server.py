@@ -33,11 +33,11 @@ sys.stdout.reconfigure(line_buffering=True)
 WEBHOOK_TOKEN = os.environ.get('WEBHOOK_TOKEN', '')
 DOCKERHUB_USER = os.environ.get('DOCKERHUB_USER', '')
 DOCKERHUB_TOKEN = os.environ.get('DOCKERHUB_TOKEN', '')
-# ghcr.io 凭据：组织 JadeViewDocs 策略禁止公开镜像包（Package visibility 的 Public 选项
-# 被组织管理员禁用），服务器拉取 ghcr.io/jadeviewdocs/docs 必须带凭据。
-# 用 GitHub classic PAT，勾选 read:packages 权限；令牌所属账号需是该组织成员。
-GHCR_USER = os.environ.get('GHCR_USER', '')
-GHCR_TOKEN = os.environ.get('GHCR_TOKEN', '')
+# 阿里云 ACR 凭据：国内服务器从 ACR 拉镜像最快（有独立 registry 主机，走 daemon 直连，
+# 无公共加速器 429/403 问题）。ACR_IMAGE 是基础镜像名（不带 tag/digest）。
+ACR_USERNAME = os.environ.get('ACR_USERNAME', '')
+ACR_PASSWORD = os.environ.get('ACR_PASSWORD', '')
+ACR_IMAGE = os.environ.get('ACR_IMAGE', '')
 IMAGE_NAME = os.environ.get('IMAGE_NAME', 'yiminger/jadeview_docs:latest')
 CONTAINER_NAME = os.environ.get('CONTAINER_NAME', 'docs-site')
 # 站点对外端口：重建容器时映射 host:SITE_PORT -> container:80。
@@ -78,8 +78,8 @@ async def lifespan(app: FastAPI):
     logger.info(f"镜像: {IMAGE_NAME}")
     logger.info(f"容器: {CONTAINER_NAME}  端口: {SITE_PORT} -> 80")
     logger.info(f"Docker Hub 用户: {DOCKERHUB_USER or '未配置'}")
-    logger.info(f"ghcr.io 用户: {GHCR_USER or '未配置'}")
-    logger.info(f"拉镜像回退源: daemon 默认 -> {PULL_MIRRORS}")
+    logger.info(f"阿里云 ACR: {ACR_IMAGE or '未配置'}  用户: {ACR_USERNAME or '未配置'}")
+    logger.info(f"拉镜像顺序: ACR -> docker.io 加速器 {PULL_MIRRORS}")
     logger.info("端点: POST /webhook/deploy")
     logger.info("=" * 50)
     yield
@@ -101,8 +101,8 @@ def _split_image(image: str):
 
     支持三种形式：
       - 'yiminger/jadeview_docs:latest'              → repo=…/jadeview_docs,     ref='latest',        is_digest=False
-      - 'ghcr.io/jadeviewdocs/docs@sha256:deadbeef'  → repo=ghcr.io/…/docs,     ref='sha256:deadbeef', is_digest=True
-      - 'ghcr.io/jadeviewdocs/docs'                  → repo=ghcr.io/…/docs,     ref='latest',        is_digest=False
+      - 'crpi-xxx.acr.aliyuncs.com/x/docs@sha256:deadbeef' → repo=.../docs,      ref='sha256:deadbeef', is_digest=True
+      - 'crpi-xxx.acr.aliyuncs.com/x/docs'            → repo=…/docs,             ref='latest',        is_digest=False
 
     CI 现在优先传 digest 形式——避免两个并发 workflow 同时 push :latest 时，
     webhook 收到请求时 latest 标签已被后一条 run 覆盖，pull 拉到错内容。
@@ -162,50 +162,44 @@ def _pull_with_progress(client, repository: str, tag: str | None = None):
 
 
 def pull_image(client, image: str):
-    """按「daemon 默认 → 各加速器」顺序拉镜像；429/超时退避重试，仍失败换下一个源。
+    """按「ACR 主镜像 → docker.io 加速器」顺序拉镜像。
 
-    走加速器前缀拉到后，重新打成 image 规范标签，后续按 IMAGE_NAME 起容器不受影响。
-    带 registry 主机的镜像（如 ghcr.io/...）只走 daemon 默认直连——公共加速器只代理 docker.io，
-    加前缀反而 404/403；ghcr 国内直连可达。
-    全部失败才抛异常——此时调用方不会拆旧容器，站点保持在线。
+    阿里云 ACR 有独立 registry 主机（crpi-xxx...aliyuncs.com），在国内走 daemon 直连
+    速度最快，作为第一候选；仅当目标是 docker.io 的 tag 时才追加公共加速器前缀。
+    429/超时退避重试，全部失败才抛异常——此时调用方不会拆旧容器，站点保持在线。
     """
     repo, ref, is_digest = _split_image(image)
 
-    # repo 首段含 '.' 视为带 registry 主机（ghcr.io 等），跳过 docker.io 加速器
-    has_registry = '.' in repo.split('/', 1)[0]
-
-    # digest 是 registry 绑定的不可变引用，不能走 docker.io 前缀加速器
-    # （加速器只代理 docker.io，前缀会命中 404/403）。digest 始终走 daemon 默认直连。
-    candidates = ['']  # daemon 默认（直连 / daemon.json 里配置的 registry-mirrors）
-    if not has_registry and not is_digest:
-        for m in PULL_MIRRORS.split(','):
-            m = m.strip().rstrip('/')
-            if m and m not in candidates:
-                candidates.append(m)
-
-    # digest 引用分隔符是 @；tag 是 :
-    sep = '@' if is_digest else ':'
+    # repo 首段含 '.' 视为自带 registry 主机（acr/dockerhub），只走 daemon 直连——
+    # 公共加速器只代理 docker.io，加前缀反而 404/403。无 registry 主机的才是 docker.io。
+    is_dockerio = '.' not in repo.split('/', 1)[0]
 
     last_err = None
-    for prefix in candidates:
+    if is_digest:
+        # digest 是 registry 绑定的不可变引用，不能走 docker.io 前缀加速器
+        prefixes = ['']  # daemon 默认（直连 / daemon.json 里的 registry-mirrors）
+    elif is_dockerio:
+        prefixes = ['']
+        for m in PULL_MIRRORS.split(','):
+            m = m.strip().rstrip('/')
+            if m and m not in prefixes:
+                prefixes.append(m)
+    else:
+        prefixes = ['']  # acr 等独立 registry：直连
+
+    for prefix in prefixes:
         if prefix:
-            candidate_ref = f"{prefix}/{repo}{sep}{ref}"
+            pull_repo = f"{prefix}/{repo}"
+            source = prefix
         else:
-            candidate_ref = f"{repo}{sep}{ref}"
-        source = prefix or 'daemon 默认'
+            pull_repo = repo
+            source = 'ACR' if not is_dockerio else 'daemon 默认'
         for attempt in range(1, PULL_RETRIES + 1):
             try:
-                logger.info(f"拉取镜像: {candidate_ref}  (源: {source}, 第 {attempt}/{PULL_RETRIES} 次)")
-                # 流式拉取：周期打印层进度（images.pull 是静默阻塞的，慢速链路像卡死）。
-                # digest 与 tag 都拆成 repository+ref 传（docker SDK 的 /images/create
-                # 对 tag=sha256:... 的 digest 引用同样生效）。
-                if prefix:
-                    img = _pull_with_progress(client, f"{prefix}/{repo}", ref)
-                else:
-                    img = _pull_with_progress(client, repo, ref)
-                # 不论 digest/tag，最后都打一份 repo:latest 的标准标签，
-                # 兼容后续 client.containers.run(image) 用 image_tag/latest 启动旧语义。
-                if prefix or is_digest:
+                logger.info(f"拉取镜像: {repo}{'@' if is_digest else ':'}{ref}  (源: {source}, 第 {attempt}/{PULL_RETRIES} 次)")
+                img = _pull_with_progress(client, pull_repo, ref)
+                # 统一回打主 repo:latest 标准标签，兼容后续 containers.run(image) 启动语义。
+                if is_digest or prefix:
                     img.tag(repo, 'latest')
                     logger.info(f"已重打标准标签: {repo}:latest")
                 logger.info("镜像拉取成功")
@@ -229,9 +223,9 @@ def do_deploy(data: dict):
     commit = data.get('commit', '')
     logger.info(f"Commit: {commit[:8] if commit else 'unknown'}")
     # 镜像选择：
-    #   1) 优先请求体 image（CI 传 digest，如 ghcr.io/jadeviewdocs/docs@sha256:abc）
+    #   1) 优先请求体 image（CI 传 digest，如 crpi-xxx...aliyuncs.com/jadeview_docs/jadeview_docs@sha256:abc）
     #      —— 不可变引用，保证 pull 的就是本次构建，不被并发 run 的 latest 覆盖。
-    #   2) 次选请求体 image_tag（CI 同时传，如 ghcr.io/jadeviewdocs/docs:latest）
+    #   2) 次选请求体 image_tag（CI 同时传，如 crpi-xxx...aliyuncs.com/jadeview_docs/jadeview_docs:latest）
     #      —— 老版 webhook 没做 digest 兼容时的兜底。
     #   3) 最后兜底环境变量 IMAGE_NAME（docker.io 域名，兼容最老调用方）。
     pull_image_ref = data.get('image') or data.get('image_tag') or IMAGE_NAME
@@ -256,19 +250,20 @@ def do_deploy(data: dict):
             except Exception as e:
                 logger.warning(f"登录失败（继续尝试拉取公开镜像）: {e}")
 
-        # ghcr.io 私有包登录：CI 推送到 ghcr.io/jadeviewdocs/docs（组织包禁止公开），
-        # 匿名拉取会 401 unauthorized。配置了 GHCR_USER/GHCR_TOKEN（classic PAT, read:packages）
-        # 就在拉取前登录；登录凭据写入 docker config，后续 images.pull 自动携带。
-        if GHCR_USER and GHCR_TOKEN:
-            logger.info(f"登录 ghcr.io: {GHCR_USER}")
+        # 阿里云 ACR 私有包登录：CI 同时推送到 ACR_IMAGE，国内服务器优先从 ACR 直连拉取
+        # （速度快）。配置了 ACR_USERNAME/ACR_PASSWORD（访问凭证）就在拉取前登录，
+        # 凭据写入 docker config，pull 时自动携带。
+        if ACR_USERNAME and ACR_PASSWORD and ACR_IMAGE:
+            acr_host = ACR_IMAGE.split('/', 1)[0]
+            logger.info(f"登录阿里云 ACR: {acr_host} ({ACR_USERNAME})")
             try:
-                client.login(username=GHCR_USER, password=GHCR_TOKEN, registry='ghcr.io')
-                logger.info("ghcr.io 登录成功")
+                client.login(username=ACR_USERNAME, password=ACR_PASSWORD, registry=acr_host)
+                logger.info("ACR 登录成功")
             except Exception as e:
-                logger.warning(f"ghcr.io 登录失败: {e}")
-        elif 'ghcr.io' in pull_image_ref:
-            logger.warning("目标镜像在 ghcr.io 但未配置 GHCR_USER/GHCR_TOKEN，"
-                           "组织包为私有，匿名拉取将 401 unauthorized")
+                logger.warning(f"ACR 登录失败: {e}")
+        elif 'aliyuncs.com' in pull_image_ref:
+            logger.warning("目标镜像在阿里云 ACR 但未配置 ACR_USERNAME/ACR_PASSWORD，"
+                           "匿名拉取私有包将失败")
 
         pull_image(client, pull_image_ref)
 
