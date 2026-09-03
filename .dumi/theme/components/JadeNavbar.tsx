@@ -63,6 +63,7 @@ const DOCS_SECTIONS = [
 const PRODUCTS = [
   { key: 'jadepack' as const, link: '/jadepack', logo: '/product/jadepack.svg', external: false },
   { key: 'jadeEc' as const, link: '/jade-ec', logo: '/product/jade-ec.svg', external: false },
+  { key: 'showcase' as const, link: '/showcase', logo: '/favicon-ca0d8df22450.png', external: false },
   // Clean Pro 为站外链接（Microsoft Store），点击直接跳转，不走站内路由
   { key: 'cleanPro' as const, link: 'https://apps.microsoft.com/detail/9pmt4mmz1fks', logo: '/product/clean-pro.png', external: true },
 ];
@@ -413,6 +414,7 @@ export default memo(function JadeNavbar() {
     if (l === SDK_ROOT || item.title === 'SDKs') return t.nav.sdks;
     if (l === '/jadepack' || item.title === '产品') return t.nav.products;
     if (l === '/showcase') return t.nav.showcase;
+    if (l === '/dynamics') return t.nav.dynamics;
     if (l === '/releases') return t.nav.releases;
     return item.title;
   };
@@ -448,7 +450,7 @@ export default memo(function JadeNavbar() {
     return pathname === link || pathname.startsWith(link + '/');
   };
   const sdkActive = matches(SDK_ROOT);
-  const productsActive = ['/jadepack', '/jade-ec'].some((l) => matches(l));
+  const productsActive = ['/jadepack', '/jade-ec', '/showcase'].some((l) => matches(l));
 
   // 「文档」项链接到 /docs/spec，但需在整个文档主路由（含 /docs/api 子分区）下都高亮。
   const itemActive = (link: string) =>
@@ -577,7 +579,7 @@ export default memo(function JadeNavbar() {
   // 「产品」下拉：复用「文档」的卡壳（docBig），展示各产品自带 app 图标 + 标题/描述。
   // 站内用 Link 走路由；站外（external=true，如 Clean Pro 跳 Microsoft Store）用 <a> 新标签打开。
   const productsCard = (
-    <div className={styles.docCard}>
+    <div className={styles.docCard} style={{ flexWrap: 'wrap' }}>
       {PRODUCTS.map((p) => {
         const inner = (
           <div className={styles.prodInner}>
@@ -607,6 +609,9 @@ export default memo(function JadeNavbar() {
       {nav.map((item: any) => {
         const key = String(item.activePath || item.link);
         const menu = menuOf(item);
+        // 「案例」已收纳进「产品」下拉卡片（PRODUCTS.showcase），PC 顶部导航不再单独占一位；
+        // 移动端汉堡菜单（JadeBurger）仍按 nav 渲染独立项，不受影响（只影响 PC）。
+        if (String(item.link) === '/showcase') return null;
         if (menu) {
           // 带下拉的触发器（文档 / SDKs）：悬停打开共享面板；点击仍按链接跳转。
           const itemActiveNow = menu === 'sdk' ? sdkActive : menu === 'products' ? productsActive : itemActive(item.link);

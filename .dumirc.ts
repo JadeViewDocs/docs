@@ -512,6 +512,7 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
       { title: 'SDKs', link: '/sdks' },
       { title: '产品', link: '/jadepack' },
       { title: '案例', link: '/showcase' },
+      { title: '动态', link: '/dynamics' },
       { title: '发行版本', link: '/releases' },
     ],
     // 底栏版权行（lobehub 以 dangerouslySetInnerHTML 渲染，可放链接）：备案号 + 云服务来源

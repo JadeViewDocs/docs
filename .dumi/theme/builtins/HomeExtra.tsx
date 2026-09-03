@@ -2,8 +2,9 @@ import { Avatar, theme } from 'antd';
 import { SpotlightCard } from '@lobehub/ui/awesome';
 import { motion, useReducedMotion } from 'motion/react';
 import MagicBento from '../components/MagicBento';
+import HomeNews from './HomeNews';
 import { scrollContainer, scrollItem, scrollViewport } from '../components/scrollIn';
-import { useT, useLocaleBase, localeHref } from '../locales/strings';
+import { useT } from '../locales/strings';
 
 // 文案（特性 / Bento / 套餐 / 开发者 / 各区标题）已抽到 ../locales/strings 的 home.*，按语言取值。
 // 技术栈是中性专有名词，保持单一来源。
@@ -15,10 +16,6 @@ const techs = [
 export default function HomeExtra() {
   const { token } = theme.useToken();
   const t = useT();
-  const base = useLocaleBase();
-  // JadeView 品牌橙：lobehub 暗色主题下 colorPrimary 偏白，做徽标/高亮会白底白字，改用固定品牌色
-  const BRAND = '#F97316';
-
   // 滚动进场动画的触发属性。尊重「减少动态效果」系统偏好：开启时不挂 initial/whileInView，
   // 元素直接以最终态渲染（variants 未被激活即为自然显示），完全跳过动画。
   const reduce = useReducedMotion();
@@ -26,12 +23,6 @@ export default function HomeExtra() {
     ? {}
     : ({ initial: 'hidden', whileInView: 'show', viewport: scrollViewport } as const);
 
-  const card: React.CSSProperties = {
-    background: token.colorBgContainer,
-    border: `1px solid ${token.colorBorderSecondary}`,
-    borderRadius: token.borderRadiusLG,
-    padding: 24,
-  };
   const sectionTitle: React.CSSProperties = {
     textAlign: 'center',
     fontSize: 30,
@@ -44,11 +35,6 @@ export default function HomeExtra() {
     color: token.colorTextSecondary,
     margin: '0 0 32px',
   };
-  const grid = (min: number): React.CSSProperties => ({
-    display: 'grid',
-    gridTemplateColumns: `repeat(auto-fit, minmax(${min}px, 1fr))`,
-    gap: 16,
-  });
 
   return (
     <div style={{ width: '100%', maxWidth: 1080, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1, userSelect: 'text' }}>
@@ -94,6 +80,13 @@ export default function HomeExtra() {
         </motion.div>
       </motion.section>
 
+      {/* 动态 / 新闻（最近 3 条，横向带封面） */}
+      <motion.section style={{ marginTop: 64 }} variants={scrollContainer} {...reveal}>
+        <motion.div variants={scrollItem}>
+          <HomeNews />
+        </motion.div>
+      </motion.section>
+
       {/* 技术栈 */}
       <motion.section style={{ marginTop: 64 }} variants={scrollContainer} {...reveal}>
         <motion.h2 style={sectionTitle} variants={scrollItem}>{t.home.techTitle}</motion.h2>
@@ -107,39 +100,6 @@ export default function HomeExtra() {
             }}>{tech}</span>
           ))}
         </motion.div>
-      </motion.section>
-
-      {/* 全功能永久免费 */}
-      <motion.section style={{ marginTop: 64 }} variants={scrollContainer} {...reveal}>
-        <motion.h2 style={sectionTitle} variants={scrollItem}>{t.home.freeTitle}</motion.h2>
-        <motion.p style={sectionSub} variants={scrollItem}>{t.home.freeSub}</motion.p>
-        <motion.div style={grid(260)} variants={scrollContainer}>
-          {t.home.plans.map((p) => (
-            <motion.div key={p.name} variants={scrollItem} style={{
-              ...card,
-              borderColor: p.popular ? BRAND : token.colorBorderSecondary,
-              boxShadow: p.popular ? `0 0 0 1px ${BRAND}` : undefined,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 18, fontWeight: 700, color: token.colorText }}>{p.name}</span>
-                {p.popular && (
-                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 999, background: BRAND, color: '#fff' }}>{t.home.recommend}</span>
-                )}
-              </div>
-              <p style={{ color: token.colorTextSecondary, marginBottom: 16 }}>{p.desc}</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {p.items.map((it) => (
-                  <li key={it} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', color: token.colorText }}>
-                    <span style={{ color: token.colorSuccess, fontWeight: 700 }}>✓</span>{it}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
-        </motion.div>
-        <motion.p style={{ textAlign: 'center', marginTop: 20 }} variants={scrollItem}>
-          <a href={localeHref(base, '/docs/api')}>{t.home.viewApi}</a>
-        </motion.p>
       </motion.section>
 
       {/* 核心开发者 */}
