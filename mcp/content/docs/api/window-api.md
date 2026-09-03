@@ -1,0 +1,740 @@
+---
+title: 窗口 API
+order: 0
+group:
+  title: 窗口与视图
+  order: 1
+---
+
+# 窗口 API
+
+窗口 API 提供了创建和管理窗口的所有功能，包括创建窗口、调整大小、设置主题等。
+
+页面导航、脚本执行、DevTools、打印等 WebView 相关操作见 [WebView API](/docs/api/webview-api)。
+
+以下函数都针对某个 **`window_id`**（创建窗口时返回的整数）。没有特殊说明时，成功多为 `1`，失败为 `0`。
+
+---
+
+## 创建窗口
+
+### 创建普通窗口
+
+创建一个带系统标题栏和边框的浏览器窗口，里面跑 WebView。这是最常用的主窗口创建方式。
+
+```c
+uint32_t create_webview_window(
+  const char* url,
+  uint32_t parent_window_id,
+  const WebViewWindowOptions* options,
+  const WebViewSettings* webview_settings
+);
+```
+
+**参数：**
+
+- `url` `string` - 第一次打开的网址或本地协议地址
+- `parent_window_id` `uint32_t` - 父窗口，`0` 表示顶层窗口
+- `options` `WebViewWindowOptions*` (可选) - 窗口外观配置，可传 `NULL` 使用默认值
+
+  **WebViewWindowOptions 选项：**
+  - `title` `string` - 窗口标题栏上的文字
+  - `width` `int32_t` - 初始宽度（像素）
+  - `height` `int32_t` - 初始高度（像素）
+  - `resizable` `int32_t` - 用户能不能用鼠标拖边缘改大小
+  - `frame_style` `string` - 要系统边框+标题栏、只要边框不要标题栏、完全无边框、还是无边框+内置标题栏按钮覆盖层（`normal` / `no-titlebar` / `borderless` / `title-overlay`）。`title-overlay` 提供有边框+无标题栏+右上角内置标题栏按钮，无需自行实现窗口控制按钮功能（Windows 与 Linux 均支持；Linux 自 v2.3.0-beta.6 起提供该覆盖层）
+  - `transparent` `int32_t` - 是否透明背景（和 WebView、系统能力有关）
+  - `background_color` `string` - 窗口背景色字符串（如带 `#` 的十六进制）
+  - `always_on_top` `int32_t` - 是否总在最前
+  - `theme` `string` - 浅色 / 深色 / 跟随系统（`Light`、`Dark`、`System`）
+  - `maximized` `int32_t` - 打开时是否最大化
+  - `maximizable` `int32_t` - 标题栏上是否允许最大化按钮生效
+  - `minimizable` `int32_t` - 标题栏上是否允许最小化按钮生效
+  - `x` `int32_t` - 窗口左上角 x 坐标；**两个都是 -1 表示让系统帮你居中**
+  - `y` `int32_t` - 窗口左上角 y 坐标；**两个都是 -1 表示让系统帮你居中**
+  - `min_width` `int32_t` - 允许的最小宽度；`0` 通常表示不限制
+  - `min_height` `int32_t` - 允许的最小高度；`0` 通常表示不限制
+  - `max_width` `int32_t` - 允许的最大宽度；`0` 通常表示不限制
+  - `max_height` `int32_t` - 允许的最大高度；`0` 通常表示不限制
+  - `fullscreen` `int32_t` - 打开时是否全屏
+  - `focus` `int32_t` - 打开后是否抢键盘焦点
+  - `hide_window` `int32_t` - 非 0 时先创建但不显示（适合先加载再 `show`）
+  - `use_page_icon` `int32_t` - 是否用网页 favicon 当初步窗口图标（Windows/Linux 均支持；从 exe 提取图标仅 Windows）
+  - `content_protection` `int32_t` - 是否开启防录屏/截屏类保护（**仅 Windows 生效**；Linux/X11 无系统级等价，设置不报错但无实际保护效果）
+  - `auto_save_state` `int32_t` - 非 `0`：在**数据目录**下的 `window_state.yaml` 里按 **`window_id`** 记录窗口**最后一次有效的物理左上角坐标**；下次用同一 `window_id` 创建时，若该位置仍落在某块屏的工作区内，则**恢复位置**（**宽高、是否最大化仍以本次创建参数为准**）。移动停止约 **450ms** 后防抖落盘；关闭时也会再存一次
+  - `skip_taskbar` `int32_t` - 是否不进任务栏 / Alt-Tab（`0` = 否，`1` = 是）。**v2.3.0-beta.6 新增**，追加在结构体末尾以保持字段顺序兼容（运行时改用 `set_window_skip_taskbar`，见下文「窗口标志与层级」）
+  - `no_activate` `int32_t` - 是否不抢焦点：点击 / 显示窗口都不激活（`0` = 否，`1` = 是）。**v2.3.0-beta.6 新增**，追加在结构体末尾以保持字段顺序兼容（运行时改用 `set_window_no_activate`，见下文「窗口标志与层级」）
+
+- `webview_settings` `WebViewSettings*` (可选) - 网页行为配置，可传 `NULL` 使用默认值
+
+  **WebViewSettings 选项：**
+  - `autoplay` `int32_t` - 媒体能不能自动播放
+  - `background_throttling` `int32_t` - 窗口在后台时是否降低定时器/动画频率省资源
+  - `allow_right_click` `int32_t` - 是否允许网页右键菜单。`0` = 禁用，`1` = 允许；不设置（或整个 `webview_settings` 传 `NULL`）默认 = 允许
+  - `ua` `string` - 自定义 User-Agent
+  - `preload_js` `string` - 页面加载前要注入的一段 JS
+  - `allow_fullscreen` `int32_t` - 网页里全屏 API 是否允许
+  - `postmessage_whitelist` `string` - **页面 `postMessage` 是否转发给主进程**的白名单，值为**一条 UTF-8 字符串**（通常接近页面的 `origin`，如 `https://example.com`）。库在匹配时：`event.origin` **等于**该字符串，或 **`origin` 以该字符串为后缀**，则通过。若指针为 **`NULL`/未设置**：当前实现下**不会放行任何来源**（即收不到 `postmessage-received`）。**通过 `set_protocol_service_path` 加载的内置静态页**在实现里会**跳过白名单**、始终可收
+  - `cors_whitelist` `string` - 版本支持 **v2.1+**， CORS 来源白名单，逗号或分号分隔的域名列表（如 `"http://198.18.0.1:8001, http://localhost:3000"`）。
+    - 严格精确匹配，不支持通配符。设置后仅允许白名单内的来源跨域请求 JadeView 内部 API（invoke、on）；不设置（`NULL`）或空字符串则不允许任何跨域，无法与程序通信。
+  :::warning
+          以下结构在 v2.2 开始支持
+  :::
+
+  - `autofill` `int32_t` - 是否启用账号/密码自动填充。`0` = 禁用，`1` = 启用。
+  - `general_autofill_enabled` `int32_t` - 是否启用通用表单自动填充（姓名/地址/电话等）。`0` = 禁用，`1` = 启用。
+  - `incognito` `int32_t` - 是否以无痕/隐私浏览模式运行。`0` = 正常模式，`1` = 无痕模式。开启后页面渲染会变慢。
+  - `disable_clipboard` `int32_t` - 是否禁用剪贴板读写权限。`0` = 允许，`1` = 禁用。
+  - `proxy_url` `string` - 代理URL，支持 HTTP 和 SOCKS5 代理（如 `"http://127.0.0.1:7890"` 或 `"socks5://127.0.0.1:1080"`）。`NULL` 表示不使用代理。
+  - `focused` `int32_t` - WebView 初始是否自动获取焦点。`0` = 不获取焦点，`1` = 自动聚焦（默认 `1`）。
+
+**返回值：**
+
+- `> 0` - 窗口 id，真正画出来可能稍晚，可结合 `window-created` 等事件
+- `0` - 失败，例如在 `app-ready` 之前就调用了
+
+:::warning
+2.0 已删掉旧版的 `remove_titlebar`、`borderless`、`no_center` 等字段，必须用 `frame_style` 和 `x/y=-1` 居中，否则结构体对不上会**静默错位**。
+:::
+
+---
+
+### 创建无边框窗口
+
+创建一个没有系统标题栏的 WebView 窗口，适合自绘标题栏、悬浮工具窗等场景。边框样式固定为无边框。
+
+```c
+uint32_t create_borderless_webview_window(
+  const char* url,
+  const WebViewSettings* webview_settings
+);
+```
+
+**参数：**
+
+- `url` `string` - 第一次打开的网址或本地协议地址
+- `webview_settings` `WebViewSettings*` (可选) - 网页行为配置，可传 `NULL` 使用默认值
+
+**返回值：**
+
+返回非 `0` 即 `window_id`。导航、IPC、执行 JS 和普通窗口一样用这个 id。
+
+---
+
+### 获取窗口句柄
+
+在 C/C++ 里要把窗口交给别的 Win32 API（例如 SetWindowPos、子控件挂靠）时，需要 HWND。
+
+**注意**：2.3版本之前，只有用 `create_borderless_webview_window` 创建的窗口才会返回有效句柄数值；普通 `create_webview_window` 一律返回 `0`。
+
+```c
+size_t get_window_hwnd(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+---
+### 获取窗口ID （v2.3）
+
+通过窗口句柄获取Jadeview创建的窗口ID
+
+```c
+size_t get_window_id(int32_t window_id);
+```
+**参数：**
+
+- `hwnd` `uint32_t` - 目标窗口 id
+
+
+## 位置、尺寸与标题
+
+### 设置窗口标题
+
+改变窗口标题栏上显示的文字（和 HTML 里的 `<title>` 可以不同）。
+
+```c
+int32_t set_window_title(uint32_t window_id, const char* title);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `title` `string` - 新的窗口标题
+
+---
+
+### 设置窗口大小
+
+按像素改变窗口宽度和高度。
+
+```c
+int32_t set_window_size(uint32_t window_id, int32_t width, int32_t height);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `width` `int32_t` - 新的宽度（像素）
+- `height` `int32_t` - 新的高度（像素）
+
+---
+
+### 设置窗口位置
+
+按像素改变窗口在屏幕上的位置。
+
+```c
+int32_t set_window_position(uint32_t window_id, int32_t x, int32_t y);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `x` `int32_t` - 新的 X 坐标
+- `y` `int32_t` - 新的 Y 坐标
+
+---
+
+### 获取窗口位置和尺寸（`get_window_bounds`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t get_window_bounds(uint32_t window_id, char* buffer, int buffer_size);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `buffer` `char*` - 输出缓冲区
+- `buffer_size` `int` - 缓冲区大小
+
+**返回值：** `1` = 成功，buffer 写入 JSON `{"x":0,"y":0,"width":800,"height":600}`；`0` = 失败
+
+---
+
+## 显隐与焦点
+
+### 显示或隐藏窗口
+
+显示或隐藏窗口（最小化以外的显隐）。
+
+```c
+int32_t set_window_visible(uint32_t window_id, int32_t visible);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `visible` `int32_t` - 非 `0` 显示，`0` 隐藏
+
+---
+
+### 让窗口获得焦点
+
+让该窗口拿到键盘焦点。
+
+```c
+int32_t set_window_focus(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+---
+
+### 设置窗口置顶
+
+是否置顶，不被其它普通窗口挡住。
+
+```c
+int32_t set_window_always_on_top(uint32_t window_id, int32_t always_on_top);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `always_on_top` `int32_t` - 非 `0` 置顶，`0` 取消置顶
+
+---
+
+### 设置忽略鼠标事件（`set_window_ignore_cursor_events`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+设置窗口是否忽略鼠标事件（鼠标穿透），适用于悬浮窗 / overlay 场景。
+
+```c
+int32_t set_window_ignore_cursor_events(uint32_t window_id, int ignore);
+```
+
+- **参数**：`window_id`、`ignore`（`1` = 忽略鼠标事件/穿透，`0` = 正常）
+- **返回值**：`1` = 成功，`0` = 失败
+
+---
+
+## 窗口标志与层级
+
+:::warning
+v2.3.0-beta.6 开始支持，全部跨平台（Windows / Linux）。
+:::
+
+适用于侧边 Dock、悬浮面板、桌面挂件、启动器等场景：让窗口不出现在任务栏 / Alt-Tab、常驻时不抢焦点，或把窗口压到桌面壁纸层。
+
+### 不进任务栏 / Alt-Tab（`set_window_skip_taskbar`）
+
+让窗口从任务栏和 Alt-Tab 切换列表中隐藏，常用于悬浮工具窗、挂件。也可在创建时用 `WebViewWindowOptions.skip_taskbar` 直接置位。
+
+```c
+int32_t set_window_skip_taskbar(uint32_t window_id, int32_t skip);
+```
+
+- **参数**：`window_id`；`skip`（`1` = 不进任务栏 / Alt-Tab，`0` = 恢复）
+- **返回值**：`1` = 成功，`0` = 失败
+
+:::info{title=平台实现}
+Windows：加 `WS_EX_TOOLWINDOW` 并去 `WS_EX_APPWINDOW`；Linux：GTK `skip-taskbar-hint`。
+:::
+
+---
+
+### 不抢焦点（`set_window_no_activate`）
+
+让窗口在点击 / 显示时都不获得激活焦点，适合常驻的悬浮面板（点它不打断你在别处的输入）。也可在创建时用 `WebViewWindowOptions.no_activate` 直接置位。
+
+```c
+int32_t set_window_no_activate(uint32_t window_id, int32_t no_activate);
+```
+
+- **参数**：`window_id`；`no_activate`（`1` = 不抢焦点，`0` = 恢复）
+- **返回值**：`1` = 成功，`0` = 失败
+
+:::info{title=平台实现}
+Windows：`WS_EX_NOACTIVATE`（`SetWindowLongPtr`）；Linux：GTK `accept-focus=false`。
+:::
+
+---
+
+### 设置窗口层级（`set_window_level`）
+
+一次性设定窗口处于哪个层级，比单纯的「置顶」更灵活——可把窗口压到所有窗口下方，甚至贴到桌面壁纸层做挂件。
+
+```c
+// level: "topmost" | "normal" | "bottom" | "desktop"
+int32_t set_window_level(uint32_t window_id, const char* level);
+```
+
+- **参数**：`window_id`；`level` `string` - 层级字符串，取值见下表
+- **返回值**：`1` = 成功，`0` = 失败
+
+| level | 行为 | 实现 |
+|-------|------|------|
+| `topmost` | 置顶，盖在普通窗口之上 | `set_always_on_top(true)`（跨平台） |
+| `normal` | 普通层，取消置顶 / 置底 | 取消 always-on-top / always-on-bottom |
+| `bottom` | 压在其它窗口下方 | `set_always_on_bottom(true)`（跨平台） |
+| `desktop` | 贴桌面壁纸层（最小化所有窗口才见，类挂件） | 先 `bottom`；Windows 寄生 `Progman` / `WorkerW`，Linux 设 GTK `WindowTypeHint::Desktop` |
+
+:::warning{title=平台差异}
+`topmost` / `normal` / `bottom` 跨平台稳定；`desktop`（壁纸层）为 best-effort，与窗口管理器行为相关，建议真机验证。寄生失败时至少退化为 `bottom`（仍在所有窗口下方）。
+:::
+
+---
+
+## 窗口状态
+
+### 最小化窗口
+
+把窗口收到任务栏。
+
+```c
+int32_t minimize_window(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+---
+
+### 切换最大化状态
+
+在最大化和还原之间切换一下。
+
+```c
+int32_t toggle_maximize_window(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+---
+
+### 查询是否最大化
+
+查询当前是不是最大化状态。
+
+```c
+int32_t is_window_maximized(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+**返回值：**
+
+- `1` - 当前是最大化状态
+- `0` - 当前不是最大化状态
+
+---
+
+### 设置全屏
+
+进入或退出全屏（铺满显示器，不是单纯最大化）。请求会异步生效；也可监听 `window-fullscreen` 事件。
+
+```c
+int32_t set_window_fullscreen(uint32_t window_id, int32_t fullscreen);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `fullscreen` `int32_t` - 非 `0` 进入全屏，`0` 退出全屏
+
+---
+
+### 查询窗口是否最小化（`is_window_minimized`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t is_window_minimized(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`
+- **返回值**：`1` = 已最小化，`0` = 否
+
+---
+
+### 查询窗口是否可见（`is_window_visible`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t is_window_visible(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`
+- **返回值**：`1` = 可见，`0` = 不可见
+
+---
+
+### 查询窗口是否聚焦（`is_window_focused`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t is_window_focused(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`
+- **返回值**：`1` = 已聚焦，`0` = 否
+
+---
+
+### 查询窗口是否全屏（`is_window_fullscreen`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t is_window_fullscreen(uint32_t window_id);
+```
+
+- **参数**：`window_id` `uint32_t`
+- **返回值**：`1` = 全屏，`0` = 否
+
+---
+
+## 窗口约束
+
+### 设置窗口最小尺寸（`set_window_min_size`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t set_window_min_size(uint32_t window_id, int32_t width, int32_t height);
+```
+
+- **参数**：`window_id`、`width`（最小宽度）、`height`（最小高度）
+- **返回值**：`1` = 成功，`0` = 失败
+
+---
+
+### 设置窗口最大尺寸（`set_window_max_size`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t set_window_max_size(uint32_t window_id, int32_t width, int32_t height);
+```
+
+- **参数**：`window_id`、`width`（最大宽度）、`height`（最大高度）
+- **返回值**：`1` = 成功，`0` = 失败
+
+---
+
+### 设置窗口是否可调整大小（`set_window_resizable`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+```c
+int32_t set_window_resizable(uint32_t window_id, int32_t resizable);
+```
+
+- **参数**：`window_id`、`resizable`（`1` = 可调整，`0` = 不可）
+- **返回值**：`1` = 成功，`0` = 失败
+
+---
+
+### 启用或禁用窗口
+
+禁用窗口时用户点不了上面控件（像模态对话框背后的灰窗）；传非 `0` 恢复。
+
+```c
+int32_t set_window_enabled(uint32_t window_id, int32_t enabled);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `enabled` `int32_t` - 非 `0` 启用，`0` 禁用
+
+---
+
+## 外观与样式
+
+### 运行时修改窗口边框样式
+
+动态修改窗口的边框样式，无需重新创建窗口。
+
+```c
+int32_t set_window_frame_style(uint32_t window_id, const char* frame_style);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `frame_style` `string` - 边框样式字符串，可选值：`normal`（有边框+标题栏）、`no-titlebar`（有边框+无标题栏）、`borderless`（无边框+无标题栏）、`title-overlay`（有边框+无标题栏+内置标题栏按钮）
+
+---
+
+### 自定义标题栏覆盖层样式（`set_titlebar_overlay_style`）
+
+自定义 `title-overlay` 样式窗口的标题栏按钮覆盖层外观（高度 / 图标颜色 / 悬浮背景色）。
+
+```c
+int32_t set_titlebar_overlay_style(
+    uint32_t window_id,
+    int32_t height,
+    const char* icon_color_hex,
+    const char* hover_bg_hex
+);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `height` `int32_t` - 按钮高度（像素），传 `0` 或负数则保持当前高度不变；覆盖层初始默认高度为 32。按钮宽度固定 46 像素
+- `icon_color_hex` `string` (可选) - 图标颜色，格式为 `#RRGGBB`（如 `"#FFFFFF"`），传 `NULL` 使用默认颜色
+- `hover_bg_hex` `string` (可选) - 非关闭按钮悬浮背景色，格式为 `#RRGGBB` 或 `#RRGGBBAA`（支持透明度，如 `"#00000080"`），传 `NULL` 使用默认深灰色
+
+:::info
+关闭按钮悬浮背景色固定为红色（`#E81123`），图标固定为白色，不受此 API 影响。
+:::
+
+:::warning{title=平台差异}
+本函数的运行时样式定制**目前仅 Windows 生效**。Linux 上 `title-overlay` 覆盖层会正常显示，但使用内置默认样式（图标 `#1E1E1E`、悬浮背景 `#DCDCDCBF`、高度 `32`），暂不可经此函数定制。
+:::
+
+---
+
+### 设置窗口明暗主题
+
+控制窗口和 WebView 使用浅色、深色还是跟随系统主题。
+
+更细的说明见 [主题管理](/docs/api/theme-management)。
+
+```c
+int32_t set_window_theme(uint32_t window_id, const char* theme);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `theme` `string` - 主题字符串，可选值：`Light`、`Dark`、`System`
+
+---
+
+### 获取当前窗口主题
+
+查询当前窗口使用的主题。
+
+```c
+int32_t get_window_theme(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+**返回值：**
+
+- `1` - 深色（Dark）
+- `0` - 浅色（Light）
+
+`System` 主题会按当前系统明暗解析为 `1` / `0`；窗口不存在或主题未知时返回 `0`。
+
+---
+
+### 设置窗口背景材质
+
+Windows 11 下设置云母、亚克力等系统背景材质。
+
+可用字符串见 [主题管理](/docs/api/theme-management)。
+
+```c
+int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `backdrop_type` `string` - 背景材质类型
+
+:::warning{title=平台差异}
+**仅 Windows 11**。Linux（WebKitGTK）无系统材质等价物，调用为 no-op 并返回 `0`、无视觉效果。如需半透明/纯色背景，请用 `set_window_background_color` 或窗口的 `transparent` + `background_color` 选项。
+:::
+
+---
+
+### 设置窗口背景色
+
+设置窗口背景色（十六进制字符串）。
+
+```c
+int32_t set_window_background_color(uint32_t window_id, const char* background_color_hex);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+- `background_color_hex` `string` - 背景色十六进制字符串，如 `#FF0000`
+
+---
+
+### 请求重绘
+
+通知系统重画客户区（一般很少需要手动调用）。
+
+```c
+int32_t request_redraw(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+---
+
+## 任务栏特效
+
+### 设置任务栏进度条（`set_window_progress`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+在任务栏按钮上显示进度条（如下载进度、安装进度等）。
+
+```c
+int32_t set_window_progress(uint32_t window_id, int progress, int state);
+```
+
+- **参数**：
+  - `window_id` `uint32_t`
+  - `progress` `int` - 进度值（0–100）
+  - `state` `int` - 状态：`0`=无进度，`1`=正常，`2`=暂停(黄色)，`3`=错误(红色)，`4`=不确定
+- **返回值**：`1` = 成功，`0` = 失败
+
+:::warning
+仅 Windows 平台。
+:::
+
+---
+
+### 任务栏图标闪烁（`flash_window`）
+
+:::warning
+v2.2 开始支持。
+:::
+
+闪烁任务栏图标以吸引用户注意（如收到消息时）。
+
+```c
+int32_t flash_window(uint32_t window_id, uint32_t count);
+```
+
+- **参数**：`window_id` `uint32_t`；`count` `uint32_t` - 闪烁次数，`0` = 停止闪烁
+- **返回值**：`1` = 成功，`0` = 失败
+
+:::warning
+仅 Windows 平台。
+:::
+
+---
+
+## 关闭与计数
+
+### 关闭窗口
+
+发起关闭；若页面注册了 `beforeunload` 且用户选择留下，关闭可能被推迟或取消，具体以 WebView 与页面脚本为准。
+
+```c
+int32_t close_window(uint32_t window_id);
+```
+
+**参数：**
+
+- `window_id` `uint32_t` - 目标窗口 id
+
+---
+
+### 获取窗口数量
+
+查询当前 JadeView 里还有几个窗口没关。
+
+```c
+uint32_t get_window_count(void);
+```

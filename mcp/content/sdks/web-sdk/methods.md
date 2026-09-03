@@ -1,0 +1,377 @@
+---
+order: 0
+group:
+  title: "API 参考"
+  order: 2
+---
+
+# API 参考
+
+JadeView Web SDK 提供了与 JadeView WebView 进行 IPC 通信的 API，主要包括以下方法：
+
+## window.jade.invoke
+
+**函数签名**：`<T = any>(command: string, payload?: any): Promise<T>`
+
+**参数**：
+| 参数名 | 类型 | 描述 |
+|-------|------|------|
+| command | string | 后端命令名称 |
+| payload | any | 传递给后端的数据（可选） |
+
+**返回值**：`Promise<T>` - 后端返回结果的 Promise
+
+**描述**：调用后端 API 并获取返回结果，支持异步操作。
+
+**示例代码**：
+
+```javascript
+// 调用后端 API
+async function sendMessage() {
+  try {
+    const messageData = {
+      timestamp: Date.now(),
+      data: '测试消息',
+    };
+    const result = await window.jade?.invoke('message', messageData);
+    console.log('Backend return result:', result);
+  } catch (error) {
+    console.error('Call failed:', error);
+  }
+}
+```
+
+## window.jade.on
+
+**函数签名**：`(eventName: string, callback: (payload: any) => void) => () => void`
+
+**参数**：
+| 参数名 | 类型 | 描述 |
+|-------|------|------|
+| eventName | string | 事件名称 |
+| callback | (payload: any) => void | 事件触发时的回调函数 |
+
+**返回值**：`() => void` - 取消订阅的函数
+
+**描述**：订阅后端事件，当事件触发时调用提供的回调函数。返回一个函数用于取消订阅。
+
+**示例代码**：
+
+```javascript
+// 订阅事件
+const unsubscribe = window.jade?.on('setTheme', (payload) => {
+  console.log('Theme change event:', payload);
+  // 处理主题变化逻辑
+});
+
+// 取消订阅
+// unsubscribe();
+```
+
+## window.jade.dialog
+
+JadeView Web SDK 提供了原生对话框 API，用于显示文件选择、保存文件、消息框等。
+
+### window.jade.dialog.showOpenDialog
+
+**函数签名**：`(options: OpenDialogOptions) => Promise<OpenDialogResult>`
+
+**参数**：
+| 参数名 | 类型 | 描述 |
+|-------|------|------|
+| options | OpenDialogOptions | 对话框选项 |
+
+**返回值**：`Promise<OpenDialogResult>` - 对话框结果
+
+**描述**：显示打开文件对话框，用于选择文件。
+
+**示例代码**：
+
+```javascript
+// 打开文件对话框
+async function openFile() {
+  try {
+    const result = await window.jade?.dialog.showOpenDialog({
+      title: '选择文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: 'Text Files', extensions: ['txt', 'md'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (!result?.canceled) {
+      console.log('Selected files:', result.filePaths);
+    }
+  } catch (error) {
+    console.error('Open file dialog failed:', error);
+  }
+}
+```
+
+### window.jade.dialog.showSaveDialog
+
+**函数签名**：`(options: SaveDialogOptions) => Promise<SaveDialogResult>`
+
+**参数**：
+| 参数名 | 类型 | 描述 |
+|-------|------|------|
+| options | SaveDialogOptions | 对话框选项 |
+
+**返回值**：`Promise<SaveDialogResult>` - 对话框结果
+
+**描述**：显示保存文件对话框，用于选择保存位置。
+
+**示例代码**：
+
+```javascript
+// 保存文件对话框
+async function saveFile() {
+  try {
+    const result = await window.jade?.dialog.showSaveDialog({
+      title: '保存文件',
+      defaultPath: 'document.txt',
+      filters: [
+        { name: 'Text File', extensions: ['txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (!result?.canceled) {
+      console.log('Save path:', result.filePath);
+    }
+  } catch (error) {
+    console.error('Save file dialog failed:', error);
+  }
+}
+```
+
+### window.jade.dialog.showMessageBox
+
+**函数签名**：`(options: MessageBoxOptions) => Promise<MessageBoxResult>`
+
+**参数**：
+| 参数名 | 类型 | 描述 |
+|-------|------|------|
+| options | MessageBoxOptions | 消息框选项 |
+
+**返回值**：`Promise<MessageBoxResult>` - 消息框结果
+
+**描述**：显示消息框，用于用户确认或选择。
+
+**示例代码**：
+
+```javascript
+// 显示消息框
+async function showConfirm() {
+  try {
+    const result = await window.jade?.dialog.showMessageBox({
+      title: '确认操作',
+      message: '确定要删除此文件吗？',
+      detail: '此操作不可撤销',
+      buttons: ['删除', '取消'],
+      defaultId: 1,
+      cancelId: 1,
+      type: 'warning'
+    });
+
+    if (result?.response === 0) {
+      console.log('User confirmed deletion');
+    } else {
+      console.log('User canceled deletion');
+    }
+  } catch (error) {
+    console.error('Show message box failed:', error);
+  }
+}
+```
+
+### window.jade.dialog.showErrorBox
+
+**函数签名**：`(title: string, content: string) => Promise<void>`
+
+**参数**：
+| 参数名 | 类型 | 描述 |
+|-------|------|------|
+| title | string | 错误框标题 |
+| content | string | 错误框内容 |
+
+**返回值**：`Promise<void>` - 无返回值
+
+**描述**：显示错误框，用于提示错误信息。
+
+**示例代码**：
+
+```javascript
+// 显示错误框
+async function showError() {
+  try {
+    await window.jade?.dialog.showErrorBox('错误', '操作失败，请重试');
+    console.log('Error box closed');
+  } catch (error) {
+    console.error('Show error box failed:', error);
+  }
+}
+```
+
+## 类型定义
+
+JadeView Web SDK 提供了以下类型定义：
+
+### JadeView
+
+**接口签名**：`interface JadeView`
+
+**描述**：JadeView 主接口，代表 `window.jade` 对象。
+
+**方法**：
+- `invoke: <T = any>(command: string, payload?: any) => Promise<T>` - 调用后端 API
+- `on: (eventName: string, callback: (payload: any) => void) => () => void` - 订阅后端事件
+- `dialog: DialogAPI` - 对话框 API
+
+### DialogAPI
+
+**接口签名**：`interface DialogAPI`
+
+**描述**：对话框 API 接口，提供原生对话框功能。
+
+**方法**：
+- `showOpenDialog: (options: OpenDialogOptions) => Promise<OpenDialogResult>` - 显示打开文件对话框
+- `showSaveDialog: (options: SaveDialogOptions) => Promise<SaveDialogResult>` - 显示保存文件对话框
+- `showMessageBox: (options: MessageBoxOptions) => Promise<MessageBoxResult>` - 显示消息框
+- `showErrorBox: (title: string, content: string) => Promise<void>` - 显示错误框
+
+### OpenDialogOptions
+
+**接口签名**：`interface OpenDialogOptions`
+
+**描述**：打开文件对话框选项。
+
+**属性**：
+- `title?: string` - 对话框标题
+- `defaultPath?: string` - 默认路径
+- `buttonLabel?: string` - 确认按钮标签
+- `filters?: FileFilter[]` - 文件过滤器
+- `properties?: DialogProperty[]` - 对话框属性
+- `message?: string` - 对话框消息
+- `securityScopedBookmarks?: boolean` - 安全作用域书签（macOS）
+
+### SaveDialogOptions
+
+**接口签名**：`interface SaveDialogOptions`
+
+**描述**：保存文件对话框选项。
+
+**属性**：
+- `title?: string` - 对话框标题
+- `defaultPath?: string` - 默认路径
+- `buttonLabel?: string` - 确认按钮标签
+- `filters?: FileFilter[]` - 文件过滤器
+- `nameFieldLabel?: string` - 文件名字段标签
+- `showsTagField?: boolean` - 显示标签字段（macOS）
+
+### MessageBoxOptions
+
+**接口签名**：`interface MessageBoxOptions`
+
+**描述**：消息框选项。
+
+**属性**：
+- `title?: string` - 消息框标题
+- `message: string` - 消息框消息
+- `detail?: string` - 消息框详细信息
+- `buttons?: string[]` - 按钮数组
+- `defaultId?: number` - 默认按钮索引
+- `cancelId?: number` - 取消按钮索引
+- `type?: MessageBoxType` - 消息框类型
+- `noLink?: boolean` - 不显示链接
+- `normalizeAccessKeys?: boolean` - 标准化访问键
+
+### FileFilter
+
+**接口签名**：`interface FileFilter`
+
+**描述**：文件过滤器。
+
+**属性**：
+- `name: string` - 过滤器名称
+- `extensions: string[]` - 扩展名数组
+
+### DialogProperty
+
+**类型签名**：`type DialogProperty = 'openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles' | 'createDirectory' | 'promptToCreate' | 'noResolveAliases' | 'treatPackageAsDirectory' | 'dontAddToRecent'`
+
+**描述**：对话框属性类型。
+
+### MessageBoxType
+
+**类型签名**：`type MessageBoxType = 'none' | 'info' | 'error' | 'question' | 'warning'`
+
+**描述**：消息框类型。
+
+### OpenDialogResult
+
+**接口签名**：`interface OpenDialogResult`
+
+**描述**：打开文件对话框结果。
+
+**属性**：
+- `canceled: boolean` - 是否取消
+- `filePaths: string[]` - 选择的文件路径数组
+- `bookmarks?: string[]` - 书签数组（macOS）
+
+### SaveDialogResult
+
+**接口签名**：`interface SaveDialogResult`
+
+**描述**：保存文件对话框结果。
+
+**属性**：
+- `canceled: boolean` - 是否取消
+- `filePath?: string` - 保存文件路径
+- `bookmark?: string` - 书签（macOS）
+
+### MessageBoxResult
+
+**接口签名**：`interface MessageBoxResult`
+
+**描述**：消息框结果。
+
+**属性**：
+- `response: number` - 按钮索引
+- `checkboxChecked?: boolean` - 复选框是否选中
+
+## 最佳实践
+
+1. **检查可用性**：在使用 `window.jade` 对象之前，始终检查其是否可用
+2. **使用可选链**：使用可选链 `?.` 访问 `window.jade` 的方法，避免运行时错误
+3. **异步处理**：使用 `async/await` 或 Promise 处理 `invoke` 方法的异步返回值
+4. **妥善管理回调**：及时取消不再需要的订阅，避免内存泄漏
+5. **处理异步初始化**：考虑 JadeView IPC 系统的异步初始化特性
+6. **错误处理**：添加适当的错误处理，提高应用的健壮性
+7. **类型安全**：使用 TypeScript 获得完整的类型安全和 IntelliSense 支持
+
+## 注意事项
+
+1. **环境限制**：JadeView Web SDK 仅在 JadeView WebView 环境中可用
+2. **类型安全**：使用 TypeScript 可以获得更好的类型安全支持
+3. **异步通信**：IPC 通信是异步的，不能保证立即完成
+4. **性能考虑**：避免频繁发送大量数据，影响应用性能
+5. **安全性**：注意处理来自原生应用的数据，避免安全风险
+
+## 常见问题
+
+### Q: window.jade 未定义怎么办？
+A: 确保您的应用运行在 JadeView WebView 环境中，并检查 JadeView IPC 系统是否已初始化。
+
+### Q: 如何处理复杂数据结构？
+A: 新的 API 支持直接传递复杂数据结构，无需使用 `JSON.stringify` 转换。
+
+### Q: 如何避免内存泄漏？
+A: 及时取消不再需要的订阅，使用 `on` 方法返回的取消订阅函数。
+
+### Q: 如何调试 IPC 通信？
+A: 使用浏览器开发者工具的控制台，打印发送和接收的消息。
+
+### Q: 支持哪些浏览器？
+A: JadeView Web SDK 支持所有现代浏览器，包括 Chrome、Firefox、Safari、Edge 等。
