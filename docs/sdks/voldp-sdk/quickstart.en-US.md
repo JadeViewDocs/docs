@@ -205,7 +205,7 @@ jade.on('push-demo', payload => console.log('host push:', payload));
 | YAML storage | `Jade.YAML.` | `写` / `读` / `列出键` / `删除` … |
 | System tray | `Jade.托盘.` | `创建` / `置图标` / `添加菜单项` … |
 | Context menu | `Jade.菜单.` | `创建` / `置显示` / `销毁` |
-| JAPK packages | `Jade.应用包.` | `设置公钥` / `加载字节集` / `是否加载` |
+| JAPK packages | `Jade.应用包.` | `加载字节集` / `加载视窗文件资源` / `是否加载` |
 | JSON | `json_object` / `json_array` / `json_value` | parse & build JSON |
 | Constant classes | — | `窗口主题` / `窗口边框样式` / `订阅_视图事件` / `热键功能键` … |
 

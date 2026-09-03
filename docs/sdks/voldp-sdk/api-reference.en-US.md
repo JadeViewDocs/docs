@@ -6,7 +6,7 @@ order: 2
 
 The SDK's entry point is the `JadeView` class (declare `变量 Jade <类型 = JadeView>`). Window operations, system tools, storage, tray, menus, and app packages live on the member objects `Jade.窗口` / `Jade.系统` / `Jade.YAML` / `Jade.托盘` / `Jade.菜单` / `Jade.应用包`.
 
-> Signatures on this page match the latest module declarations. Parameters with defaults may be left empty at the call site (e.g. `创建窗口 (地址, 0, , )`).
+> Signatures on this page match module wrapper version **1.2** (underlying JadeView **v2.4.0**, Build 26H03). Parameters with defaults may be left empty at the call site (e.g. `创建窗口 (地址, 0, , )`).
 
 ## Core Methods
 
@@ -45,10 +45,18 @@ Enters the blocking message loop. Call after `初始化`, as the last step of th
 
 Cleans up and ends the message loop. Usually called inside the `全部窗口已关闭` event callback.
 
+### `退出程序2`
+
+```wsv
+逻辑型 退出程序2 (超时)   // 整数, default 30 (seconds)
+```
+
+Closes every window and **waits for the event loop and the JadeView background thread to exit** — for scenarios that need reliable teardown (unloading the DLL, re-initializing after exit, …).
+
 ### `取版本` / `取WebView版本`
 
 ```wsv
-文本型 取版本 ()         // JadeView version string (includes build number), static
+文本型 取版本 ()         // JadeView version string
 文本型 取WebView版本 ()   // WebView2 runtime version
 ```
 
@@ -111,6 +119,7 @@ Creates a standard WebView window (system title bar / frame, style configurable)
 | `禁用剪切板` | 逻辑型 | Disable clipboard permissions |
 | `代理地址` | 文本型 | `http://host:port` or `socks5://host:port` |
 | `启动获取焦点` | 逻辑型 | WebView takes focus initially |
+| `配置文件名` | 文本型 | Windows-only: WebView2 Profile name; empty = default Profile (non-empty isolates cookies / storage between windows) |
 
 ### `创建无边框窗口`
 
@@ -162,7 +171,6 @@ Creates a standalone borderless WebView window — for custom title bars and flo
 | `置启用 (窗口ID, 启用)` | Disabled windows ignore user input |
 | `刷新 (窗口ID)` | Reload the current page |
 | `取数量 ()` | Number of active windows |
-| `清理所有窗口 ()` | Close and clean up every window (static) |
 | `清注册资源 (窗口ID)` | Clear the window's registered resources, returns the count |
 
 ### State queries
@@ -171,7 +179,7 @@ Creates a standalone borderless WebView window — for custom title bars and flo
 |------|------|------|
 | `是否最大化` / `是否最小化` / `是否可见` / `是否聚焦` / `是否全屏 (窗口ID)` | 逻辑型 | Boolean state |
 | `取位置尺寸 (窗口ID)` | 文本型 | Bounds JSON (x / y / width / height) |
-| `取主题 (窗口ID)` | 整数 | Theme state code (1 = dark) |
+| `取主题 (窗口ID)` | 整数 | Raw underlying theme state code (meaning per the JadeView SDK) |
 | `取句柄 (窗口ID)` | 变整数 | Native HWND; standard windows always return 0, only borderless windows are valid |
 
 ### Theme & appearance
@@ -199,6 +207,9 @@ Creates a standalone borderless WebView window — for custom title bars and flo
 |------|------|
 | `Jade.导航到地址 (窗口ID, 地址, 协议头)` | Navigate; `协议头` is a JSON headers object (default `""`) |
 | `Jade.窗口.刷新 (窗口ID)` | Reload the current page |
+| `Jade.后退` / `Jade.前进 (窗口ID)` | Navigate back / forward in history |
+| `Jade.是否可后退` / `Jade.是否可前进 (窗口ID)` | Whether back / forward is possible |
+| `Jade.请求重绘 (窗口ID)` | Ask the system to repaint the client area (rarely needed manually) |
 | `Jade.执行脚本 (窗口ID, 脚本文本)` | Run JS, **returns an incrementing request id** (>0 ok / 0 failed); the result arrives via the `脚本执行结果` event keyed by that id |
 | `Jade.置缩放比例 (窗口ID, 比例)` | Page zoom, 1.0 = 100% |
 | `Jade.取URL (窗口ID, 缓冲区大小)` | Current WebView URL (buffer defaults to 4096) |
@@ -208,6 +219,26 @@ Creates a standalone borderless WebView window — for custom title bars and flo
 :::warning{title="执行脚本 return value"}
 `执行脚本` returns an **integer request id**, not the JS result. Test success with `> 0`; the actual JS result only arrives in the `脚本执行结果` event, whose JSON `id` matches the return value.
 :::
+
+### Web permission interception
+
+When a page requests camera, microphone, screen capture, file access, clipboard-read, geolocation, or notification permissions, you can register a single handler to allow or deny them all centrally; without a handler the browser default applies.
+
+```wsv
+整数   注册权限处理事件 (对象实例, 方法输出名)   // returns a callback id
+整数   注销权限处理事件 ()
+```
+
+The callback signature is fixed; its return value decides the outcome (**0 = browser default, 1 = allow, -1 = deny**):
+
+```wsv
+方法 权限处理 <公开 类型 = 整数 @强制输出 = 真 @输出名 = "permission_callback">
+参数 窗口ID <类型 = 整数>
+参数 数据 <类型 = 文本型>    // permission request JSON; kind field compares against 权限类型常量
+{
+    返回 (0)   // browser default
+}
+```
 
 ---
 
@@ -230,8 +261,8 @@ Jade.订阅事件 (订阅_视图事件.文件拖放)
 ### `置IPC频道回调` / `注册IPC通道`
 
 ```wsv
-逻辑型 置IPC频道回调 (对象实例, 方法)
-// 对象实例: pass 本对象; 方法: the callback's export name (literal or constant)
+逻辑型 置IPC频道回调 (对象实例, 方法输出名)
+// 对象实例: pass 本对象; 方法输出名: the callback's export name (literal or constant)
 逻辑型 注册IPC通道 (通道名)    // re-registering the same channel returns 真
 逻辑型 注销IPC通道 (通道名)
 逻辑型 清除IPC频道回调 ()
@@ -458,7 +489,6 @@ Encrypted / signed frontend bundles. **Return convention differs from other modu
 
 | Method | Returns | Description |
 |------|------|------|
-| `设置公钥 (公钥字符串)` | 整数 | Base64 Ed25519 public key (44 chars); once set, only signed packages load — call before loading |
 | `加载字节集 (应用包数据)` | 整数 | Load a JAPK from memory; error codes documented on the method (-5 bad signature, -6 identity mismatch, …) |
 | `加载视窗文件资源 (应用包数据)` | 整数 | Load from an embedded VolDP file resource (-99 = resource-to-bytes failed) |
 | `是否加载 ()` | 逻辑型 | Whether a JAPK is loaded |
@@ -467,6 +497,8 @@ Encrypted / signed frontend bundles. **Return convention differs from other modu
 | `卸载 ()` | 整数 | Clear the loaded state and free memory |
 
 After loading, call `置协议服务目录 ("")` (empty root) to get a `JADE://<app signature>` address. The JAPK's app name / signature must match `初始化`.
+
+> Note: upstream v2.4.0 removed `JadeView_set_public_key`, retiring the public-key injection mechanism; JAPKs must be **signed packages** (platform root-cert chain + v3 signature protocol, strict offline verification on load; obfuscated packages are no longer supported). Error codes -9 / -10 remain for compatibility only.
 
 ---
 
@@ -544,5 +576,6 @@ Every fixed-value parameter has a constant class — no raw strings / numbers:
 | `对话框属性` | `.允许选择文件` / `.允许选择文件夹` / `.允许多选` / `.显示隐藏文件` … | File-dialog properties |
 | `文件拖放事件类型` | `.进入` / `.移动` / `.放下` / `.离开` | `文件拖放` event data types |
 | `崩溃代码类型` | `.访问冲突` / `.栈溢出` / `.运行时崩溃` / `.渲染进程退出` … | `程序崩溃回调` crash codes |
+| `权限类型常量` | `.摄像头` / `.麦克风` / `.显示捕捉` / `.文件系统` / `.读取剪贴板` / `.地理位置` / `.网页通知` / `.指针锁定` / `.自动下载` / `.媒体自动播放` … | `注册权限处理事件` permission types |
 | `json_type` | `.空` / `.对象` / `.数组` / `.文本` / `.整数值` / `.小数值` / `.逻辑` … | JSON value type codes |
 | `订阅_窗口事件` / `订阅_视图事件` / `订阅_通知事件` / `订阅_系统事件` | event-name text constants | `订阅事件` / `注销订阅事件` |
