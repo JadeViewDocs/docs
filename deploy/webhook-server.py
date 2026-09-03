@@ -32,6 +32,11 @@ sys.stdout.reconfigure(line_buffering=True)
 WEBHOOK_TOKEN = os.environ.get('WEBHOOK_TOKEN', '')
 DOCKERHUB_USER = os.environ.get('DOCKERHUB_USER', '')
 DOCKERHUB_TOKEN = os.environ.get('DOCKERHUB_TOKEN', '')
+# ghcr.io 凭据：组织 JadeViewDocs 策略禁止公开镜像包（Package visibility 的 Public 选项
+# 被组织管理员禁用），服务器拉取 ghcr.io/jadeviewdocs/docs 必须带凭据。
+# 用 GitHub classic PAT，勾选 read:packages 权限；令牌所属账号需是该组织成员。
+GHCR_USER = os.environ.get('GHCR_USER', '')
+GHCR_TOKEN = os.environ.get('GHCR_TOKEN', '')
 IMAGE_NAME = os.environ.get('IMAGE_NAME', 'yiminger/jadeview_docs:latest')
 CONTAINER_NAME = os.environ.get('CONTAINER_NAME', 'docs-site')
 # 站点对外端口：重建容器时映射 host:SITE_PORT -> container:80。
@@ -72,6 +77,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"镜像: {IMAGE_NAME}")
     logger.info(f"容器: {CONTAINER_NAME}  端口: {SITE_PORT} -> 80")
     logger.info(f"Docker Hub 用户: {DOCKERHUB_USER or '未配置'}")
+    logger.info(f"ghcr.io 用户: {GHCR_USER or '未配置'}")
     logger.info(f"拉镜像回退源: daemon 默认 -> {PULL_MIRRORS}")
     logger.info("端点: POST /webhook/deploy")
     logger.info("=" * 50)
@@ -215,6 +221,20 @@ def do_deploy(data: dict):
                 logger.info("登录成功")
             except Exception as e:
                 logger.warning(f"登录失败（继续尝试拉取公开镜像）: {e}")
+
+        # ghcr.io 私有包登录：CI 推送到 ghcr.io/jadeviewdocs/docs（组织包禁止公开），
+        # 匿名拉取会 401 unauthorized。配置了 GHCR_USER/GHCR_TOKEN（classic PAT, read:packages）
+        # 就在拉取前登录；登录凭据写入 docker config，后续 images.pull 自动携带。
+        if GHCR_USER and GHCR_TOKEN:
+            logger.info(f"登录 ghcr.io: {GHCR_USER}")
+            try:
+                client.login(username=GHCR_USER, password=GHCR_TOKEN, registry='ghcr.io')
+                logger.info("ghcr.io 登录成功")
+            except Exception as e:
+                logger.warning(f"ghcr.io 登录失败: {e}")
+        elif 'ghcr.io' in pull_image_ref:
+            logger.warning("目标镜像在 ghcr.io 但未配置 GHCR_USER/GHCR_TOKEN，"
+                           "组织包为私有，匿名拉取将 401 unauthorized")
 
         pull_image(client, pull_image_ref)
 

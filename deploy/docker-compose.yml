@@ -25,6 +25,10 @@ services:
       WEBHOOK_TOKEN: ${WEBHOOK_TOKEN}
       DOCKERHUB_USER: ${DOCKERHUB_USER}
       DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}
+      # ghcr.io 凭据：组织 JadeViewDocs 禁止公开镜像包，服务器拉 ghcr 私有包必须登录。
+      # classic PAT 勾选 read:packages；令牌账号需是组织成员。
+      GHCR_USER: ${GHCR_USER:-}
+      GHCR_TOKEN: ${GHCR_TOKEN:-}
       IMAGE_NAME: ${IMAGE_NAME:-yiminger/jadeview_docs:latest}
       CONTAINER_NAME: docs-site
       SITE_PORT: ${SITE_PORT:-8088}
