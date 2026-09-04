@@ -1,7 +1,7 @@
 ---
-title: Dynamics
+title: Blog
 sidebar: false
 toc: false
 ---
 
-<Dynamics />
+<LatestPostRedirect />

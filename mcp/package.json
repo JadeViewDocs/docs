@@ -1,6 +1,6 @@
 {
   "name": "jadeview-docs-mcp",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "JadeView 文档 MCP 服务（stdio）：全文搜索 + 整页读取随包分发的 markdown 文档",
   "type": "module",
   "main": "dist/mcp.js",
