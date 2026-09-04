@@ -433,7 +433,7 @@ export default memo(function JadeNavbar() {
     if (l === SDK_ROOT || item.title === 'SDKs') return t.nav.sdks;
     if (l === '/jadepack' || item.title === '产品') return t.nav.products;
     if (l === '/showcase') return t.nav.showcase;
-    if (l === '/dynamics') return t.nav.dynamics;
+    if (l === '/blog') return t.nav.blog;
     if (l === '/releases') return t.nav.releases;
     return item.title;
   };

@@ -275,6 +275,9 @@ export default memo(function Sidebar() {
   const rel = base !== '/' && pathname.startsWith(base) ? pathname.slice(base.length) || '/' : pathname;
   const inDocs = rel === '/docs' || rel.startsWith('/docs/');
   const inSdks = rel === '/sdks' || rel.startsWith('/sdks/');
+  // 剥掉侧边栏链接的语言前缀（英文形如 /en-US/blog/…），用于识别「博客首页」重定向壳
+  const stripLocale = (link: string) =>
+    base !== '/' && link.startsWith(base) ? link.slice(base.length) || '/' : link;
 
   return (
     <section className={styles.inner}>
@@ -337,9 +340,16 @@ export default memo(function Sidebar() {
           const hasTitle = Boolean(item.title);
           const key = item.title || `__group_${index}`;
           const open = hasTitle ? !collapsed[key] : true;
+          // 过滤「博客首页」项：dumi 自动生成侧边栏时会把 docs/blog/index.md（LatestPostRedirect
+          // 重定向壳）也算作一篇文章，点击它只会跳到最新文章，与文章列表首项重复，故不渲染；
+          // 文章本身不受影响，新投稿 md 依旧自动出现在列表里（中英文路径均已覆盖）。
+          const children = (item.children || []).filter(
+            (child: any) => !['/blog', '/blog/'].includes(stripLocale(child.link)),
+          );
+          if (!children.length) return null;
           const links = (
             <div className={styles.items}>
-              {item.children.map((child: any) => (
+              {children.map((child: any) => (
                 <NavLink key={child.link} className={styles.link} end title={child.title} to={child.link}>
                   {child.title}
                   {child.frontmatter?.badge && <span className={styles.badge}>{child.frontmatter.badge}</span>}

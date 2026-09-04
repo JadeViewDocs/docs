@@ -38,6 +38,9 @@ import Sidebar from '../../slots/Sidebar';
 import Toc from '../../slots/Toc';
 // 文档主路由面包屑（antd Breadcrumb），注入到 Docs 正文顶部
 import DocBreadcrumb from '../../components/DocBreadcrumb';
+// 博客文章顶部信息栏（投稿人/投稿时间/编辑此页）：从布局注入而非写进 markdown——
+// dumi 对「内嵌组件 + 正文文本」混合的 md 编译会丢正文，纯组件/纯文本均正常（DocBreadcrumb 同款注入模式）
+import PostHeader from '../../builtins/PostHeader';
 
 export default memo(function DocumentLayout({ children }: any) {
   const intl = useIntl();
@@ -215,6 +218,8 @@ export default memo(function DocumentLayout({ children }: any) {
             {page === 'docs' && (
               <Docs>
                 <DocBreadcrumb />
+                {/* 博客文章信息栏：非 /blog/* 路由自动渲染为 null，不影响 API 文档页 */}
+                <PostHeader />
                 {children}
               </Docs>
             )}

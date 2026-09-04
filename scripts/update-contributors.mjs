@@ -60,6 +60,21 @@ function fileToRoute(repoPath) {
   return '/' + p;
 }
 
+/** 收集博客文章（docs/blog/ 下、非 index）的投稿日期：{ route: { date } }。
+ *  全自动：日期取该文件首次提交时间；投稿人昵称/头像/主页由前端直接消费 pages 贡献者数据。 */
+function collectPosts(files, perFile) {
+  const info = new Map(perFile.map((p) => [p.file, p]));
+  const posts = {};
+  for (const f of files) {
+    if (!/^docs\/blog\//i.test(f)) continue;
+    const route = fileToRoute(f);
+    if (route === '/blog') continue; // 博客首页本身不算文章
+    const date = info.get(f)?.firstDate || null;
+    if (date) posts[route] = { date };
+  }
+  return posts;
+}
+
 // ---------- GitHub API 模式 ----------
 
 async function ghJson(url) {
@@ -74,7 +89,7 @@ async function ghJson(url) {
   return res.json();
 }
 
-/** 单文件 → [{login,name,avatarUrl,url,commits}]（API 模式，squash 合并归属 PR 作者） */
+/** 单文件 → {list:[{login,name,avatarUrl,url,commits}], firstDate}（API 模式，squash 合并归属 PR 作者） */
 async function contributorsViaApi(repoPath) {
   const commits = await ghJson(
     `${API_BASE}/commits?path=${encodeURIComponent(repoPath)}&per_page=100`,
@@ -96,7 +111,8 @@ async function contributorsViaApi(repoPath) {
     cur.commits += 1;
     byKey.set(key, cur);
   }
-  return [...byKey.values()];
+  // commits 按时间倒序：末尾即最早提交（squash 合并下即 PR 合并时间），作博客投稿日期
+  return { list: [...byKey.values()], firstDate: commits.at(-1)?.commit?.author?.date || null };
 }
 
 // ---------- 本地 git 模式 ----------
@@ -107,16 +123,18 @@ function loginFromEmail(email) {
   return m ? m[1] : null;
 }
 
+/** 单文件 → {list:[{login,name,avatarUrl,url,commits}], firstDate}（本地 git 模式） */
 function contributorsViaGit(repoPath) {
   // --follow：跨文件改名追完整历史（如 SDK 分区迁入 docs/sdks/ 的批量移动）
-  const out = execFileSync('git', ['log', '--follow', '--format=%an\t%ae', '--', repoPath], {
+  const out = execFileSync('git', ['log', '--follow', '--format=%an\t%ae\t%aI', '--', repoPath], {
     cwd: ROOT,
     encoding: 'utf-8',
   });
   const byKey = new Map();
+  let firstDate = null;
   for (const line of out.split('\n')) {
     if (!line.trim()) continue;
-    const [name, email] = line.split('\t');
+    const [name, email, iso] = line.split('\t');
     if (/\[bot\]|github-actions/i.test(name)) continue;
     const login = loginFromEmail(email);
     const key = login || `name:${name}`;
@@ -129,8 +147,10 @@ function contributorsViaGit(repoPath) {
     };
     cur.commits += 1;
     byKey.set(key, cur);
+    // git log 倒序：最后一条即最早提交，作博客投稿日期
+    if (iso) firstDate = iso.trim();
   }
-  return [...byKey.values()];
+  return { list: [...byKey.values()], firstDate };
 }
 
 // ---------- 头像下载（仅 API 模式） ----------
@@ -165,13 +185,13 @@ async function main() {
     const mode = TOKEN ? 'GitHub API' : '本地 git log';
     console.log(`共 ${files.length} 个 md，数据源：${mode}`);
 
-    // 每个文件取贡献者（单文件失败仅告警）
+    // 每文件取贡献者 + 首次提交时间（单文件失败仅告警）
     const perFile = await mapLimit(files, CONCURRENCY, async (f) => {
       try {
-        return { file: f, list: TOKEN ? await contributorsViaApi(f) : contributorsViaGit(f) };
+        return { file: f, ...(TOKEN ? await contributorsViaApi(f) : contributorsViaGit(f)) };
       } catch (e) {
         console.warn(`⚠️ 跳过 ${f}：${e.message}`);
-        return { file: f, list: [] };
+        return { file: f, list: [], firstDate: null };
       }
     });
 
@@ -218,6 +238,7 @@ async function main() {
     const json = {
       updated_at: new Date().toISOString(),
       sources,
+      posts: collectPosts(files, perFile),
       pages: Object.fromEntries(
         [...pages.entries()]
           .filter(([, byKey]) => byKey.size > 0)

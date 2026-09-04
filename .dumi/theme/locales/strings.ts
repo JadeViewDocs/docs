@@ -6,7 +6,7 @@ import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 
 const zh = {
   // 顶部导航项（按 link 映射，见 JadeNavbar）
-  nav: { docs: '文档', sdks: 'SDKs', products: '产品', showcase: '案例', dynamics: '动态', releases: '发行版本' },
+  nav: { docs: '文档', sdks: 'SDKs', products: '产品', showcase: '案例', blog: '博客', releases: '发行版本' },
   // 导航「文档」「SDKs」下拉
   navbar: {
     countSuffix: ' 篇', // {n} 篇
@@ -67,9 +67,6 @@ int main() {
     ],
     techTitle: '使用你喜欢的前端技术栈',
     techSub: '从 React、Vue 到原生 HTML，用任何熟悉的前端技术构建桌面应用。',
-    newsTitle: '动态',
-    newsSub: '来自官方频道的产品更新与社区动态。',
-    newsMore: '更多动态',
     devsTitle: '核心开发者',
     devsSub: '由 JadeView 开发委员会维护。',
     devs: [
@@ -186,11 +183,6 @@ int main() {
       },
     ],
   },
-  // 动态页（Dynamics builtin）：文案
-  dynamics: {
-    loading: '加载中…',
-    empty: '暂无动态，请稍后重试。',
-  },
   jadepack: {
     hero: {
       eyebrow: '官方打包工具',
@@ -270,7 +262,7 @@ int main() {
 };
 
 const en: typeof zh = {
-  nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', dynamics: 'Dynamics', releases: 'Releases' },
+  nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', blog: 'Blog', releases: 'Releases' },
   navbar: {
     countSuffix: ' docs', // {n} docs
     sdk: {
@@ -329,9 +321,6 @@ int main() {
     ],
     techTitle: 'Use the Front-end Stack You Love',
     techSub: 'From React and Vue to plain HTML — build desktop apps with any front-end tech you know.',
-    newsTitle: 'Dynamics',
-    newsSub: 'Product updates and community news from the official channel.',
-    newsMore: 'More',
     devsTitle: 'Core Developers',
     devsSub: 'Maintained by the JadeView development committee.',
     devs: [
@@ -443,10 +432,6 @@ int main() {
         badge: '',
       },
     ],
-  },
-  dynamics: {
-    loading: 'Loading…',
-    empty: 'No dynamics yet. Please try again later.',
   },
   jadepack: {
     hero: {
