@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-09-04T20:12:19.828Z",
+  "updated_at": "2026-09-05T12:24:31.105Z",
   "releases": [
+    {
+      "tag_name": "v2.4.1",
+      "name": "v2.4.1 (Build 26I01)",
+      "published_at": "2026-09-05T12:24:15Z",
+      "prerelease": false,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.1",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.1",
+      "body": "- 修复 Windows/macOS 下托盘左键单击也会弹出菜单的问题：`tray-icon` 在这两平台默认开启\"左键弹菜单\"（`menu_on_left_click = true`），此前创建托盘时未关闭该默认行为，导致鼠标左键、右键都能打开托盘菜单。现在托盘菜单仅在右键时弹出，左键单击只派发 `tray-event`（`left-click`），前端可通过 `jade_on(\"tray-event\")` 自行处理左键行为（如显示/隐藏主窗口）。\n\n- Windows：修复创建无边框窗口时标题栏闪烁的问题。\n\n- Windows：修复窗口处于隐藏状态时最大化导致窗口短暂闪烁的问题；在隐藏状态下查询尺寸/位置将返回最大化前的值。\n\n- Windows：修复父事件循环已析构后调用窗口函数导致 panic 的问题，现改为记录错误日志。\n\n- Windows：修复系统关机/重启时（收到 `WM_ENDSESSION` 消息）报\"cannot move state from Destroyed\"崩溃的问题。\n\n- Windows：创建窗口及任务栏重启时，仅在明确设置不显示任务栏图标时才应用相关设置。\n\n\n- **Windows 7 支持移除**：JadeView 2.4.1 起 Windows 最低系统要求为 Windows 8/10+。\n\n\n- Linux 托盘基于 AppIndicator/StatusNotifier 协议，菜单由桌面环境托管，左键/右键行为由桌面设置决定，JadeView 不受此问题影响、也无法干预；本次修复在 Linux 上无副作用。\n\n- Linux 下 `tray-event` 点击类事件暂不派发（`tray-icon` GTK 后端限制，非本次引入）；托盘菜单项点击的 `tray-menu-command` 事件在 Linux 正常工作。\n"
+    },
     {
       "tag_name": "v2.4.0",
       "name": "v2.4.0 (Build 26H03)",
