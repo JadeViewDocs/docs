@@ -10,6 +10,7 @@ import { memo } from 'react';
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
 import Logo3D from './JadeLogo3D';
+import ThemeToggle from './JadeThemeToggle';
 
 const LANG_LABEL: Record<string, string> = { 'zh-CN': '中文', 'en-US': 'EN' };
 
@@ -200,16 +201,19 @@ export default memo(function JadeFooter() {
 
         <div className={styles.bottom}>
           <span className={styles.copy}>{`© 2022-${year} JadeView · ${t.rights}`}</span>
-          <div className={styles.lang}>
-            {locales.map((loc) => (
-              <a
-                className={cx(styles.langItem, loc.id === cur?.id && styles.langItemActive)}
-                href={switchTo(loc.base)}
-                key={loc.id}
-              >
-                {LANG_LABEL[loc.id] || loc.name}
-              </a>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <ThemeToggle />
+            <div className={styles.lang}>
+              {locales.map((loc) => (
+                <a
+                  className={cx(styles.langItem, loc.id === cur?.id && styles.langItemActive)}
+                  href={switchTo(loc.base)}
+                  key={loc.id}
+                >
+                  {LANG_LABEL[loc.id] || loc.name}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>

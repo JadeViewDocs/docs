@@ -56,7 +56,8 @@ export default memo(function DocumentLayout({ children }: any) {
     const localeBase = norm(s.locale?.base || '/');
     const isHomePage = norm(s.location.pathname) === localeBase;
     const isChangelogPage = s.location.pathname === `${localeBase === '/' ? '' : localeBase}/changelog`;
-    const p = isHomePage ? 'home' : isChangelogPage ? 'changelog' : 'docs';
+    const isSearchPage = s.location.pathname === `${localeBase === '/' ? '' : localeBase}/search`;
+    const p = isHomePage ? 'home' : isChangelogPage ? 'changelog' : isSearchPage ? 'search' : 'docs';
     return {
       loading: s.siteData.loading,
       noToc: siteSelectors.tocAnchorItem(s).length === 0,
@@ -215,6 +216,7 @@ export default memo(function DocumentLayout({ children }: any) {
           <section style={{ position: 'relative', flex: 1, maxWidth: '100%' }}>
             {page === 'home' && <Home>{children}</Home>}
             {page === 'changelog' && <Changelog>{children}</Changelog>}
+            {page === 'search' && children}
             {page === 'docs' && (
               <Docs>
                 <DocBreadcrumb />

@@ -279,6 +279,25 @@ export default memo(function Sidebar() {
   const stripLocale = (link: string) =>
     base !== '/' && link.startsWith(base) ? link.slice(base.length) || '/' : link;
 
+  // 搜索范围限制：只搜「当前顶层分区」的文档（rel 已剥离语言前缀）。
+  // 例：/blog/… 只留 blog 结果、/sdks/… 只留 sdks、/docs/… 只留 docs 区；
+  // 首页等无顶层分区（sectionPrefix 为 null）时保持全局搜索。
+  const topSeg = (rel.split('/').filter(Boolean)[0] || '').toLowerCase();
+  const sectionPrefix = topSeg ? `/${topSeg}` : null;
+  const normLink = (link: string) => (link.startsWith('/') ? link : `/${link}`);
+  const scopedResult =
+    sectionPrefix && result.length
+      ? result
+          .map((item) => {
+            const hints = item.hints.filter((h) => {
+              const p = normLink(h.link);
+              return p === sectionPrefix || p.startsWith(sectionPrefix + '/');
+            });
+            return hints.length ? { ...item, hints } : null;
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null)
+      : result;
+
   return (
     <section className={styles.inner}>
       <div className={styles.search}>
@@ -293,9 +312,9 @@ export default memo(function Sidebar() {
           onChange={(e: any) => setKeywords(e.target.value)}
           onFocus={() => setFocusing(true)}
         />
-        {keywords.trim() && focusing && (result.length > 0 || !loading) && (
+        {keywords.trim() && focusing && (scopedResult.length > 0 || !loading) && (
           <div className={styles.popover}>
-            <SearchResult data={result} loading={loading} />
+            <SearchResult data={scopedResult} loading={loading} />
           </div>
         )}
       </div>

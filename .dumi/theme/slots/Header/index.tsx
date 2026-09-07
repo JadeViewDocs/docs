@@ -24,6 +24,7 @@ import isEqual from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'dumi';
+import { Search } from 'lucide-react';
 import { floatItemNoBlur, floatStyleTop } from '../../components/floatIn';
 import { useLiquidGlass, GLASS_PARAMS, GLASS_BG_OPACITY, GLASS_SATURATION } from '../../components/JadeGlass';
 // @ts-ignore 主题 store / selectors，深层路径无类型声明
@@ -36,8 +37,6 @@ import Logo3D from '../../components/JadeLogo3D';
 import DiscordButton from 'dumi-theme-lobehub/dist/slots/Header/DiscordButton';
 // @ts-ignore
 import GithubButton from 'dumi-theme-lobehub/dist/slots/Header/GithubButton';
-// @ts-ignore
-import ThemeSwitch from 'dumi-theme-lobehub/dist/slots/Header/ThemeSwitch';
 
 // 形态内重排（Logo 文字 / 导航间距）与跨形态交叉淡入共用的 iOS 手感 spring。
 const reflow = { type: 'spring', stiffness: 300, damping: 30 } as const;
@@ -111,6 +110,8 @@ export default memo(function Header() {
   const brand = (config && (config as any).name) || 'JadeView';
 
   const dark = theme.isDarkMode ?? (theme.appearance ? theme.appearance === 'dark' : true);
+  // 全站搜索页路由（适配多语言）
+  const searchHref = localeBase === '/' ? '/search' : `${localeBase.replace(/\/$/, '')}/search`;
   // 回退态（Safari/FF/不支持位移滤镜）仍用较实的磨砂底保证可读；玻璃态用极薄霜底让背后画面折射透出。
   const glassBg = `color-mix(in srgb, ${theme.colorBgContainer} 72%, transparent)`;
   // reactbits backgroundOpacity=0.1：霜底极薄，否则盖住背景、折射不可见。
@@ -289,7 +290,21 @@ export default memo(function Header() {
             {/* 右侧动作：content-width 胶囊下导航与动作相邻，补一点左间距避免贴太紧。 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '0 0 auto', marginLeft: 10, zIndex: 10 }}>
               <DiscordButton />
-              <ThemeSwitch />
+              <Link
+                to={searchHref}
+                title="全站搜索"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  color: dark ? '#fff' : '#000',
+                }}
+              >
+                <Search size={20} strokeWidth={1.8} />
+              </Link>
               <GithubButton />
             </div>
           </motion.section>
