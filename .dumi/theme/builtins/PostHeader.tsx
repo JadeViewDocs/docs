@@ -36,9 +36,9 @@ interface Snapshot {
   pages: Record<string, Contributor[]>;
 }
 
-// 与 DocBreadcrumb 共用同一份快照缓存，模块级只取一次
+// 与 DocBreadcrumb 共用同一份快照缓存，模块级只取一次；LatestPostRedirect 亦复用
 let snapshotCache: Promise<Snapshot | null> | null = null;
-const loadSnapshot = () =>
+export const loadSnapshot = (): Promise<Snapshot | null> =>
   (snapshotCache ??= fetch('/contributors/data.json', { cache: 'no-cache' })
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => ({ posts: d?.posts ?? {}, sources: d?.sources ?? {}, pages: d?.pages ?? {} }))
