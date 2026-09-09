@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-09-08T20:38:38.412Z",
+  "updated_at": "2026-09-09T13:43:37.799Z",
   "releases": [
+    {
+      "tag_name": "v2.4.2",
+      "name": "v2.4.2 (Build 26I01)",
+      "published_at": "2026-09-09T13:43:23Z",
+      "prerelease": false,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.2",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.2",
+      "body": "- **Windows：修复无边框/无装饰窗口调用 `toggle_maximize_window` 后\"最大化瞬间还原\"的问题。** 此前无边框窗口无法真正进入最大化状态：窗口只会被拉伸到全屏，随后立即恢复为原尺寸（表现为尺寸短暂放大后瞬间回弹）。现在 `toggle_maximize_window` 与系统标题栏最大化走同一路径，窗口可正常保持最大化；再次调用可正常还原。\n\n- Windows：无边框窗口创建时补回窗口可调整大小的系统样式，配合子类化处理，确保最大化、Aero 贴靠等系统行为与带边框窗口一致（视觉上仍为无边框）。\n\n\n- 本次问题与窗口边框样式配置无关，修复对带边框、无边框、无标题栏、透明窗口等各类样式均生效。\n"
+    },
     {
       "tag_name": "v2.4.1",
       "name": "v2.4.1 (Build 26I01)",
