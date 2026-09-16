@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-09-15T20:48:41.731Z",
+  "updated_at": "2026-09-16T11:44:16.919Z",
   "releases": [
+    {
+      "tag_name": "v2.4.3",
+      "name": "v2.4.3 (Build 26I01)",
+      "published_at": "2026-09-16T11:44:01Z",
+      "prerelease": false,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.3",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.3",
+      "body": "- **修复 `jade-region-drag` 拖动区在窗口禁用最大化后双击仍会最大化的问题。** 此前创建窗口时将可最大化标志（`maximizable`）置为否后，拖动区双击依然能触发最大化；现在 `maximizable=false` 时双击不会再最大化窗口（已最大化状态下双击还原行为不受影响）。\n\n\n- 本次修复同时覆盖 `toggle_maximize_window` 接口、`jade-region-drag` 拖动区双击、自定义标题栏最大化按钮等所有最大化入口，行为保持统一。\n"
+    },
     {
       "tag_name": "v2.4.2",
       "name": "v2.4.2 (Build 26I01)",
