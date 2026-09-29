@@ -8,10 +8,11 @@
 # 替换旧站后，记得停用旧仓库的 deploy-docker 工作流，避免两边都往同一镜像/服务器推。
 #
 # 关于耗时（CI 构建耗时分析结论）：
-#   把镜像层跨境推到阿里云（cn-shanghai 个人版 ACR）曾占整条流水线 ~86%（约 36 分钟），
-#   是构建瓶颈。因此改为——日常 main / 手动触发只推 Docker Hub（~6 分钟完成部署）；
-#   阿里云 ACR 同步仅在「发行库发版」时由一个非阻塞后台 job 异步完成，不拖慢日常构建。
-#   digest 内容寻址、跨 registry 一致，服务器从 ACR 拉取时复用同一 digest，无需等待同步。
+#   把镜像层跨境推到阿里云（cn-shanghai 个人版 ACR）曾占整条流水线 ~86%（约 36 分钟）：
+#   同一镜像推 Docker Hub 只用 ~8s（层已缓存），推 ACR 却要 2148.5s，慢在跨境上传链路。
+#   因此本工作流只推 Docker Hub；ACR 由部署服务器在部署成功后用国内链路补推
+#   （见 deploy/webhook-server.py 的 sync_to_acr），既保留 ACR 又不再拖慢构建。
+#   digest 内容寻址、跨 registry 一致，服务器推到 ACR 的与 Docker Hub 上是同一个 digest。
 name: 构建并部署到服务器（Docker）
 
 on:
@@ -27,7 +28,7 @@ env:
   IMAGE_NAME: yiminger/jadeview_docs
   # 阿里云 ACR（个人版）——国内服务器从它拉镜像最快。需在仓库 Secrets 配置
   # ALIYUN_ACR_USERNAME / ALIYUN_ACR_PASSWORD（ACR 控制台「访问凭证」的固定密码）。
-  # 注意：日常构建不再推 ACR（见 push-acr job 的触发条件）。
+  # 注意：本工作流不推 ACR。ACR 由部署服务器在部署后补推（见 deploy/webhook-server.py）。
   ACR_REGISTRY: crpi-pn3h0f31scvitb63.cn-shanghai.personal.cr.aliyuncs.com
   # 命名空间 jadeviewdocs，仓库名 main
   ACR_IMAGE: crpi-pn3h0f31scvitb63.cn-shanghai.personal.cr.aliyuncs.com/jadeviewdocs/main
@@ -170,47 +171,10 @@ jobs:
             --fail --show-error \
             --silent | tail -20
 
-  # 阿里云 ACR（个人版）镜像同步：仅在「发行库发版」时异步推送，且为非阻塞任务。
-  # 日常 main / 手动触发只走 Docker Hub（见 build-and-push），避免把镜像层跨境推到
-  # cn-shanghai 个人版 ACR 的 35+ 分钟成为构建瓶颈（详见 CI 构建耗时分析）。
-  # 做法：从 Docker Hub 拉取刚构建好的镜像（同一 digest），重新 tag 后推到 ACR，
-  # 因此不会二次执行 dumi build / prerender，也不阻塞已完成的部署。
-  # digest 内容寻址、跨 registry 一致，服务器后续从 ACR 拉取时复用同一 digest。
-  push-acr:
-    needs: build-and-push
-    # 仅发版事件同步 ACR；日常 push / 手动触发跳过本 job，省去 30+ 分钟上传。
-    if: >-
-      github.event_name == 'repository_dispatch' &&
-      github.event.action == 'refresh-releases'
-    runs-on: ubuntu-latest
-    # 最佳努力同步：失败（如 ACR 凭证过期）不阻断已完成的部署，整体 workflow 仍成功。
-    continue-on-error: true
-    defaults:
-      run:
-        shell: bash -euo pipefail {0}
-    steps:
-      - name: 登录 Docker Hub（拉取刚构建的镜像）
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: 登录阿里云 ACR（推送）
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.ACR_REGISTRY }}
-          username: ${{ secrets.ALIYUN_ACR_USERNAME }}
-          password: ${{ secrets.ALIYUN_ACR_PASSWORD }}
-
-      - name: 从 Docker Hub 拉取并同步到 ACR
-        env:
-          SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          docker pull "${IMAGE_NAME}:latest"
-          docker pull "${IMAGE_NAME}:${SHA}"
-          docker tag "${IMAGE_NAME}:latest" "${ACR_IMAGE}:latest"
-          docker tag "${IMAGE_NAME}:${SHA}"  "${ACR_IMAGE}:${SHA}"
-          docker push "${ACR_IMAGE}:latest"
-          docker push "${ACR_IMAGE}:${SHA}"
-          echo "::notice::已异步同步镜像到 ACR（${ACR_IMAGE}），digest 与 Docker Hub 一致"
+  # 阿里云 ACR 不再由本工作流推送。
+  # 原因：从海外 runner 跨境上传镜像层到 cn-shanghai 个人版 ACR 实测耗时 2148.5s
+  # （约 36 分钟），占整条流水线 ~86%，是构建瓶颈；而同一镜像推 Docker Hub 只用 ~8s
+  # （层已缓存）。ACR 改由部署服务器在部署成功后用国内链路补推——
+  # 见 deploy/webhook-server.py 的 sync_to_acr()：站点先上线，再同步 ACR，
+  # 同步失败也不影响已上线的站点。digest 内容寻址、跨 registry 一致，
+  # 服务器推到 ACR 的与 Docker Hub 上是同一个 digest。

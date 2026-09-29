@@ -217,6 +217,39 @@ def pull_image(client, image: str):
     raise RuntimeError(f"所有镜像源均拉取失败，最后错误: {last_err}")
 
 
+def sync_to_acr(client, image_ref: str, commit: str = ''):
+    """把刚拉取的镜像同步推送到阿里云 ACR（国内链路），供后续拉取/重启直连 ACR。
+
+    背景：CI 从海外 runner 跨境推 ACR 曾占整条流水线 ~86%（约 36 分钟），是构建瓶颈。
+    改为——CI 只推 Docker Hub，ACR 由部署服务器在部署完成后用国内链路补推，
+    速度远快于海外上传。同步是「最佳努力」：失败只告警，不影响已完成的部署。
+    """
+    if not (ACR_USERNAME and ACR_PASSWORD and ACR_IMAGE):
+        logger.info("ACR 同步跳过：未配置 ACR_USERNAME / ACR_PASSWORD / ACR_IMAGE")
+        return
+
+    try:
+        img = client.images.get(image_ref)
+    except Exception as e:
+        logger.warning(f"ACR 同步跳过：本地取不到镜像 {image_ref}: {e}")
+        return
+
+    tags = ['latest']
+    if commit:
+        tags.append(commit[:8])
+    auth_config = {'username': ACR_USERNAME, 'password': ACR_PASSWORD}
+
+    for tag in tags:
+        try:
+            img.tag(ACR_IMAGE, tag=tag)
+            logger.info(f"ACR 同步：推送 {ACR_IMAGE}:{tag}")
+            client.images.push(ACR_IMAGE, tag=tag, auth_config=auth_config, stream=False)
+            logger.info(f"ACR 同步完成: {ACR_IMAGE}:{tag}")
+        except Exception as e:
+            logger.warning(f"ACR 同步失败（{ACR_IMAGE}:{tag}），不影响本次部署: {e}")
+            break
+
+
 def do_deploy(data: dict):
     logger.info("=" * 50)
     logger.info(f"开始部署: {data.get('repository', 'unknown')}")
@@ -250,9 +283,10 @@ def do_deploy(data: dict):
             except Exception as e:
                 logger.warning(f"登录失败（继续尝试拉取公开镜像）: {e}")
 
-        # 阿里云 ACR 私有包登录：CI 同时推送到 ACR_IMAGE，国内服务器优先从 ACR 直连拉取
-        # （速度快）。配置了 ACR_USERNAME/ACR_PASSWORD（访问凭证）就在拉取前登录，
-        # 凭据写入 docker config，pull 时自动携带。
+        # 阿里云 ACR 私有包登录：国内服务器从 ACR 直连拉取最快。ACR 里的镜像由本服务在
+        # 每次部署成功后补推（见 sync_to_acr）——CI 不再跨境推 ACR（那曾占流水线 ~86%）。
+        # 配置了 ACR_USERNAME/ACR_PASSWORD（访问凭证）就在拉取前登录，凭据写入 docker
+        # config，pull 与 push 时自动携带。
         if ACR_USERNAME and ACR_PASSWORD and ACR_IMAGE:
             acr_host = ACR_IMAGE.split('/', 1)[0]
             logger.info(f"登录阿里云 ACR: {acr_host} ({ACR_USERNAME})")
@@ -291,6 +325,14 @@ def do_deploy(data: dict):
             ports={'80/tcp': SITE_PORT},
         )
         logger.info(f"新容器已启动: {container.id[:12]}")
+
+        # 站点已用新镜像跑起来，再把镜像同步到 ACR（国内链路推送快），
+        # 让后续拉取 / 其它机器重启时能直连 ACR。放在启动之后：同步不拖慢上线，
+        # 且同步失败不会影响已经跑起来的站点。
+        try:
+            sync_to_acr(client, run_image_ref, commit)
+        except Exception as e:
+            logger.warning(f"ACR 同步异常（不影响本次部署）: {e}")
 
         try:
             client.images.prune()
