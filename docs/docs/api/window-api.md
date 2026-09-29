@@ -684,6 +684,23 @@ int32_t close_window(uint32_t window_id);
 
 - `window_id` `uint32_t` - 目标窗口 id
 
+#### 关闭流程（v2.4.6 修正）
+
+此前前端调用 `window.close()` 或点标题栏关闭按钮时，窗口会被直接销毁、宿主收不到任何关闭事件；v2.4.6 起统一了**所有**关闭方式，走同一条流程：
+
+1. 先派发 `window-closing`（宿主可拦截，回调返回非空指针即阻止关闭，见 [事件类型](/docs/api/event-types)）；
+2. 关闭窗口并派发 `window-closed`；
+3. 最后一个窗口关闭时派发 `window-all-closed`。
+
+:::warning{title=行为变化}
+- **标题栏关闭按钮现在可拦截**：此前该按钮直接关闭、不触发 `window-closing`；现在与 `window.close()`、Alt+F4 一致，可被 `window-closing` 回调拦住。
+- **`close_window()` 接口不变**：它仍走「程序化关闭」语义，**绕过 `window-closing` 直接关闭窗口**，本次未改动。
+:::
+
+**关闭来源与页面地址（v2.4.6 新增）：** `window-closing` 回调的 `event_data` 现在区分来源——`{"source":"system"}` 表示用户发起（Alt+F4、系统关闭按钮、标题栏关闭按钮）；`{"source":"frontend","url":"<页面当前地址>"}` 表示由前端 `window.close()` 发起。页面地址由 JadeView 直接读取 WebView 当前地址得到，不采用页面自报值。
+
+**兜底：** 窗口若因任何原因未经正常关闭流程就被销毁，仍会补发 `window-closed`（以及所有窗口都关闭时的 `window-all-closed`）并清理窗口状态，宿主不会收不到关闭通知。
+
 ---
 
 ### 获取窗口数量
