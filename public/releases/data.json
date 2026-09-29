@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-09-28T22:53:36.487Z",
+  "updated_at": "2026-09-29T12:30:37.795Z",
   "releases": [
+    {
+      "tag_name": "v2.4.6",
+      "name": "v2.4.6 (Build 26I03)",
+      "published_at": "2026-09-29T12:30:18Z",
+      "prerelease": false,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v2.4.6",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v2.4.6",
+      "body": "JadeView 2.4.6 修复了窗口关闭流程上的问题：前端调用 `window.close()` 时窗口被直接销毁、宿主收不到任何关闭事件，标题栏关闭按钮也不会触发关闭回调。现在由用户或页面发起的关闭都走同一条流程，宿主可以拦截，并能在关闭回调里拿到关闭来源与页面地址。\n\n## 新增\n\n- **`getPath` 新增 `userData`：返回 JadeView 的数据目录。** 它是 `sessionData`（WebView 会话目录）与 `logs`（日志目录）的父目录，目录不存在时会自动创建，宿主可以直接往里写自己的数据文件。\n  - 基址取 `JadeView_init` 传入的数据目录；未传时取系统应用数据目录（Windows 为 `%LOCALAPPDATA%`，Linux 为 `~/.config`），再拼上 `<应用签名>_data`。\n- 顺带补全了 `getPath` 在导出头文件里的说明：列出全部支持的名称（`home`、`appData`、`userData`、`sessionData`、`logs`、`temp`、`exe`、`app`、`desktop`、`documents`、`downloads`、`music`、`pictures`、`videos`）与返回值语义（写入字节数 / 缓冲区不足时返回负的所需大小）。\n\n## 窗口与窗口状态 修复\n\n- **修复前端调用 `window.close()` 时窗口直接消失、宿主收不到任何关闭事件。**\n  - 此前底层 WebView 收到页面的关闭请求后会直接销毁窗口句柄，绕过框架的关闭流程 —— `window-closing` 拦截、`window-closed` 与 `window-all-closed` 事件全部被跳过，窗口状态里还会残留一份已经销毁的记录。\n  - 现在 `window.close()` 与点击标题栏关闭按钮、按 Alt+F4 走同一条路径：先派发 `window-closing`（宿主可拦截），再关闭窗口并派发 `window-closed`，最后一个窗口关闭时派发 `window-all-closed`。\n\n- **修复标题栏关闭按钮不派发 `window-closing` 事件。** 此前该按钮走的是「程序化关闭」路径，设计上直接关闭窗口、不做关闭前的回调检查，宿主注册的 `window-closing` 回调一次都不会被调用。现在已改为与其它关闭方式一致。\n\n- **关闭回调新增数据：区分关闭来源，前端关闭附带页面地址。**\n  - `window-closing` 回调收到的 JSON：`{\"source\":\"system\"}` 表示由用户发起（Alt+F4、系统关闭按钮、标题栏关闭按钮）；`{\"source\":\"frontend\",\"url\":\"<页面当前地址>\"}` 表示由前端 `window.close()` 发起。宿主可据此判断来源并决定是否放行。\n  - 页面地址由 JadeView 直接读取 WebView 当前地址得到，不采用页面自报的值。\n\n- **兜底：窗口被直接销毁时也会补发关闭事件。** 若窗口因任何原因未经正常关闭流程就被销毁，现在会补发 `window-closed`（以及所有窗口都关闭时的 `window-all-closed`）并清理窗口状态，避免宿主收不到关闭通知。\n\n- **行为变化：点击标题栏关闭按钮现在可被 `window-closing` 拦截。** 此前该按钮会无条件关闭窗口；现在若宿主注册的 `window-closing` 回调返回非空指针，关闭同样会被拦住。未注册该回调的宿主行为完全不变。\n\n- **行为不变：`close_window()` 接口仍然直接关闭窗口、不经过 `window-closing` 回调。** 这是它原本的程序化关闭语义，本次没有改动。\n\n## 其它优化\n\n- **宿主现在能从日志里看到事件被丢弃。** 事件通道的队列上限为 **10 000 条**待处理事件（一次事件派发算一条，与注册了多少个回调无关）。此前队列满时只写标准输出，GUI 程序下看不到，宿主会莫名其妙少收到事件；现在改为写入 JadeView 日志，超过 1 条后每 1000 条记一次，避免刷屏。\n- **异常情况下不再整体崩溃：内部锁改为中毒安全。** 此前若某个线程在持有内部锁时异常退出，后续所有取该锁的操作都会直接崩溃；现在会自动恢复并继续运行。\n- **清理了一批已不再使用的内部代码**，编译告警已清零。\n"
+    },
     {
       "tag_name": "v2.4.5",
       "name": "v2.4.5 (Build 26I02)",
