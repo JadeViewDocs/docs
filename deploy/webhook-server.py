@@ -175,17 +175,29 @@ def pull_image(client, image: str):
     is_dockerio = '.' not in repo.split('/', 1)[0]
 
     last_err = None
-    if is_digest:
-        # digest 是 registry 绑定的不可变引用，不能走 docker.io 前缀加速器
-        prefixes = ['']  # daemon 默认（直连 / daemon.json 里的 registry-mirrors）
-    elif is_dockerio:
-        prefixes = ['']
+    if is_dockerio:
+        # docker.io（含 digest 引用）：先走 daemon 默认（直连 / daemon.json 里的
+        # registry-mirrors），失败再依次回退到公共加速器。
+        #
+        # 注：原实现对 digest 直接跳过加速器（认为「digest 是 registry 绑定的不可变
+        # 引用，不能走前缀加速器」），但本服务器实测直连 docker.io 不通
+        # （dial tcp registry-1.docker.io:443 connect: connection refused），
+        # 而 docker.1ms.run / docker.m.daocloud.io / docker.1panel.live 均可达。
+        # 加速器按内容寻址提供同一份清单，daemon 拉取后会校验 digest——取到不同内容
+        # 会校验失败并自动换下一个源，因此 digest 走加速器回退是安全的。
+        # 顺序：公共加速器在前，daemon 默认（直连 / daemon.json 的 registry-mirrors）兜底。
+        # 本服务器实测直连 docker.io 不通（i/o timeout），而每次失败要等满 60s 超时、
+        # 3 次重试就是 ~3 分钟白白浪费；经 docker.1ms.run 拉取实测只要 ~40s。
+        # 加速器按内容寻址提供同一份清单，daemon 会校验 digest——内容不符会校验失败
+        # 并自动换下一个源，因此 digest 走加速器同样安全。
+        prefixes = []
         for m in PULL_MIRRORS.split(','):
             m = m.strip().rstrip('/')
             if m and m not in prefixes:
                 prefixes.append(m)
+        prefixes.append('')  # daemon 默认兜底
     else:
-        prefixes = ['']  # acr 等独立 registry：直连
+        prefixes = ['']  # ACR 等独立 registry：直连（国内最快）
 
     for prefix in prefixes:
         if prefix:
