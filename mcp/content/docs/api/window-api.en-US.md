@@ -685,6 +685,23 @@ int32_t close_window(uint32_t window_id);
 
 - `window_id` `uint32_t` - Target window id
 
+#### Close Flow (fixed in v2.4.6)
+
+Previously, when the frontend called `window.close()` or the user clicked the title-bar close button, the window was destroyed directly and the host received no close event. As of v2.4.6, **all** close methods share one flow:
+
+1. First dispatch `window-closing` (the host can intercept it; return a non-null pointer from the callback to block closing — see [Event Types](/en-US/docs/api/event-types));
+2. Close the window and dispatch `window-closed`;
+3. When the last window closes, dispatch `window-all-closed`.
+
+:::warning{title=Behavior Changes}
+- **The title-bar close button is now interceptable**: previously it closed directly without firing `window-closing`; now it behaves like `window.close()` and Alt+F4, and can be blocked by the `window-closing` callback.
+- **The `close_window()` API is unchanged**: it still uses the "programmatic close" semantics and **bypasses `window-closing`**, closing the window directly; this release did not change it.
+:::
+
+**Close source and page URL (added in v2.4.6):** the `event_data` of the `window-closing` callback now distinguishes the source — `{"source":"system"}` means user-initiated (Alt+F4, system close button, title-bar close button); `{"source":"frontend","url":"<page's current URL>"}` means initiated by the frontend `window.close()`. The page URL is read directly from the WebView's current address by JadeView, not taken from a value the page reports.
+
+**Fallback:** if a window is destroyed for any reason without going through the normal close flow, `window-closed` (and `window-all-closed` when all windows are closed) is still emitted afterward and the window state is cleaned up, so the host will not miss the close notification.
+
 ***
 
 ### Get the Window Count

@@ -108,6 +108,32 @@ int32_t jadeview_exit_wait(uint32_t timeout_ms);
 
 ---
 
+## 路径查询
+
+### 获取系统路径（`getPath`）
+
+用**固定的英文关键字**查询一类目录的**绝对路径**，避免自己在 C 里拼环境变量、处理中文用户名路径。例如要放日志、读「我的文档」、找 exe 所在目录，都可以问这个接口。
+
+```c
+int32_t getPath(const char* name, char* buffer, size_t buffer_size);
+```
+
+| `name` | 大致对应（Windows 常见情况） |
+|--------|------------------------------|
+| `home` | 当前用户主目录（类似资源管理器里的「用户」文件夹上层里的个人目录）。 |
+| `appData` | 按用户区分的应用数据目录（常接近 `%LOCALAPPDATA%`）。 |
+| `sessionData` | 与 WebView 会话/缓存相关的目录（在 JadeView 配置的数据目录下的子路径）。 |
+| `userData` <span class="jv-version-badge">v2.4.6</span> | JadeView 的**数据目录**——`sessionData`（WebView 会话目录）与 `logs`（日志目录）的父目录。**目录不存在时自动创建**，宿主可直接往里写自己的数据文件。基址优先取 `JadeView_init` 传入的数据目录；未传时取系统应用数据目录（Windows 为 `%LOCALAPPDATA%`，Linux 为 `~/.config`），再拼上 `<应用签名>_data`。 |
+| `temp` | 系统临时目录。 |
+| `exe` | **当前主进程 exe** 的完整路径（谁加载了 DLL 就是谁）。 |
+| `desktop` / `documents` / `downloads` / `music` / `pictures` / `videos` | 桌面、文档、下载、音乐、图片、视频等用户文件夹。 |
+| `logs` | 应用日志目录（在数据目录下，不存在时可能会创建）。 |
+| `app` | **exe 所在目录**（安装目录），适合读同目录资源。 |
+
+**返回值：** 成功时返回**写入 `buffer` 的字节数**（不含结尾 `\0`）；若 `buffer` 太小，**返回负的所需字节数**（绝对值为容纳完整路径含 `\0` 所需大小），此时不写入内容；其余失败（如 `name` 不支持、指针无效）返回 `0`。
+
+---
+
 本地协议服务相关 API（`set_protocol_service_path`、`register_resource`、`unregister_resource`、`clear_window_resources`）已移至 [本地协议服务](/docs/api/local-server-api) 独立文档。
 
 右键菜单相关 API（`jade_menu_item_create` 等）已移至 [右键菜单](/docs/api/context-menu-api) 独立文档。

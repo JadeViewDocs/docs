@@ -108,6 +108,32 @@ Do not wait for the GUI thread from one of its own callbacks. When called on the
 
 ---
 
+## Path Queries
+
+### Get system path (`getPath`)
+
+Use a **fixed English keyword** to query the **absolute path** of a category of directory, avoiding the need to assemble environment variables yourself in C or to handle paths with Chinese user names. For example, when you want to place logs, read "My Documents", or find the directory of the exe, you can ask this interface.
+
+```c
+int32_t getPath(const char* name, char* buffer, size_t buffer_size);
+```
+
+| `name` | Roughly corresponds to (common Windows cases) |
+|--------|------------------------------|
+| `home` | The current user's home directory (similar to the personal directory above the "Users" folder in File Explorer). |
+| `appData` | The per-user application data directory (often close to `%LOCALAPPDATA%`). |
+| `sessionData` | The directory related to the WebView session/cache (a sub-path under the data directory configured in JadeView). |
+| `userData` <span class="jv-version-badge">v2.4.6</span> | JadeView's **data directory** — the parent of `sessionData` (WebView session directory) and `logs` (log directory). **Created automatically if it does not exist**, so the host can write its own data files there directly. The base path uses the data directory passed to `JadeView_init` first; if not provided, it falls back to the system application data directory (Windows: `%LOCALAPPDATA%`, Linux: `~/.config`) with `<app signature>_data` appended. |
+| `temp` | The system temporary directory. |
+| `exe` | The full path of **the current main process exe** (whoever loaded the DLL). |
+| `desktop` / `documents` / `downloads` / `music` / `pictures` / `videos` | User folders such as Desktop, Documents, Downloads, Music, Pictures, Videos, etc. |
+| `logs` | The application log directory (under the data directory; it may be created if it does not exist). |
+| `app` | **The directory containing the exe** (the installation directory), suitable for reading resources in the same directory. |
+
+**Return value:** On success, returns the **number of bytes written to `buffer`** (excluding the trailing `\0`); if `buffer` is too small, returns the **negative of the required size** (absolute value = bytes needed to hold the full path including `\0`), and writes nothing; other failures (unsupported `name`, invalid pointer, etc.) return `0`.
+
+---
+
 The local protocol service APIs (`set_protocol_service_path`, `register_resource`, `unregister_resource`, `clear_window_resources`) have been moved to the separate document [Local Protocol Service](/en-US/docs/api/local-server-api).
 
 The context menu APIs (`jade_menu_item_create`, etc.) have been moved to the separate document [Context Menu](/en-US/docs/api/context-menu-api).

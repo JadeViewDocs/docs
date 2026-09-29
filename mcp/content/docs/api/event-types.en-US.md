@@ -82,6 +82,10 @@ The window has been closed.
 - **`event_data`**: `{}`
 - **`window_id`**: id of the closed window
 
+:::info
+As of v2.4.6, even if a window is destroyed abnormally (without going through the normal close flow), this event is **still emitted** afterward and the window state is cleaned up, so the host will not miss the close notification.
+:::
+
 ---
 
 ### `window-all-closed`
@@ -91,14 +95,22 @@ All windows are closed.
 - **`event_data`**: `{}`
 - **`window_id`**: `0`
 
+:::info
+As of v2.4.6, even if the last window was destroyed abnormally, this event is emitted after cleanup.
+:::
+
 ---
 
 ### `window-closing`
 
-The user clicked close, but the window is **not yet destroyed**. Can be [intercepted](#event-subscription-callbacks-when-you-need-to-block-jade_on) via the callback return value.
+The user clicked close (or the frontend called `window.close()`, or Alt+F4, or the title-bar close button), but the window is **not yet destroyed**. Can be [intercepted](#event-subscription-callbacks-when-you-need-to-block-jade_on) via the callback return value (return a non-null pointer to block closing).
 
-- **`event_data`**: `{}`
+- **`event_data`** <span class="jv-version-badge">v2.4.6</span>: JSON distinguishing the close source (adds `source` / `url` fields in v2.4.6):
+  - `{"source":"system"}` — user-initiated (Alt+F4, system close button, title-bar close button).
+  - `{"source":"frontend","url":"<page's current URL>"}` — initiated by the frontend `window.close()`; `url` is the WebView's current address read directly by JadeView, not a value reported by the page.
 - **`window_id`**: id of the window about to close
+
+> **⚠️ Behavior change (v2.4.6)**: previously the title-bar close button took the "programmatic close" path and did **not** dispatch this event; now it is consistent with the other close methods, so the host's registered `window-closing` callback **will** be called and can block it by returning a non-null pointer. See [Close Flow (fixed in v2.4.6)](/en-US/docs/api/window-api).
 
 ---
 

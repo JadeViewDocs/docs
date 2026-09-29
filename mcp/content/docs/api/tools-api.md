@@ -72,30 +72,7 @@ int32_t is_windows_11(void);
 
 ---
 
-## 路径与显示器
-
-### 获取系统路径（`getPath`）
-
-用**固定的英文关键字**查询一类目录的**绝对路径**，避免自己在 C 里拼环境变量、处理中文用户名路径。例如要放日志、读「我的文档」、找 exe 所在目录，都可以问这个接口。
-
-```c
-int32_t getPath(const char* name, char* buffer, size_t buffer_size);
-```
-
-| `name` | 大致对应（Windows 常见情况） |
-|--------|------------------------------|
-| `home` | 当前用户主目录（类似资源管理器里的「用户」文件夹上层里的个人目录）。 |
-| `appData` | 按用户区分的应用数据目录（常接近 `%LOCALAPPDATA%`）。 |
-| `sessionData` | 与 WebView 会话/缓存相关的目录（在 JadeView 配置的数据目录下的子路径）。 |
-| `temp` | 系统临时目录。 |
-| `exe` | **当前主进程 exe** 的完整路径（谁加载了 DLL 就是谁）。 |
-| `desktop` / `documents` / `downloads` / `music` / `pictures` / `videos` | 桌面、文档、下载、音乐、图片、视频等用户文件夹。 |
-| `logs` | 应用日志目录（在数据目录下，不存在时可能会创建）。 |
-| `app` | **exe 所在目录**（安装目录），适合读同目录资源。 |
-
-成功时把路径写入 `buffer`（UTF-8 + `\0`）。失败返回 `0`。
-
----
+## 显示器
 
 ### 获取显示器信息（`get_displays_info`）
 

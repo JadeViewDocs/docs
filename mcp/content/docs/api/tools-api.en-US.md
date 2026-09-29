@@ -72,30 +72,7 @@ Returns `1` if the current system is **Windows 11**, otherwise `0`. Used to dete
 
 ---
 
-## Paths & Displays
-
-### Get system path (`getPath`)
-
-Use a **fixed English keyword** to query the **absolute path** of a category of directory, avoiding the need to assemble environment variables yourself in C or to handle paths with Chinese user names. For example, when you want to place logs, read "My Documents", or find the directory of the exe, you can ask this interface.
-
-```c
-int32_t getPath(const char* name, char* buffer, size_t buffer_size);
-```
-
-| `name` | Roughly corresponds to (common Windows cases) |
-|--------|------------------------------|
-| `home` | The current user's home directory (similar to the personal directory above the "Users" folder in File Explorer). |
-| `appData` | The per-user application data directory (often close to `%LOCALAPPDATA%`). |
-| `sessionData` | The directory related to the WebView session/cache (a sub-path under the data directory configured in JadeView). |
-| `temp` | The system temporary directory. |
-| `exe` | The full path of **the current main process exe** (whoever loaded the DLL). |
-| `desktop` / `documents` / `downloads` / `music` / `pictures` / `videos` | User folders such as Desktop, Documents, Downloads, Music, Pictures, Videos, etc. |
-| `logs` | The application log directory (under the data directory; it may be created if it does not exist). |
-| `app` | **The directory containing the exe** (the installation directory), suitable for reading resources in the same directory. |
-
-On success, the path is written to `buffer` (UTF-8 + `\0`). Returns `0` on failure.
-
----
+## Displays
 
 ### Get display information (`get_displays_info`)
 
