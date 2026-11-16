@@ -177,6 +177,18 @@ After the main process queries a window's position and size (`get_window_bounds`
 
 ---
 
+### `region-drag` <span class="jv-version-badge">v2.4.7</span>
+
+Drag-end notification for a `jade-region-drag` region.
+
+- **`event_data`**: `{"action":"end"}` — currently only `end`, meaning the system window move loop has ended (left button released)
+- **`window_id`**: id of the dragged window
+- **Platform**: Windows (Linux to be verified)
+
+The drag enters the system move loop, which captures the mouse and swallows the page's `mouseup`, so the page cannot know when the button was released; this event reports that moment to the host. A **click in place** (press without moving, then release) also dispatches it; **double-clicking** the region does not (it maximizes/restores instead). The event carries no geometry — use `get_window_position` / `get_window_size`.
+
+---
+
 ## WebView and Page Events
 
 ### `webview-will-navigate`

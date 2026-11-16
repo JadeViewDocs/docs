@@ -94,6 +94,24 @@ When determining behavior, the search goes upward from the clicked element to fi
 }
 ```
 
+### Event: Drag End (`region-drag`) <span class="jv-version-badge">v2.4.7</span>
+
+Pressing inside a drag region enters the system window move loop, which captures the mouse — so **the page never receives the `mouseup` of that drag, and therefore no `click`**. Subscribe to `region-drag` if you need to react when the drag ends (for example, to persist the position or restore page state):
+
+```c
+jade_on("region-drag", on_region_drag);
+// callback receives: window_id = id of the dragged window; event_data = {"action":"end"}
+```
+
+| Item | Description |
+|------|-------------|
+| `action` | Currently only `"end"`: dispatched when the system move loop ends (left button released) |
+| Scope | Only drags started from a `jade-region-drag` region |
+| Click in place | Pressing without moving and then releasing also dispatches once |
+| Not dispatched | Double-clicking the drag region (maximize/restore, no move loop) |
+| Window geometry | Not included; use `get_window_position` / `get_window_size` |
+| Platform | Windows (Linux to be verified) |
+
 ### Comparison with `-webkit-app-region`
 
 | | `-webkit-app-region: drag` | `jade-region-drag` |

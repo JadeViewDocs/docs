@@ -177,6 +177,18 @@ v2.4.6 起，即便最后一个窗口是被异常直接销毁的，也会在清�
 
 ---
 
+### `region-drag` <span class="jv-version-badge">v2.4.7</span>
+
+`jade-region-drag` 拖动区的「拖动结束」通知。
+
+- **`event_data`**：`{"action":"end"}` —— 目前仅 `end`，表示系统窗口移动循环结束（松开左键）
+- **`window_id`**：发起拖动的窗口 id
+- **平台**：Windows（Linux 待验证）
+
+拖动进入的是系统移动循环，它会捕获鼠标并吞掉页面的 `mouseup`，页面侧无法感知松开，本事件用于把该时机同步给宿主。拖动区**原地点击**（按下未移动即松开）同样会派发；**双击拖动区不派发**（走最大化/还原）。事件不携带窗口位置尺寸，可用 `get_window_position` / `get_window_size` 查询。
+
+---
+
 ## WebView 与页面事件
 
 ### `webview-will-navigate`

@@ -94,6 +94,24 @@ group:
 }
 ```
 
+### 事件：拖动结束（`region-drag`） <span class="jv-version-badge">v2.4.7</span>
+
+拖动区按下后会进入系统窗口移动循环，该循环会捕获鼠标 —— 因此**页面收不到这次拖动的 `mouseup`，也不会有 `click`**。若要在拖动结束后做联动（例如把位置写回配置、恢复页面状态），订阅 `region-drag` 事件：
+
+```c
+jade_on("region-drag", on_region_drag);
+// 回调收到：window_id = 发起拖动的窗口 ID；event_data = {"action":"end"}
+```
+
+| 项 | 说明 |
+|----|------|
+| `action` | 目前仅 `"end"`：系统移动循环结束（松开左键）时派发 |
+| 触发范围 | 仅 `jade-region-drag` 拖动区发起的拖动 |
+| 原地点击 | 按下后未移动就松开，同样会派发一次 |
+| 不派发的情况 | 双击拖动区（走最大化/还原，不进入移动循环） |
+| 窗口几何 | 事件不带位置尺寸，可用 `get_window_position` / `get_window_size` 查询 |
+| 平台 | Windows（Linux 待验证） |
+
 ### 与 `-webkit-app-region` 的对比
 
 | | `-webkit-app-region: drag` | `jade-region-drag` |
