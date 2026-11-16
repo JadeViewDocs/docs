@@ -1,9 +1,15 @@
 import { Avatar, theme } from 'antd';
 import { SpotlightCard } from '@lobehub/ui/awesome';
+import { Link, usePrefersColor } from 'dumi';
 import { motion, useReducedMotion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import ElectricBorder from '../components/ElectricBorder';
 import MagicBento from '../components/MagicBento';
+import MetallicPaint from '../components/MetallicPaint';
+import SpecularButton from '../components/SpecularButton';
+import StarBorder from '../components/StarBorder';
 import { scrollContainer, scrollItem, scrollViewport } from '../components/scrollIn';
-import { useT } from '../locales/strings';
+import { localeHref, useLocaleBase, useT } from '../locales/strings';
 
 // 文案（特性 / Bento / 套餐 / 开发者 / 各区标题）已抽到 ../locales/strings 的 home.*，按语言取值。
 // 技术栈是中性专有名词，保持单一来源。
@@ -12,9 +18,28 @@ const techs = [
   'Three.js', 'Webpack', 'Sass', 'Bootstrap', 'Angular', 'Playwright',
 ];
 
+const BRAND = '#F97316';
+
+// 窄屏检测（与 MagicBento 的 useMobileDetection 同思路）：用于 V3 横幅的移动端布局切换。
+function useNarrow() {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+  return narrow;
+}
+
 export default function HomeExtra() {
   const { token } = theme.useToken();
   const t = useT();
+  const base = useLocaleBase();
+  const [prefersColor] = usePrefersColor();
+  const isDark = prefersColor === 'dark';
+  const narrow = useNarrow();
   // 滚动进场动画的触发属性。尊重「减少动态效果」系统偏好：开启时不挂 initial/whileInView，
   // 元素直接以最终态渲染（variants 未被激活即为自然显示），完全跳过动画。
   const reduce = useReducedMotion();
@@ -37,8 +62,139 @@ export default function HomeExtra() {
 
   return (
     <div style={{ width: '100%', maxWidth: 1080, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1, userSelect: 'text' }}>
+      {/* V3 宣传横幅：品牌橙微光 + 渐变描边；桌面左右分栏，窄屏自动换行 */}
+      <motion.section
+        style={{ marginTop: 24 }}
+        variants={scrollContainer}
+        {...reveal}
+      >
+        <motion.div variants={scrollItem}>
+          {/* 黄色电光边框（ReactBits ElectricBorder，#eab308）：电流随鼠标在边缘跃动 */}
+          <ElectricBorder
+            color="#eab308"
+            theme={isDark ? 'dark' : 'light'}
+            speed={0.9}
+            chaos={narrow ? 0.2 : 0.35}
+            spread={narrow ? 0.25 : 0.42}
+            thickness={narrow ? 1 : 1.4}
+            strands={narrow ? 2 : 3}
+            glow={narrow ? 0.3 : 0.5}
+            intensity={narrow ? 0.5 : 0.72}
+            arcs={narrow ? 0 : 1}
+            flicker={narrow ? 0.2 : 0.32}
+            borderRadius={token.borderRadiusLG}
+            intro={!reduce}
+            interactive={!reduce}
+          >
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: narrow ? 18 : 28,
+              padding: narrow ? '26px 20px' : '32px 36px',
+              borderRadius: token.borderRadiusLG,
+              background: `linear-gradient(120deg, ${BRAND}14 0%, ${token.colorBgContainer} 45%, ${token.colorBgContainer} 100%)`,
+              overflow: 'hidden',
+            }}
+          >
+            {/* 右上角柔光点缀 */}
+            <div aria-hidden style={{
+              position: 'absolute', top: -70, right: -40, width: 220, height: 220,
+              borderRadius: '50%', background: `radial-gradient(circle, ${BRAND}26, transparent 70%)`,
+              pointerEvents: 'none',
+            }} />
+
+            {/* 版本代号 NEXT：ReactBits MetallicPaint 液态金属文字，置于右上角 */}
+            <div aria-hidden style={{
+              position: 'absolute',
+              top: narrow ? -2 : 0, right: narrow ? 12 : 20,
+              width: narrow ? 116 : 190, height: narrow ? 44 : 72,
+              opacity: narrow ? 0.75 : 1,
+              zIndex: 0, pointerEvents: 'none',
+            }}>
+              {/* Chrome（液态铬）预设：保持默认字体色，不覆写 color */}
+              <MetallicPaint
+                text="NEXT"
+                fontFamily="system-ui, sans-serif"
+                fontWeight={800}
+                lightMode={!isDark}
+                speed={reduce ? 0 : 1}
+                intro={!reduce}
+                paused={reduce}
+                mouseTilt={reduce ? 0 : 0.5}
+                style={{ width: '100%', height: '100%' }}
+              />
+            </div>
+
+            {/* 左侧：标签 + 标题 + 描述 + CTA */}
+            <div style={{ flex: narrow ? '1 1 100%' : '1 1 360px', minWidth: 0, position: 'relative', zIndex: 1 }}>
+              <span style={{
+                display: 'inline-block', padding: '3px 10px', borderRadius: 999,
+                background: `${BRAND}1f`, border: `1px solid ${BRAND}55`,
+                color: BRAND, fontSize: 12, fontWeight: 600, marginBottom: 12,
+              }}>{t.home.v3.badge}</span>
+              <h2 style={{ fontSize: narrow ? 25 : 30, fontWeight: 700, lineHeight: 1.2, margin: '0 0 10', color: token.colorText }}>
+                {t.home.v3.title}
+              </h2>
+              <p style={{ fontSize: narrow ? 13 : 14, lineHeight: 1.75, color: token.colorTextSecondary, margin: '0 0 20', maxWidth: 560 }}>
+                {t.home.v3.desc}
+              </p>
+              <Link to={localeHref(base, t.home.v3.link) || t.home.v3.link} style={{ textDecoration: 'none' }}>
+                <StarBorder
+                  as="span"
+                  color="#ffcf8a"
+                  trailColor="#ff4d2e"
+                  trailLength={0.45}
+                  glow={0.8}
+                  theme={isDark ? 'dark' : 'light'}
+                  duration={4}
+                  hover="lap"
+                  clickPulse
+                >
+                  {t.home.v3.cta}
+                </StarBorder>
+              </Link>
+            </div>
+
+            {/* 右侧：特性标签（SpecularButton 镜面高光描边，鼠标靠近时高光增强） */}
+            <div style={{ flex: narrow ? '1 1 100%' : '0 1 260px', position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 8 }}>
+                {t.home.v3.points.map((p: string) => (
+                  <SpecularButton
+                    key={p}
+                    size="sm"
+                    radius={8}
+                    thickness={0.8}
+                    glow={0.6}
+                    intensity={0.65}
+                    idleIntensity={0.28}
+                    shineSize={8}
+                    lineColor={isDark ? '#fff7e0' : '#d97706'}
+                    baseColor={isDark ? '#3a3a3a' : '#d4d4d4'}
+                    tint={isDark ? '#ffffff' : '#000000'}
+                    tintOpacity={isDark ? 0.05 : 0.03}
+                    textColor={isDark ? '#f5f5f5' : '#262626'}
+                    followMouse={!reduce}
+                    proximity={180}
+                    autoAnimate={!reduce}
+                    tabIndex={-1}
+                    style={{ width: '100%', height: '100%', pointerEvents: 'none', fontSize: 12 }}
+                  >
+                    {p}
+                  </SpecularButton>
+                ))}
+              </div>
+            </div>
+          </div>
+          </ElectricBorder>
+        </motion.div>
+      </motion.section>
+
       {/* 核心特性：用 lobehub SpotlightCard（鼠标悬浮光晕，与下方「核心开发者」一致）；整体作为一个单元滚动浮现 */}
-      <motion.div style={{ marginTop: 8 }} variants={scrollItem} {...reveal}>
+      {/* marginTop 48：ElectricBorder 的 canvas 外扩约 64px 画电弧，留出间距避免贴住下方卡片 */}
+      <motion.div style={{ marginTop: narrow ? 36 : 48 }} variants={scrollItem} {...reveal}>
         <SpotlightCard
           items={t.home.features}
           columns={3}

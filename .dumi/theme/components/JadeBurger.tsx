@@ -75,6 +75,8 @@ export default memo(function JadeBurger() {
         const secs = [
           { seg: 'spec', title: '文档指南' },
           { seg: 'api', title: 'API' },
+          // v3 是独立文档（测试版），单独占一个分区，不并入 /docs/api。
+          { seg: 'v3api', title: 'v3 API' },
         ];
         const children = secs.map((s) => {
           const to = `/docs/${s.seg}`;
@@ -167,7 +169,11 @@ export default memo(function JadeBurger() {
             ...new Set([
               activePath,
               `s-${pathname}`,
-              pathname.startsWith('/docs/api') ? 'sec-/docs/api' : 'sec-/docs/spec',
+              pathname.startsWith('/docs/v3api')
+                ? 'sec-/docs/v3api'
+                : pathname.startsWith('/docs/api')
+                  ? 'sec-/docs/api'
+                  : 'sec-/docs/spec',
             ]),
           ]}
           style={{ background: 'transparent', borderInlineEnd: 'none' }}

@@ -198,7 +198,7 @@ export default memo(function DocBreadcrumb() {
 
   if (seg1 === 'docs') {
     items.push({ title: <Link to={localeHref(base, '/docs/spec')!}>{t.nav.docs}</Link> });
-    if (seg2 === 'spec' || seg2 === 'api') {
+    if (seg2 === 'spec' || seg2 === 'api' || seg2 === 'v3api') {
       const sec = { title: t.navbar.docsSections[seg2].title, root: `/docs/${seg2}` };
       const atRoot = route === sec.root;
       items.push({

@@ -5,6 +5,8 @@
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 
 const zh = {
+  // 右侧本页目录标题（lobehub 原版写死英文，这里按语言取词）
+  tocTitle: '本页目录',
   // 顶部导航项（按 link 映射，见 JadeNavbar）
   nav: { docs: '文档', sdks: 'SDKs', products: '产品', showcase: '案例', blog: '博客', releases: '发行版本' },
   // 导航「文档」「SDKs」下拉
@@ -20,6 +22,7 @@ const zh = {
     docsSections: {
       spec: { title: '文档指南', desc: '入门教程、核心设计原理与程序发行行为。' },
       api: { title: 'API', desc: '窗口、WebView、IPC、原生 UI 等完整 C API 参考。' },
+      v3api: { title: 'v3 API（测试版）', desc: 'JadeView 3.0 独立 API 文档，与 v2 不兼容。' },
     },
     download: { title: 'SDK 下载中心', desc: '获取各端 SDK 安装包与历史版本' },
     products: {
@@ -31,6 +34,14 @@ const zh = {
   },
   // 首页 HomeExtra
   home: {
+    v3: {
+      badge: '全新版本 · 测试版',
+      title: 'JadeView 3.0',
+      desc: '对象模型重新设计：窗口与页面各自独立，原生右键菜单、原生标题栏自定义、只读 JAPK 挂载，桌面应用开发更直接。',
+      cta: '查看 v3 文档',
+      link: '/docs/v3api',
+      points: ['窗口与页面分离', '原生右键菜单', '原生标题栏自定义', '性能提升90%'],
+    },
     features: [
       { image: '🦀', title: 'Rust 核心', desc: '核心库采用 Rust 编写，内存安全、线程安全，杜绝空指针与数据竞争；约 3MB 运行时，完整启动仅需约 16ms。', link: '/docs/spec/behavior' },
       { image: '🌐', title: '跨平台 · 系统 WebView', desc: '一套代码同时支持 Windows 与 Linux，复用系统自带 WebView（Windows 上的 WebView2、Linux 上的 WebKitGTK），享受与系统浏览器同级别的安全更新与兼容性。', link: '/docs/spec/compatibility' },
@@ -262,6 +273,7 @@ int main() {
 };
 
 const en: typeof zh = {
+  tocTitle: 'Table of Contents',
   nav: { docs: 'Docs', sdks: 'SDKs', products: 'Products', showcase: 'Showcase', blog: 'Blog', releases: 'Releases' },
   navbar: {
     countSuffix: ' docs', // {n} docs
@@ -275,6 +287,7 @@ const en: typeof zh = {
     docsSections: {
       spec: { title: 'Guide', desc: 'Getting-started tutorials, core design principles and release behavior.' },
       api: { title: 'API', desc: 'Complete C API reference: windows, WebView, IPC, native UI and more.' },
+      v3api: { title: 'v3 API (Preview)', desc: 'Standalone JadeView 3.0 API reference; not compatible with v2.' },
     },
     download: { title: 'SDK Download Center', desc: 'Get SDK installers and past versions for every platform' },
     products: {
@@ -285,6 +298,14 @@ const en: typeof zh = {
     },
   },
   home: {
+    v3: {
+      badge: 'New major version · Preview',
+      title: 'JadeView 3.0',
+      desc: 'A redesigned object model: windows and pages are separate objects, with native context menus, native title bar styling and read-only JAPK mounts for more direct desktop development.',
+      cta: 'Explore v3 docs',
+      link: '/docs/v3api',
+      points: ['Separate window / page', 'Native context menu', 'Native title bar styling', '90% faster'],
+    },
     features: [
       { image: '🦀', title: 'Rust Core', desc: 'The core library is written in Rust — memory-safe and thread-safe, eliminating null pointers and data races. ~3MB runtime, full startup in ~16ms.', link: '/docs/spec/behavior' },
       { image: '🌐', title: 'Cross-platform · System WebView', desc: 'One codebase for both Windows and Linux, reusing the system WebView (WebView2 on Windows, WebKitGTK on Linux) for browser-grade security updates and compatibility.', link: '/docs/spec/compatibility' },

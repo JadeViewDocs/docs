@@ -10,7 +10,7 @@ import { SearchBar as Input } from '@lobehub/ui';
 import { createStyles } from 'antd-style';
 import { Link, NavLink, useLocation, useSiteSearch } from 'dumi';
 import isEqual from 'fast-deep-equal';
-import { BookOpen, Code2, Library, Package } from 'lucide-react';
+import { BookOpen, Code2, FlaskConical, Library, Package } from 'lucide-react';
 import { motion } from 'motion/react';
 import { memo, useState } from 'react';
 import { useT, useLocaleBase, localeHref } from '../../locales/strings';
@@ -224,9 +224,11 @@ const useStyles = createStyles(({ css, token }) => ({
 }));
 
 // 「文档」主路由下的子分区（title 走 useT 本地化；仅在 /docs/* 页面顶部展示切换）。
-const SECTIONS: { key: 'spec' | 'api'; root: string; icon: () => React.ReactNode }[] = [
+const SECTIONS: { key: 'spec' | 'api' | 'v3api'; root: string; icon: () => React.ReactNode }[] = [
   { key: 'spec', root: '/docs/spec', icon: () => <BookOpen size={16} /> },
   { key: 'api', root: '/docs/api', icon: () => <Code2 size={16} /> },
+  // v3 是独立文档（测试版）：不并入 /docs/api 分区，单独占一个分区入口。
+  { key: 'v3api', root: '/docs/v3api', icon: () => <FlaskConical size={16} /> },
 ];
 
 // 「SDKs」主路由下的 SDK 列表（title 走 useT 本地化）。
