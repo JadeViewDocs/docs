@@ -39,5 +39,7 @@ yarn-error.log*
 # CI 构建时生成的贡献者快照（scripts/update-contributors.mjs）
 public/contributors/
 
-# TRAE 会话临时上传（截图/文档），不入库
+# 本地工具目录，不入库（TRAE 会话文档与上传、WorkBuddy 项目记忆/技能）
 .uploads/
+.trae/
+.workbuddy/
