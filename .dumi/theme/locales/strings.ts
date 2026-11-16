@@ -38,8 +38,9 @@ const zh = {
       badge: '全新版本 · 测试版',
       title: 'JadeView 3.0',
       desc: '对象模型重新设计：窗口与页面各自独立，原生右键菜单、原生标题栏自定义、只读 JAPK 挂载，桌面应用开发更直接。',
-      cta: '查看 v3 文档',
-      link: '/docs/v3api',
+      cta: '看看改了什么',
+      // 中文首页 CTA 指向 3.0 介绍博客（英文站暂无该文，见下方 en 同名项）
+      link: '/blog/next-3-0-intro',
       points: ['窗口与页面分离', '原生右键菜单', '原生标题栏自定义', '性能提升90%'],
     },
     features: [
@@ -303,6 +304,7 @@ const en: typeof zh = {
       title: 'JadeView 3.0',
       desc: 'A redesigned object model: windows and pages are separate objects, with native context menus, native title bar styling and read-only JAPK mounts for more direct desktop development.',
       cta: 'Explore v3 docs',
+      // 英文站还没有对应的介绍文章，先留在文档入口，避免 404
       link: '/docs/v3api',
       points: ['Separate window / page', 'Native context menu', 'Native title bar styling', '90% faster'],
     },
