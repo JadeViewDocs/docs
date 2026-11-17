@@ -135,7 +135,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 
 创建窗口 / 视图时若传入非空配置结构，必须先调用对应的默认值函数；仅把结构体清零不够，它们还会初始化尺寸等必要字段。宿主绑定的完整字段布局必须与 `include/JadeView.h` 一致。
 
-### 窗口配置默认值（`window_options_default`）
+<h3 id="webview-window-options">窗口配置默认值（`window_options_default`）</h3>
 
 ```c
 int32_t window_options_default(struct WebViewWindowOptions* out, size_t capacity);

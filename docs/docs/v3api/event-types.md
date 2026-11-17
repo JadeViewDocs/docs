@@ -8,7 +8,11 @@ group:
 
 # 事件类型
 
-本页列出主进程通过 **`jade_on`** 订阅后，库可能派发的事件：**`event_data` 一般是 UTF-8 的 JSON 字符串**（少数为纯文本，如 `app-ready` 失败时的错误描述、`crash` 的错误代码）。`jade_on` 回调的第一个参数是**事件真实来源 ID**：App 来源恒为 `0`，Window 事件用 Window ID，WebView 事件用 WebView ID；`app-ready` 是否成功须解析正文的 `ok:true`，不能用来源 ID 判断。
+本页是**事件清单**：列出库可能派发的事件，以及各自的 `event_data` 形态。**`event_data` 一般是 UTF-8 的 JSON 字符串**（少数为纯文本，如 `app-ready` 失败时的错误描述、`crash` 的错误代码）。
+
+订阅方式不在本页：按事件名用 [`jade_on`](/docs/v3api/event-subscription#jade-on)，按事件类型用 [`on_app_event` / `on_window_event` / `on_webview_event`](/docs/v3api/event-subscription)，均见 [事件订阅](/docs/v3api/event-subscription)。
+
+命名事件回调的第一个参数是**事件真实来源 ID**：App 来源恒为 `0`，Window 事件用 Window ID，WebView 事件用 WebView ID；`app-ready` 是否成功须解析正文的 `ok:true`，不能用来源 ID 判断。
 
 **`IpcCallback` 的返回值**在「拦截类」事件与 **`register_ipc_handler`** 中含义不同，务必先看下文 **速查表**。[IPC 通信 API](/docs/v3api/ipc-api) 中有与 `jade.invoke` 配套的补充说明。
 
@@ -300,7 +304,7 @@ jade_on("drag-drop", my_callback);
 
 #### 同步拦截
 
-`drag-drop` 的回调对 `enter` 与 `drop` 支持**同步拦截**，通过 [`IpcCallback` 返回值](/docs/v3api/ipc-api#jade-on-callback-return) 控制：
+`drag-drop` 的回调对 `enter` 与 `drop` 支持**同步拦截**，通过 [`IpcCallback` 返回值](/docs/v3api/event-subscription#jade-on-callback-return) 控制：
 
 | type | 返回值语义 |
 |------|-----------|
@@ -343,7 +347,7 @@ jade_on("drag-drop", my_callback);
 ---
 
 
-## 通知相关事件
+<h2 id="notification-events">通知相关事件</h2>
 
 ### `notification-shown`
 
@@ -492,114 +496,7 @@ jade_on("crash", my_callback);
 
 ---
 
-## 类型化事件
-
-除 `jade_on` 命名事件外，还提供一组带**结构化事件头**的类型化订阅接口。签名、结构体与常量取自 `include/JadeView.h`。
-
-命名事件（字符串事件名 + `IpcCallback`）仍由 [IPC 通信 API](/docs/v3api/ipc-api) 的 `jade_on` / `jade_off` 负责，两套机制互不替代。
-
-### 回调类型
-
-```c
-typedef void (JADEVIEW_CALL *JadeEventCallback)(const struct JadeEvent*, void*);
-```
-
-第一个参数是事件指针，第二个是注册时透传的 `user_data`。**事件正文只在回调执行期间有效**，需要跨出回调保留时必须自行深拷贝或用 `event_clone`。
-
-### 订阅与注销
-
-#### 订阅 App 级事件（`on_app_event`）
-
-```c
-uint64_t on_app_event(uint32_t event_type, JadeEventCallback callback, void* user_data);
-```
-
-#### 订阅窗口事件（`on_window_event`）
-
-```c
-uint64_t on_window_event(uint32_t window_id, uint32_t event_type, JadeEventCallback callback, void* user_data);
-```
-
-`window_id` 为 Window ID。
-
-#### 订阅视图事件（`on_webview_event`）
-
-```c
-uint64_t on_webview_event(uint32_t webview_id, uint32_t event_type, JadeEventCallback callback, void* user_data);
-```
-
-`webview_id` 为 WebView ID。
-
-`event_type` 取值见本页「事件类型常量」小节。三个函数都返回 `uint64_t` **订阅 ID**，供 `unsubscribe_event` 使用。
-
-#### 注销订阅（`unsubscribe_event`）
-
-```c
-uint64_t unsubscribe_event(uint64_t subscription_id);
-```
-
-**返回注销请求 ID**，注销本身是异步操作。注销有三条硬性约束：
-
-1. 调用后会**立即阻止尚未开始的回调**；
-2. 必须**等该注销请求完成**之后，才能释放 `user_data` 或语言侧的回调对象；
-3. **不得在回调内部等待自己的注销**（普通原生通知在一个串行线程执行，会死锁）。
-
-普通原生通知与 `jade_on` 命名事件共用同一串行派发线程。当前保证全局 FIFO 派发，并因此保证同一来源内有序；不要依赖跨来源并行回调。回调应快速返回，阻塞会推迟后续所有事件；长任务请转交宿主线程。命名事件若要注销后立即释放回调上下文，使用 `jade_off_wait` 并等待其请求完成，见 [IPC 通信 API](/docs/v3api/ipc-api)。
-
-#### 复制与释放事件（`event_clone` / `event_free`）
-
-```c
-struct JadeEvent* event_clone(const struct JadeEvent* event);
-void event_free(struct JadeEvent* event);
-```
-
-头文件注释：
-
-> 深拷贝仅在回调期间有效的事件。用 `event_free` 释放返回值。
-
-`event_clone` 深拷贝一份脱离回调生命周期的事件，用完由 `event_free` 释放。
-
-### 事件头（`JadeEvent`）
-
-```c
-typedef struct JadeEvent {
-  uint32_t event_type;
-  uint32_t source_kind;
-  uint64_t source_id;
-  uint32_t window_id;
-  uint32_t webview_id;
-  uint64_t sequence;
-  uint64_t request_id;
-  uint32_t flags;
-  uint32_t state;
-  int32_t error_code;
-  const char *name;
-  const uint8_t *data;
-  size_t data_size;
-} JadeEvent;
-```
-
-| 字段 | C 类型 | 含义 |
-| --- | --- | --- |
-| `event_type` | `uint32_t` | 事件类型（`JADE_EVENT_*`） |
-| `source_kind` | `uint32_t` | 来源种类（App / Window / WebView） |
-| `source_id` | `uint64_t` | 事件真实来源 ID（App / Window / WebView 各自的 ID） |
-| `window_id` | `uint32_t` | 关联的 Window ID |
-| `webview_id` | `uint32_t` | 关联的 WebView ID |
-| `sequence` | `uint64_t` | 事件序号 |
-| `request_id` | `uint64_t` | 关联的请求 ID |
-| `flags` | `uint32_t` | 标志位，如 `JADE_EVENT_REPLAY` |
-| `state` | `uint32_t` | 对象状态（`JADE_STATE_*`，见 [窗口 API](/docs/v3api/window-api)） |
-| `error_code` | `int32_t` | 失败事件的错误码 |
-| `name` | `const char*` | 事件名 |
-| `data` | `const uint8_t*` | 正文指针，仅在回调期间有效 |
-| `data_size` | `size_t` | 正文长度（字节） |
-
-常用生命周期事件支持**当前状态回放**，回放事件由 `flags` 中的 `JADE_EVENT_REPLAY` 标识。
-
-> `app-ready` 是 App 来源（`source_id` 恒为 `0`），成功正文为 `{"ok":true,"message":"success"}`；**不能用来源 ID 判断启动成功**，初始化参数无效时 `JadeView_init` 直接返回 0。
-
-### 事件类型常量
+## 事件类型常量
 
 | 常量 | 值 | 常量 | 值 |
 | --- | --- | --- | --- |
@@ -610,7 +507,7 @@ typedef struct JadeEvent {
 | `JADE_EVENT_DESTROYED` | 4 | `JADE_EVENT_OTHER` | 100 |
 | `JADE_EVENT_LOAD_STARTED` | 5 | `JADE_EVENT_REPLAY` | 1（`flags` 位） |
 
-### 事件名常量
+## 事件名常量
 
 `include/JadeView.h` 定义的命名事件字符串常量，可与命名事件机制或事件头中的 `name` 对应：
 
@@ -626,6 +523,7 @@ typedef struct JadeEvent {
 | `JADEVIEW_EVENT_TRAY_EVENT` | `tray-event` | `JADEVIEW_EVENT_WINDOW_ALL_CLOSED` | `window-all-closed` |
 | `JADEVIEW_EVENT_MENU_COMMAND` | `menu-command` | `JADEVIEW_EVENT_WINDOW_BLURRED` | `window-blurred` |
 | `JADEVIEW_EVENT_UPDATE_WINDOW_ICON` | `update-window-icon` | `JADEVIEW_EVENT_WINDOW_BOUNDS` | `window-bounds` |
+| `JADEVIEW_EVENT_MENU_ERROR` | `menu-error` | | |
 | `JADEVIEW_EVENT_WEBVIEW_DID_FINISH_LOAD` | `webview-did-finish-load` | `JADEVIEW_EVENT_WINDOW_CLOSED` | `window-closed` |
 | `JADEVIEW_EVENT_WEBVIEW_DID_START_LOADING` | `webview-did-start-loading` | `JADEVIEW_EVENT_WINDOW_DESTROYED` | `window-destroyed` |
 | `JADEVIEW_EVENT_WEBVIEW_DOWNLOAD_COMPLETED` | `webview-download-completed` | `JADEVIEW_EVENT_WINDOW_FOCUSED` | `window-focused` |
