@@ -135,7 +135,7 @@ Other API groups: local protocol service in [Local Protocol Service](/en-US/docs
 
 ## Core Structs
 
-### Window options struct (`WebViewWindowOptions`)
+<h3 id="webview-window-options">Window options struct (`WebViewWindowOptions`)</h3>
 
 **Purpose**: Describes **what the first screen looks like, whether it can be resized, and where it appears on screen**. The field order must match the **struct declaration in `JadeView.h`**; underfilling, overfilling, or type misalignment will cause **silent memory misreads**.
 
@@ -165,7 +165,7 @@ Other API groups: local protocol service in [Local Protocol Service](/en-US/docs
 
 ---
 
-### Web page behavior struct (`WebViewSettings`)
+<h3 id="webview-settings">Web page behavior struct (`WebViewSettings`)</h3>
 
 **Purpose**: Controls **the behavior of the web page inside WebView** (autoplay, right-click, UA, etc.). Passing `NULL` means using all defaults.
 
@@ -189,3 +189,171 @@ Other API groups: local protocol service in [Local Protocol Service](/en-US/docs
 
 ---
 
+
+## Config Initialization
+
+When you pass a non-NULL config struct to a window / WebView creation call, call the matching default initializer first — zeroing the struct is not enough, because these functions also fill in required fields such as sizes. The full field layout of your host binding must match `include/JadeView.h`.
+
+### Window options default (`window_options_default`)
+
+```c
+int32_t window_options_default(struct WebViewWindowOptions* out, size_t capacity);
+```
+
+Call it before using a non-NULL `WebViewWindowOptions`, then assign what you need; passing `NULL` to a creation entry uses the defaults. For the fields see [Window API](/en-US/docs/v3api/window-api).
+
+### WebView settings default (`webview_settings_default`)
+
+```c
+int32_t webview_settings_default(struct WebViewSettings* out, size_t capacity);
+```
+
+Call it before using a non-NULL `WebViewSettings`, then assign what you need; passing `NULL` to a creation entry uses the defaults. For the fields see [WebView API](/en-US/docs/v3api/webview-api).
+
+---
+
+## Asynchronous Requests
+
+Create / mount / destroy / script execution all use a **64-bit request ID**: the call returns `uint64_t request_id` and you query the real result afterwards. A non-zero creation ID only means the request was accepted — it does not mean the native instance is ready.
+
+### Query a request result (`get_request_result`)
+
+```c
+int32_t get_request_result(uint64_t request_id, struct JadeRequestResult* out);
+```
+
+The contract given by the header:
+
+> Result states: `1` accepted, `2` waiting, `3` succeeded, `4` failed, `5` cancelled.
+> Initialize `out->message` to `NULL`, free it with `free_request_result`, then call `release_request`.
+
+In other words: **set `out->message` to `NULL` before the call**, free the string with `free_request_result` after reading it, then release the record with `release_request`. The order matters.
+
+```c
+typedef struct JadeRequestResult {
+  uint32_t state;
+  int32_t error_code;
+  uint32_t object_id;
+  char *message;
+} JadeRequestResult;
+```
+
+| Field | C type | Meaning |
+| --- | --- | --- |
+| `state` | `uint32_t` | Request state, see the table below |
+| `error_code` | `int32_t` | Error code on failure |
+| `object_id` | `uint32_t` | Associated object ID |
+| `message` | `char*` | Library-allocated description string; freed by `free_request_result` |
+
+#### Request result states
+
+| Value | Meaning |
+| --- | --- |
+| 1 | Accepted |
+| 2 | Waiting |
+| 3 | Succeeded |
+| 4 | Failed |
+| 5 | Cancelled |
+
+> These numbers belong to **request results**. Object lifecycle states use a different set of `JADE_STATE_*` constants (see [Window API](/en-US/docs/v3api/window-api)) — do not mix them up.
+
+---
+
+### Release a result (`free_request_result` / `release_request`)
+
+```c
+void free_request_result(struct JadeRequestResult* result);
+int32_t release_request(uint64_t request_id);
+```
+
+`free_request_result` only frees library-allocated memory inside the struct, such as `message`; `release_request` removes the result record from the registry. Terminal results are kept for **300 seconds** by default and can be queried repeatedly during that window; after expiry or an explicit release the request_id is no longer valid.
+
+```c
+uint64_t rid = execute_webview_script(view_id, "1 + 1");
+
+struct JadeRequestResult r;
+r.message = NULL;                 /* must be initialized explicitly */
+if (get_request_result(rid, &r) == JADE_OK) {
+    /* handle the result when r.state == 3; r.message is only valid before freeing */
+}
+free_request_result(&r);
+release_request(rid);
+```
+
+---
+
+### Limits and timeouts
+
+When a limit is reached the call is **rejected explicitly** rather than growing without bound:
+
+| Item | Limit |
+| --- | --- |
+| Registry objects | 4096 |
+| Request results | 8192 |
+| Object and result retention | 300 seconds |
+| Default operation deadline | 30 seconds |
+| UI command queue | 4096 |
+| Native notifications | 32768 / 16 MiB payload |
+| invoke | 8 worker threads, up to 32 queued |
+| Protocol IO | 4 threads, up to 128 queued |
+
+A timeout **does not roll back** side effects such as a navigation that already happened; script requests wait for the preceding navigation to reach the corresponding document, and results from a replaced page or a rebuilt instance cannot be written into the new one.
+
+---
+
+## Error Handling
+
+### Read the error of the calling thread (`jade_last_error_code` / `jade_last_error_message`)
+
+```c
+int32_t jade_last_error_code(void);
+char* jade_last_error_message(void);
+```
+
+These return the **synchronous error of the last call on the current thread**, not an asynchronous result. Header comment:
+
+> Copies the thread-local error message; free the returned string with `jade_text_free`.
+
+`jade_last_error_message` returns a library-allocated copy that you must release with `jade_text_free`; errors from asynchronous operations come from `JadeRequestResult.error_code` / `message`. The typical pattern is to read them immediately after a call returns `0` / `NULL`:
+
+```c
+if (!send_ipc_message(view_id, "message", "hello")) {
+    int32_t code = jade_last_error_code();
+    char *msg = jade_last_error_message();
+    /* ... log it ... */
+    jade_text_free(msg);
+}
+```
+
+---
+
+### Error code constants
+
+The error codes defined in `include/JadeView.h` (the value source for `jade_last_error_code` and `JadeRequestResult.error_code`):
+
+| Constant | Value | Constant | Value |
+| --- | --- | --- | --- |
+| `JADE_OK` | 0 | `JADE_INSTANCE_REPLACED` | -9 |
+| `JADE_INVALID_ARGUMENT` | -1 | `JADE_PARENT_DESTROYED` | -10 |
+| `JADE_INVALID_ID` | -2 | `JADE_ID_EXHAUSTED` | -11 |
+| `JADE_WRONG_OBJECT_TYPE` | -3 | `JADE_WOULD_DEADLOCK` | -12 |
+| `JADE_INVALID_STATE` | -4 | `JADE_DOCUMENT_REPLACED` | -13 |
+| `JADE_QUEUE_FULL` | -5 | `JADE_CANCELLED` | -14 |
+| `JADE_NOT_RUNNING` | -6 | `JADE_TIMED_OUT` | -15 |
+| `JADE_PLATFORM_ERROR` | -7 | | |
+| `JADE_BUSY` | -8 | | |
+
+`JADE_WRONG_OBJECT_TYPE` covers calls with the wrong ID type, such as passing a Window ID where a WebView ID is expected (see [Window API](/en-US/docs/v3api/window-api)); `JADE_BUSY` is common during [JAPK unmount](/en-US/docs/v3api/japk) and native resource release.
+
+---
+
+## String Ownership
+
+```c
+void jade_text_free(char* ptr);
+char* jade_text_create(const char* text);
+```
+
+`jade_text_free` releases library-allocated strings: `jade_last_error_message`, `get_japk_mount_root`, and any return value whose header comment says the caller must free it with `jade_text_free`. `jade_text_create` allocates a copy of a string inside the library.
+
+> Note the differences: the `yaml_get_str` return value must be freed with `CoTaskMemFree` per its header comment, `free_request_result` owns the `message` of a request result, and `free_webview_id_array` owns a WebView ID array — they are not interchangeable.

@@ -20,6 +20,37 @@ Unless explicitly noted, every parameter on this page is a **WebView ID**. `WebV
 
 Configuration starts with `struct_size` / `abi_version`. Initialize with the two-argument default function (`out, sizeof(*out)`), which returns `JADE_OK` on success; NULL creation options use defaults. See [V3 ABI](/en-US/docs/v3api/abi).
 
+## Creating and Attaching WebViews
+
+Three entry points:
+
+```c
+uint32_t create_webview(const char* url, const struct WebViewSettings* settings);
+uint32_t add_webview(uint32_t window_id, const char* url, const struct WebViewSettings* settings, const struct WebViewBounds* bounds);
+uint64_t add_webview_to_window(uint32_t window_id, uint32_t webview_id, const struct WebViewBounds* bounds);
+```
+
+- `create_webview` — creates a logical WebView; the native engine is allocated only when it is attached to a window. Pass `NULL` for `settings` to use the defaults.
+- `add_webview` — creates and attaches in one step; the target window may still be in the process of being created. Pass `NULL` for `settings` / `bounds` to use the defaults.
+- `add_webview_to_window` — attaches a WebView obtained from `create_webview`. Returns a **request ID**; read the outcome through `get_request_result` (see [Core API](/en-US/docs/v3api/index)).
+
+```c
+uint32_t window_id = create_webview_window(url, 0, NULL, NULL);
+
+/* Append an independent view with custom settings */
+struct WebViewSettings settings;
+webview_settings_default(&settings, sizeof settings);
+settings.user_agent = "MyApp/1.0";
+uint32_t second = add_webview(window_id, "https://example.com", &settings, NULL);
+
+/* Page operations always use the WebView ID */
+send_ipc_message(second, "message", "hello");
+```
+
+`WebViewSettings` fields are listed in the [Window API](/en-US/docs/v3api/window-api); initialize the struct with `webview_settings_default` from the [Core API](/en-US/docs/v3api/index).
+
+***
+
 ## Navigation and History
 
 ### Navigate to a URL (`navigate_to_url`)

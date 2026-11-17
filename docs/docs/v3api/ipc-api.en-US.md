@@ -1,6 +1,6 @@
 ---
 title: IPC API
-order: 0
+order: 2
 group:
   title: Communication & Events
   order: 3
@@ -8,114 +8,9 @@ group:
 
 # IPC API
 
-**Purpose overview**: The main process uses **`jade_on`** to subscribe to events dispatched by the library (window lifecycle, navigation, script results, etc.); uses **`register_ipc_handler`** to respond to **`jade.invoke('command', data)`** calls from web pages; and uses **`send_ipc_message`** to proactively push messages to the renderer process.
+**What this page covers**: use **`register_ipc_handler`** to answer **`jade.invoke('command', payload)`** coming from the page, and **`send_ipc_message`** to push messages to the renderer process.
 
-## Basic Types
-
-<h3 id="ipccallback">Callback type (`IpcCallback`)</h3>
-
-Main-process-side events and **`jade.invoke`** share the same C callback type (consistent with **`JadeView.h`**):
-
-```c
-typedef const char* (JADEVIEW_CALL *IpcCallback)(uint32_t, const char*);
-```
-
-#### Parameters
-
-| Parameter | Description |
-|------|------|
-| First argument | **The real event source ID**: App sources are always `0`, window events use the Window ID, and WebView events use the WebView ID; for a `register_ipc_handler` invoke callback this is the **originating WebView ID**. See the individual sections in [Event Types](/en-US/docs/v3api/event-types). |
-| `event_data` | A **read-only** **UTF-8** string, **null-terminated (`\0`)**. The content is mostly **JSON text**; a few are plain text (such as the error description when `app-ready` fails, or the `crash` error code). It is **only guaranteed valid during this callback's execution**; do not keep the raw pointer after the callback returns. Copy it yourself if you need to retain it. |
-
-#### Return value (`const char *`)
-
-The same function pointer type has different meanings in the two usages:
-
-| Used for | Meaning of return value |
-|------|------------|
-| Callback registered via **`jade_on(...)`** | See **[`jade_on` and the callback return value](#jade-on-callback-return)** below and [Event Types · Quick Reference](/en-US/docs/v3api/event-types#ipc-callback-returns) (for interception types: `NULL` allows, a non-null value such as **`(const char *)(uintptr_t)1`** blocks; with the `webview-download-started` special case, etc.). |
-| **`register_ipc_handler`** | See **[Return value of `register_ipc_handler`](#register-ipc-handler-return)** below (`NULL` / `(const char *)1` and the like mean default success; any other pointer is the reply body and is freed by the library via `jade_text_free`). |
-
-:::info
-Do not **block for a long time** or do heavy work inside the callback, to avoid stalling the GUI / message thread; you can post the work to your own queue and process it asynchronously.
-:::
-
----
-
-## Event Subscription
-
-<h3 id="jade-on">Subscribe to events (`jade_on`)</h3>
-
-Register a callback by **event name string**; the library calls `IpcCallback` when the event occurs. Interception events run synchronously on the GUI thread and the callback must return quickly; all other events are dispatched asynchronously.
-
-```c
-uint32_t jade_on(const char* event_name, IpcCallback callback);
-```
-
-#### Parameters
-
-| Parameter | Description |
-|------|------|
-| `event_name` | The event name, **UTF-8**, **null-terminated (`\0`)**, matching the conventions in the docs and pages (such as `app-ready`, `window-closing`, `webview-did-finish-load`). |
-| `callback` | Of type **`IpcCallback`**; called by the library when the event arrives. See the previous section for the meaning of the parameters. |
-
-#### Return value
-
-| Return value | Meaning |
-|--------|------|
-| **`> 0`** | The **callback id** of this registration, used by **`jade_off(event_name, callback_id)`** to unregister precisely. |
-| **`0`** | Registration failed (null pointer, out of memory, etc., subject to the actual implementation). |
-
-#### Timing and conventions
-
-- **`app-ready`**: Must be registered **before `JadeView_init`**, otherwise you will miss the first ready or failure notification (see [Core API](/en-US/docs/v3api/index)).
-- **Other events**: Generally you can register them after **`app-ready` succeeds** and you start creating windows; for event names and `event_data` shapes, see [Event Types](/en-US/docs/v3api/event-types).
-- **Multiple registrations**: You can register multiple callbacks for the same `event_name`, and each `jade_on` returns a different id; when triggered, the **execution order is implementation-defined** — do not rely on order for mutual-exclusion logic.
-
-<h4 id="jade-on-callback-return">Callback return value convention (`jade_on`)</h4>
-
-For an `IpcCallback` registered via **`jade_on`**, the return value only has semantics on **some events**; for **most notification-only events** the return value can be ignored by the library, and it is **conventional to uniformly write `return NULL;`**.
-
-- **With "intercept / allow" semantics**: such as **`window-closing`**, **`webview-will-navigate`**, **`webview-new-window`** (**non-`NULL` = block**); and **`webview-download-started`** (**only `NULL` = allow the download**, blocked by default). When blocking, it is recommended to write **`return (const char *)(uintptr_t)1;`**.
-- **Without interception semantics**: return **`NULL`**.
-
-For the complete list and explanation, see [Event Types · IpcCallback return values](/en-US/docs/v3api/event-types#ipc-callback-returns).
-
-**About `app-ready`**: this is an App-source event (source ID is always `0`); on success the body is JSON `{"ok":true,"message":"success"}`. Check `ok:true` in the body; invalid init arguments make `JadeView_init` return `0`. Runtime crashes go through `crash`. For parsing, see [Event Types](/en-US/docs/v3api/event-types).
-
----
-
-### Unsubscribe (`jade_off`)
-
-**Purpose**: Cancel **that single** subscription by **`event_name` + the id returned by `jade_on`**; it will not accidentally remove other callbacks under the same event name.
-
-```c
-int32_t jade_off(const char* event_name, uint32_t callback_id);
-```
-
-| Parameter | Description |
-|------|------|
-| `event_name` | The same event name used at registration. |
-| `callback_id` | Corresponds to the **return value of `jade_on`** (`> 0`). |
-
-| Return value | Meaning |
-|--------|------|
-| `1` | Unregistered successfully. |
-| `0` | Failed (not found, invalid parameter, etc.). |
-
-When `jade_off` returns, the callback is removed from future dispatch, but an invocation that already started is **not awaited**. To release callback context right after unregistering, use `jade_off_wait` and wait for its request:
-
-```c
-uint64_t jade_off_wait(const char* event_name, uint32_t callback_id);
-```
-
-`jade_off_wait` blocks callbacks that have not started and returns an unsubscribe request ID. The request completes once the callback is no longer running — do not free `user_data` or other context before then.
-
-- Read and release the result like any other request (`get_request_result` / `free_request_result` / `release_request`). An unknown or inactive ID completes with `JADE_INVALID_ID`.
-- The request follows the normal 30-second deadline; a timeout does not prove the callback stopped.
-- Do not wait for your own unsubscribe request inside the callback. `0` means no request could be created.
-
----
+Both directions use the `IpcCallback` type; its definition and parameter meanings are in [Event Subscription · Callback type](/en-US/docs/v3api/event-subscription#ipccallback). To **subscribe to events dispatched by the library** (window lifecycle, navigation, script results, etc.) see [Event Subscription](/en-US/docs/v3api/event-subscription) — that is not covered here.
 
 ## Two-way Messages
 

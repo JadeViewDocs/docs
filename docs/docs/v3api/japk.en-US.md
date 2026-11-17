@@ -65,6 +65,159 @@ To build a signed and encrypted JAPK package, please use JadePack's graphical bu
 
 Use the `set_protocol_service_path` API to load a JAPK package. For details, see [Core API - Local Protocol Service](/en-US/docs/v3api).
 
+## JAPK Mount
+
+Signatures and structs come from the `host_fs` export block of `include/JadeView.h`.
+
+### Mount model
+
+The real package is `app.japk`, and by default it is mounted as a **read-only virtual directory `app/`** next to it. The host reads it with ordinary file APIs:
+
+```c
+FILE *f = fopen("app/index.html", "rb");
+```
+
+It does not intercept `app.japk/index.html`, and it never extracts the package to disk. Registering the package, the WebView protocol and the mount share **one immutable index**, so unregistering does not immediately invalidate existing read references.
+
+Platform requirements: Windows **does not ship** a user-mode file system interface, so install the open-source **WinFsp 2.x** separately (MSI from the official site, or `winget install WinFsp.WinFsp` / `choco install winfsp -y`; the installer registers a signed kernel driver). On Linux you need **FUSE3** (an accessible `/dev/fuse`, `fusermount3`, and mount privileges). The framework **never installs drivers or enables system components** for you; check capabilities before mounting. Target platforms are Windows / Linux; macOS is untested.
+
+That dependency **only applies to the mount path**: without `mount_japk`, neither the WinFsp nor the FUSE driver is loaded, and `JadeView_init`, protocol loading and package signature verification are unaffected.
+
+### Register and unregister
+
+#### Register a package on disk (`register_japk`)
+
+```c
+uint64_t register_japk(const char* archive_path);
+```
+
+Header comment:
+
+> Verifies and decrypts a JAPK once, then reuses its shared read-only index. Returns `0` on failure.
+
+**Return value**: `uint64_t` archive ID; `0` means failure.
+
+#### Register an already-loaded in-memory package (`register_loaded_japk`)
+
+```c
+uint64_t register_loaded_japk(void);
+```
+
+> Registers the default in-memory package that has already been verified; it is not decrypted again.
+> Memory packages require an explicit `mount_root` in `mount_japk`.
+
+Reuses the default in-memory package already verified by `JadeView_load_from_bytes`. When mounting a memory package you **must pass `mount_root` explicitly** — `NULL` is not allowed.
+
+#### Unregister a package (`unregister_japk`)
+
+```c
+int32_t unregister_japk(uint64_t archive_id);
+```
+
+> Retires the package. Existing native file handles and WebView resource references stay valid; the mounted virtual directory no longer accepts new opens. Unmounting is a separate call.
+
+### Mount and unmount
+
+#### Mount (`mount_japk`)
+
+```c
+uint64_t mount_japk(uint64_t archive_id, const char* mount_root);
+```
+
+> When `mount_root` is `NULL`, the package path without the `.japk` suffix is used (`app.japk` → `app/`).
+> Installs no driver, enables no system component, extracts no file, and intercepts no system API.
+
+You may also pass an explicit **empty directory**. **Return value**: `uint64_t` mount ID.
+
+#### Unmount (`unmount_japk`)
+
+```c
+int32_t unmount_japk(uint64_t mount_id);
+```
+
+> On `BUSY`, the provider and existing handles remain valid but new opens are refused. Release files, directory iterators and memory maps, then retry.
+
+`jadeview_exit_wait` returns busy / incomplete while active mount handles or unreturned callbacks exist; in that case **keep the library loaded**. Closing a window does not unmount the package.
+
+#### Query the mount root (`get_japk_mount_root`)
+
+```c
+char* get_japk_mount_root(uint64_t mount_id);
+```
+
+Returns a library-allocated UTF-8 string that the caller must release with [`jade_text_free`](/en-US/docs/v3api/index).
+
+### Capabilities and state
+
+#### Mount capabilities (`get_japk_mount_capabilities`)
+
+```c
+int32_t get_japk_mount_capabilities(struct JapkMountCapabilities* out);
+```
+
+Call it before mounting; on failure read the thread error from [`jade_last_error_code`](/en-US/docs/v3api/index).
+
+```c
+typedef struct JapkMountCapabilities {
+  uint32_t backend;
+  int32_t available;
+  int32_t read_only;
+  int32_t caches_plaintext_to_disk;
+  int32_t original_archive_prefix;
+} JapkMountCapabilities;
+```
+
+| Field | C type | Meaning |
+| --- | --- | --- |
+| `backend` | `uint32_t` | Mount backend identifier |
+| `available` | `int32_t` | Whether mounting is available on this platform |
+| `read_only` | `int32_t` | Whether the mount is read-only |
+| `caches_plaintext_to_disk` | `int32_t` | Whether plaintext is cached to disk |
+| `original_archive_prefix` | `int32_t` | Flag related to the original archive path prefix |
+
+> The header does not comment these five fields individually; the table is a direct reading of the field names. For exact enum values rely on `include/JadeView.h` and what the runtime returns.
+
+#### Mount state (`get_japk_mount_state`)
+
+```c
+int32_t get_japk_mount_state(uint64_t mount_id, struct JapkMountState* out);
+```
+
+```c
+typedef struct JapkMountState {
+  int32_t healthy;
+  size_t active_handles;
+} JapkMountState;
+```
+
+`healthy` tells whether the mount is healthy; `active_handles` is how many handles are still active — use it to confirm nothing is outstanding before unmounting.
+
+### Recommended flow
+
+```text
+1. Wait for app-ready and confirm JadeView_init succeeded
+2. register_japk("app.japk")            → archive_id (0 means failure)
+   (for a memory package use register_loaded_japk(); mount_root is mandatory)
+3. get_japk_mount_capabilities(&cap)   → check available / backend
+4. mount_japk(archive_id, NULL)        → mount_id, mounted at app/ by default
+5. Read app/index.html with fopen / open / std::fs::File::open
+6. Close every handle, directory iterator and mapping
+7. unmount_japk(mount_id)              → retry after releasing if it returns busy
+8. unregister_japk(archive_id)
+```
+
+For a complete example see `examples/next/japk.c` in the repository.
+
+### Security boundary
+
+- Directory and file names are **case-sensitive on every platform** and support Unicode; index validation checks header length, entry ranges and path traversal.
+- Files inside the package are **read-only**; there is no way to write a database or execute a program from the package. Self-contained packages do not accept `unpacked` entries that depend on host files.
+- On Windows the mount is read-only for the current account; on Linux only the mounting account can access it by default — **this is not the same as "only the host process can read it"**.
+- The implementation does not proactively cache mounted content into ordinary disk files; OS caches and swap space are outside that promise.
+- Package format, platform attestation, signature verification and host identity binding follow the JAPK v2 signed package rules.
+
+---
+
 ## Example
 
 ```c

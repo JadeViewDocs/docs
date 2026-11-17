@@ -8,11 +8,13 @@ group:
 
 # Event Types
 
-This page lists events the library dispatches to the main process after subscribing via **`jade_on`**. `event_data` is generally a UTF-8 JSON string (a few events use plain text, such as the `app-ready` error description or the `crash` code).
+This page is the **event catalogue**: it lists every event the library may dispatch and the shape of its `event_data`. `event_data` is generally a UTF-8 JSON string (a few events use plain text, such as the `app-ready` error description or the `crash` code).
+
+How to subscribe is **not** covered here: use [`jade_on`](/en-US/docs/v3api/event-subscription#jade-on) for named events, or [`on_app_event` / `on_window_event` / `on_webview_event`](/en-US/docs/v3api/event-subscription) for typed subscriptions — see [Event Subscription](/en-US/docs/v3api/event-subscription).
 
 The first `jade_on` callback parameter is the **real event source ID**: App sources are `0`, window events use the Window ID, and WebView events use the WebView ID. For `app-ready`, check `ok:true` in the body rather than the source ID.
 
-**The return value of `IpcCallback`** has different meanings in "interception" events versus **`register_ipc_handler`**, so be sure to read the **quick reference** below first. The [IPC Communication API](/en-US/docs/v3api/ipc-api) provides supplementary notes that complement `jade.invoke`.
+**The return value of `IpcCallback`** has different meanings in "interception" events versus **`register_ipc_handler`**, so be sure to read the **quick reference** below first. The [IPC API](/en-US/docs/v3api/ipc-api) provides supplementary notes that complement `jade.invoke`.
 
 :::info{title="Callback thread"}
 - **Notification events** (`window-*`, `notification-*`, `theme-changed`, etc.) are dispatched asynchronously; heavier processing is fine.
@@ -302,7 +304,7 @@ jade_on("drag-drop", my_callback);
 
 #### Synchronous Interception
 
-The `drag-drop` callback supports **synchronous interception** for `enter` and `drop`, controlled via the [`IpcCallback` return value](/en-US/docs/v3api/ipc-api#jade-on-callback-return):
+The `drag-drop` callback supports **synchronous interception** for `enter` and `drop`, controlled via the [`IpcCallback` return value](/en-US/docs/v3api/event-subscription#jade-on-callback-return):
 
 | type | Return value semantics |
 |------|-----------|
@@ -345,7 +347,7 @@ The window icon needs to be refreshed.
 ---
 
 
-## Notification-Related Events
+<h2 id="notification-events">Notification-Related Events</h2>
 
 ### `notification-shown`
 
@@ -492,8 +494,41 @@ Crash capture is installed automatically during initialization, with no manual c
 
 Custom popups emit [`menu-command`](/en-US/docs/v3api/menu-api) on selection.
 
-## Event ordering and callback duration
+<h2 id="event-type-constants">Event Type Constants</h2>
 
-Typed notifications and named `jade_on` consumers share one serial dispatch thread. Delivery is global FIFO (per-source order is preserved; cross-source parallelism is not guaranteed). Callbacks must return promptly — a blocking callback delays all later events; hand long work to a host thread.
+Values for the `event_type` argument of `on_app_event` / `on_window_event` / `on_webview_event`, and for `JadeEvent.event_type`:
 
-To release callback context immediately after unregistering a named event, use `jade_off_wait` and wait for its request; see the [IPC API](/en-US/docs/v3api/ipc-api).
+| Constant | Value | Constant | Value |
+| --- | --- | --- | --- |
+| `JADE_EVENT_ALL` | 0 | `JADE_EVENT_LOAD_FINISHED` | 6 |
+| `JADE_EVENT_CREATED` | 1 | `JADE_EVENT_CRASHED` | 7 |
+| `JADE_EVENT_CREATING` | 2 | `JADE_EVENT_OPERATION_COMPLETED` | 8 |
+| `JADE_EVENT_CREATE_FAILED` | 3 | `JADE_EVENT_OPERATION_FAILED` | 9 |
+| `JADE_EVENT_DESTROYED` | 4 | `JADE_EVENT_OTHER` | 100 |
+| `JADE_EVENT_LOAD_STARTED` | 5 | `JADE_EVENT_REPLAY` | 1 (`flags` bit) |
+
+## Event Name Constants
+
+The named-event string constants defined in `include/JadeView.h`. They work with the named-event mechanism and correspond to `JadeEvent.name` in typed subscriptions:
+
+| Macro | String | Macro | String |
+| --- | --- | --- | --- |
+| `JADEVIEW_EVENT_APP_READY` | `app-ready` | `JADEVIEW_EVENT_NOTIFICATION_ACTION` | `notification-action` |
+| | | `JADEVIEW_EVENT_NOTIFICATION_DISMISSED` | `notification-dismissed` |
+| `JADEVIEW_EVENT_CRASH` | `crash` | `JADEVIEW_EVENT_NOTIFICATION_FAILED` | `notification-failed` |
+| `JADEVIEW_EVENT_DRAG_DROP` | `drag-drop` | `JADEVIEW_EVENT_NOTIFICATION_SHOWN` | `notification-shown` |
+| `JADEVIEW_EVENT_GLOBAL_HOTKEY` | `global-hotkey` | `JADEVIEW_EVENT_POSTMESSAGE_RECEIVED` | `postmessage-received` |
+| `JADEVIEW_EVENT_JAPK_LOAD_FAILED` | `japk-load-failed` | `JADEVIEW_EVENT_SECOND_INSTANCE` | `second-instance` |
+| `JADEVIEW_EVENT_MENU_COMMAND` | `menu-command` | `JADEVIEW_EVENT_THEME_CHANGED` | `theme-changed` |
+| `JADEVIEW_EVENT_TRAY_EVENT` | `tray-event` | `JADEVIEW_EVENT_UPDATE_WINDOW_ICON` | `update-window-icon` |
+| `JADEVIEW_EVENT_WEBVIEW_DID_FINISH_LOAD` | `webview-did-finish-load` | `JADEVIEW_EVENT_WINDOW_ALL_CLOSED` | `window-all-closed` |
+| `JADEVIEW_EVENT_WEBVIEW_DID_START_LOADING` | `webview-did-start-loading` | `JADEVIEW_EVENT_WINDOW_BLURRED` | `window-blurred` |
+| `JADEVIEW_EVENT_WEBVIEW_DOWNLOAD_COMPLETED` | `webview-download-completed` | `JADEVIEW_EVENT_WINDOW_BOUNDS` | `window-bounds` |
+| `JADEVIEW_EVENT_WEBVIEW_PAGE_FAVICON_UPDATED` | `webview-page-favicon-updated` | `JADEVIEW_EVENT_WINDOW_CLOSED` | `window-closed` |
+| `JADEVIEW_EVENT_WEBVIEW_PAGE_TITLE_UPDATED` | `webview-page-title-updated` | `JADEVIEW_EVENT_WINDOW_DESTROYED` | `window-destroyed` |
+| `JADEVIEW_EVENT_MENU_ERROR` | `menu-error` | | |
+| | | `JADEVIEW_EVENT_WINDOW_FOCUSED` | `window-focused` |
+| | | `JADEVIEW_EVENT_WINDOW_FULLSCREEN` | `window-fullscreen` |
+| | | `JADEVIEW_EVENT_WINDOW_MOVED` | `window-moved` |
+| | | `JADEVIEW_EVENT_WINDOW_RESIZED` | `window-resized` |
+| | | `JADEVIEW_EVENT_WINDOW_STATE_CHANGED` | `window-state-changed` |
