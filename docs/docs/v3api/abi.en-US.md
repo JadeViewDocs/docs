@@ -61,7 +61,8 @@ Windows x86 hosts must use the `JADEVIEW_CALL` system/stdcall convention and mat
 | `WebViewBounds` | 32 | 16 | four C string pointers |
 | `ResourceDeliveryInfo` | 24 | 16 | delivery diagnostics |
 | `JadeAbiInfo` | 16 | 16 | ABI query output |
-| `JadeMenuItemDesc` | 40 | 24 | menu item input |
+| `JadeMenuItemDesc` | 72 | 40 | menu item input; `icon` at 40/24 |
+| `JadeMenuIconDesc` | 32 | 16 | icon input |
 
 These values are asserted at build time in Rust for both pointer widths and in `tests/next_abi.c` for both C layouts.
 

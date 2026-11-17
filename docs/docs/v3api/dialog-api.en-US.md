@@ -375,10 +375,9 @@ int32_t show_about_dialog(uint32_t window_id);
 
 - The application name is automatically read from the `app_name` set during `JadeView_init`
 - The icon automatically uses the window's current icon
+- The About content includes the website `https://jade.run` and the release repository `https://github.com/JadeViewDocs/JadeView`
 
-:::warning{title="Platform Differences"}
-Currently **only implemented on Windows**; **Linux is a no-op** (the GTK about dialog is not yet integrated). Other dialogs such as file selection, save, and message boxes are all supported on Linux (GTK3).
-:::
+Windows uses the system `ShellAbout` dialog; Linux uses a GTK About dialog. File selection, save, message boxes, and other dialogs are supported on both Windows and Linux.
 
 ---
 

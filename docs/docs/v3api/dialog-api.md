@@ -375,10 +375,9 @@ int32_t show_about_dialog(uint32_t window_id);
 
 - 应用名称自动从 `JadeView_init` 时设置的 `app_name` 读取
 - 图标自动使用窗口当前图标
+- 关于内容包含官网 `https://jade.run` 和发行仓库 `https://github.com/JadeViewDocs/JadeView`
 
-:::warning{title=平台差异}
-目前**仅 Windows** 实现；**Linux 为 no-op**（暂未接入 GTK 关于对话框）。文件选择、保存、消息框等其他对话框 Linux 均已支持（GTK3）。
-:::
+Windows 使用系统 `ShellAbout` 对话框，Linux 使用 GTK 关于对话框。文件选择、保存、消息框等其他对话框在 Windows 和 Linux 均受支持。
 
 ---
 

@@ -59,7 +59,8 @@ Windows x86 使用 `JADEVIEW_CALL` 声明的 system/stdcall 约定，宿主不�
 | `WebViewBounds` | 32 | 16 | 四个 C 字符串指针 |
 | `ResourceDeliveryInfo` | 24 | 16 | 资源诊断 |
 | `JadeAbiInfo` | 16 | 16 | ABI 查询输出 |
-| `JadeMenuItemDesc` | 40 | 24 | 菜单项输入 |
+| `JadeMenuItemDesc` | 72 | 40 | 菜单项输入，`icon` 位于 40/24 |
+| `JadeMenuIconDesc` | 32 | 16 | 图标输入 |
 
 Rust 在两种指针宽度下于编译期断言这些值，`tests/next_abi.c` 同时断言 x64/x86 的 C 布局。
 

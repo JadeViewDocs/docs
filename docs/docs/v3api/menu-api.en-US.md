@@ -15,6 +15,8 @@ Windows and Linux share the same menu definition. Menus are used in two ways:
 
 Items are described by `JadeMenuItemDesc`. The library copies the item array and strings during the call, so the caller may release them immediately.
 
+A normal decorated window without a custom menu shows the built-in Edit / View / Window / Help menus. Close Window is under Window, and About is under Help. The About dialog shows the website `https://jade.run` and the release repository `https://github.com/JadeViewDocs/JadeView`.
+
 ## Capability check
 
 Release packages enable `experimental-imgui-menu` by default. Custom builds may disable it; check first:
@@ -40,6 +42,13 @@ When no menu backend is compiled in, the capability query returns `0`; menu oper
 ## Menu items
 
 ```c
+typedef struct JadeMenuIconDesc {
+    const char* icon_path;
+    const uint8_t* icon_data;
+    size_t icon_data_size;
+    uint32_t icon_codepoint;
+} JadeMenuIconDesc;
+
 typedef struct JadeMenuItemDesc {
     const char* id;
     const char* parent_id;
@@ -47,6 +56,7 @@ typedef struct JadeMenuItemDesc {
     const char* accelerator;
     uint32_t kind;
     uint32_t flags;
+    JadeMenuIconDesc icon;
 } JadeMenuItemDesc;
 ```
 
@@ -58,12 +68,74 @@ typedef struct JadeMenuItemDesc {
 | `accelerator` | Shortcut hint such as `"Ctrl+O"`. Display only; it does not register a hotkey. |
 | `kind` | `0` command, `1` submenu, `2` separator, `3` checkbox, `4` radio. |
 | `flags` | Bit 0 disables the item; bit 1 marks a checkbox or radio item as checked. |
+| `icon` | Optional `JadeMenuIconDesc`; all-zero means no icon. |
 
 Rules:
 
 - A submenu's `id` is the `parent_id` of its children. Parents must have `kind=1`.
 - A menu supports at most 512 items and three submenu levels.
 - Every item except a separator needs a non-empty `label`.
+
+## Menu item icons
+
+The `icon` field at the end of `JadeMenuItemDesc` describes the icon directly.
+
+| Field | Description |
+|---|---|
+| `icon_path` | UTF-8 path to a PNG/ICO file. Used when `icon_data` is NULL and `icon_codepoint` is `0`. |
+| `icon_data` | PNG/ICO bytes. Copied during the call; release it after the call returns. |
+| `icon_data_size` | Byte length of `icon_data`; must be greater than `0` when set, up to 8 MiB. |
+| `icon_codepoint` | Segoe Fluent Icons Unicode codepoint; see the [icon list](https://learn.microsoft.com/zh-cn/windows/apps/design/iconography/segoe-fluent-icons-font). Nonzero takes precedence over image data. |
+
+Priority is `icon_codepoint` > `icon_data` > `icon_path`. Leave all three empty for no icon.
+
+```c
+JadeMenuItemDesc items[] = {
+    { "file",  NULL,   "File", NULL,    1, 0, { 0 } },
+    { "open",  "file", "Open", "Ctrl+O", 0, 0,
+      { NULL, open_png, sizeof(open_png), 0 } },
+    { "print", "file", "Print", "Ctrl+P", 0, 0,
+      { NULL, NULL, 0, 0xE749 } },
+    { "quit",  "file", "Quit", NULL,    0, 0,
+      { "C:/icons/quit.ico", NULL, 0, 0 } },
+};
+
+JadeMenuPosition position = { 24, 48 };
+jade_menu_popup(window_id, items, 4, &position);
+```
+
+A window menu bar takes the same `items` array:
+
+```c
+jade_set_application_menu(items, 4);
+jade_window_set_menu(window_id, items, 4);
+```
+
+- Multi-size ICO files prefer the largest frame up to 64px (64 → 48 → 32 → 16); PNG/ICO are downscaled with a high-quality filter and mipmaps to avoid aliasing in the 16 DIP menu slot.
+- Windows uses system Segoe Fluent Icons and falls back to Segoe MDL2 Assets on Windows 10. Linux has neither by default; set `JADEVIEW_MENU_ICON_FONT` to a compatible font.
+- Invalid icons, data above 8 MiB, or undecodable images make the menu call return `0` with `JADE_INVALID_ARGUMENT`.
+
+Capabilities:
+
+```c
+uint32_t caps = get_menu_capabilities();
+if (caps & JADE_MENU_CAPABILITY_ICON_FILE) { /* PNG/ICO */ }
+if (caps & JADE_MENU_CAPABILITY_ICON_GLYPH) { /* Segoe glyph */ }
+if (caps & JADE_MENU_CAPABILITY_ICON_DATA) { /* in-memory PNG/ICO */ }
+```
+
+The Python SDK still sets `icon_path` / `icon_data` / `icon_codepoint` inside each template item:
+
+```python
+from pathlib import Path
+from jadeview_next import Menu
+
+menu = Menu.build_from_template(runtime, [
+    {"id": "print", "label": "Print", "icon_codepoint": 0xE749},
+    {"id": "open", "label": "Open", "icon_path": "C:/icons/open.png"},
+    {"id": "save", "label": "Save", "icon_data": Path("save.ico").read_bytes()},
+])
+```
 
 ## Popup menus (`jade_menu_popup`)
 
