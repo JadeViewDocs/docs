@@ -4,22 +4,38 @@
 //   底部一条：版权（备案/服务商，法务保持中文）+ 语言切换（中文 / EN 段式开关，移到这里）。
 // 文案/链接走 ../locales/strings 的 footer.*；站内链接补当前语言 /en-US 前缀。
 // 渲染为 <footer> 标签，沿用 .dumirc 的页底氛围渐变(footer::before)与鼠标高光(footer::after)。
-import { createStyles } from 'antd-style';
+import { createStyles, useTheme } from 'antd-style';
 import { memo } from 'react';
 // @ts-ignore 主题 store（仅取 locales / 当前语言 / pathname，不引 'dumi'）
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
 import { useT, useLocaleBase, localeHref } from '../locales/strings';
+import BorderGlow from './BorderGlow';
 import Logo3D from './JadeLogo3D';
 import ThemeToggle from './JadeThemeToggle';
 
 const LANG_LABEL: Record<string, string> = { 'zh-CN': '中文', 'en-US': 'EN' };
 
+// 页底卡片的边框渐变三色，与首页特性卡 / 开发者卡保持一致（reactbits 官方默认）。
+const GLOW_COLORS = ['#c084fc', '#f472b6', '#38bdf8'];
+
 const useStyles = createStyles(({ css, token, responsive }) => ({
-  inner: css`
+  // 卡片外壳：限宽 + 四周留白，让 BorderGlow 的光晕有地方画（footer 自身 overflow:hidden 会裁掉外扩部分）
+  shell: css`
     width: 100%;
-    max-width: 1152px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 56px 24px 28px;
+    padding: 48px 24px 32px;
+
+    ${responsive.mobile} {
+      padding: 28px 16px 20px;
+    }
+  `,
+  inner: css`
+    padding: 44px 40px 28px;
+
+    ${responsive.mobile} {
+      padding: 28px 20px 22px;
+    }
   `,
   top: css`
     display: flex;
@@ -149,6 +165,7 @@ const useStyles = createStyles(({ css, token, responsive }) => ({
 
 export default memo(function JadeFooter() {
   const { styles, cx } = useStyles();
+  const th = useTheme() as any;
   const t = useT().footer;
   const base = useLocaleBase();
   const locales: any[] = useSiteStore((s: any) => s.siteData?.locales) || [];
@@ -169,7 +186,19 @@ export default memo(function JadeFooter() {
 
   return (
     <footer>
-      <div className={styles.inner}>
+      <div className={styles.shell}>
+        <BorderGlow
+          backgroundColor={th.colorBgContainer}
+          borderRadius={24}
+          edgeSensitivity={30}
+          glowRadius={40}
+          glowIntensity={1}
+          coneSpread={25}
+          colors={GLOW_COLORS}
+          glowColor={th.isDarkMode ? '40 80 80' : '28 88 52'}
+          fillOpacity={0.5}
+        >
+          <div className={styles.inner}>
         <div className={styles.top}>
           <div className={styles.brand}>
             <a className={styles.brandLink} href={base === '/' ? '/' : base}>
@@ -216,6 +245,8 @@ export default memo(function JadeFooter() {
             </div>
           </div>
         </div>
+          </div>
+        </BorderGlow>
       </div>
     </footer>
   );

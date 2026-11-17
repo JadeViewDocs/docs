@@ -1,8 +1,8 @@
 import { Avatar, theme } from 'antd';
-import { SpotlightCard } from '@lobehub/ui/awesome';
 import { Link, usePrefersColor } from 'dumi';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import BorderGlow from '../components/BorderGlow';
 import ElectricBorder from '../components/ElectricBorder';
 import MagicBento from '../components/MagicBento';
 import MetallicPaint from '../components/MetallicPaint';
@@ -19,6 +19,15 @@ const techs = [
 ];
 
 const BRAND = '#F97316';
+
+// BorderGlow 的边框网格渐变三色（首页特性卡 / 开发者卡 / 页底共用）。
+// 采用 reactbits 官方 Border Glow 的默认三色（紫 / 粉 / 蓝），与「NEXT」横幅的电黄、
+// MagicBento 的橙光形成冷暖对比，边框在鼠标环绕时才有明显色相变化。
+const GLOW_COLORS = ['#c084fc', '#f472b6', '#38bdf8'];
+
+// BorderGlow 的外圈光晕色（HSL 三段式，组件按它生成 7 档透明度）。
+// 深色沿用官方默认的暖白；浅色需要压深，否则近白光晕在白底上完全看不见。
+const glowHalo = (isDark: boolean) => (isDark ? '40 80 80' : '28 88 52');
 
 // 窄屏检测（与 MagicBento 的 useMobileDetection 同思路）：用于 V3 横幅的移动端布局切换。
 function useNarrow() {
@@ -192,38 +201,41 @@ export default function HomeExtra() {
         </motion.div>
       </motion.section>
 
-      {/* 核心特性：用 lobehub SpotlightCard（鼠标悬浮光晕，与下方「核心开发者」一致）；整体作为一个单元滚动浮现 */}
+      {/* 核心特性：BorderGlow 卡片（边框网格渐变随鼠标环绕，ReactBits）；整体作为一个单元滚动浮现 */}
       {/* marginTop 48：ElectricBorder 的 canvas 外扩约 64px 画电弧，留出间距避免贴住下方卡片 */}
       <motion.div style={{ marginTop: narrow ? 36 : 48 }} variants={scrollItem} {...reveal}>
-        <SpotlightCard
-          items={t.home.features}
-          columns={3}
-          gap={16}
-          borderRadius={token.borderRadiusLG}
-          renderItem={(f) => (
-            <a
-              href={f.link}
-              style={{
-                display: 'block',
-                padding: 24,
-                height: '100%',
-                textDecoration: 'none',
-                color: 'inherit',
-                transition: 'transform 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(248px, 1fr))', gap: 16 }}>
+          {t.home.features.map((f: { image: string; title: string; desc: string; link: string }) => (
+            <BorderGlow
+              key={f.title}
+              backgroundColor={token.colorBgContainer}
+              borderRadius={20}
+              edgeSensitivity={30}
+              glowRadius={40}
+              glowIntensity={1}
+              coneSpread={25}
+              colors={GLOW_COLORS}
+              glowColor={glowHalo(isDark)}
+              fillOpacity={isDark ? 0.5 : 0.18}
             >
-              <div style={{ fontSize: 30, lineHeight: 1, marginBottom: 14 }}>{f.image}</div>
-              <h3 style={{ fontSize: 18, fontWeight: 600, color: token.colorText, margin: '0 0 8' }}>{f.title}</h3>
-              <p style={{ fontSize: 14, color: token.colorTextSecondary, lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
-            </a>
-          )}
-        />
+              <a
+                href={f.link}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  padding: 24,
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
+                <div style={{ fontSize: 30, lineHeight: 1, marginBottom: 14 }}>{f.image}</div>
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: token.colorText, margin: '0 0 8' }}>{f.title}</h3>
+                <p style={{ fontSize: 14, color: token.colorTextSecondary, lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
+              </a>
+            </BorderGlow>
+          ))}
+        </div>
       </motion.div>
 
       {/* 快速上手：Magic Bento 卡片墙（reactbits 风格，品牌橙光晕） */}
@@ -255,21 +267,35 @@ export default function HomeExtra() {
         <motion.h2 style={sectionTitle} variants={scrollItem}>{t.home.devsTitle}</motion.h2>
         <motion.p style={sectionSub} variants={scrollItem}>{t.home.devsSub}</motion.p>
         <motion.div variants={scrollItem}>
-        <SpotlightCard
-          items={t.home.devs}
-          columns={3}
-          gap={16}
-          borderRadius={token.borderRadiusLG}
-          renderItem={(d) => (
-            <a href={d.url} target="_blank" rel="noreferrer" style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: 24, height: '100%', color: 'inherit', textDecoration: 'none' }}>
-              <Avatar src={d.avatar} size={48} style={{ flexShrink: 0 }}>{d.name.slice(0, 1)}</Avatar>
-              <div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: token.colorText, marginBottom: 4 }}>{d.name}</div>
-                <div style={{ fontSize: 13, color: token.colorTextSecondary, lineHeight: 1.6 }}>{d.bio}</div>
-              </div>
-            </a>
-          )}
-        />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(248px, 1fr))', gap: 16 }}>
+          {t.home.devs.map((d: { name: string; avatar: string; url: string; bio: string }) => (
+            <BorderGlow
+              key={d.name}
+              backgroundColor={token.colorBgContainer}
+              borderRadius={20}
+              edgeSensitivity={30}
+              glowRadius={40}
+              glowIntensity={1}
+              coneSpread={25}
+              colors={GLOW_COLORS}
+              glowColor={glowHalo(isDark)}
+              fillOpacity={isDark ? 0.5 : 0.18}
+            >
+              <a
+                href={d.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: 'flex', flex: 1, gap: 14, alignItems: 'flex-start', padding: 24, color: 'inherit', textDecoration: 'none' }}
+              >
+                <Avatar src={d.avatar} size={48} style={{ flexShrink: 0 }}>{d.name.slice(0, 1)}</Avatar>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: token.colorText, marginBottom: 4 }}>{d.name}</div>
+                  <div style={{ fontSize: 13, color: token.colorTextSecondary, lineHeight: 1.6 }}>{d.bio}</div>
+                </div>
+              </a>
+            </BorderGlow>
+          ))}
+        </div>
         </motion.div>
       </motion.section>
     </div>

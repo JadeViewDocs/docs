@@ -76,11 +76,6 @@ export default defineConfig({
         "(function(){function f(){document.querySelectorAll('input').forEach(function(i){if(i.placeholder&&/keyword/i.test(i.placeholder)){i.placeholder='搜索文档…';}});}if(typeof window!=='undefined'){try{new MutationObserver(f).observe(document.documentElement,{subtree:true,childList:true});}catch(e){}setInterval(f,1000);f();}})();",
     },
     {
-      // 底栏顶部边框跟随鼠标高光：给 <footer> 绑 mousemove，写 CSS 变量驱动 footer::after
-      content:
-        "(function(){function b(){var f=document.querySelector('footer');if(!f||f.__jvSpot)return;f.__jvSpot=1;f.addEventListener('mousemove',function(e){var r=f.getBoundingClientRect();f.style.setProperty('--footer-spot-x',(e.clientX-r.left)+'px');f.style.setProperty('--footer-spot-o','1');});f.addEventListener('mouseleave',function(){f.style.setProperty('--footer-spot-o','0');});}if(typeof window!=='undefined'){setInterval(b,800);}})();",
-    },
-    {
       // 按页 canonical：lobehub 的 canonical 只用 hostname(根)，全站都指向首页对 docs SEO 不利。
       // 客户端把 <link rel=canonical> 升级成「当前页 URL(去尾斜杠)」，定时纠正 Helmet 的回写。
       content:
@@ -231,29 +226,14 @@ main:has(.layoutkit-flexbox[style*="64vh"]) {
 `,
     `
 /* 底栏氛围背景（全局 CSS，不用 slot 覆盖，避免 dev 'dumi' 解析问题）：
-   ::before 大尺寸渐变 + background-position 动画做流动；顶部 mask 渐隐与上方页面衔接。 */
+   ::before 大尺寸渐变 + background-position 动画做流动；顶部 mask 渐隐与上方页面衔接。
+   顶部那条「跟随鼠标」的橙色高光已移除——现由页底卡片的 BorderGlow 边缘光辉承担。 */
 footer {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   /* iOS 底部 Home 指示条安全区：viewport-fit=cover 下页底内容不贴到手势条 */
   padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-/* 顶部边框「跟随鼠标」高光：--footer-spot-x / --footer-spot-o 由 headScripts 更新，离开淡出 */
-footer::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
-  height: 96px;
-  z-index: 2;
-  pointer-events: none;
-  background:
-    radial-gradient(260px 2px at var(--footer-spot-x, 50%) 0, rgba(249, 115, 22, 1), rgba(251, 191, 36, 0.6) 40%, transparent 78%),
-    radial-gradient(360px 96px at var(--footer-spot-x, 50%) 0, rgba(249, 115, 22, 0.28), transparent 72%);
-  opacity: var(--footer-spot-o, 0);
-  transition: opacity 0.3s ease;
 }
 footer::before {
   content: '';
