@@ -8,7 +8,7 @@ group:
 
 # 系统托盘
 
-创建带提示文字的托盘图标。图标点击触发 `tray-event`。如果要在右键时弹出菜单，请在事件回调中调用 `jade_menu_popup`，参见[菜单](/docs/v3api/menu-api)。
+创建带提示文字的托盘图标。图标点击触发 `tray-event`。如果要在右键时弹出菜单，请参见[托盘菜单](/docs/v3api/tray-menu)。
 
 整个进程里**只允许一个托盘**；重复 `tray_create` 只会拿到同一个 `tray_id`。
 

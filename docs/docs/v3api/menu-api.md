@@ -1,9 +1,9 @@
 ---
-title: 菜单
-order: 3
+title: 菜单 API
+order: 0
 group:
-  title: 原生 UI
-  order: 4
+  title: 菜单
+  order: 3.5
 ---
 
 # 菜单
@@ -36,6 +36,7 @@ if (caps & JADE_MENU_CAPABILITY_BAR) {
 |---|---:|---|
 | `JADE_MENU_CAPABILITY_POPUP` | `1` | 支持独立弹出菜单 |
 | `JADE_MENU_CAPABILITY_BAR` | `2` | 支持窗口菜单栏 |
+| `JADE_MENU_CAPABILITY_CONTEXT_MENU` | `32` | 支持网页右键菜单模板 |
 
 没有菜单后端时，能力查询返回 `0`；菜单操作函数返回 `0` 并把 `jade_last_error_code()` 设为 `JADE_PLATFORM_ERROR`。
 
@@ -232,8 +233,8 @@ void set_main_menu(void) {
 
 两个事件的来源 ID 都是所属窗口 ID；无主弹窗为 `0`。`menu-error` 只用于异步显示失败，参数错误会在调用时直接返回 `0`。事件注册方式见 [事件类型](/docs/v3api/event-types)。
 
-## 自定义右键菜单
+## 网页右键菜单
 
-Windows 和 Linux 的网页默认右键菜单由 JadeView 绘制；是否允许打开仍由 WebView 配置控制。按元素放行/禁用见 [窗口交互控制](/docs/v3api/window-styling)。
+默认菜单自动镜像当前上下文；需要自定义时，使用 `jade_webview_set_context_menu` 模板，按 `role` / `native_name` 执行原生动作，普通项通过 `context-menu-click` 回传。完整说明、角色表、示例和与 v2 的差异见 [网页右键菜单](/docs/v3api/context-menu-api)。
 
-需要自定义时，在页面监听 DOM `contextmenu`，调用 `preventDefault()`，再通过 IPC 通知宿主调用 `jade_menu_popup`。位置传 `NULL` 使用当前鼠标位置，点击结果仍通过 `menu-command` 回传。
+能力位 `JADE_MENU_CAPABILITY_CONTEXT_MENU`（`32`）表示当前构建支持模板。

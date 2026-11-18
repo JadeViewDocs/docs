@@ -1,9 +1,9 @@
 ---
-title: Menus
-order: 3
+title: Menu API
+order: 0
 group:
-  title: Native UI
-  order: 4
+  title: Menus
+  order: 3.5
 ---
 
 # Menus
@@ -36,6 +36,7 @@ if (caps & JADE_MENU_CAPABILITY_BAR) {
 |---|---:|---|
 | `JADE_MENU_CAPABILITY_POPUP` | `1` | Independent popup menus |
 | `JADE_MENU_CAPABILITY_BAR` | `2` | Window menu bars |
+| `JADE_MENU_CAPABILITY_CONTEXT_MENU` | `32` | Page context-menu templates |
 
 When no menu backend is compiled in, the capability query returns `0`; menu operations return `0` and set `jade_last_error_code()` to `JADE_PLATFORM_ERROR`.
 
@@ -232,8 +233,8 @@ void set_main_menu(void) {
 
 The source ID is the owner Window ID, or `0` for an ownerless popup. `menu-error` reports asynchronous presentation failures; invalid arguments fail immediately with `0`. See [Event Types](/en-US/docs/v3api/event-types) for registration.
 
-## Custom context menus
+## Page context menu
 
-On Windows and Linux, the browser's default page context actions are drawn by JadeView; WebView settings still control whether the menu may open. For per-element control, see [Window Interaction](/en-US/docs/v3api/window-styling).
+The default menu mirrors the current native context; to customize it, use the `jade_webview_set_context_menu` template. `role`/`native_name` items execute native actions; custom items report `context-menu-click`. See [Page Context Menu](/en-US/docs/v3api/context-menu-api) for the full description, role table, examples, and v2 differences.
 
-To customize it, listen for the DOM `contextmenu` event, call `preventDefault()`, and ask the host through IPC to call `jade_menu_popup`. Pass `NULL` to use the pointer, and handle selections through `menu-command`.
+Capability bit `JADE_MENU_CAPABILITY_CONTEXT_MENU` (`32`) reports template support.

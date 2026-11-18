@@ -201,6 +201,29 @@ const useStyles = createStyles(({ css, token }) => ({
       background: ${token.colorFillSecondary};
     }
   `,
+  // Pages with frontmatter `sidebar_parent` sit visually under their parent
+  // page in the same group (Electron-style nested menu docs).
+  nestedLink: css`
+    position: relative;
+
+    padding-inline-start: 34px;
+
+    font-size: 13px;
+    color: ${token.colorTextTertiary};
+
+    &::before {
+      content: '';
+
+      position: absolute;
+      inset-inline-start: 20px;
+      top: 50%;
+
+      width: 7px;
+      height: 1px;
+
+      background: ${token.colorBorder};
+    }
+  `,
   badge: css`
     display: inline-flex;
     flex-shrink: 0;
@@ -370,12 +393,24 @@ export default memo(function Sidebar() {
           if (!children.length) return null;
           const links = (
             <div className={styles.items}>
-              {children.map((child: any) => (
-                <NavLink key={child.link} className={styles.link} end title={child.title} to={child.link}>
-                  {child.title}
-                  {child.frontmatter?.badge && <span className={styles.badge}>{child.frontmatter.badge}</span>}
-                </NavLink>
-              ))}
+              {children.map((child: any) => {
+                const nested = Boolean(
+                  child.frontmatter?.sidebar_parent &&
+                    children.some((item: any) => item.title === child.frontmatter.sidebar_parent),
+                );
+                return (
+                  <NavLink
+                    key={child.link}
+                    className={cx(styles.link, nested && styles.nestedLink)}
+                    end
+                    title={child.title}
+                    to={child.link}
+                  >
+                    {child.title}
+                    {child.frontmatter?.badge && <span className={styles.badge}>{child.frontmatter.badge}</span>}
+                  </NavLink>
+                );
+              })}
             </div>
           );
           return (

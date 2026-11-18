@@ -8,7 +8,7 @@ group:
 
 # Context Menu <span class="jv-version-badge">v2.2</span>
 
-Leverage the WebView2 native context menu API to build an Electron-like custom context menu system.
+Leverage the WebView2 native context menu API to build a customizable context menu system.
 
 ## Events
 
@@ -37,21 +37,21 @@ Automatically triggered on right-click (requires `allow_right_click=1`); `event_
 }
 ```
 
-| Field | Description |
-|------|------|
-| `x` / `y` | Screen coordinates |
-| `kind` | Target type: `page` / `image` / `selected_text` / `audio` / `video` |
-| `is_editable` | Whether it is an editable area |
-| `is_main_frame` | Whether it is in the main frame |
-| `page_url` / `frame_url` | Page / frame URL |
-| `has_link` / `link_url` / `link_text` | Link information |
-| `has_source` / `source_url` | Resource source information (image / audio / video) |
-| `has_selection` / `selection_text` | Selected text information |
-| `default_menu_names` *(new in 2.2)* | List of WebView2 default menu items, each containing `name`, `label`, and `kind` (see [Menu Item Types and Native Menu Items](/en-US/docs/api/context-menu-items)) |
+| Field | Description | Platform |
+|------|------|------|
+| `x` / `y` | Screen coordinates | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `kind` | Target type: `page` / `image` / `selected_text` / `audio` / `video` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `is_editable` | Whether it is an editable area | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `is_main_frame` | Whether it is in the main frame | ![Windows](/platform-windows.svg) |
+| `page_url` | Page URL | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `frame_url` | Frame URL | ![Windows](/platform-windows.svg) |
+| `has_link` / `link_url` | Link information | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `link_text` | Link text | ![Windows](/platform-windows.svg) |
+| `has_source` / `source_url` | Resource source information (image / audio / video) | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `has_selection` | Whether there is selected text | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `selection_text` | Selected text | ![Windows](/platform-windows.svg) |
+| `default_menu_names` | List of WebView2 default menu items, each containing `name`, `label`, and `kind` (see [Item Types and Native Actions](/en-US/docs/v3api/context-menu-items)) | ![Windows](/platform-windows.svg) |
 
-:::info{title=Platform Field Differences}
-The example above shows the full set of fields for **Windows (WebView2)**. The **Linux (WebKitGTK)** `context-menu` payload does **not** include the four fields `is_main_frame`, `frame_url`, `link_text`, and `selection_text`; the remaining fields are the same.
-:::
 
 ### Menu Item Clicked Event (`menu-item-clicked`)
 
@@ -85,7 +85,7 @@ uint32_t jade_menu_item_create(const char* label, int kind, uint32_t parent_menu
 
 ### kind Parameter Description
 
-For menu item type descriptions and the list of WebView2 native Names for `kind=5` default menu items (categorized by right-click context), see [Menu Item Types and Native Menu Items](/en-US/docs/api/context-menu-items).
+For menu item type descriptions and the list of WebView2 native Names for `kind=5` default menu items (categorized by right-click context), see [Item Types and Native Actions](/en-US/docs/v3api/context-menu-items).
 
 ### Set Menu Item Enabled State (`jade_menu_item_set_enabled`)
 

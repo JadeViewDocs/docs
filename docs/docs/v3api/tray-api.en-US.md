@@ -8,7 +8,7 @@ group:
 
 # System Tray
 
-Creates a tray icon with a tooltip. Icon clicks emit `tray-event`. To open a menu on right-click, call `jade_menu_popup` from your event handler. See [Menus](/en-US/docs/v3api/menu-api).
+Creates a tray icon with a tooltip. Icon clicks emit `tray-event`. To open a menu on right-click, see [Tray Menu](/en-US/docs/v3api/tray-menu).
 
 The entire process **allows only one tray**; calling `tray_create` again simply returns the same `tray_id`.
 

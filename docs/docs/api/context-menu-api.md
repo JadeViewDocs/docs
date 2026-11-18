@@ -8,7 +8,9 @@ group:
 
 # 右键菜单 <span class="jv-version-badge">v2.2</span>
 
-利用 WebView2 原生上下文菜单 API，实现类似 Electron 的右键菜单自定义系统。
+利用 WebView2 原生上下文菜单 API，实现可自定义的右键菜单系统。
+
+> 本文档适用于 JadeView v2；v3 请使用 [网页右键菜单](/docs/v3api/context-menu-api)。
 
 ## 事件
 
@@ -37,21 +39,20 @@ group:
 }
 ```
 
-| 字段 | 说明 |
-|------|------|
-| `x` / `y` | 屏幕坐标 |
-| `kind` | 目标类型：`page` / `image` / `selected_text` / `audio` / `video` |
-| `is_editable` | 是否可编辑区域 |
-| `is_main_frame` | 是否在主框架中 |
-| `page_url` / `frame_url` | 页面/框架 URL |
-| `has_link` / `link_url` / `link_text` | 链接信息 |
-| `has_source` / `source_url` | 资源源信息（图片/音视频） |
-| `has_selection` / `selection_text` | 选中文本信息 |
-| `default_menu_names` *(2.2 新增)* | WebView2 默认菜单项列表，每项含 `name`、`label`、`kind`（见 [菜单项类型与原生菜单项](/docs/api/context-menu-items)） |
-
-:::info{title=平台字段差异}
-上面示例为 **Windows（WebView2）** 的完整字段。**Linux（WebKitGTK）** 的 `context-menu` 负载**不包含** `is_main_frame`、`frame_url`、`link_text`、`selection_text` 这四个字段，其余字段一致。
-:::
+| 字段 | 说明 | 平台 |
+|------|------|------|
+| `x` / `y` | 屏幕坐标 | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `kind` | 目标类型：`page` / `image` / `selected_text` / `audio` / `video` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `is_editable` | 是否可编辑区域 | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `is_main_frame` | 是否在主框架中 | ![Windows](/platform-windows.svg) |
+| `page_url` | 页面 URL | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `frame_url` | 框架 URL | ![Windows](/platform-windows.svg) |
+| `has_link` / `link_url` | 链接信息 | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `link_text` | 链接文本 | ![Windows](/platform-windows.svg) |
+| `has_source` / `source_url` | 资源源信息（图片/音视频） | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `has_selection` | 是否有选中文本 | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| `selection_text` | 选中文本 | ![Windows](/platform-windows.svg) |
+| `default_menu_names` | WebView2 默认菜单项列表，每项含 `name`、`label`、`kind`（见 [菜单项类型与原生动作](/docs/v3api/context-menu-items)） | ![Windows](/platform-windows.svg) |
 
 ### 菜单项点击事件（`menu-item-clicked`）
 
@@ -85,7 +86,7 @@ uint32_t jade_menu_item_create(const char* label, int kind, uint32_t parent_menu
 
 ### kind 参数说明
 
-菜单项类型说明、`kind=5` 默认菜单项的 WebView2 原生 Name 列表（按右键上下文分类）详见 [菜单项类型与原生菜单项](/docs/api/context-menu-items)。
+菜单项类型说明、`kind=5` 默认菜单项的 WebView2 原生 Name 列表（按右键上下文分类）详见 [菜单项类型与原生动作](/docs/v3api/context-menu-items)。
 
 ### 设置菜单项启用状态（`jade_menu_item_set_enabled`）
 
