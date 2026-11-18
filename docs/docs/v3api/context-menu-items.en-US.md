@@ -9,128 +9,87 @@ group:
 
 # Item Types and Native Actions
 
-Each row of a page context-menu template has a `kind` and may bind a native action through `role` or `native_name`. See [Page Context Menu](/en-US/docs/v3api/context-menu-api) for the full API and examples.
+Each row of a page context-menu template has a `kind` and may bind an action through `role`. See [Page Context Menu](/en-US/docs/v3api/context-menu-api) for the full API and examples.
 
 ## Item kinds
 
-| kind | Type | Description |
-|---:|---|---|
-| 0 | Command | Performs an action; without `role`/`native_name` it reports `context-menu-click` |
-| 1 | Submenu | Children point to its `id` through `parent_id` |
-| 2 | Separator | Not clickable |
-| 3 | Checkbox | Toggles checked state; `flags` bit 1 means checked |
-| 4 | Radio | Mutually exclusive in its group; `flags` bit 1 means checked |
+| kind | Type | Description | Platform |
+|---:|---|---|---|
+| 0 | Command | Performs an action; without `role` it reports `context-menu-click` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| 1 | Submenu | Children point to its `id` through `parent_id` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| 2 | Separator | Not clickable | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| 3 | Checkbox | Toggles checked state; `flags` bit 1 means checked | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| 4 | Radio | Mutually exclusive in its group; `flags` bit 1 means checked | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
 
-`role`/`native_name` apply to commands, checkboxes, and radios only; submenus and separators do not need them.
+`role` applies to commands, checkboxes, and radios only; submenus and separators do not need it.
 
-## Native actions
+## Actions (`role`)
 
-- `role`: a cross-platform action such as `copy`, `paste`, `print`, `reload`, or `toggleDevTools`. The runtime resolves the native item of the current context; if none exists it uses the fallback or disables the item.
-- `native_name`: directly references the current platform's native item. Windows uses WebView2 names (below); Linux uses WebKitGTK `gio::Action` names such as `go-back`, `go-forward`, `reload`, `copy`, `cut`, `paste`, and `select-all`.
+### Editing
 
-When the current context has no such native item, the item is disabled. Share and import-password items are filtered by default.
-
-## Windows WebView2 native names
-
-The data below was collected from actual WebView2 Runtime output; the list depends on the WebView2 version and the right-click context. `native_name` matches these names.
-
-### Page background
-
-| Name | Description | Type |
+| Action | role | Platform |
 |---|---|---|
-| `back` | Back | Command |
-| `forward` | Forward | Command |
-| `reload` | Reload | Command |
-| `saveAs` | Save as | Command |
-| `print` | Print | Command |
-| `moreTools` | More tools | Submenu |
-| `inspectElement` | Inspect | Command |
+| Undo | `undo` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Redo | `redo` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Cut | `cut` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Copy | `copy` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Paste | `paste` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Paste as plain text | `pasteAndMatchStyle` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Delete | `delete` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Select all | `selectAll` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Emoji | `emoji` | ![Windows](/platform-windows.svg) |
 
-### Selected text
+### Navigation
 
-| Name | Description | Type |
+| Action | role | Platform |
 |---|---|---|
-| `copy` | Copy | Command |
-| `copyLinkToHighlight` | Copy link to highlight | Command |
-| `print` | Print | Command |
-| `moreTools` | More tools | Submenu |
-| `inspectElement` | Inspect | Command |
+| Back | `back` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Forward | `forward` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Reload | `reload` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Force reload | `forceReload` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
 
-### Editable area
+### Page
 
-| Name | Description | Type |
+| Action | role | Platform |
 |---|---|---|
-| `emoji` | Emoji | Command |
-| `undo` | Undo | Command |
-| `redo` | Redo | Command |
-| `cut` | Cut | Command |
-| `copy` | Copy | Command |
-| `paste` | Paste | Command |
-| `pasteAndMatchStyle` | Paste and match style | Command |
-| `selectAll` | Select all | Command |
-| `moreTools` | More tools | Submenu |
-| `inspectElement` | Inspect | Command |
+| Print | `print` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Save as | `saveAs` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| View source | `viewSource` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Inspect element | `inspectElement` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| DevTools | `toggleDevTools` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Zoom in | `zoomIn` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Zoom out | `zoomOut` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Reset zoom | `resetZoom` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Toggle full screen | `togglefullscreen` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Minimize | `minimize` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Close window | `close` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Quit | `quit` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
 
 ### Link
 
-| Name | Description | Type |
+| Action | role | Platform |
 |---|---|---|
-| `openLinkInNewWindow` | Open link in new window | Command |
-| `saveLinkAs` | Save link as | Command |
-| `copyLinkLocation` | Copy link | Command |
-| `moreTools` | More tools | Submenu |
-| `inspectElement` | Inspect | Command |
+| Open in new window | `openLinkInNewWindow` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Save link as | `saveLinkAs` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Copy link | `copyLink` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Copy link to highlight | `copyLinkToHighlight` | ![Windows](/platform-windows.svg) |
 
 ### Image
 
-| Name | Description | Type |
+| Action | role | Platform |
 |---|---|---|
-| `saveImageAs` | Save image as | Command |
-| `copyImage` | Copy image | Command |
-| `copyImageLocation` | Copy image address | Command |
-| `magnifyImage` | Magnify image | Command |
-| `share` | Share (filtered by default) | Command |
-| `inspectElement` | Inspect | Command |
+| Save image as | `saveImageAs` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Copy image | `copyImage` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Copy image address | `copyImageAddress` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Magnify image | `magnifyImage` | ![Windows](/platform-windows.svg) |
+| Share | `share` | ![Windows](/platform-windows.svg) |
 
-### Video / audio
+### Media
 
-| Name | Description | Type |
+| Action | role | Platform |
 |---|---|---|
-| `saveMediaAs` | Save media as | Command |
-| `copyLink` | Copy link | Command |
-| `inspectElement` | Inspect | Command |
+| Save media as | `saveMediaAs` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Copy link | `copyLink` | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
+| Show/hide controls | `toggleMediaControls` | ![Linux](/platform-linux.svg) |
 
-## Full name index
-
-| Name | Description | Context |
-|---|---|---|
-| `back` | Back | Page |
-| `forward` | Forward | Page |
-| `reload` | Reload | Page |
-| `cut` | Cut | Editable |
-| `copy` | Copy | Selection / editable |
-| `paste` | Paste | Editable |
-| `pasteAndMatchStyle` | Paste and match style | Editable |
-| `selectAll` | Select all | Editable |
-| `undo` | Undo | Editable |
-| `redo` | Redo | Editable |
-| `emoji` | Emoji | Editable |
-| `saveAs` | Save as | Page |
-| `saveLinkAs` | Save link as | Link |
-| `saveImageAs` | Save image as | Image |
-| `saveMediaAs` | Save media as | Video / audio |
-| `copyImage` | Copy image | Image |
-| `copyImageLocation` | Copy image address | Image |
-| `copyLinkLocation` | Copy link | Link |
-| `copyLink` | Copy link | Video / audio |
-| `copyLinkToHighlight` | Copy link to highlight | Selection |
-| `openLinkInNewWindow` | Open link in new window | Link |
-| `print` | Print | Page / selection |
-| `inspectElement` | Inspect | All contexts |
-| `moreTools` | More tools (submenu) | Most contexts |
-| `magnifyImage` | Magnify image | Image |
-| `share` | Share (filtered by default) | Most contexts |
-| `spellCheck` | Spell check (submenu) | Editable, depends on WebView2 |
-| `extension` | Extensions (submenu) | Depends on installed extensions |
-
-> `share` and import-password items are filtered by default; implement similar behavior yourself if needed.
+The platform column shows availability; other platforms are disabled. `role` names ignore case and separators.
