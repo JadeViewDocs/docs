@@ -8,90 +8,156 @@ group:
 
 # System Tray
 
-Creates a tray icon with a tooltip. Icon clicks emit `tray-event`. To open a menu on right-click, see [Tray Menu](/en-US/docs/v3api/tray-menu).
+Creates a tray icon with a tooltip. Icon clicks emit `tray-event`. See [Tray Menu](/en-US/docs/v3api/tray-menu) for the full tray-menu guide.
 
 The entire process **allows only one tray**; calling `tray_create` again simply returns the same `tray_id`.
 
-:::info{title="Platform Differences"}
-"Bottom-right corner of the taskbar" describes Windows. On **Linux**, the tray uses the desktop environment's StatusNotifierItem protocol: position and interaction are decided by that environment, and some require an extension before the icon appears.
-:::
+| Platform | Notes |
+|---|---|
+| Windows | The tray lives in the taskbar notification area; multi-size ICO is recommended. |
+| Linux | Uses the desktop environment's StatusNotifierItem protocol; position and interaction are decided by the desktop, and some environments need an extension before the icon appears. |
+
+## Quick start
+
+```c
+uint32_t tray = tray_create();
+tray_set_icon_from_file(tray, "app/tray.ico");
+tray_set_tooltip(tray, "JadeView");
+```
+
+`app/tray.ico` may be a mounted JAPK `app/...` path; before the mount is available, pass PNG/ICO bytes with `set_tray_icon_from_data`.
 
 ---
 
 ## Create Tray (`tray_create`)
 
-**Purpose**: **Creates** the tray icon (if one already exists, returns the existing id).
-
 ```c
 uint32_t tray_create(void);
 ```
 
-A return value greater than 0 is the `tray_id`, which all subsequent tray APIs must include.
+**Parameters**: none.
+
+**Return value**:
+
+- `> 0`: the tray ID (`tray_id`), which all subsequent tray APIs must include.
+- `0`: allocation failed.
+
+**Notes**:
+
+- One tray per process; when one already exists, the same id is returned.
+- Creation runs asynchronously on the GUI thread; if system tray creation fails, it is logged and the registration is cleared.
 
 ---
 
 ## Destroy Tray (`tray_destroy`)
 
-**Purpose**: Removes the tray icon.
-
 ```c
 int32_t tray_destroy(uint32_t tray_id);
 ```
 
-`tray_id` must match the current tray, otherwise it returns `0`.
+**Parameters**:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tray_id` | `uint32_t` | The current tray ID returned by `tray_create`. |
+
+**Return value**: `1` = request queued; `0` = `tray_id` is `0`, not the current tray, or could not be queued.
+
+**Notes**: Removes the tray icon; a later `tray_create` allocates a new id.
 
 ---
 
 ## Set Tray Visibility (`tray_set_visible`)
 
-**Purpose**: **Shows or hides** the small icon in the tray (it is not destroyed, just made invisible).
-
 ```c
 int32_t tray_set_visible(uint32_t tray_id, int32_t visible);
 ```
 
-Non-`0` shows it, `0` hides it.
+**Parameters**:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tray_id` | `uint32_t` | The tray ID returned by `tray_create`. |
+| `visible` | `int32_t` | `0` hides the tray icon, non-`0` shows it. |
+
+**Return value**: `1` = request queued; `0` = invalid parameter or could not be queued.
+
+**Notes**: Changes visibility only; the tray is not destroyed. While hidden, there is no icon to click.
 
 ---
 
 ## Set Tray Tooltip (`tray_set_tooltip`)
 
-**Purpose**: A **one-line tooltip** shown when the mouse hovers over the tray icon.
-
 ```c
 int32_t tray_set_tooltip(uint32_t tray_id, const char* tooltip_utf8);
 ```
 
-The pointer must not be `NULL`.
+**Parameters**:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tray_id` | `uint32_t` | The tray ID returned by `tray_create`. |
+| `tooltip_utf8` | `const char*` | UTF-8 tooltip text; must not be `NULL`; a short single line is recommended. |
+
+**Return value**: `1` = request queued; `0` = invalid parameter or could not be queued.
+
+**Notes**: Shown when the pointer hovers over the icon; the text is copied during the call.
 
 ---
 
 ## Set Tray Icon from File (`tray_set_icon_from_file`)
 
-**Purpose**: Loads the tray icon from an **image file such as .ico**; a mounted JAPK `app/...` path works directly.
-
 ```c
 int32_t tray_set_icon_from_file(uint32_t tray_id, const char* icon_path_utf8);
 ```
+
+**Parameters**:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tray_id` | `uint32_t` | The tray ID returned by `tray_create`. |
+| `icon_path_utf8` | `const char*` | PNG/ICO file path, UTF-8; a mounted JAPK `app/...` path is supported. |
+
+**Return value**: `1` = request queued; `0` = invalid parameter or could not be queued.
+
+**Notes**:
+
+- An absolute path works directly; relative paths are resolved against the process directory, working directory, and executable directory.
+- Decoding and the tray update run asynchronously on the GUI thread; failures are logged and do not emit an event.
+- Before the JAPK mount exists, `app/...` is unavailable; use `set_tray_icon_from_data` instead.
 
 ---
 
 ## Set Tray Icon from Binary Data (`set_tray_icon_from_data`)
 
-Supports passing binary data (such as the byte content of an ICO/PNG file) as the tray icon, without writing to a temporary file.
-
 ```c
 int32_t set_tray_icon_from_data(uint32_t tray_id, const uint8_t* icon_data, uint32_t data_len);
 ```
 
-- **Parameters**:
-  - `tray_id` `uint32_t` - Tray icon ID
-  - `icon_data` `const uint8_t*` - Pointer to the icon binary data
-  - `data_len` `uint32_t` - Data length (bytes)
-- **Return value**: `1` = success, `0` = failure
+**Parameters**:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tray_id` | `uint32_t` | The tray ID returned by `tray_create`. |
+| `icon_data` | `const uint8_t*` | PNG/ICO bytes; must not be `NULL`. |
+| `data_len` | `uint32_t` | Length of `icon_data` in bytes; must be greater than `0`. |
+
+**Return value**: `1` = request queued; `0` = invalid parameter or could not be queued.
+
+**Notes**:
+
+- The bytes are copied during the call and may be released immediately afterwards.
+- Useful before the JAPK mount is available, or when the icon comes from memory or the network.
+- Decoding and the tray update run asynchronously; failures are logged.
+
+---
+
+## Events
+
+Tray events are delivered as `tray-event`, with `tray_id`, `event`, screen `x` / `y`, and a timestamp. See [Tray Menu](/en-US/docs/v3api/tray-menu) for the event names and common combinations.
 
 ---
 
 ## Relationship with the Main Window
 
-Closing the main window does **not** automatically remove the tray; whether the process exits along with the last window is up to you to decide in `window-closing` / `window-all-closed`.
+Closing the main window does **not** automatically remove the tray; whether the process exits along with the last window is up to you to decide in `window-closing` / `window-all-closed`. Call `tray_destroy(tray_id)` before exiting so the icon does not linger.
