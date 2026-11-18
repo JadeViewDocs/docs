@@ -83,12 +83,12 @@ The `icon` field at the end of `JadeMenuItemDesc` describes the icon directly.
 
 | Field | Description |
 |---|---|
-| `icon_path` | UTF-8 path to a PNG/ICO file. Used when `icon_data` is NULL and `icon_codepoint` is `0`. |
+| `icon_path` | UTF-8 path to a PNG/ICO file; a mounted JAPK `app/...` path works directly. Used when `icon_data` is NULL and `icon_codepoint` is `0`. |
 | `icon_data` | PNG/ICO bytes. Copied during the call; release it after the call returns. |
 | `icon_data_size` | Byte length of `icon_data`; must be greater than `0` when set, up to 8 MiB. |
 | `icon_codepoint` | Segoe Fluent Icons Unicode codepoint; see the [icon list](https://learn.microsoft.com/zh-cn/windows/apps/design/iconography/segoe-fluent-icons-font). Nonzero takes precedence over image data. |
 
-Priority is `icon_codepoint` > `icon_data` > `icon_path`. Leave all three empty for no icon.
+Priority is `icon_codepoint` > `icon_data` > `icon_path`. Leave all three empty for no icon. `icon_path` accepts mounted JAPK paths such as `app/icons/open.png`; use `icon_data` before the JAPK mount is available.
 
 ```c
 JadeMenuItemDesc items[] = {

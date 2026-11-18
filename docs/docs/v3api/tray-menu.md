@@ -20,7 +20,7 @@ tray_set_icon_from_file(tray, "app/tray.ico");
 tray_set_tooltip(tray, "JadeView");
 ```
 
-`tray_create` 返回进程内唯一的 `tray_id`；重复调用只会返回同一个 id。图标也可以传 PNG/ICO 二进制数据，见系统托盘页。
+`tray_create` 返回进程内唯一的 `tray_id`；重复调用只会返回同一个 id。`app/tray.ico` 可以是已挂载的 JAPK 路径；JAPK 尚未挂载时改用 `tray_set_icon_from_data` / `set_tray_icon_from_data` 传 PNG/ICO 字节。
 
 ### 监听托盘事件
 

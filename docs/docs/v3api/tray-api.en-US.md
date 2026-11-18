@@ -68,7 +68,7 @@ The pointer must not be `NULL`.
 
 ## Set Tray Icon from File (`tray_set_icon_from_file`)
 
-**Purpose**: Loads the tray icon from an **image file such as .ico**.
+**Purpose**: Loads the tray icon from an **image file such as .ico**; a mounted JAPK `app/...` path works directly.
 
 ```c
 int32_t tray_set_icon_from_file(uint32_t tray_id, const char* icon_path_utf8);

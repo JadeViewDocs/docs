@@ -83,12 +83,12 @@ typedef struct JadeMenuItemDesc {
 
 | 字段 | 说明 |
 |---|---|
-| `icon_path` | PNG/ICO 文件路径，UTF-8。没有 `icon_data` 且 `icon_codepoint` 为 `0` 时使用。 |
+| `icon_path` | PNG/ICO 文件路径，UTF-8；已挂载的 JAPK `app/...` 路径可直接使用。没有 `icon_data` 且 `icon_codepoint` 为 `0` 时使用。 |
 | `icon_data` | PNG/ICO 二进制数据指针。调用期间同步复制，返回后可释放。 |
 | `icon_data_size` | `icon_data` 的字节数；有 `icon_data` 时必须大于 `0`，最大 8 MiB。 |
 | `icon_codepoint` | Segoe Fluent Icons 的 Unicode codepoint，可在[图标列表](https://learn.microsoft.com/zh-cn/windows/apps/design/iconography/segoe-fluent-icons-font)查询。非 `0` 时优先于图片数据。 |
 
-优先级为 `icon_codepoint` > `icon_data` > `icon_path`。三者都为空表示无图标。
+优先级为 `icon_codepoint` > `icon_data` > `icon_path`。三者都为空表示无图标。`icon_path` 支持 JAPK 挂载路径（如 `app/icons/open.png`）；JAPK 尚未挂载时请改用 `icon_data`。
 
 ```c
 JadeMenuItemDesc items[] = {

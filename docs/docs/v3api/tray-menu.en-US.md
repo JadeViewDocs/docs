@@ -20,7 +20,7 @@ tray_set_icon_from_file(tray, "app/tray.ico");
 tray_set_tooltip(tray, "JadeView");
 ```
 
-`tray_create` returns the process-wide tray id; calling it again returns the same id. PNG/ICO bytes are also supported; see the System Tray page.
+`tray_create` returns the process-wide tray id; calling it again returns the same id. `app/tray.ico` may be a mounted JAPK path; before the JAPK mount is available, pass PNG/ICO bytes with `tray_set_icon_from_data` / `set_tray_icon_from_data`.
 
 ### Listen for tray events
 

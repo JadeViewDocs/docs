@@ -68,7 +68,7 @@ int32_t tray_set_tooltip(uint32_t tray_id, const char* tooltip_utf8);
 
 ## 从文件设置托盘图标（`tray_set_icon_from_file`）
 
-**用途**：从 **.ico 等图片文件**加载托盘图标。
+**用途**：从 **.ico 等图片文件**加载托盘图标；已挂载的 JAPK `app/...` 路径可直接使用。
 
 ```c
 int32_t tray_set_icon_from_file(uint32_t tray_id, const char* icon_path_utf8);
