@@ -17,29 +17,6 @@ Windows 和 Linux 使用同一套菜单定义，分为两种用法：
 
 普通有边框窗口未设置自定义菜单时，默认显示“编辑 / 视图 / 窗口 / 帮助”菜单；“关闭窗口”位于“窗口”菜单，“关于”位于“帮助”菜单。关于对话框显示官网 `https://jade.run` 和发行仓库 `https://github.com/JadeViewDocs/JadeView`。
 
-## 能力检查
-
-菜单栏和弹出菜单由内置的 ImGui 自绘后端提供。该后端是一个 Cargo 编译特性（feature）`experimental-imgui-menu`：官方发行包默认开启；自行编译时如果关闭它，相关代码不会链接进 DLL。宿主可以在使用前调用 `get_menu_capabilities()` 查询当前运行库支持哪些菜单能力，再决定是否调用菜单 API：
-
-```c
-uint32_t caps = get_menu_capabilities();
-
-if (caps & JADE_MENU_CAPABILITY_POPUP) {
-    /* 可以调用 jade_menu_popup */
-}
-if (caps & JADE_MENU_CAPABILITY_BAR) {
-    /* 可以设置窗口菜单栏 */
-}
-```
-
-| 宏 | 值 | 含义 |
-|---|---:|---|
-| `JADE_MENU_CAPABILITY_POPUP` | `1` | 支持独立弹出菜单 |
-| `JADE_MENU_CAPABILITY_BAR` | `2` | 支持窗口菜单栏 |
-| `JADE_MENU_CAPABILITY_CONTEXT_MENU` | `32` | 支持网页右键菜单模板 |
-
-没有菜单后端时，能力查询返回 `0`；菜单操作函数返回 `0` 并把 `jade_last_error_code()` 设为 `JADE_PLATFORM_ERROR`。
-
 ## 菜单项
 
 ```c
@@ -115,15 +92,6 @@ jade_window_set_menu(window_id, items, 4);
 - ICO 多尺寸文件优先选择不超过 64px 的最大帧（64 → 48 → 32 → 16）；PNG/ICO 会做高质量缩小并生成 mipmap，避免 16 DIP 菜单槽位出现锯齿。
 - Windows 使用系统 Segoe Fluent Icons，Windows 10 回退 Segoe MDL2 Assets；Linux 默认没有该字体，可用 `JADEVIEW_MENU_ICON_FONT` 指定兼容字体。
 - 图标无效、数据超过 8 MiB 或图片无法解码时，菜单调用返回 `0`，`jade_last_error_code()` 为 `JADE_INVALID_ARGUMENT`。
-
-能力位：
-
-```c
-uint32_t caps = get_menu_capabilities();
-if (caps & JADE_MENU_CAPABILITY_ICON_FILE) { /* PNG/ICO */ }
-if (caps & JADE_MENU_CAPABILITY_ICON_GLYPH) { /* Segoe glyph */ }
-if (caps & JADE_MENU_CAPABILITY_ICON_DATA) { /* 内存 PNG/ICO */ }
-```
 
 Python SDK 仍在模板项里设置 `icon_path` / `icon_data` / `icon_codepoint`：
 
@@ -236,5 +204,3 @@ void set_main_menu(void) {
 ## 网页右键菜单
 
 默认菜单自动镜像当前上下文；需要自定义时，使用 `jade_webview_set_context_menu` 模板，按 `role` / `native_name` 执行原生动作，普通项通过 `context-menu-click` 回传。完整说明、角色表、示例和与 v2 的差异见 [网页右键菜单](/docs/v3api/context-menu-api)。
-
-能力位 `JADE_MENU_CAPABILITY_CONTEXT_MENU`（`32`）表示当前构建支持模板。

@@ -153,15 +153,6 @@ Restore the default menu:
 view.clear_context_menu()
 ```
 
-Capability:
-
-```c
-uint32_t caps = get_menu_capabilities();
-if (caps & JADE_MENU_CAPABILITY_CONTEXT_MENU) {
-    /* jade_webview_set_context_menu is available */
-}
-```
-
 ## Fully custom menu
 
 To control every item without native actions, the page can listen for the DOM `contextmenu` event, call `preventDefault()`, and ask the host through IPC to call `jade_menu_popup`:

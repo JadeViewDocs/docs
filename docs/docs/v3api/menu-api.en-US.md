@@ -17,29 +17,6 @@ Items are described by `JadeMenuItemDesc`. The library copies the item array and
 
 A normal decorated window without a custom menu shows the built-in Edit / View / Window / Help menus. Close Window is under Window, and About is under Help. The About dialog shows the website `https://jade.run` and the release repository `https://github.com/JadeViewDocs/JadeView`.
 
-## Capability check
-
-Menu bars and popup menus are drawn by the built-in ImGui backend. That backend is a Cargo feature, `experimental-imgui-menu`: release packages enable it by default, while a custom build can leave it out, in which case its code is not linked into the DLL. Hosts can query the running library with `get_menu_capabilities()` and call menu APIs only when the matching bit is set:
-
-```c
-uint32_t caps = get_menu_capabilities();
-
-if (caps & JADE_MENU_CAPABILITY_POPUP) {
-    /* jade_menu_popup is available */
-}
-if (caps & JADE_MENU_CAPABILITY_BAR) {
-    /* window menu bars are available */
-}
-```
-
-| Macro | Value | Meaning |
-|---|---:|---|
-| `JADE_MENU_CAPABILITY_POPUP` | `1` | Independent popup menus |
-| `JADE_MENU_CAPABILITY_BAR` | `2` | Window menu bars |
-| `JADE_MENU_CAPABILITY_CONTEXT_MENU` | `32` | Page context-menu templates |
-
-When no menu backend is compiled in, the capability query returns `0`; menu operations return `0` and set `jade_last_error_code()` to `JADE_PLATFORM_ERROR`.
-
 ## Menu items
 
 ```c
@@ -115,15 +92,6 @@ jade_window_set_menu(window_id, items, 4);
 - Multi-size ICO files prefer the largest frame up to 64px (64 → 48 → 32 → 16); PNG/ICO are downscaled with a high-quality filter and mipmaps to avoid aliasing in the 16 DIP menu slot.
 - Windows uses system Segoe Fluent Icons and falls back to Segoe MDL2 Assets on Windows 10. Linux has neither by default; set `JADEVIEW_MENU_ICON_FONT` to a compatible font.
 - Invalid icons, data above 8 MiB, or undecodable images make the menu call return `0` with `JADE_INVALID_ARGUMENT`.
-
-Capabilities:
-
-```c
-uint32_t caps = get_menu_capabilities();
-if (caps & JADE_MENU_CAPABILITY_ICON_FILE) { /* PNG/ICO */ }
-if (caps & JADE_MENU_CAPABILITY_ICON_GLYPH) { /* Segoe glyph */ }
-if (caps & JADE_MENU_CAPABILITY_ICON_DATA) { /* in-memory PNG/ICO */ }
-```
 
 The Python SDK still sets `icon_path` / `icon_data` / `icon_codepoint` inside each template item:
 
@@ -236,5 +204,3 @@ The source ID is the owner Window ID, or `0` for an ownerless popup. `menu-error
 ## Page context menu
 
 The default menu mirrors the current native context; to customize it, use the `jade_webview_set_context_menu` template. `role`/`native_name` items execute native actions; custom items report `context-menu-click`. See [Page Context Menu](/en-US/docs/v3api/context-menu-api) for the full description, role table, examples, and v2 differences.
-
-Capability bit `JADE_MENU_CAPABILITY_CONTEXT_MENU` (`32`) reports template support.

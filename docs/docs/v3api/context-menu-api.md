@@ -153,15 +153,6 @@ view.set_context_menu([
 view.clear_context_menu()
 ```
 
-能力位：
-
-```c
-uint32_t caps = get_menu_capabilities();
-if (caps & JADE_MENU_CAPABILITY_CONTEXT_MENU) {
-    /* 可以调用 jade_webview_set_context_menu */
-}
-```
-
 ## 完全自绘菜单
 
 需要完全控制菜单内容、且不需要原生动作时，也可以在页面监听 DOM `contextmenu`，调用 `preventDefault()`，通过 IPC 通知宿主调用 `jade_menu_popup`：
