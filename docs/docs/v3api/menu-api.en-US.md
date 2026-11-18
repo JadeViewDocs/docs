@@ -19,7 +19,7 @@ A normal decorated window without a custom menu shows the built-in Edit / View /
 
 ## Capability check
 
-Release packages enable `experimental-imgui-menu` by default. Custom builds may disable it; check first:
+Menu bars and popup menus are drawn by the built-in ImGui backend. That backend is a Cargo feature, `experimental-imgui-menu`: release packages enable it by default, while a custom build can leave it out, in which case its code is not linked into the DLL. Hosts can query the running library with `get_menu_capabilities()` and call menu APIs only when the matching bit is set:
 
 ```c
 uint32_t caps = get_menu_capabilities();

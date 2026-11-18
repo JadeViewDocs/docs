@@ -19,7 +19,7 @@ Windows 和 Linux 使用同一套菜单定义，分为两种用法：
 
 ## 能力检查
 
-发行包默认启用 `experimental-imgui-menu`。自定义构建可能关闭该 feature，使用前先查询：
+菜单栏和弹出菜单由内置的 ImGui 自绘后端提供。该后端是一个 Cargo 编译特性（feature）`experimental-imgui-menu`：官方发行包默认开启；自行编译时如果关闭它，相关代码不会链接进 DLL。宿主可以在使用前调用 `get_menu_capabilities()` 查询当前运行库支持哪些菜单能力，再决定是否调用菜单 API：
 
 ```c
 uint32_t caps = get_menu_capabilities();
