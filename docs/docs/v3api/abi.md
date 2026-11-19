@@ -10,6 +10,8 @@ group:
 
 本页说明二进制接口的版本标识、配置结构体的初始化规则、内存所有权与导出检查。宿主与库须使用同一 ABI 和结构体布局。
 
+Beta.1 的 ABI 为 `0x00030002`。三个建窗函数的最后一个参数均为 `const JadeWindowFeatures* features`。`content_protection` 和 `auto_save_state` 从窗口选项移入该结构。使用新版头文件重新编译宿主，或同步更新动态绑定后再加载新版库。
+
 ## 加载检查
 
 ```c
@@ -53,7 +55,8 @@ Windows x86 使用 `JADEVIEW_CALL` 声明的 system/stdcall 约定，宿主不�
 
 | 类型 | x64 | x86 | 冻结检查 |
 |---|---:|---:|---|
-| `WebViewWindowOptions` | 168 | 132 | `titlebar_back` 152/120、`titlebar_icon` 160/128 |
+| `WebViewWindowOptions` | 160 | 124 | `titlebar_back` 144/112、`titlebar_icon` 152/120 |
+| `JadeWindowFeatures` | 24 | 20 | `splash` 16/16 |
 | `WebViewSettings` | 128 | 88 | `profile_name` 96/64 |
 | `JadeEvent` | 80 | 64 | 事件头 |
 | `WebViewBounds` | 32 | 16 | 四个 C 字符串指针 |

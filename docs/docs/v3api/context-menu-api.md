@@ -69,6 +69,8 @@ int32_t jade_webview_clear_context_menu(uint32_t webview_id);
 
 完整的 kind 和 role 列表见 [菜单项类型与原生动作](/docs/v3api/context-menu-items)。
 
+使用字体图标时，一起设置 `icon_path` 和 `icon_codepoint`。例如，Python 模板项可写成 `{"id": "open", "label": "打开", "icon_path": "app/fonts/icons.ttf", "icon_codepoint": 0xE001}`。先挂载 JAPK，并使用该字体实际包含的编码。C 将这两个字段填入 `JadeContextMenuItemDesc.icon`。 [图标配置](/docs/v3api/menu-api)
+
 ## 动作（role）
 
 `role` 使用统一动作名；平台兼容和完整列表见 [菜单项类型与原生动作](/docs/v3api/context-menu-items)。

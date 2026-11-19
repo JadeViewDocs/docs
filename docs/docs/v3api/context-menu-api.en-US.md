@@ -77,6 +77,8 @@ Constraints:
 - A submenu's `id` is the `parent_id` of its children. At most 512 rows and three submenu levels.
 - Except for separators, `label` and `role` must provide at least one; a role row without `label` uses the native localized text when available, otherwise the built-in role label.
 
+Set both `icon_path` and `icon_codepoint` to use a font glyph. For example, a Python template item can use `{"id": "open", "label": "Open", "icon_path": "app/fonts/icons.ttf", "icon_codepoint": 0xE001}`. Mount the JAPK first and use a codepoint present in that font. In C, set these fields on `JadeContextMenuItemDesc.icon`. [Icon configuration](/en-US/docs/v3api/menu-api)
+
 ### Native actions (`role`)
 
 `role` uses one unified action name across platforms. The runtime maps it to the current platform's native menu item; if the current context has no such action, the row is disabled. A duplicated action never needs two platform-specific names.

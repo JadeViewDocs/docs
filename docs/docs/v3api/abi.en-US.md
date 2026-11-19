@@ -10,6 +10,8 @@ group:
 
 This page covers the ABI version identifier, configuration initializer rules, memory ownership and export checks. The host and library must use the same ABI and structure layouts.
 
+Beta.1 uses ABI `0x00030002`. The three window creation functions take a final `const JadeWindowFeatures* features` argument. This structure now holds `content_protection` and `auto_save_state`. Rebuild the host with the new header or update its dynamic bindings before loading the new library.
+
 ## Load-time check
 
 ```c
@@ -55,7 +57,8 @@ Windows x86 hosts must use the `JADEVIEW_CALL` system/stdcall convention and mat
 
 | Type | x64 | x86 | Frozen check |
 |---|---:|---:|---|
-| `WebViewWindowOptions` | 168 | 132 | `titlebar_back` 152/120, `titlebar_icon` 160/128 |
+| `WebViewWindowOptions` | 160 | 124 | `titlebar_back` 144/112, `titlebar_icon` 152/120 |
+| `JadeWindowFeatures` | 24 | 20 | `splash` 16/16 |
 | `WebViewSettings` | 128 | 88 | `profile_name` 96/64 |
 | `JadeEvent` | 80 | 64 | event header |
 | `WebViewBounds` | 32 | 16 | four C string pointers |

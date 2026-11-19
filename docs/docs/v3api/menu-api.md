@@ -52,11 +52,11 @@ typedef struct JadeMenuItemDesc {
 
 | 字段 | 说明 |
 |---|---|
-| `icon_path` | PNG/ICO 路径，支持已挂载的 JAPK `app/...`。 |
+| `icon_path` | PNG/ICO 或 TTF/OTF/TTC/OTC 路径，支持已挂载的 JAPK `app/...`。字体集合读取第一个字体。 |
 | `icon_data` / `icon_data_size` | PNG/ICO 字节，调用期间同步复制，最大 8 MiB。 |
-| `icon_codepoint` | Segoe Fluent Icons codepoint，如 `0xE749`。 |
+| `icon_codepoint` | 指定字体中的 Unicode 编码，如 `0xE749`。省略字体路径时使用默认图标字体。 |
 
-优先级：`icon_codepoint` > `icon_data` > `icon_path`。图标无效时菜单调用返回 `0`，错误码为 `JADE_INVALID_ARGUMENT`。
+非零的 `icon_codepoint` 优先于图片。此时字体路径指定字形来源。编码为零时，图片数据优先于图片路径。指定字体缺少字形时，菜单调用返回 `0`，错误码为 `JADE_INVALID_ARGUMENT`。
 
 ```c
 JadeMenuItemDesc items[] = {

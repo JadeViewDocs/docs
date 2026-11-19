@@ -202,7 +202,7 @@ void load_from_memory_example() {
         .width = 800,
         .height = 600,
     };
-    create_webview_window(url_buffer, 0, &options, NULL);
+    create_webview_window(url_buffer, 0, &options, NULL, NULL);
 
     free(data);
 }

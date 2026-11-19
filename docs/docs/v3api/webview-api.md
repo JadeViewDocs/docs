@@ -126,7 +126,7 @@ uint64_t add_webview_to_window(uint32_t window_id, uint32_t webview_id, const st
 
 ```c
 /* 创建窗口：返回 Window ID */
-uint32_t window_id = create_webview_window(url, 0, NULL, NULL);
+uint32_t window_id = create_webview_window(url, 0, NULL, NULL, NULL);
 uint32_t view_id   = get_default_webview(window_id);
 
 /* 追加一个独立视图，使用自定义设置与布局 */
@@ -254,7 +254,7 @@ int32_t webview_can_go_forward(uint32_t webview_id);
 - 同步查询接口不要在事件回调内部调用，避免事件循环线程死锁。
 
 ```c
-uint32_t window_id = create_webview_window("https://example.com/page-a", 0, NULL, NULL);
+uint32_t window_id = create_webview_window("https://example.com/page-a", 0, NULL, NULL, NULL);
 uint32_t view_id   = get_default_webview(window_id);
 
 /* 等待 webview-did-finish-load 后再调用 */

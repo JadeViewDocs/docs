@@ -20,6 +20,8 @@ group:
 
 配置以 `struct_size` / `abi_version` 开头，默认初始化函数签名为 `window_options_default(out, sizeof(*out))`，成功返回 `JADE_OK`；创建时传 `NULL` 使用默认值。详见 [V3 ABI](/docs/v3api/abi)。
 
+三个建窗函数的末尾都接收独立的 `features` 参数。传 `NULL` 使用默认功能配置。
+
 ## 创建窗口
 
 ### 创建普通窗口（`create_webview_window`）
@@ -27,7 +29,7 @@ group:
 创建带系统标题栏和边框的浏览器窗口，并在其中创建默认 WebView。这是最常用的主窗口创建方式。
 
 ```c
-uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const struct WebViewWindowOptions* options, const struct WebViewSettings* webview_settings);
+uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const struct WebViewWindowOptions* options, const struct WebViewSettings* webview_settings, const struct JadeWindowFeatures* features);
 ```
 
 **参数：**
@@ -46,7 +48,7 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
 创建一个没有系统标题栏的 WebView 窗口，适合自绘标题栏、悬浮工具窗等场景，边框路径固定为无边框。
 
 ```c
-uint32_t create_borderless_webview_window(const char* url, const struct WebViewSettings* webview_settings);
+uint32_t create_borderless_webview_window(const char* url, const struct WebViewSettings* webview_settings, const struct JadeWindowFeatures* features);
 ```
 
 **参数：**
@@ -87,8 +89,6 @@ typedef struct WebViewWindowOptions {
   int32_t focus;
   int32_t hide_window;
   int32_t use_page_icon;
-  int32_t content_protection;
-  int32_t auto_save_state;
   int32_t skip_taskbar;
   int32_t no_activate;
   const char *background_material;
@@ -121,8 +121,6 @@ typedef struct WebViewWindowOptions {
 | `focus` | `int32_t` | 打开后是否抢键盘焦点 |
 | `hide_window` | `int32_t` | 默认 `0`（创建后显示）；非 `0` 时先创建但不显示，适合先加载再显示 |
 | `use_page_icon` | `int32_t` | 是否用网页 favicon 作初始窗口图标（从 exe 提取图标仅 Windows） |
-| `content_protection` | `int32_t` | 防录屏 / 截屏类保护（**仅 Windows 生效**；Linux/X11 无系统级等价，设置不报错但无实际效果） |
-| `auto_save_state` | `int32_t` | `0` 关闭、`1` 开启自动保存窗口状态 |
 | `skip_taskbar` | `int32_t` | 不进任务栏 / Alt-Tab（`0` 否、`1` 是），运行时可用 `set_window_skip_taskbar` |
 | `no_activate` | `int32_t` | 点击 / 显示时不激活窗口（`0` 否、`1` 是），运行时可用 `set_window_no_activate` |
 | `background_material` | `const char*` | 创建时背景材质：`default` / `mica` / `micaAlt` / `acrylic`（不区分大小写），`NULL` 为 `default` |
@@ -146,12 +144,32 @@ typedef struct WebViewWindowOptions {
 
 ---
 
+### 窗口功能（`JadeWindowFeatures`）
+
+```c
+typedef struct JadeWindowFeatures {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    int32_t content_protection;
+    int32_t auto_save_state;
+    const struct JadeSplashOptions* splash;
+} JadeWindowFeatures;
+```
+
+使用零初始化，设置 `struct_size = sizeof(JadeWindowFeatures)` 和 `abi_version = JADE_ABI_VERSION`，再启用所需功能。
+
+| 字段 | 说明 |
+| --- | --- |
+| `content_protection` | 非零时启用 Windows 窗口内容保护。 |
+| `auto_save_state` | 非零时记录并恢复窗口位置。 |
+| `splash` | 每个窗口的启动画面配置。传入 `NULL` 关闭。见 [启动画面](/docs/v3api/splash-api)。 |
+
 ### 创建空窗口（`create_window`）
 
 创建不带任何 WebView 的原生窗口。要往窗口里挂视图，见 [WebView API](/docs/v3api/webview-api)。
 
 ```c
-uint32_t create_window(uint32_t parent_window_id, const struct WebViewWindowOptions* options);
+uint32_t create_window(uint32_t parent_window_id, const struct WebViewWindowOptions* options, const struct JadeWindowFeatures* features);
 ```
 
 - `parent_window_id` `uint32_t` - 父窗口 ID，无父窗口传 `0`
@@ -164,7 +182,7 @@ uint32_t create_window(uint32_t parent_window_id, const struct WebViewWindowOpti
 
 ```c
 /* 创建窗口：返回 Window ID */
-uint32_t window_id = create_webview_window(url, 0, NULL, NULL);
+uint32_t window_id = create_webview_window(url, 0, NULL, NULL, NULL);
 
 /* 取默认视图，之后所有页面操作都用 WebView ID */
 uint32_t view_id = get_default_webview(window_id);
@@ -468,7 +486,7 @@ int32_t set_window_level(uint32_t window_id, const char* level);
 
 ### 设置内容保护（`set_content_protection`）
 
-打开后，部分截屏 / 录屏软件较难采到窗口内容（效果因系统和采集方式而异）。也可在创建时用 `WebViewWindowOptions.content_protection` 直接置位。
+打开后，部分截屏和录屏软件较难采到窗口内容，效果因系统和采集方式而异。创建时可设置 `JadeWindowFeatures.content_protection`。
 
 ```c
 int32_t set_content_protection(uint32_t window_id, int32_t content_protection);

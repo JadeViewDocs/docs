@@ -35,7 +35,7 @@ uint64_t add_webview_to_window(uint32_t window_id, uint32_t webview_id, const st
 - `add_webview_to_window` — attaches a WebView obtained from `create_webview`. Returns a **request ID**; read the outcome through `get_request_result` (see [Core API](/en-US/docs/v3api/index)).
 
 ```c
-uint32_t window_id = create_webview_window(url, 0, NULL, NULL);
+uint32_t window_id = create_webview_window(url, 0, NULL, NULL, NULL);
 
 /* Append an independent view with custom settings */
 struct WebViewSettings settings;
@@ -121,7 +121,7 @@ int32_t webview_can_go_forward(uint32_t webview_id);
 - Do not call synchronous queries inside an event callback, to avoid deadlocking the event loop thread.
 
 ```c
-uint32_t window_id = create_webview_window("https://example.com/page-a", 0, NULL, NULL);
+uint32_t window_id = create_webview_window("https://example.com/page-a", 0, NULL, NULL, NULL);
 uint32_t view_id   = get_default_webview(window_id);
 
 /* Call after webview-did-finish-load */
