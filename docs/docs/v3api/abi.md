@@ -10,7 +10,7 @@ group:
 
 本页说明二进制接口的版本标识、配置结构体的初始化规则、内存所有权与导出检查。宿主与库须使用同一 ABI 和结构体布局。
 
-Beta.1 的 ABI 为 `0x00030002`。三个建窗函数的最后一个参数均为 `const JadeWindowFeatures* features`。`content_protection` 和 `auto_save_state` 从窗口选项移入该结构。使用新版头文件重新编译宿主，或同步更新动态绑定后再加载新版库。
+`create_webview_window` 和 `create_window` 的最后一个参数都是可选的 [窗口扩展配置](/docs/v3api/window-api#窗口功能jadewindowfeatures)。使用动态绑定时，请对照运行库配套头文件中的 `JADE_ABI_VERSION` 校验 ABI。
 
 ## 加载检查
 

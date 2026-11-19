@@ -36,9 +36,6 @@ uint32_t create_webview_window(
     const struct WebViewWindowOptions* options,
     const struct WebViewSettings* webview_settings,
     const struct JadeWindowFeatures* features);
-uint32_t create_borderless_webview_window(
-    const char* url, const struct WebViewSettings* webview_settings,
-    const struct JadeWindowFeatures* features);
 uint32_t create_window(
     uint32_t parent_window_id, const struct WebViewWindowOptions* options,
     const struct JadeWindowFeatures* features);

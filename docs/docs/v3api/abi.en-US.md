@@ -10,7 +10,7 @@ group:
 
 This page covers the ABI version identifier, configuration initializer rules, memory ownership and export checks. The host and library must use the same ABI and structure layouts.
 
-Beta.1 uses ABI `0x00030002`. The three window creation functions take a final `const JadeWindowFeatures* features` argument. This structure now holds `content_protection` and `auto_save_state`. Rebuild the host with the new header or update its dynamic bindings before loading the new library.
+Both `create_webview_window` and `create_window` take optional [window features](/en-US/docs/v3api/window-api#window-features-jadewindowfeatures) as their last argument. When using dynamic bindings, check the ABI against `JADE_ABI_VERSION` in the header shipped with the library.
 
 ## Load-time check
 

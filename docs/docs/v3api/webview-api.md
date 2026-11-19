@@ -12,7 +12,7 @@ group:
 
 本页覆盖 WebView 对象的完整生命周期：配置、创建、挂载、销毁、重建，以及视图创建之后的页面操作与布局。窗口的创建与配置见 [窗口 API](/docs/v3api/window-api)。
 
-`create_webview_window` / `create_borderless_webview_window` 返回 **Window ID**，用 `get_default_webview(window_id)` 取得该窗口的默认 WebView ID，不需要等待创建事件；`create_webview` / `add_webview` 直接返回 **WebView ID**。销毁默认 WebView 会清空默认关联，不会自动选择另一个实例；销毁 Window 会先销毁其所有 WebView。
+`create_webview_window` 返回 **Window ID**，用 `get_default_webview(window_id)` 取得该窗口的默认 WebView ID，不需要等待创建事件；`create_webview` / `add_webview` 直接返回 **WebView ID**。销毁默认 WebView 会清空默认关联，不会自动选择另一个实例；销毁 Window 会先销毁其所有 WebView。
 
 非零创建 ID 只表示**请求已受理**，不代表原生实例已就绪。Ready 表示原生实例可操作，页面加载完成由独立的加载事件报告。
 

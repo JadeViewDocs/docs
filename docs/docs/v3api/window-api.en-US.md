@@ -20,7 +20,7 @@ All of the following functions target a specific **`window_id`** (the integer re
 
 Configuration starts with `struct_size` / `abi_version`. Initialize with `window_options_default(out, sizeof(*out))`, which returns `JADE_OK` on success; pass `NULL` to creation to use defaults. See [V3 ABI](/en-US/docs/v3api/abi).
 
-Each of the three creation functions takes a separate `features` argument at the end. Pass `NULL` to use feature defaults.
+Both `create_webview_window` and `create_window` take optional [window features](#window-features-jadewindowfeatures) as their last argument. Use it to configure content protection, saved window positions, and the startup splash.
 
 ## Creating Windows
 
@@ -28,9 +28,9 @@ Each of the three creation functions takes a separate `features` argument at the
 
 Non-default `background_material` values require Windows 11: set them before the window is shown and the WebView is created, and use a transparent page background to see the material. Linux and Windows 10 reject them; a failed system setting puts the window into a failed state.
 
-### Create a Normal Window
+### Create a Window with Its Default WebView
 
-Creates a browser window with a system title bar and border, running a WebView inside it. This is the most common way to create a main window.
+Creates a native Window with a default WebView. The system frame and title bar are enabled by default. Set `options.noframe` to create a frameless window.
 
 ```c
 uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const struct WebViewWindowOptions* options, const struct WebViewSettings* webview_settings, const struct JadeWindowFeatures* features);
@@ -40,13 +40,15 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
 
 - `url` `string` - The URL or local protocol address to open first
 - `parent_window_id` `uint32_t` - Parent window; `0` means a top-level window
-- `options` `WebViewWindowOptions*` (optional) - Window appearance configuration; pass `NULL` to use defaults
+- `options` `const struct WebViewWindowOptions*` (optional) – Window appearance and behavior. Pass `NULL` to use defaults.
 
   **WebViewWindowOptions options:**
+  - `struct_size` and `abi_version` `uint32_t` - Both are filled by `window_options_default`.
   - `title` `string` - The text shown in the window's title bar
   - `width` `int32_t` - Initial width (pixels)
   - `height` `int32_t` - Initial height (pixels)
   - `resizable` `int32_t` - Whether the user can resize the window by dragging its edges with the mouse
+  - `title_bar_style` `const char*` - `default` for the system title bar, `hidden` to hide it, or `BarOverlay` for overlaid caption buttons. `NULL` selects the default.
   - `noframe` `int32_t` - Borderless: `1` uses the existing borderless implementation, `0` keeps the system frame; borderless takes precedence over the system title bar
   - `transparent` `int32_t` - Whether to use a transparent background (depends on the WebView and system capabilities)
   - `background_color` `string` - Window background color string (e.g. hexadecimal with a `#`)
@@ -64,7 +66,7 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
   - `fullscreen` `int32_t` - Whether to start in fullscreen
   - `focus` `int32_t` - Whether to grab keyboard focus after opening
   - `hide_window` `int32_t` - When non-zero, create the window but don't show it (good for loading first, then calling `show`)
-  - `use_page_icon` `int32_t` - Whether to use the web page's favicon as the initial window icon (supported on both Windows and Linux; extracting the icon from the exe is Windows only)
+  - `use_page_icon` `int32_t` - Default `0`. When enabled, a detected page favicon updates the window icon.
   - `skip_taskbar` `int32_t` - Whether to keep the window out of the taskbar / Alt-Tab (`0` = no, `1` = yes). appended at the end of the struct to keep field order compatible (use `set_window_skip_taskbar` at runtime, see "Window Flags & Level" below)
   - `no_activate` `int32_t` - Whether to avoid stealing focus: neither clicking nor showing the window activates it (`0` = no, `1` = yes). appended at the end of the struct to keep field order compatible (use `set_window_no_activate` at runtime, see "Window Flags & Level" below)
   - `titlebar_back` `int32_t` - Windows Back button enabled: `0/1`, default `1`; shared by default caption and BarOverlay
@@ -94,6 +96,7 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
   - `focused` `int32_t` - Whether the WebView automatically gains focus initially. `0` = does not gain focus, `1` = autofocus (default `1`).
   - `profile_name` `string` - appended at the end of the struct. `NULL` or an empty string uses the default profile; a non-empty string names an environment that isolates cookies, LocalStorage, IndexedDB, and cache. On Linux a named profile is exclusive per view (including incognito and remote-initial-page views): a second live WebView with the same name fails to create. The name must be at most 64 characters, contain only letters, digits, `.`, `_`, `-`, or spaces, and must not start or end with `.` or a space; invalid names fall back to the default profile.
   - `devtools` `int32_t` - DevTools: `0` follows global `devmod`, `1` enable for this view, `2` disable for this view
+- `features` `const struct JadeWindowFeatures*` (optional) – [Window features](#window-features-jadewindowfeatures). Pass `NULL` to leave all optional features disabled.
 
 **Return value:**
 
@@ -102,26 +105,9 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
 
 ***
 
-### Create a Frameless Window
-
-Creates a WebView window with no system title bar, suitable for scenarios such as custom-drawn title bars or floating tool windows. The frame style is fixed to frameless.
-
-```c
-uint32_t create_borderless_webview_window(const char* url, const struct WebViewSettings* webview_settings, const struct JadeWindowFeatures* features);
-```
-
-**Parameters:**
-
-- `url` `string` - The URL or local protocol address to open first
-- `webview_settings` `WebViewSettings*` (optional) - Web page behavior configuration; pass `NULL` to use defaults
-
-**Return value:**
-
-A non-`0` return is the `window_id`. Use this id for navigation, IPC, and executing JS, just like with a normal window.
-
-***
-
 ### Window features (`JadeWindowFeatures`)
+
+Pass this structure as the final `features` argument. `content_protection` and `auto_save_state` have moved here from `WebViewWindowOptions`.
 
 ```c
 typedef struct JadeWindowFeatures {
@@ -133,13 +119,15 @@ typedef struct JadeWindowFeatures {
 } JadeWindowFeatures;
 ```
 
-Zero-initialize the struct, set `struct_size = sizeof(JadeWindowFeatures)` and `abi_version = JADE_ABI_VERSION`, then enable the required features.
+Zero-initialize the structure, then set its size, ABI version, and the features you want to enable. The creation function reads this configuration, including the splash and logo, before returning.
 
-| Field | Description |
-| --- | --- |
-| `content_protection` | Nonzero enables Windows window content protection. |
-| `auto_save_state` | Nonzero saves and restores the window position. |
-| `splash` | Per-window startup splash configuration. Pass `NULL` to disable it. See [Startup Splash](/en-US/docs/v3api/splash-api). |
+| Field | C type | Default | Description |
+| --- | --- | --- | --- |
+| `struct_size` | `uint32_t` | Required | Set to `sizeof(JadeWindowFeatures)`. |
+| `abi_version` | `uint32_t` | Required | Set to `JADE_ABI_VERSION`. |
+| `content_protection` | `int32_t` | `0` | Nonzero enables Windows content protection. Call `set_content_protection` to change it after creation. |
+| `auto_save_state` | `int32_t` | `0` | Nonzero saves the position in `window_state.yaml` in the app data directory and restores it on creation with the same Window ID. Size and maximized state come from the current options. |
+| `splash` | `const struct JadeSplashOptions*` | `NULL` | Windows startup splash with a logo, background color, loading animation color, and minimum duration. An empty window may show it when its first WebView is attached. See [Startup Splash](/en-US/docs/v3api/splash-api). |
 
 ### Create an Empty Window (`create_window`)
 
@@ -150,20 +138,51 @@ uint32_t create_window(uint32_t parent_window_id, const struct WebViewWindowOpti
 ```
 
 - `parent_window_id` `uint32_t` — parent Window ID; pass `0` when there is no parent
-- `options` `const struct WebViewWindowOptions*` — the same config struct the one-step creation entries use
+- `options` `const struct WebViewWindowOptions*` (optional) – The same window options used by `create_webview_window`. Pass `NULL` to use defaults.
+- `features` `const struct JadeWindowFeatures*` (optional) – [Window features](#window-features-jadewindowfeatures). Pass `NULL` to leave all optional features disabled.
 - **Return value**: `uint32_t`; non-zero is the accepted Window ID
 
 ---
 
-### Typical call order
+### Create a Window with Optional Features
+
+Call this after receiving `app-ready`.
 
 ```c
-/* Create a window: returns the Window ID */
-uint32_t window_id = create_webview_window(url, 0, NULL, NULL, NULL);
+WebViewWindowOptions options;
+if (window_options_default(&options, sizeof options) != JADE_OK) return;
+options.title = "JadeView";
+options.width = 960;
+options.height = 640;
 
-/* Get the default view; every later page operation uses the WebView ID */
+JadeSplashOptions splash = {0};
+splash.struct_size = sizeof splash;
+splash.abi_version = JADE_ABI_VERSION;
+splash.logo_path = "assets/logo.png";
+splash.minimum_ms = 700;
+
+JadeWindowFeatures features = {0};
+features.struct_size = sizeof features;
+features.abi_version = JADE_ABI_VERSION;
+features.auto_save_state = 1;
+features.splash = &splash;
+
+uint32_t window_id = create_webview_window(url, 0, &options, NULL, &features);
+if (window_id == 0) return;
 uint32_t view_id = get_default_webview(window_id);
-send_ipc_message(view_id, "message", "hello");
+```
+
+You can get the default WebView ID as soon as creation is accepted. Wait for the window to reach Ready before operating on its native handle, and for the load event before accessing page content.
+
+### Create a Frameless Window
+
+Set the initialized `options.noframe` field to `1` and call `create_webview_window`. When migrating from `create_borderless_webview_window`, keep passing the same WebView settings and window features.
+
+```c
+WebViewWindowOptions options;
+if (window_options_default(&options, sizeof options) != JADE_OK) return;
+options.noframe = 1;
+uint32_t window_id = create_webview_window(url, 0, &options, webview_settings, features);
 ```
 
 To put several views in one window, attach extra WebViews with `add_webview` / `add_webview_to_window` from the [WebView API](/en-US/docs/v3api/webview-api).
@@ -174,7 +193,7 @@ To put several views in one window, attach extra WebViews with `add_webview` / `
 
 When working in C/C++, an HWND is required to pass a window to other Win32 APIs (such as SetWindowPos or child control attachment).
 
-**Note**: Only windows created via `create_borderless_webview_window` return a valid handle value. Regular windows created with `create_webview_window` always return `0`.
+The function returns the HWND of a ready Windows window. It returns `0` if the window is not ready or the platform does not expose an HWND.
 
 ```c
 size_t get_window_hwnd(uint32_t window_id);
@@ -664,6 +683,7 @@ int32_t set_window_frame(uint32_t window_id, int32_t noframe, const char* title_
 **Parameters:**
 
 - `window_id` `uint32_t` - Target window id
+  - `title_bar_style` `const char*` - `default` for the system title bar, `hidden` to hide it, or `BarOverlay` for overlaid caption buttons. `NULL` selects the default.
   - `noframe` `int32_t` - Borderless: `1` uses the existing borderless implementation, `0` keeps the system frame; borderless takes precedence over the system title bar
 
 ***

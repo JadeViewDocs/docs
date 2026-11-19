@@ -42,7 +42,7 @@ send_ipc_message(window_id, "message", "hello");     // 还是它
 3.0 里同一段逻辑变成：
 
 ```c
-uint32_t window_id  = create_webview_window(url, 0, &options, NULL);
+uint32_t window_id  = create_webview_window(url, 0, &options, NULL, NULL);
 uint32_t webview_id = get_default_webview(window_id);   // 页面是另一个对象
 
 set_window_title(window_id, "我的应用");                 // 窗口操作 → Window ID
@@ -231,6 +231,16 @@ v2 的窗口装饰只有一个字符串 `frame_style`，三档：`normal` / `no-
 
 边界也说清楚：Windows 走原生输入层，Linux 还是前端监听那套；iframe 和 Shadow DOM 里的拖动区目前不在覆盖范围内。
 
+### Windows 启动画面
+
+窗口打开时可以先显示应用 LOGO 和加载动画，WebView 在后台加载页面。页面就绪且达到设定的最短显示时间后，启动画面淡出。标题栏在启动期间仍可操作。
+
+每个窗口可以单独设置 LOGO、背景色、加载动画颜色和最短显示时间。建窗时把 `JadeSplashOptions` 传给 `JadeWindowFeatures.splash`，LOGO 可传 PNG 或 ICO 的路径，也可直接传图片字节。
+
+![Windows 启动画面示例](/splash-preview.png)
+
+[启动画面 API 与示例](/docs/v3api/splash-api)
+
 ---
 
 ## 七、菜单：从"先建对象再挂上去"到"给个数组"
@@ -304,6 +314,7 @@ unregister_japk(archive_id);
 
 | v2 的写法 | 3.0 的写法 |
 | --- | --- |
+| `create_borderless_webview_window(...)` | 初始化窗口选项，设置 `noframe = 1`，再调 `create_webview_window(...)` |
 | `execute_javascript(window_id, script)` | `execute_webview_script(webview_id, script)` + 请求 ID |
 | `frame_style = "no-titlebar"` | `noframe` + `title_bar_style` 两个字段 |
 | `set_window_frame_style(...)` | `set_window_frame(window_id, noframe, title_bar_style)` |
@@ -315,18 +326,22 @@ unregister_japk(archive_id);
 | POST invoke（JSON body） | `jade.invoke`，优先走原生 IPC |
 | 页面 `-webkit-app-region: drag` | `jade-region-drag` 属性（推荐） |
 
-还有一条不成文的：**结构体不能跨版本传。**
+### ABI 和窗口配置
 
-v2 的 `WebViewWindowOptions` 就是一排字段，直接填。3.0 在前面加了 `struct_size` 和 `abi_version`，用之前必须先初始化：
+**当前 ABI 标识为 `0x00030002`**，用于校验宿主绑定和运行库的二进制接口是否匹配。C/C++ 宿主用运行库配套的 `JadeView.h` 重新编译。使用动态绑定时，先同步函数签名和结构体布局，再用 `jade_get_abi_info` 核对 ABI 与进程位数。
+
+`WebViewWindowOptions` 以 `struct_size` 和 `abi_version` 开头。先调用 `window_options_default` 填好默认值，再修改所需字段。
 
 ```c
-struct WebViewWindowOptions options;
-window_options_default(&options, sizeof options);   // 先拿默认值，再改需要的字段
+WebViewWindowOptions options;
+if (window_options_default(&options, sizeof options) != JADE_OK) return;
 options.noframe = 1;
 options.title_bar_style = "BarOverlay";
 ```
 
-这看着像多此一举，但它是以后加字段不破坏老宿主的前提：短结构缺的尾部字段按默认值补，只有夹在中间的尺寸错位才会被拒。
+`create_webview_window` 和 `create_window` 的最后一个参数是可选的 `features`。内容保护和位置保存从窗口选项移到 `JadeWindowFeatures`，启动画面也在这里设置。传 `NULL` 时，这三项功能默认关闭。
+
+[ABI 契约](/docs/v3api/abi) · [窗口扩展配置](/docs/v3api/window-api#窗口功能jadewindowfeatures)
 
 最后一件容易忽略的：**Windows 本地页面从 HTTP 换成了 HTTPS。**
 

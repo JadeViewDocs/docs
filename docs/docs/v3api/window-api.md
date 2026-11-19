@@ -12,7 +12,7 @@ group:
 
 窗口操作（标题、尺寸、位置、显隐、层级、主题、关闭等）使用 **Window ID**；页面操作（导航、历史、缩放、页面 URL、DevTools、打印、IPC、资源注册等）使用 **WebView ID**。两类 ID 共用一个不复用的编号空间，错类型传入会被明确拒绝。
 
-本页的三个创建入口 `create_webview_window` / `create_borderless_webview_window` / `create_window` 都返回 **Window ID**，创建后立刻用 `get_default_webview(window_id)` 取得默认 WebView ID，不需要等待创建事件。独立创建 / 挂载视图的入口见 [WebView API](/docs/v3api/webview-api)。非零创建 ID 只表示**请求已受理**，不代表原生实例已就绪；Ready 表示原生实例可操作，页面加载完成由独立事件报告。
+`create_webview_window` 和 `create_window` 都返回 **Window ID**。使用 `create_webview_window` 后即可用 `get_default_webview(window_id)` 取得默认 WebView ID。独立创建 / 挂载视图的入口见 [WebView API](/docs/v3api/webview-api)。非零创建 ID 只表示**请求已受理**，不代表原生实例已就绪；Ready 表示原生实例可操作，页面加载完成由独立事件报告。
 
 页面级接口见 [WebView API](/docs/v3api/webview-api)；网页权限请求的统一拦截见 [网页权限 API](/docs/v3api/permission-api)。除特别说明外，本页函数成功多为 `1`、失败为 `0`。
 
@@ -20,13 +20,13 @@ group:
 
 配置以 `struct_size` / `abi_version` 开头，默认初始化函数签名为 `window_options_default(out, sizeof(*out))`，成功返回 `JADE_OK`；创建时传 `NULL` 使用默认值。详见 [V3 ABI](/docs/v3api/abi)。
 
-三个建窗函数的末尾都接收独立的 `features` 参数。传 `NULL` 使用默认功能配置。
+`create_webview_window` 和 `create_window` 的最后一个参数都是可选的 [扩展配置 `features`](#窗口功能jadewindowfeatures)，用于设置内容保护、位置保存和启动画面。
 
 ## 创建窗口
 
-### 创建普通窗口（`create_webview_window`）
+### 创建窗口和默认 WebView（`create_webview_window`）
 
-创建带系统标题栏和边框的浏览器窗口，并在其中创建默认 WebView。这是最常用的主窗口创建方式。
+创建原生窗口及其默认 WebView。默认显示系统标题栏和边框，是否无边框由 `options.noframe` 决定。
 
 ```c
 uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const struct WebViewWindowOptions* options, const struct WebViewSettings* webview_settings, const struct JadeWindowFeatures* features);
@@ -38,25 +38,9 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
 - `parent_window_id` `uint32_t` - 父窗口，`0` 表示顶层窗口
 - `options` `const struct WebViewWindowOptions*` (可选) - 窗口外观配置，见[窗口配置](#窗口配置webviewwindowoptions)；`NULL` 使用默认值
 - `webview_settings` `const struct WebViewSettings*` (可选) - 网页行为配置，字段说明见 [WebView API](/docs/v3api/webview-api)；`NULL` 使用默认值
+- `features` `const struct JadeWindowFeatures*`（可选）– [窗口扩展配置](#窗口功能jadewindowfeatures)，传 `NULL` 时关闭这些扩展功能
 
 **返回值：** 非零为已受理的 **Window ID**；`0` 表示失败（例如在 `app-ready` 之前调用）。窗口真正画出可能稍晚，可结合 `window-created` 事件。
-
----
-
-### 创建无边框窗口（`create_borderless_webview_window`）
-
-创建一个没有系统标题栏的 WebView 窗口，适合自绘标题栏、悬浮工具窗等场景，边框路径固定为无边框。
-
-```c
-uint32_t create_borderless_webview_window(const char* url, const struct WebViewSettings* webview_settings, const struct JadeWindowFeatures* features);
-```
-
-**参数：**
-
-- `url` `string` - 第一次打开的网址或本地协议地址
-- `webview_settings` `const struct WebViewSettings*` (可选) - 网页行为配置，字段说明见 [WebView API](/docs/v3api/webview-api)；`NULL` 使用默认值
-
-**返回值：** 非零为已受理的 **Window ID**。页面级操作仍需先用 `get_default_webview(window_id)` 取得 WebView ID。
 
 ---
 
@@ -100,8 +84,10 @@ typedef struct WebViewWindowOptions {
 
 | 字段 | C 类型 | 说明 |
 | --- | --- | --- |
+| `struct_size` | `uint32_t` | 结构体字节数，由 `window_options_default` 填入 |
+| `abi_version` | `uint32_t` | ABI 版本，由 `window_options_default` 填入 |
 | `title` | `const char*` | 窗口标题栏文字 |
-| `width` / `height` | `int32_t` | 初始宽高（像素） |
+| `width` / `height` | `int32_t` | 初始宽高，单位为逻辑像素，必须为正值 |
 | `resizable` | `int32_t` | 是否允许用户拖动边缘调整大小 |
 | `noframe` | `int32_t` | `1` 使用无边框实现，`0` 保留系统边框，默认 `0`；无边框优先于系统标题栏 |
 | `title_bar_style` | `const char*` | `default` 系统标题栏、`hidden` 隐藏标题栏、`BarOverlay` 隐藏标题栏并启用按钮覆盖层；`NULL` 等同 `default` |
@@ -120,7 +106,7 @@ typedef struct WebViewWindowOptions {
 | `fullscreen` | `int32_t` | 打开时是否全屏 |
 | `focus` | `int32_t` | 打开后是否抢键盘焦点 |
 | `hide_window` | `int32_t` | 默认 `0`（创建后显示）；非 `0` 时先创建但不显示，适合先加载再显示 |
-| `use_page_icon` | `int32_t` | 是否用网页 favicon 作初始窗口图标（从 exe 提取图标仅 Windows） |
+| `use_page_icon` | `int32_t` | 默认 `0`。非零时，检测到网页 favicon 后用它更新窗口图标 |
 | `skip_taskbar` | `int32_t` | 不进任务栏 / Alt-Tab（`0` 否、`1` 是），运行时可用 `set_window_skip_taskbar` |
 | `no_activate` | `int32_t` | 点击 / 显示时不激活窗口（`0` 否、`1` 是），运行时可用 `set_window_no_activate` |
 | `background_material` | `const char*` | 创建时背景材质：`default` / `mica` / `micaAlt` / `acrylic`（不区分大小写），`NULL` 为 `default` |
@@ -146,6 +132,8 @@ typedef struct WebViewWindowOptions {
 
 ### 窗口功能（`JadeWindowFeatures`）
 
+通过建窗函数最后的 `features` 参数传入本结构。`content_protection` 和 `auto_save_state` 已从 `WebViewWindowOptions` 移到这里。
+
 ```c
 typedef struct JadeWindowFeatures {
     uint32_t struct_size;
@@ -156,13 +144,15 @@ typedef struct JadeWindowFeatures {
 } JadeWindowFeatures;
 ```
 
-使用零初始化，设置 `struct_size = sizeof(JadeWindowFeatures)` 和 `abi_version = JADE_ABI_VERSION`，再启用所需功能。
+先将结构体清零，再设置 `struct_size`、`abi_version` 和要启用的字段。建窗函数在返回前读取这些配置，包括启动画面和 LOGO。
 
-| 字段 | 说明 |
-| --- | --- |
-| `content_protection` | 非零时启用 Windows 窗口内容保护。 |
-| `auto_save_state` | 非零时记录并恢复窗口位置。 |
-| `splash` | 每个窗口的启动画面配置。传入 `NULL` 关闭。见 [启动画面](/docs/v3api/splash-api)。 |
+| 字段 | C 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `struct_size` | `uint32_t` | 必填 | 填 `sizeof(JadeWindowFeatures)` |
+| `abi_version` | `uint32_t` | 必填 | 填 `JADE_ABI_VERSION` |
+| `content_protection` | `int32_t` | `0` | 非零时启用 Windows 内容保护。建窗后可用 `set_content_protection` 切换 |
+| `auto_save_state` | `int32_t` | `0` | 非零时在应用数据目录的 `window_state.yaml` 中按窗口 ID 保存位置，并在同 ID 再次创建时恢复。宽高和最大化状态采用本次参数 |
+| `splash` | `const struct JadeSplashOptions*` | `NULL` | Windows 窗口的启动画面，支持 LOGO、背景色、加载动画颜色和最短显示时间。空窗口首次挂载 WebView 时才可能显示。见[启动画面](/docs/v3api/splash-api) |
 
 ### 创建空窗口（`create_window`）
 
@@ -173,20 +163,51 @@ uint32_t create_window(uint32_t parent_window_id, const struct WebViewWindowOpti
 ```
 
 - `parent_window_id` `uint32_t` - 父窗口 ID，无父窗口传 `0`
-- `options` `const struct WebViewWindowOptions*` - 与两个一步创建入口共用同一套配置
+- `options` `const struct WebViewWindowOptions*`（可选）– [窗口外观与行为](#窗口配置webviewwindowoptions)，传 `NULL` 时使用默认值
+- `features` `const struct JadeWindowFeatures*`（可选）– [窗口扩展配置](#窗口功能jadewindowfeatures)，传 `NULL` 时关闭这些扩展功能
 - **返回值**：`uint32_t`，非零为已受理的 Window ID
 
 ---
 
-### 典型调用顺序
+### 创建带扩展功能的窗口
+
+在收到 `app-ready` 后调用。
 
 ```c
-/* 创建窗口：返回 Window ID */
-uint32_t window_id = create_webview_window(url, 0, NULL, NULL, NULL);
+WebViewWindowOptions options;
+if (window_options_default(&options, sizeof options) != JADE_OK) return;
+options.title = "JadeView";
+options.width = 960;
+options.height = 640;
 
-/* 取默认视图，之后所有页面操作都用 WebView ID */
+JadeSplashOptions splash = {0};
+splash.struct_size = sizeof splash;
+splash.abi_version = JADE_ABI_VERSION;
+splash.logo_path = "assets/logo.png";
+splash.minimum_ms = 700;
+
+JadeWindowFeatures features = {0};
+features.struct_size = sizeof features;
+features.abi_version = JADE_ABI_VERSION;
+features.auto_save_state = 1;
+features.splash = &splash;
+
+uint32_t window_id = create_webview_window(url, 0, &options, NULL, &features);
+if (window_id == 0) return;
 uint32_t view_id = get_default_webview(window_id);
-send_ipc_message(view_id, "message", "hello");
+```
+
+创建成功即可取得默认 WebView ID。依赖原生窗口的操作应等窗口进入 Ready，依赖页面内容的操作应等对应的加载事件。
+
+### 创建无边框窗口
+
+将已初始化的 `options.noframe` 设为 `1`，继续调用 `create_webview_window`。从 `create_borderless_webview_window` 迁移时可沿用原有的 WebView 设置和窗口扩展配置。
+
+```c
+WebViewWindowOptions options;
+if (window_options_default(&options, sizeof options) != JADE_OK) return;
+options.noframe = 1;
+uint32_t window_id = create_webview_window(url, 0, &options, webview_settings, features);
 ```
 
 需要在一个窗口里放多个视图时，用 [WebView API](/docs/v3api/webview-api) 的 `add_webview` / `add_webview_to_window` 挂载额外视图。

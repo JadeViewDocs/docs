@@ -10,7 +10,7 @@ group:
 
 A window and a web view are two distinct objects: **window operations use a Window ID, page operations use a WebView ID**. Both kinds of ID share a single non-reusable number space; passing an ID of the wrong type is rejected.
 
-`create_webview_window` / `create_borderless_webview_window` return a **Window ID**; call `get_default_webview(window_id)` for its default WebView ID (no need to wait for an event). `create_webview` / `add_webview` return a **WebView ID** directly.
+`create_webview_window` returns a **Window ID**; call `get_default_webview(window_id)` for its default WebView ID (no need to wait for an event). `create_webview` / `add_webview` return a **WebView ID** directly.
 
 Destroying the default WebView clears the default association — another instance is not selected automatically. Destroying a Window destroys all of its WebViews first.
 
