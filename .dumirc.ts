@@ -225,55 +225,6 @@ main:has(.layoutkit-flexbox[style*="64vh"]) {
 }
 `,
     `
-/* 底栏氛围背景（全局 CSS，不用 slot 覆盖，避免 dev 'dumi' 解析问题）：
-   ::before 大尺寸渐变 + background-position 动画做流动；顶部 mask 渐隐与上方页面衔接。
-   顶部那条「跟随鼠标」的橙色高光已移除——现由页底卡片的 BorderGlow 边缘光辉承担。 */
-footer {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  /* iOS 底部 Home 指示条安全区：viewport-fit=cover 下页底内容不贴到手势条 */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-footer::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: linear-gradient(120deg, rgba(249,115,22,0.20), rgba(251,191,36,0.16), rgba(234,88,12,0.16), rgba(249,115,22,0.20));
-  background-size: 300% 300%;
-  animation: jvFooterFlow 16s ease infinite;
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 55%);
-  mask-image: linear-gradient(to bottom, transparent, #000 55%);
-}
-@keyframes jvFooterFlow {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 手机端页底（≤575.98px）：lobehub 默认把列改成单列竖排堆叠（display:block + 每列 margin 40px），
-   4 列堆成 4 行 → 底栏过高。改成「2 列网格」（4 列变 2×2），整体高度近乎减半。
-   选择器特异性须压过 lobehub 的 .lobe-xxxx .rc-footer-columns (0,2,0)：
-   用 footer .rc-footer .rc-footer-columns (0,2,1) 决定性胜出（不依赖样式注入顺序）。 */
-@media (max-width: 575.98px) {
-  footer .rc-footer .rc-footer-columns {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 28px 12px !important;
-    align-items: start !important;
-    padding-inline: 16px !important;
-  }
-  footer .rc-footer .rc-footer-column {
-    display: block !important;
-    width: auto !important;
-    margin-block-end: 0 !important;
-    text-align: center !important;
-  }
-}
-`,
-    `
 /* 浅色模式：页面背景纯白。
    lobehub 的 GlobalStyle 把 html/body/#root 背景设为 colorBgLayout（浅色下是 #f8f8f8 浅灰）；
    正文卡片去掉后正文露出这层浅灰，用户要求浅色文档页为纯白。

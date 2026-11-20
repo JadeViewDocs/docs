@@ -12,6 +12,7 @@
 //  · 性能：rAF 循环仅在元素可见时运行（IntersectionObserver + 页面 visibility），
 //    prefers-reduced-motion 时只渲染静态一帧；卸载时释放 renderer。
 import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
+import type { Mesh, PerspectiveCamera } from 'three';
 
 // 试验开关：true = 程序化几何拼装吉祥物（球体/椭球 primitive，用户提供的方案，无需下载 GLB）；
 // false = 加载 GLB 精模。两条路径共用光照/动画（节点名保持 头/细分/眼睛/嘴巴 约定）。
@@ -96,7 +97,7 @@ const buildProcedural = (THREE: typeof import('three')) => {
 let assetsPromise: Promise<{
   THREE: typeof import('three');
   template: import('three').Group;
-  hdr: import('three').DataTexture;
+  studio: import('three').DataTexture;
 }> | null = null;
 
 // 归一化：居中到原点，按「正面投影」半宽/半高取大者 = 1 缩放。
@@ -114,43 +115,184 @@ const normalize = (THREE: typeof import('three'), root: import('three').Object3D
   return template;
 };
 
+// 低分辨率 HDR 环境图，为圆润表面提供宽高光和暖色反射。
+const createStudioMap = (THREE: typeof import('three')) => {
+  const width = 128;
+  const height = 64;
+  const pixels = new Uint16Array(width * height * 4);
+  const keyDirection = new THREE.Vector3(-0.48, 0.6, 0.75).normalize();
+  const rimDirection = new THREE.Vector3(0.26, 0.92, -0.56).normalize();
+  const direction = new THREE.Vector3();
+  for (let row = 0; row < height; row++) {
+    const latitude = ((row + 0.5) / height - 0.5) * Math.PI;
+    const up = Math.sin(latitude);
+    const horizontal = Math.cos(latitude);
+    for (let col = 0; col < width; col++) {
+      const longitude = ((col + 0.5) / width - 0.5) * 2 * Math.PI;
+      direction.set(Math.cos(longitude) * horizontal, up, Math.sin(longitude) * horizontal);
+      const softbox = 5.1 * Math.max(0, direction.dot(keyDirection)) ** 15;
+      const rim = 2.5 * Math.max(0, direction.dot(rimDirection)) ** 20;
+      const floor = 0.2 * Math.max(0, -up);
+      const offset = (row * width + col) * 4;
+      pixels[offset] = THREE.DataUtils.toHalfFloat(0.28 + floor + softbox + rim);
+      pixels[offset + 1] = THREE.DataUtils.toHalfFloat(0.27 + floor * 0.78 + softbox * 0.97 + rim * 0.91);
+      pixels[offset + 2] = THREE.DataUtils.toHalfFloat(0.25 + floor * 0.56 + softbox * 0.87 + rim * 0.72);
+      pixels[offset + 3] = THREE.DataUtils.toHalfFloat(1);
+    }
+  }
+  const texture = new THREE.DataTexture(pixels, width, height, THREE.RGBAFormat, THREE.HalfFloatType);
+  texture.colorSpace = THREE.LinearSRGBColorSpace;
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  texture.needsUpdate = true;
+  return texture;
+};
+
+const loadSubsurfaceBake = async (THREE: typeof import('three')) => {
+  const loader = new THREE.TextureLoader();
+  const [light, depth] = await Promise.allSettled([
+    loader.loadAsync('/logo/subsurface-light.webp'),
+    loader.loadAsync('/logo/subsurface-depth.png'),
+  ]);
+  if (light.status !== 'fulfilled' || depth.status !== 'fulfilled') {
+    if (light.status === 'fulfilled') light.value.dispose();
+    if (depth.status === 'fulfilled') depth.value.dispose();
+    return;
+  }
+  light.value.colorSpace = THREE.SRGBColorSpace;
+  depth.value.minFilter = THREE.LinearFilter;
+  depth.value.magFilter = THREE.LinearFilter;
+  depth.value.generateMipmaps = false;
+  return { light: light.value, depth: depth.value };
+};
+
+// KeyShot 的正视图与 GLB 共用原始相机。把投影坐标存到网格上，模型摆动时光照仍贴在表面。
+const attachBakeCoordinates = (
+  THREE: typeof import('three'),
+  mesh: Mesh,
+  projector: PerspectiveCamera,
+) => {
+  const localToClip = new THREE.Matrix4()
+    .multiplyMatrices(projector.projectionMatrix, projector.matrixWorldInverse)
+    .multiply(mesh.matrixWorld);
+  const position = mesh.geometry.getAttribute('position');
+  const coordinates = new Float32Array(position.count * 3);
+  const point = new THREE.Vector4();
+  for (let i = 0; i < position.count; i++) {
+    point.set(position.getX(i), position.getY(i), position.getZ(i), 1).applyMatrix4(localToClip);
+    coordinates[i * 3] = (point.x + point.w) * 0.5;
+    coordinates[i * 3 + 1] = (point.y + point.w) * 0.5;
+    coordinates[i * 3 + 2] = point.w;
+  }
+  mesh.geometry.setAttribute('logoBakeCoordinate', new THREE.BufferAttribute(coordinates, 3));
+};
+
 const loadAssets = () => {
   assetsPromise ||= (async () => {
-    const [THREE, { GLTFLoader }, { DRACOLoader }, { RGBELoader }] = await Promise.all([
+    const [THREE, { GLTFLoader }, { DRACOLoader }] = await Promise.all([
       import('three'),
       import('three/examples/jsm/loaders/GLTFLoader.js'),
       import('three/examples/jsm/loaders/DRACOLoader.js'),
-      import('three/examples/jsm/loaders/RGBELoader.js'),
     ]);
+    const studio = createStudioMap(THREE);
 
     if (USE_PROCEDURAL) {
-      // 程序化路径（试验用）：无需 GLB，但环境 HDR 仍要加载
-      const hdr = await new RGBELoader().loadAsync('/logo/env.hdr');
-      return { THREE, template: normalize(THREE, buildProcedural(THREE)), hdr };
+      return { THREE, template: normalize(THREE, buildProcedural(THREE)), studio };
     }
 
-    // 素材均来自 KeyShot 源工程（火人.ksp）的忠实导出，材质/几何不做任何改写：
-    //  · logo-v2.glb —— KeyShot glTF 导出（完整 9 网格：头/嘴/眼×2/火焰/液滴×4），
-    //    gltf-transform 压缩（simplify 0.0002 + Draco + webp，72MB→622KB，保留节点层级）。
-    //    albedo 就是「暗棕橙」(线性 0.25,0.06,0.013)——参考图的亮橙 = 暗 albedo × HDR 强光，
-    //    别再改材质颜色（踩过坑：手动调色/渐变/清漆全是在模拟光照，越修越偏）。
-    //  · env.hdr —— KeyShot 场景同款照明环境（Dosch-Design_Dirt-Lot，.hdz 解出后降采样 512×256）。
     const draco = new DRACOLoader().setDecoderPath('/vendor/draco/');
     const loader = new GLTFLoader().setDRACOLoader(draco);
-    const [gltf, hdr] = await Promise.all([
-      loader.loadAsync('/logo/logo-v2.glb'),
-      new RGBELoader().loadAsync('/logo/env.hdr'),
+    const [gltf, subsurface] = await Promise.all([
+      loader.loadAsync('/logo/logo-v2.glb').finally(() => draco.dispose()),
+      loadSubsurfaceBake(THREE),
     ]);
-    draco.dispose(); // 解码完成即可释放 WASM worker
-
-    // 模型根取「火人」分组（场景里还有 5 个相机节点，不能一起归一化）
     const mascot = gltf.scene.getObjectByName('火人') ?? gltf.scene;
+    const projector = gltf.cameras.find(
+      (camera): camera is PerspectiveCamera =>
+        camera.name === '正视图' && (camera as PerspectiveCamera).isPerspectiveCamera,
+    );
+    gltf.scene.updateMatrixWorld(true);
 
-    // 唯一的材质调节：压低镜面强度（漫反射颜色不动）。掠射角菲涅耳反射在球体下缘形成
-    // 亮环，会被看成「光从下面打」（踩过坑）；参考图里该反射带远比 three 默认弱。
-    const spec = parseFloat(new URLSearchParams(window.location.search).get('spec') || '0.5');
-    mascot.traverse((o: any) => {
-      if (o.isMesh && o.material && 'specularIntensity' in o.material) o.material.specularIntensity = spec;
+    const specOverride = new URLSearchParams(window.location.search).get('spec');
+    // 投影未覆盖的表面沿用实时的暖色漫反射，整个模型继续实时计算高光。
+    const resin = new THREE.MeshPhysicalMaterial({
+      color: '#ff8209',
+      roughness: 0.34,
+      ior: 1.52,
+      specularColor: new THREE.Color().setRGB(1, 0.856, 0.767),
+      specularIntensity: specOverride === null ? 0.76 : Number.parseFloat(specOverride),
+      clearcoat: 0.16,
+      clearcoatRoughness: 0.34,
+    });
+    resin.onBeforeCompile = (shader) => {
+      shader.uniforms.logoScatterColor = { value: new THREE.Color().setRGB(0.985, 0.793, 0.636) };
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <common>', '#include <common>\nuniform vec3 logoScatterColor;')
+        .replace(
+          '#include <lights_fragment_end>',
+          `#include <lights_fragment_end>
+          vec3 keyDirection = normalize(mat3(viewMatrix) * vec3(-0.53, 0.69, 0.5));
+          float lightFacing = dot(geometryNormal, keyDirection);
+          float softFill = 1.0 - smoothstep(-0.9, 0.7, lightFacing);
+          reflectedLight.indirectDiffuse += diffuseColor.rgb * logoScatterColor * (0.04 + 0.14 * softFill);`,
+        );
+      if (!projector || !subsurface) return;
+
+      shader.uniforms.logoBakedLight = { value: subsurface.light };
+      shader.uniforms.logoBakedDepth = { value: subsurface.depth };
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', `#include <common>
+          attribute vec3 logoBakeCoordinate;
+          varying vec3 vLogoBakeCoordinate;`)
+        .replace('#include <begin_vertex>', `#include <begin_vertex>
+          vLogoBakeCoordinate = logoBakeCoordinate;`);
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <common>', `#include <common>
+          varying vec3 vLogoBakeCoordinate;
+          uniform sampler2D logoBakedLight;
+          uniform sampler2D logoBakedDepth;`)
+        .replace('#include <tonemapping_fragment>', `#include <tonemapping_fragment>
+          vec2 bakedUv = vLogoBakeCoordinate.xy / vLogoBakeCoordinate.z;
+          vec3 depthSample = texture2D(logoBakedDepth, bakedUv).rgb;
+          // 深度用 RG 两通道编码，B 保存柔化的覆盖范围，收住遮挡边缘的颜色。
+          float bakedDepth = dot(depthSample.rg, vec2(65280.0, 255.0)) * (16.0 / 65535.0);
+          float depthDelta = abs(vLogoBakeCoordinate.z - bakedDepth);
+          float coverage = depthSample.b * (1.0 - smoothstep(0.025, 0.09, depthDelta));
+          vec3 bakedLight = texture2D(logoBakedLight, bakedUv).rgb;
+          // 环境里的大柔光箱提供宽高光，直射光补亮核心，亮部用平滑曲线收住。
+          vec3 liveGloss = 0.52 * reflectedLight.directSpecular + 2.0 * reflectedLight.indirectSpecular;
+          #ifdef USE_CLEARCOAT
+            liveGloss += material.clearcoat * (0.52 * clearcoatSpecularDirect + 2.0 * clearcoatSpecularIndirect);
+          #endif
+          float glossEnergy = dot(liveGloss, vec3(0.2126, 0.7152, 0.0722));
+          float highlight = 1.0 - exp2(-2.8 * glossEnergy);
+          vec3 diffuseAndGloss = mix(bakedLight, vec3(1.0, 0.96, 0.84), highlight);
+          // 烘焙颜色已在 KeyShot 完成色调映射，混合后交给 Three.js 统一转到输出色域。
+          gl_FragColor.rgb = mix(gl_FragColor.rgb, diffuseAndGloss, 0.94 * coverage);`);
+    };
+    mascot.traverse((object) => {
+      const mesh = object as import('three').Mesh;
+      if (!mesh.isMesh || Array.isArray(mesh.material) || !('specularIntensity' in mesh.material)) return;
+
+      if (mesh.name.startsWith('眼睛')) {
+        const material = (mesh.material as import('three').MeshPhysicalMaterial).clone();
+        material.metalness = 0;
+        material.roughnessMap = null;
+        material.roughness = 0.27;
+        material.specularIntensity = specOverride === null ? 0.42 : Number.parseFloat(specOverride);
+        material.emissiveMap = material.map;
+        material.emissive.set('#ffffff');
+        material.emissiveIntensity = 0.055;
+        mesh.material = material;
+      } else if (mesh.name.startsWith('嘴巴')) {
+        const material = (mesh.material as import('three').MeshPhysicalMaterial).clone();
+        material.color.set('#391305');
+        material.roughness = 0.46;
+        material.specularIntensity = specOverride === null ? 0.15 : Number.parseFloat(specOverride);
+        mesh.material = material;
+      } else {
+        if (subsurface && projector) attachBakeCoordinates(THREE, mesh, projector);
+        mesh.material = resin;
+      }
     });
 
     // 表情动画的枢轴修正：KeyShot 导出的网格节点无局部变换（顶点是绝对坐标），直接
@@ -163,7 +305,7 @@ const loadAssets = () => {
       o.geometry.translate(-c.x, -c.y, -c.z);
       o.position.copy(c);
     });
-    return { THREE, template: normalize(THREE, mascot), hdr };
+    return { THREE, template: normalize(THREE, mascot), studio };
   })();
   return assetsPromise;
 };
@@ -202,11 +344,13 @@ export default memo(function JadeLogo3D({
     let disposed = false;
     let renderer: import('three').WebGLRenderer | undefined;
     let pmrem: import('three').PMREMGenerator | undefined;
+    let environment: import('three').WebGLRenderTarget | undefined;
+    let keyShadow: import('three').DirectionalLightShadow | undefined;
     let io: IntersectionObserver | undefined;
 
     (async () => {
       try {
-        const { THREE, template, hdr } = await loadAssets();
+        const { THREE, template, studio } = await loadAssets();
         if (disposed) return;
 
         const px = Math.round(size * overscan);
@@ -217,29 +361,34 @@ export default memo(function JadeLogo3D({
         // 反而会漏采样、残留锯齿（踩过坑）。画布 ≤ 200px² 级别，开销可忽略。
         renderer.setPixelRatio((window.devicePixelRatio || 1) * 2);
         renderer.setSize(px, px);
-        // 色调映射：ACES + 曝光（KeyShot 用摄影级 filmic 曲线，高光压缩会相对抬升 G 通道，
-        // 这是参考图「亮而不艳」的来源；纯线性推不出那个通道比例）。albedo R 仅 0.25 余量充足，
-        // 不会重演「红通道打满被 ACES 漂白」的坑（那次 albedo R=1.0）。
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFShadowMap;
         renderer.outputColorSpace = THREE.SRGBColorSpace;
-        const q0 = new URLSearchParams(window.location.search);
-        renderer.toneMapping = q0.get('tm') === 'no' ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = parseFloat(q0.get('exp') || '1');
+        const q = new URLSearchParams(window.location.search);
+        renderer.toneMapping = q.get('tm') === 'no' ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = Number.parseFloat(q.get('exp') ?? '1.04');
 
         const scene = new THREE.Scene();
-        // 光照 = KeyShot 源工程同款 HDR 环境（Dosch-Design_Dirt-Lot），唯一光源，
-        // 无任何平行光/环境光——所有渐变、光泽、阴影色都由它给出，与官方渲染图同源。
-        // envint / envrot 可用 URL 参数覆盖（?envint=5&envrot=2.0），供无头截图校准循环用；
-        // 默认值 = 校准收敛结果。
-        const q = new URLSearchParams(window.location.search);
-        // 校准基于 Exports 版 GLB（亮红橙平色 albedo 0.98/0.20/0.06——桌面版导出是暗棕橙，
-        // 同一工程两次导出色不一致，用户确认以 Exports 版为准）
-        const envInt = parseFloat(q.get('envint') || '0.9');
-        const envRot = parseFloat(q.get('envrot') || '3.14');
         pmrem = new THREE.PMREMGenerator(renderer);
-        hdr.mapping = THREE.EquirectangularReflectionMapping;
-        scene.environment = pmrem.fromEquirectangular(hdr).texture;
-        scene.environmentIntensity = envInt;
-        scene.environmentRotation.set(0, envRot, 0);
+        environment = pmrem.fromEquirectangular(studio);
+        scene.environment = environment.texture;
+        scene.environmentIntensity = Number.parseFloat(q.get('envint') ?? '0.55');
+        scene.environmentRotation.set(0, Number.parseFloat(q.get('envrot') ?? '0'), 0);
+
+        const key = new THREE.DirectionalLight('#fff8e9', 2.9);
+        key.position.set(-3.4, 4.5, 3.4);
+        key.castShadow = true;
+        keyShadow = key.shadow;
+        key.shadow.intensity = 0.66;
+        key.shadow.normalBias = 0.007;
+        key.shadow.bias = -0.0002;
+        key.shadow.radius = 3.5;
+        key.shadow.mapSize.setScalar(size >= 96 ? 512 : 256);
+        Object.assign(key.shadow.camera, { left: -1.65, right: 1.65, top: 1.65, bottom: -1.65, near: 0.5, far: 12 });
+        key.shadow.camera.updateProjectionMatrix();
+        const fill = new THREE.DirectionalLight('#fff4d5', 0.34);
+        fill.position.set(3, 0.3, 2.2);
+        scene.add(key, fill, new THREE.HemisphereLight('#fff5df', '#eead77', 0.4));
 
         // 共享几何体/材质的浅层级克隆（模型无骨骼/动画，clone 足够）。
         const model = template.clone(true);
@@ -253,15 +402,20 @@ export default memo(function JadeLogo3D({
         let mouth: Part | undefined;
         model.traverse((o: any) => {
           if (!o.isMesh) return;
+          o.castShadow = true;
+          o.receiveShadow = true;
           if (o.name.startsWith('眼睛')) eyes.push({ node: o, base: o.scale.clone() });
           else if (o.name.startsWith('嘴巴')) mouth = { node: o, base: o.scale.clone() };
         });
         const baseScale = model.scale.x;
+        const modelShadow = new THREE.Matrix4();
+        const worldToModel = new THREE.Matrix4();
 
         // fov 取 KeyShot 渲染相机的 15.2°（yfov 0.2651 rad，窄视角、透视平缓——参考图的观感）；
         // 归一化后正面投影半 extent = 1 恰好贴满 fov 一半，相机再退 1 防近端透视破框。
         const camera = new THREE.PerspectiveCamera(15.19, 1, 0.1, 100);
-        camera.position.z = 1 / Math.tan(THREE.MathUtils.degToRad(15.19 / 2)) + 1;
+        camera.position.set(1.25, 0.45, 1 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) + 1);
+        camera.lookAt(0, 0, 0);
 
         const canvas = renderer.domElement;
         const bleed = -((overscan - 1) / 2) * size;
@@ -293,6 +447,7 @@ export default memo(function JadeLogo3D({
           // 整体：上下飘浮 + 轻微左右摇晃 + 呼吸微缩放。
           // 幅度受 canvas 画幅约束：模型已占画幅 ~80%，飘得太高会顶到画布边被切平（闪边）。
           model.position.y = 0.055 * Math.sin(t * 2.1);
+          model.rotation.y = 0.05 * Math.sin(t * 1.35);
           model.rotation.z = 0.03 * Math.sin(t * 2.1 + 0.9);
           model.scale.setScalar(baseScale * (1 + 0.012 * Math.sin(t * 2.1 + 1.6)));
 
@@ -324,6 +479,10 @@ export default memo(function JadeLogo3D({
             mouth.base.z,
           );
 
+          // 将首帧阴影保存在模型空间，整体摆动时沿用同一张深度图。
+          model.updateMatrixWorld();
+          worldToModel.copy(model.matrixWorld).invert();
+          key.shadow.matrix.multiplyMatrices(modelShadow, worldToModel);
           renderer!.render(scene, camera);
           requestAnimationFrame(frame);
         };
@@ -337,6 +496,8 @@ export default memo(function JadeLogo3D({
         // 淡入不能挂在 rAF 上（后台标签页 rAF 冻结 → 永远透明）：强制回流让 opacity:0 先落样式，
         // 再同步置 1，transition 照常播放。
         renderer.render(scene, camera);
+        modelShadow.multiplyMatrices(key.shadow.matrix, model.matrixWorld);
+        renderer.shadowMap.autoUpdate = false;
         canvas.getBoundingClientRect();
         canvas.style.opacity = '1';
         setReady(true);
@@ -357,6 +518,8 @@ export default memo(function JadeLogo3D({
     return () => {
       disposed = true;
       io?.disconnect();
+      keyShadow?.dispose();
+      environment?.dispose();
       pmrem?.dispose();
       if (renderer) {
         renderer.domElement.remove();
@@ -385,6 +548,20 @@ export default memo(function JadeLogo3D({
         ...style,
       }}
     >
+      {ready && size >= 96 && (
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            left: '5%',
+            top: '98%',
+            width: '81%',
+            height: '15%',
+            background: 'radial-gradient(ellipse at center, rgba(112, 48, 17, 0.28), transparent 70%)',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
       <img
         alt=""
         aria-hidden

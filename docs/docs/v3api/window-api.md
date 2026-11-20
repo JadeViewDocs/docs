@@ -109,7 +109,7 @@ typedef struct WebViewWindowOptions {
 | `use_page_icon` | `int32_t` | 默认 `0`。非零时，检测到网页 favicon 后用它更新窗口图标 |
 | `skip_taskbar` | `int32_t` | 不进任务栏 / Alt-Tab（`0` 否、`1` 是），运行时可用 `set_window_skip_taskbar` |
 | `no_activate` | `int32_t` | 点击 / 显示时不激活窗口（`0` 否、`1` 是），运行时可用 `set_window_no_activate` |
-| `background_material` | `const char*` | 创建时背景材质：`default` / `mica` / `micaAlt` / `acrylic`（不区分大小写），`NULL` 为 `default` |
+| `background_material` | `const char*` | 创建时背景材质（不区分大小写），`NULL` 为 `default`。系统材质支持 `_keepActive` 后缀，例如 `micaAlt_keepActive`。参见[可用材料与运行要求](/docs/v3api/theme-management)。 |
 
 `noframe` 与 `title_bar_style` 的组合语义（外观取决于平台与窗口管理器）：
 

@@ -37,6 +37,8 @@ Windows' immersive dark native title bar has no Linux equivalent: on Linux the t
 
 **Purpose**: On **Windows 11**, apply a system-provided **background material** (such as Mica or Acrylic) to a window, matching the kind of effects found under "Personalization" in the system settings. Common values for `backdrop_type`: **`mica`**, **`micaAlt`**, **`acrylic`**, plus **`default`** (a solid color that does not depend on the Win11 DWM material API). Values are **case-insensitive** (e.g. `Mica`, `MICA` both work).
 
+Use `mica_keepActive`, `micaAlt_keepActive`, or `acrylic_keepActive` to retain the material when the window loses focus. These values require Windows 11 22H2 or later and Windows App Runtime 1.8 matching the host process architecture. System transparency settings still apply.
+
 ```c
 int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);
 ```

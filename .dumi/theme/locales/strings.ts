@@ -141,8 +141,9 @@ int main() {
   },
   // 页底（自定义 Footer slot）；备案号 / 服务商等法务文案保持中文。
   footer: {
-    copyright:
-      '<a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">蜀ICP备2022000695号-9</a><br>由 <a href="https://www.dkdun.cn/" target="_blank" rel="noreferrer">林枫云</a> 提供云计算服务',
+    navigation: '页脚导航',
+    language: '语言',
+    hosting: { prefix: '由 ', suffix: ' 提供云计算服务' },
     tagline: '轻量、安全、易用的 WebView 窗口库。',
     rights: '保留所有权利',
     columns: [
@@ -403,8 +404,9 @@ int main() {
     empty: 'No SDK information available. Please try again later.',
   },
   footer: {
-    copyright:
-      '<a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">蜀ICP备2022000695号-9</a><br>Cloud services by <a href="https://www.dkdun.cn/" target="_blank" rel="noreferrer">林枫云</a>',
+    navigation: 'Footer navigation',
+    language: 'Language',
+    hosting: { prefix: 'Cloud services by ', suffix: '' },
     tagline: 'A lightweight, secure and easy-to-use WebView window library.',
     rights: 'All rights reserved',
     columns: [

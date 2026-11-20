@@ -36,6 +36,8 @@ Windows 的**沉浸式暗色原生标题栏**在 Linux 无对应——Linux 标�
 
 **用途**：在 **Windows 11** 上给窗口加上系统提供的**背景材质**（如云母、亚克力），和系统设置里「个性化」那类效果一致。`backdrop_type` 常用取值：**`mica`**、**`micaAlt`**、**`acrylic`**，以及 **`default`**（纯色底，不依赖 Win11 DWM 材质 API）。取值**大小写不敏感**（如 `Mica`、`MICA` 均可）。
 
+`mica_keepActive`、`micaAlt_keepActive`、`acrylic_keepActive` 在窗口失焦时保留背景材料。使用这些值需要 Windows 11 22H2 或更新版本，并安装与宿主进程架构匹配的 Windows App Runtime 1.8。系统透明效果等设置仍然适用。
+
 ```c
 int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);
 ```

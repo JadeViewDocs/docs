@@ -72,7 +72,7 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
   - `titlebar_back` `int32_t` - Windows Back button enabled: `0/1`, default `1`; shared by default caption and BarOverlay
   - `titlebar_refresh` `int32_t` - Windows Refresh button enabled: `0/1`, default `1`; shared by default caption and BarOverlay
   - `titlebar_icon` `int32_t` - Default-caption window icon visible: `0/1`, default `1`; does not affect the taskbar icon
-  - `background_material` `string` - Background material at creation: `default` / `mica` / `micaAlt` / `acrylic`; `NULL` means default
+  - `background_material` `string` - Background material at creation (case-insensitive). `NULL` means `default`. System materials accept the `_keepActive` suffix, for example `micaAlt_keepActive`. See [available materials and requirements](/docs/v3api/theme-management).
 - `webview_settings` `WebViewSettings*` (optional) - Web page behavior configuration; pass `NULL` to use defaults
 
   **WebViewSettings options:**

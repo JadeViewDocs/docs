@@ -1,171 +1,237 @@
-// 自定义页底（全自渲染，不依赖 @lobehub/ui Footer / lobehub LangSwitch —— 后两者会牵入主题深层
-//   'dumi' 解析、在本机偶发 .dumi/tmp 损坏时连带崩坏；自渲染最稳，也便于自由排版）。
-// 排版：左侧品牌区（图标 + 名称 + 一句话简介）+ 右侧链接分组（SDK / 社区 / 友情链接）；
-//   底部一条：版权（备案/服务商，法务保持中文）+ 语言切换（中文 / EN 段式开关，移到这里）。
-// 文案/链接走 ../locales/strings 的 footer.*；站内链接补当前语言 /en-US 前缀。
-// 渲染为 <footer> 标签，沿用 .dumirc 的页底氛围渐变(footer::before)与鼠标高光(footer::after)。
-import { createStyles, useTheme } from 'antd-style';
+import { createStyles } from 'antd-style';
+import { ArrowUpRight } from 'lucide-react';
 import { memo } from 'react';
 // @ts-ignore 主题 store（仅取 locales / 当前语言 / pathname，不引 'dumi'）
 import { useSiteStore } from 'dumi-theme-lobehub/dist/store/useSiteStore';
-import { useT, useLocaleBase, localeHref } from '../locales/strings';
-import BorderGlow from './BorderGlow';
+import { localeHref, useLocaleBase, useT } from '../locales/strings';
 import Logo3D from './JadeLogo3D';
 import ThemeToggle from './JadeThemeToggle';
 
 const LANG_LABEL: Record<string, string> = { 'zh-CN': '中文', 'en-US': 'EN' };
 
-// 页底卡片的边框渐变三色，与首页特性卡 / 开发者卡保持一致（reactbits 官方默认）。
-const GLOW_COLORS = ['#c084fc', '#f472b6', '#38bdf8'];
+const useStyles = createStyles(({ css }) => ({
+  footer: css`
+    --footer-bg: #faf9f7;
+    --footer-text: #26221e;
+    --footer-muted: #625c56;
+    --footer-line: #24170f17;
+    --footer-hover: #f1ede8;
+    --footer-current: #ede7e0;
+    --footer-accent: #a54b13;
 
-const useStyles = createStyles(({ css, token, responsive }) => ({
-  // 卡片外壳：限宽 + 四周留白，让 BorderGlow 的光晕有地方画（footer 自身 overflow:hidden 会裁掉外扩部分）
+    html[data-prefers-color='dark'] & {
+      --footer-bg: #111110;
+      --footer-text: #f5f1ed;
+      --footer-muted: #b3aca4;
+      --footer-line: #ffffff1c;
+      --footer-hover: #ffffff14;
+      --footer-current: #ffffff24;
+      --footer-accent: #ffab70;
+    }
+
+    border-top: 1px solid var(--footer-line);
+    background: radial-gradient(ellipse at 12% 0%, rgba(249, 115, 22, 0.07), transparent 46%),
+      var(--footer-bg);
+    color: var(--footer-text);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    & a:focus-visible,
+    & button:focus-visible {
+      outline: 2px solid var(--footer-accent);
+      outline-offset: 3px;
+    }
+  `,
   shell: css`
-    width: 100%;
+    box-sizing: border-box;
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 48px 24px 32px;
-
-    ${responsive.mobile} {
-      padding: 28px 16px 20px;
-    }
+    margin-inline: auto;
+    padding-inline: clamp(20px, 4vw, 48px);
   `,
-  inner: css`
-    padding: 44px 40px 28px;
-
-    ${responsive.mobile} {
-      padding: 28px 20px 22px;
-    }
-  `,
-  top: css`
+  masthead: css`
     display: flex;
-    flex-wrap: wrap;
-    gap: 40px 64px;
+    align-items: center;
     justify-content: space-between;
+    gap: 16px 24px;
+    padding-block: 24px 18px;
+    border-bottom: 1px solid var(--footer-line);
+
+    @media (max-width: 540px) {
+      flex-wrap: wrap;
+      padding-block: 20px 16px;
+    }
   `,
   brand: css`
-    flex: 1 1 240px;
-    max-width: 320px;
-  `,
-  brandLink: css`
     display: inline-flex;
-    gap: 10px;
     align-items: center;
+    gap: 12px;
+    min-width: 0;
+    color: var(--footer-text);
     text-decoration: none;
-  `,
-  logo: css`
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
+
+    &:hover {
+      color: var(--footer-text);
+    }
   `,
   brandName: css`
-    font-size: 19px;
+    display: block;
+    font-size: 23px;
     font-weight: 700;
-    color: ${token.colorText};
+    line-height: 1.12;
+    letter-spacing: -0.035em;
   `,
   tagline: css`
-    margin: 14px 0 0;
+    display: block;
+    margin: 4px 0 0;
     font-size: 13px;
-    line-height: 1.7;
-    color: ${token.colorTextTertiary};
+    line-height: 1.5;
+    color: var(--footer-muted);
   `,
-  // 备案 / 服务商（法务，保持中文）—— 放在品牌区底部，不与版权同行
-  beian: css`
-    margin: 14px 0 0;
+  preferences: css`
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+  `,
+  languages: css`
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--footer-line);
+    border-radius: 9px;
+  `,
+  languageLink: css`
+    display: grid;
+    place-items: center;
+    min-height: 28px;
+    min-width: 42px;
+    padding: 0 7px;
+    border-radius: 6px;
     font-size: 12px;
-    line-height: 1.8;
-    color: ${token.colorTextQuaternary};
+    line-height: 1.25;
+    color: var(--footer-muted);
+    text-decoration: none;
 
-    a {
-      color: ${token.colorTextTertiary};
-      text-decoration: none;
-      &:hover {
-        color: ${token.colorTextSecondary};
+    &:hover {
+      color: var(--footer-text);
+      background: var(--footer-hover);
+    }
+
+    &[aria-current='page'] {
+      color: var(--footer-text);
+      background: var(--footer-current);
+      font-weight: 600;
+    }
+
+    @media (pointer: coarse) {
+      min-height: 34px;
+      min-width: 44px;
+    }
+  `,
+  directory: css`
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px clamp(20px, 4vw, 52px);
+    padding-block: 20px 22px;
+
+    @media (max-width: 540px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 16px;
+      padding-block: 16px;
+
+      & > :last-child {
+        grid-column: 1 / -1;
+
+        ul {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0 16px;
+        }
       }
     }
   `,
-  cols: css`
-    display: flex;
-    flex-wrap: wrap;
-    gap: 32px 56px;
+  group: css`
+    min-width: 0;
   `,
-  col: css`
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-width: 120px;
-  `,
-  colTitle: css`
+  groupTitle: css`
+    margin: 0 0 6px;
+    color: var(--footer-text);
     font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: ${token.colorTextSecondary};
-    text-transform: uppercase;
+    font-weight: 650;
+    line-height: 1.5;
+  `,
+  items: css`
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   `,
   link: css`
+    display: inline-flex;
     width: fit-content;
-    font-size: 13.5px;
-    color: ${token.colorTextTertiary};
+    max-width: 100%;
+    min-height: 27px;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--footer-muted);
     text-decoration: none;
-    transition: color 0.15s ease;
+    transition: color 150ms ease;
+
+    span {
+      overflow-wrap: anywhere;
+    }
+
+    svg {
+      flex: 0 0 auto;
+      opacity: 0.55;
+    }
 
     &:hover {
-      color: ${token.colorText};
-    }
-  `,
-  bottom: css`
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 16px;
-    align-items: center;
-    justify-content: space-between;
+      color: var(--footer-accent);
 
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid ${token.colorBorderSecondary};
-  `,
-  copy: css`
-    font-size: 12.5px;
-    color: ${token.colorTextTertiary};
-
-    a {
-      color: ${token.colorTextSecondary};
-      text-decoration: none;
-      &:hover {
-        color: ${token.colorText};
+      svg {
+        opacity: 1;
       }
     }
-  `,
-  // 语言段式开关
-  lang: css`
-    display: inline-flex;
-    padding: 3px;
-    border: 1px solid ${token.colorBorderSecondary};
-    border-radius: 9999px;
-    background: ${token.colorFillQuaternary};
-  `,
-  langItem: css`
-    padding: 3px 14px;
-    border-radius: 9999px;
-    font-size: 12.5px;
-    color: ${token.colorTextSecondary};
-    text-decoration: none;
-    transition: color 0.15s ease, background 0.15s ease;
 
-    &:hover {
-      color: ${token.colorText};
+    @media (pointer: coarse) {
+      min-height: 32px;
     }
   `,
-  langItemActive: css`
-    color: ${token.colorText};
-    background: ${token.colorBgElevated};
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  legal: css`
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    border-top: 1px solid var(--footer-line);
+    padding-block: 12px 16px;
+    color: var(--footer-muted);
+    font-size: 12px;
+    line-height: 1.6;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--footer-text);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  `,
+  legalLinks: css`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
   `,
 }));
 
 export default memo(function JadeFooter() {
-  const { styles, cx } = useStyles();
-  const th = useTheme() as any;
+  const { styles } = useStyles();
   const t = useT().footer;
   const base = useLocaleBase();
   const locales: any[] = useSiteStore((s: any) => s.siteData?.locales) || [];
@@ -173,7 +239,6 @@ export default memo(function JadeFooter() {
   const pathname = useSiteStore((s: any) => s.location?.pathname) || '/';
   const year = new Date().getFullYear();
 
-  // 切到目标语言：剥掉当前语言 base 前缀、换成目标 base（plain <a>，整页跳转即可，简单可靠）。
   const switchTo = (targetBase: string) => {
     const cb = (cur?.base || '/').replace(/\/$/, '');
     let rel = pathname;
@@ -185,68 +250,66 @@ export default memo(function JadeFooter() {
   };
 
   return (
-    <footer>
+    <footer className={styles.footer}>
       <div className={styles.shell}>
-        <BorderGlow
-          backgroundColor={th.colorBgContainer}
-          borderRadius={24}
-          edgeSensitivity={30}
-          glowRadius={40}
-          glowIntensity={1}
-          coneSpread={25}
-          colors={GLOW_COLORS}
-          glowColor={th.isDarkMode ? '40 80 80' : '28 88 52'}
-          fillOpacity={0.5}
-        >
-          <div className={styles.inner}>
-        <div className={styles.top}>
-          <div className={styles.brand}>
-            <a className={styles.brandLink} href={base === '/' ? '/' : base}>
-              <Logo3D fallbackRadius={9} size={34} />
+        <div className={styles.masthead}>
+          <a className={styles.brand} aria-label="JadeView" href={base}>
+            <Logo3D size={40} />
+            <span>
               <span className={styles.brandName}>JadeView</span>
-            </a>
-            <p className={styles.tagline}>{t.tagline}</p>
-            <p className={styles.beian} dangerouslySetInnerHTML={{ __html: t.copyright }} />
-          </div>
+              <span className={styles.tagline}>{t.tagline}</span>
+            </span>
+          </a>
 
-          <div className={styles.cols}>
-            {t.columns.map((col) => (
-              <div className={styles.col} key={col.title}>
-                <div className={styles.colTitle}>{col.title}</div>
-                {col.items.map((it) => (
-                  <a
-                    className={styles.link}
-                    href={localeHref(base, it.url)}
-                    key={it.title}
-                    {...(it.openExternal ? { rel: 'noreferrer', target: '_blank' } : {})}
-                  >
-                    {it.title}
-                  </a>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.bottom}>
-          <span className={styles.copy}>{`© 2022-${year} JadeView · ${t.rights}`}</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className={styles.preferences}>
             <ThemeToggle />
-            <div className={styles.lang}>
+            <nav className={styles.languages} aria-label={t.language}>
               {locales.map((loc) => (
                 <a
-                  className={cx(styles.langItem, loc.id === cur?.id && styles.langItemActive)}
+                  aria-current={loc.id === cur?.id ? 'page' : undefined}
+                  className={styles.languageLink}
                   href={switchTo(loc.base)}
+                  hrefLang={loc.id}
                   key={loc.id}
                 >
                   {LANG_LABEL[loc.id] || loc.name}
                 </a>
               ))}
-            </div>
+            </nav>
           </div>
         </div>
+
+        <nav className={styles.directory} aria-label={t.navigation}>
+          {t.columns.map((col) => (
+            <div className={styles.group} key={col.title}>
+              <h2 className={styles.groupTitle}>{col.title}</h2>
+              <ul className={styles.items}>
+                {col.items.map((it) => (
+                  <li key={it.title}>
+                    <a
+                      className={styles.link}
+                      href={localeHref(base, it.url)}
+                      {...(it.openExternal ? { rel: 'noreferrer', target: '_blank' } : {})}
+                    >
+                      <span>{it.title}</span>
+                      {it.openExternal && <ArrowUpRight aria-hidden="true" size={12} />}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+
+        <div className={styles.legal}>
+          <span>{`© 2022–${year} JadeView · ${t.rights}`}</span>
+          <div className={styles.legalLinks}>
+            <a href="https://beian.miit.gov.cn/" rel="noreferrer" target="_blank">蜀ICP备2022000695号-9</a>
+            <span>
+              {t.hosting.prefix}<a href="https://www.dkdun.cn/" rel="noreferrer" target="_blank">林枫云</a>{t.hosting.suffix}
+            </span>
           </div>
-        </BorderGlow>
+        </div>
       </div>
     </footer>
   );
