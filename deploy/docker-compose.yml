@@ -1,4 +1,4 @@
-# 服务器端编排：站点容器 + webhook 接收容器。
+# 服务器端编排：站点、文档 MCP 与 webhook。
 # 用法（在本 deploy 目录里）：cp .env.example .env，填好 .env，再 docker compose up -d
 # 真实密钥放 .env（已在 .gitignore 排除，不要提交）。
 services:
@@ -9,8 +9,16 @@ services:
     ports:
       - "${SITE_PORT:-8088}:80"
 
-  # （HTTP 版文档 MCP 服务已下线：由 npm 包 jadeview-docs-mcp 的本地 stdio 服务替代，
-  #  见仓库 mcp/ 目录。服务器上旧的 docs-mcp 容器与 mcp.jade.run 反代可手动移除。）
+  mcp:
+    image: ${MCP_IMAGE_NAME:-yiminger/jadeview_docs_mcp:latest}
+    container_name: docs-mcp
+    restart: unless-stopped
+    ports:
+      - "${MCP_PORT:-8848}:8848"
+    environment:
+      BASE_URL: ${BASE_URL:-https://jade.run}
+      MCP_ORIGIN: ${MCP_ORIGIN:-https://mcp.jade.run}
+      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:-}
 
   webhook:
     image: python:3.11-slim
@@ -32,6 +40,11 @@ services:
       IMAGE_NAME: ${IMAGE_NAME:-yiminger/jadeview_docs:latest}
       CONTAINER_NAME: docs-site
       SITE_PORT: ${SITE_PORT:-8088}
+      MCP_IMAGE_NAME: ${MCP_IMAGE_NAME:-yiminger/jadeview_docs_mcp:latest}
+      MCP_PORT: ${MCP_PORT:-8848}
+      BASE_URL: ${BASE_URL:-https://jade.run}
+      MCP_ORIGIN: ${MCP_ORIGIN:-https://mcp.jade.run}
+      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:-}
       # 拉镜像加速器回退列表（逗号分隔主机名）。留空用代码内置默认；
       # 国内加速器时常失效，失效了改这里再 `docker compose up -d webhook` 即可。
       PULL_MIRRORS: ${PULL_MIRRORS:-docker.1ms.run,docker.m.daocloud.io,docker.1panel.live,hub.rat.dev}

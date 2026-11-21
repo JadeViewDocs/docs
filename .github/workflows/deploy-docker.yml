@@ -26,6 +26,7 @@ on:
 
 env:
   IMAGE_NAME: yiminger/jadeview_docs
+  MCP_IMAGE_NAME: yiminger/jadeview_docs_mcp
   # 阿里云 ACR（个人版）——国内服务器从它拉镜像最快。需在仓库 Secrets 配置
   # ALIYUN_ACR_USERNAME / ALIYUN_ACR_PASSWORD（ACR 控制台「访问凭证」的固定密码）。
   # 注意：本工作流不推 ACR。ACR 由部署服务器在部署后补推（见 deploy/webhook-server.py）。
@@ -112,14 +113,24 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      # MCP 服务镜像已移除：HTTP 版 MCP 由 npm 包 jadeview-docs-mcp（stdio）替代，
-      # 见 mcp/ 与 .github/workflows/publish-npm.yml。
+      - name: 构建并推送 MCP 镜像（Docker Hub）
+        id: build_mcp
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mcp/Dockerfile
+          push: true
+          provenance: false
+          cache-from: type=gha,scope=docs-mcp
+          cache-to: type=gha,scope=docs-mcp,mode=max
+          tags: |
+            ${{ env.MCP_IMAGE_NAME }}:latest
+            ${{ env.MCP_IMAGE_NAME }}:${{ github.sha }}
 
       # —— 关键：触发服务器部署 ——
       # 执行条件（AND）：
-      #   1. success()          —— 前面所有步骤（build_site）都成功
-      #   2. build_site 真成功  —— outputs.digest 非空（build-push-action 只有 push 成
-      #                           功才写 digest）；npm ci exit 1 时 build_site 失败，digest 为空串
+      #   1. success()            —— 站点与 MCP 都成功构建并推送
+      #   2. 两个 digest 均非空   —— 服务端拉取对应提交的镜像
       #   ⚠️ 不能在这里判断 secrets：GitHub Actions 的 `if:` 表达式不允许引用
       #      secrets 上下文（报 Unrecognized named-value: 'secrets'，整个 workflow
       #      解析失败、静默不跑）。凭证是否配置改在 run 里检查。
@@ -127,10 +138,12 @@ jobs:
         if: >-
           success() &&
           steps.build_site.outcome == 'success' &&
-          steps.build_site.outputs.digest != ''
+          steps.build_site.outputs.digest != '' &&
+          steps.build_mcp.outputs.digest != ''
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
+          MCP_DIGEST: ${{ steps.build_mcp.outputs.digest }}
         run: |
           set -euo pipefail
 
@@ -156,6 +169,7 @@ jobs:
           {
             "image":      "${{ env.IMAGE_NAME }}@${DIGEST}",
             "image_tag":  "${{ env.IMAGE_NAME }}:latest",
+            "mcp_image":  "${{ env.MCP_IMAGE_NAME }}@${MCP_DIGEST}",
             "repository": "${{ github.repository }}",
             "commit":     "${{ github.sha }}",
             "actor":      "${{ github.actor }}",

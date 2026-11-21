@@ -1,18 +1,14 @@
 /**
- * End-to-end smoke test: spawn the built stdio server as a real MCP client and
- * exercise both tools. Run after `npm run build`:
- *
- *   npm run build && npm run test:client
+ * Smoke test for a running Streamable HTTP server.
  */
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { fileURLToPath } from 'node:url';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
-const serverJs = fileURLToPath(new URL('../dist/stdio.js', import.meta.url));
-
-const transport = new StdioClientTransport({
-  command: process.execPath,
-  args: [serverJs],
+const endpoint = new URL(process.env.MCP_TEST_URL ?? 'http://127.0.0.1:8848/mcp');
+const token = process.env.MCP_AUTH_TOKEN;
+const headers = token ? { Authorization: `Bearer ${token}` } : {};
+const transport = new StreamableHTTPClientTransport(endpoint, {
+  requestInit: { headers },
 });
 const client = new Client({ name: 'jadeview-docs-mcp-smoke', version: '0.0.0' });
 await client.connect(transport);
@@ -22,6 +18,17 @@ const check = (name, cond, extra = '') => {
   console.log(`${cond ? 'PASS' : 'FAIL'}  ${name}${extra ? ' — ' + extra : ''}`);
   if (!cond) failures++;
 };
+
+const health = await fetch(new URL('/health', endpoint));
+check('health', health.ok && (await health.json()).pages > 0);
+const invalidOrigin = await fetch(endpoint, { headers: { ...headers, Origin: 'https://example.invalid' } });
+await invalidOrigin.text();
+check('invalid Origin', invalidOrigin.status === 403);
+if (token) {
+  const unauthorized = await fetch(endpoint);
+  await unauthorized.text();
+  check('missing bearer token', unauthorized.status === 401);
+}
 
 const tools = await client.listTools();
 check(
@@ -37,7 +44,7 @@ const search = await client.callTool({
 const searchBody = JSON.parse(search.content[0].text);
 check(
   'search_docs(创建窗口)',
-  searchBody.count === 3 && searchBody.hits[0].url.includes('/docs/api/window-api'),
+  searchBody.count === 3 && searchBody.hits.some((hit) => /\/docs\/(v3)?api\/window-api/.test(hit.url)),
   `top hit: ${searchBody.hits[0]?.hierarchy?.join(' › ')}`,
 );
 
@@ -54,12 +61,12 @@ check(
 
 const page = await client.callTool({
   name: 'get_doc',
-  arguments: { path: '/docs/api/window-api' },
+  arguments: { path: '/docs/v3api/window-api' },
 });
 const pageText = page.content[0].text;
 check(
-  'get_doc(/docs/api/window-api)',
-  pageText.includes('create_webview_window') && pageText.length > 10000,
+  'get_doc(/docs/v3api/window-api)',
+  pageText.includes('create_webview_window') && pageText.includes('JadeWindowFeatures'),
   `${pageText.length} chars`,
 );
 
@@ -79,4 +86,4 @@ const missing = await client.callTool({
 check('get_doc(missing) -> isError + suggestions', missing.isError === true);
 
 await client.close();
-process.exit(failures ? 1 : 0);
+process.exitCode = failures ? 1 : 0;

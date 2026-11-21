@@ -1,24 +1,13 @@
 {
   "name": "jadeview-docs-mcp",
   "version": "1.0.8",
-  "description": "JadeView 文档 MCP 服务（stdio）：全文搜索 + 整页读取随包分发的 markdown 文档",
+  "description": "JadeView 文档 MCP 服务（Streamable HTTP）",
+  "private": true,
   "type": "module",
-  "main": "dist/mcp.js",
-  "bin": {
-    "jadeview-docs-mcp": "dist/stdio.js"
-  },
-  "files": [
-    "dist",
-    "content",
-    "README.md",
-    "LICENSE"
-  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "sync-content": "node scripts/sync-content.mjs",
-    "test:client": "node test/client.mjs",
-    "test:npx": "npm pack && node test/npx-sim.mjs",
-    "prepublishOnly": "npm run build"
+    "start": "node dist/server.js",
+    "test:client": "node test/client.mjs"
   },
   "keywords": [
     "mcp",
@@ -26,7 +15,7 @@
     "jadeview",
     "docs",
     "search",
-    "stdio"
+    "streamable-http"
   ],
   "license": "MIT",
   "engines": {
@@ -34,11 +23,13 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0",
+    "express": "^5.2.1",
     "gray-matter": "^4.0.3",
     "minisearch": "^7.1.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
     "typescript": "^5.7.0"
   }

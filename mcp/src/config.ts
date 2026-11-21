@@ -3,18 +3,20 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/**
- * Package root = parent of dist/ (this file compiles to dist/config.js).
- * The markdown docs ship inside the npm package under content/, so the
- * server works anywhere npx installs it — no repo checkout required.
- */
-const packageRoot = path.resolve(__dirname, '..');
+/** Project root = parent of mcp/. Works from src/ (tsx) and dist/ (compiled). */
+const projectRoot = path.resolve(__dirname, '..', '..');
 
 export const config = {
-  /** Markdown root. Defaults to the bundled copy; set DOCS_DIR to index a local docs checkout instead. */
+  /** Markdown root that dumi serves; routes are computed relative to this. */
   docsDir: process.env.DOCS_DIR
     ? path.resolve(process.env.DOCS_DIR)
-    : path.join(packageRoot, 'content'),
-  /** Base URL used when building the doc links returned by search_docs. */
+    : path.join(projectRoot, 'docs'),
+  /** Absolute base for generated doc URLs. */
   baseUrl: process.env.BASE_URL ?? 'https://jade.run',
+  /** HTTP listen config. */
+  host: process.env.HOST ?? '127.0.0.1',
+  port: Number(process.env.PORT ?? 8848),
+  publicOrigin: process.env.MCP_ORIGIN || 'https://mcp.jade.run',
+  /** Optional bearer token for /mcp requests. */
+  authToken: process.env.MCP_AUTH_TOKEN ?? '',
 };

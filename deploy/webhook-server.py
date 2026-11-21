@@ -2,7 +2,7 @@
 """
 Webhook 服务器（FastAPI）——部署在你自己的服务器上。
 接收 GitHub Actions 的部署通知（POST /webhook/deploy，校验 X-Webhook-Token），
-然后：docker login → 拉取最新镜像 → 停掉并重建站点容器。
+然后登录镜像仓库、拉取镜像并更新站点与 MCP 容器。
 
 配置全部来自环境变量（见 deploy/docker-compose.yml + deploy/.env）。
 """
@@ -13,6 +13,8 @@ import json
 import time
 import hmac
 import logging
+import re
+import threading
 import traceback
 from contextlib import asynccontextmanager
 
@@ -43,6 +45,15 @@ CONTAINER_NAME = os.environ.get('CONTAINER_NAME', 'docs-site')
 # 站点对外端口：重建容器时映射 host:SITE_PORT -> container:80。
 # 必须与 docker-compose.yml 里 docs 服务端口、以及反代指向端口一致；默认 8088。
 SITE_PORT = int(os.environ.get('SITE_PORT', '8088'))
+MCP_IMAGE_NAME = os.environ.get('MCP_IMAGE_NAME', 'yiminger/jadeview_docs_mcp:latest')
+MCP_CONTAINER_NAME = 'docs-mcp'
+MCP_PORT = int(os.environ.get('MCP_PORT', '8848'))
+MCP_ENVIRONMENT = {
+    'BASE_URL': os.environ.get('BASE_URL', 'https://jade.run'),
+    'MCP_ORIGIN': os.environ.get('MCP_ORIGIN', 'https://mcp.jade.run'),
+    'MCP_AUTH_TOKEN': os.environ.get('MCP_AUTH_TOKEN', ''),
+}
+DEPLOY_LOCK = threading.Lock()
 
 # 拉镜像加速器回退列表（逗号分隔，只写主机名、不带 scheme）。
 # 拉取顺序为「daemon 默认(直连/daemon.json 里的 registry-mirrors) → 本列表逐个」，
@@ -215,7 +226,7 @@ def pull_image(client, image: str):
                     img.tag(repo, 'latest')
                     logger.info(f"已重打标准标签: {repo}:latest")
                 logger.info("镜像拉取成功")
-                return
+                return img
             except Exception as e:
                 last_err = e
                 msg = str(e)
@@ -262,7 +273,65 @@ def sync_to_acr(client, image_ref: str, commit: str = ''):
             break
 
 
+def replace_mcp(client, image):
+    placement = {}
+    try:
+        previous = client.containers.get(MCP_CONTAINER_NAME)
+    except docker.errors.NotFound:
+        previous = None
+    if previous:
+        # Keep the deployment network and control-panel labels when replacing a Compose container.
+        network = previous.attrs['HostConfig']['NetworkMode']
+        placement = {
+            'network': None if network in ('', 'default') else network,
+            'labels': previous.labels,
+        }
+        previous.rename(f'{MCP_CONTAINER_NAME}-{previous.short_id}')
+
+    candidate = None
+    try:
+        if previous:
+            previous.stop(timeout=10)
+        candidate = client.containers.create(
+            image.id,
+            name=MCP_CONTAINER_NAME,
+            restart_policy={'Name': 'unless-stopped'},
+            ports={'8848/tcp': MCP_PORT},
+            environment=MCP_ENVIRONMENT,
+            **placement,
+        )
+        candidate.start()
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            candidate.reload()
+            state = candidate.attrs['State']
+            health = state.get('Health', {}).get('Status')
+            if state['Running'] and health == 'healthy':
+                break
+            if not state['Running'] or health == 'unhealthy':
+                raise RuntimeError('MCP 容器启动失败')
+            time.sleep(1)
+        else:
+            raise RuntimeError('MCP 健康检查超时')
+    except Exception:
+        if candidate:
+            candidate.remove(force=True)
+        if previous:
+            previous.rename(MCP_CONTAINER_NAME)
+            previous.start()
+        raise
+
+    if previous:
+        previous.remove()
+    logger.info(f"MCP 容器已启动: {candidate.short_id}")
+
+
 def do_deploy(data: dict):
+    with DEPLOY_LOCK:
+        deploy_images(data)
+
+
+def deploy_images(data: dict):
     logger.info("=" * 50)
     logger.info(f"开始部署: {data.get('repository', 'unknown')}")
     commit = data.get('commit', '')
@@ -311,6 +380,13 @@ def do_deploy(data: dict):
             logger.warning("目标镜像在阿里云 ACR 但未配置 ACR_USERNAME/ACR_PASSWORD，"
                            "匿名拉取私有包将失败")
 
+        mcp_ref = data.get('mcp_image')
+        mcp_image = None
+        if mcp_ref:
+            repo, digest, is_digest = _split_image(mcp_ref)
+            if repo != _split_image(MCP_IMAGE_NAME)[0] or not is_digest or not re.fullmatch(r'sha256:[0-9a-f]{64}', digest):
+                raise ValueError('MCP 镜像必须使用已配置仓库的 SHA-256 引用')
+            mcp_image = pull_image(client, mcp_ref)
         pull_image(client, pull_image_ref)
 
         try:
@@ -337,6 +413,8 @@ def do_deploy(data: dict):
             ports={'80/tcp': SITE_PORT},
         )
         logger.info(f"新容器已启动: {container.id[:12]}")
+        if mcp_image:
+            replace_mcp(client, mcp_image)
 
         # 站点已用新镜像跑起来，再把镜像同步到 ACR（国内链路推送快），
         # 让后续拉取 / 其它机器重启时能直连 ACR。放在启动之后：同步不拖慢上线，

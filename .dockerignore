@@ -1,6 +1,8 @@
 # 依赖与构建产物（镜像内重新安装/构建）
 node_modules
 dist
+mcp/node_modules
+mcp/dist
 .dumi/tmp
 .dumi/tmp-production
 
