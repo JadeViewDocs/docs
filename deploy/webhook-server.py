@@ -146,7 +146,8 @@ def _is_transient(err_msg: str) -> bool:
                                 'i/o timeout', 'reset by peer', '502', '503', '504'))
 
 
-def _pull_with_progress(client, repository: str, tag: str | None = None):
+def _pull_with_progress(client, repository: str, tag: str | None = None,
+                        auth_config: dict | None = None):
     """流式拉镜像并周期打印进度，返回拉到的镜像对象。
 
     docker-py 的 images.pull() 是静默阻塞的——大镜像（几百 MB）在慢速链路上
@@ -161,7 +162,7 @@ def _pull_with_progress(client, repository: str, tag: str | None = None):
     last_log = time.monotonic()
     last_progress = time.monotonic()
     layers = {}  # layer_id -> (status, progressDetail)
-    stream = client.api.pull(repository, tag=tag, stream=True)
+    stream = client.api.pull(repository, tag=tag, stream=True, auth_config=auth_config)
     try:
         for raw in stream:
             evt = json.loads(raw) if isinstance(raw, (str, bytes)) else raw
@@ -212,10 +213,12 @@ def _pull_with_progress(client, repository: str, tag: str | None = None):
 
 
 def pull_image(client, image: str):
-    """按「ACR 主镜像 → docker.io 加速器」顺序拉镜像。
+    """按「ACR 命中 → docker.io 加速器」顺序拉镜像。
 
-    阿里云 ACR 有独立 registry 主机（crpi-xxx...aliyuncs.com），在国内走 daemon 直连
-    速度最快，作为第一候选；仅当目标是 docker.io 的 tag 时才追加公共加速器前缀。
+    阿里云 ACR 与 Docker Hub 存的是**同一个 digest**（部署成功后 sync_to_acr 补推的就是
+    同一份内容），所以只要 ACR 里有这个 digest 就不必再赌跨境链路：实测 ACR 3 并发
+    11.5MB/s（整个镜像 ~15s），而公共加速器只有 50–150KB/s 且会假死。
+    新版本首次部署时 ACR 还没有该 digest，pull 会 404 并自动回退加速器链。
     429/超时退避重试，全部失败才抛异常——此时调用方不会拆旧容器，站点保持在线。
     """
     repo, ref, is_digest = _split_image(image)
@@ -225,6 +228,27 @@ def pull_image(client, image: str):
     is_dockerio = '.' not in repo.split('/', 1)[0]
 
     last_err = None
+
+    # ACR 优先：仅对 docker.io 的 digest 引用生效（tag 无法判断 ACR 里是哪一份；
+    # ACR 域名可直接拉，不需要这段）。
+    #
+    # 注意：docker-py 的 login() 在本环境不会把凭据写进 ~/.docker/config.json
+    # （容器里没有该文件），所以拉 ACR 必须显式传 auth_config，否则 daemon 侧
+    # 拿不到凭据，报「404 / pull access denied」。
+    if is_dockerio and is_digest and ACR_IMAGE and ACR_USERNAME and ACR_PASSWORD:
+        try:
+            logger.info(f"先试 ACR: {ACR_IMAGE}@{ref[:19]}…")
+            img = _pull_with_progress(
+                client, ACR_IMAGE, ref,
+                auth_config={'username': ACR_USERNAME, 'password': ACR_PASSWORD},
+            )
+            img.tag(repo, 'latest')
+            logger.info("镜像拉取成功（源: ACR）")
+            return img
+        except Exception as e:
+            last_err = e
+            logger.info(f"ACR 未命中，回退 Docker Hub 加速器（{str(e)[:120]}）")
+
     if is_dockerio:
         # docker.io（含 digest 引用）：先走 daemon 默认（直连 / daemon.json 里的
         # registry-mirrors），失败再依次回退到公共加速器。
@@ -249,6 +273,8 @@ def pull_image(client, image: str):
     else:
         prefixes = ['']  # ACR 等独立 registry：直连（国内最快）
 
+    acr_host = ACR_IMAGE.split('/', 1)[0] if ACR_IMAGE else ''
+
     for prefix in prefixes:
         if prefix:
             pull_repo = f"{prefix}/{repo}"
@@ -256,10 +282,14 @@ def pull_image(client, image: str):
         else:
             pull_repo = repo
             source = 'ACR' if not is_dockerio else 'daemon 默认'
+        # ACR 是私有仓库，daemon 不会自带凭据（login() 在本环境不落盘），必须显式传。
+        pull_auth = None
+        if acr_host and ACR_USERNAME and ACR_PASSWORD and pull_repo.split('/', 1)[0] == acr_host:
+            pull_auth = {'username': ACR_USERNAME, 'password': ACR_PASSWORD}
         for attempt in range(1, PULL_RETRIES + 1):
             try:
                 logger.info(f"拉取镜像: {repo}{'@' if is_digest else ':'}{ref}  (源: {source}, 第 {attempt}/{PULL_RETRIES} 次)")
-                img = _pull_with_progress(client, pull_repo, ref)
+                img = _pull_with_progress(client, pull_repo, ref, auth_config=pull_auth)
                 # 统一回打主 repo:latest 标准标签，兼容后续 containers.run(image) 启动语义。
                 if is_digest or prefix:
                     img.tag(repo, 'latest')

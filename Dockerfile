@@ -62,15 +62,20 @@ RUN set -eux; \
 RUN find dist -type f \( -name '*.js' -o -name '*.css' -o -name '*.wasm' -o -name '*.json' -o -name '*.html' \) \
     -exec gzip -k -9 {} \;
 
+# 在 builder 阶段就把权限归一（a+rX：文件可读、目录可进入）。
+# 放到这里而不是最终阶段，是因为最终阶段每次 RUN 都会新增一层：
+# 对 200MB 的 dist 跑一次 `RUN chown -R` 会把整棵目录再写一遍，
+# 镜像里就多了一份一模一样的 200MB 层（压缩后约 51MB），每次部署都要多传这 51MB。
+RUN chmod -R a+rX dist
+
 # 阶段2：生产环境（nginx 提供静态文件）
 FROM nginx:alpine
 
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/dist /usr/share/nginx/html
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html
+# --chown 在 COPY 时直接写好属主，避免再起一个 chown 层（重复 200MB）。
+COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
