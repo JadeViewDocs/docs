@@ -8,12 +8,7 @@ group:
 
 # 菜单
 
-同一套 `JadeMenuItemDesc` 支持两种菜单：
-
-- **弹出菜单**：`jade_menu_popup`，用于右键、托盘等浮层。
-- **窗口菜单栏**：`jade_set_application_menu` / `jade_window_set_menu`，显示在标题栏下方。
-
-普通窗口未设置自定义菜单时，显示默认的“编辑 / 视图 / 窗口 / 帮助”。
+本页讲菜单项结构 `JadeMenuItemDesc`、图标规则，以及用于右键和托盘浮层的弹出菜单 `jade_menu_popup`。显示在标题栏下方的窗口菜单栏单独成页，见[窗口菜单栏](/docs/v3api/window/window-menu)。
 
 ## 菜单项
 
@@ -95,42 +90,16 @@ int32_t jade_menu_popup(uint32_t window_id, const JadeMenuItemDesc* items,
 
 选择自定义项后派发 `menu-command`，数据为 `{"item_id":"..."}`。事件注册见 [事件类型](/docs/v3api/messaging/event-types)。
 
-## 窗口菜单栏
-
-```c
-int32_t jade_set_application_menu(const JadeMenuItemDesc* items, uint32_t item_count);
-int32_t jade_window_set_menu(uint32_t window_id, const JadeMenuItemDesc* items,
-                             uint32_t item_count);
-```
-
-| 设置 | 作用范围 |
-|---|---|
-| `jade_window_set_menu` | 指定窗口，优先级最高。 |
-| `jade_set_application_menu` | 所有没有单独菜单的普通窗口。 |
-| 未设置 | 普通窗口显示内置默认菜单。 |
-
-- 顶层项必须是子菜单（`kind=1`）。
-- `item_count=0` 隐藏菜单栏。
-- 菜单栏全屏时自动隐藏；无边框窗口不会自动挂载。
-
-```c
-JadeMenuItemDesc bar[] = {
-    { "file",      NULL,   "文件", NULL,   1, 0, { 0 } },
-    { "file-new",  "file", "新建", "Ctrl+N", 0, 0, { 0 } },
-    { "file-quit", "file", "退出", NULL,   0, 0, { 0 } },
-};
-
-jade_set_application_menu(bar, 3);
-```
-
 ## 事件
 
+弹出菜单和窗口菜单栏共用同一组事件：
+
 | 事件 | 触发时机 | 数据 |
-|---|---|---|
+| --- | --- | --- |
 | `menu-command` | 选择了自定义菜单项 | `{"item_id":"..."}` |
 | `menu-error` | 弹出菜单无法显示 | `{"message":"..."}` |
 
-来源 ID 是所属窗口 ID；无主弹窗为 `0`。
+来源 ID 是所属窗口 ID；无主弹窗为 `0`。窗口菜单栏的设置方式见[窗口菜单栏](/docs/v3api/window/window-menu)。
 
 ## 网页右键菜单
 

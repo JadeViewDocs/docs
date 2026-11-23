@@ -127,7 +127,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 
 **返回值：** 成功时返回**写入 `buffer` 的字节数**（不含结尾 `\0`）；若 `buffer` 太小，**返回负的所需字节数**（绝对值为容纳完整路径含 `\0` 所需大小），此时不写入内容；其余失败（如 `name` 不支持、指针无效）返回 `0`。
 
-其它函数的分栏：本地协议服务见 [本地协议服务](/docs/v3api/resources/local-server-api)，菜单与右键菜单见 [菜单](/docs/v3api/menu/menu-api)，系统集成见 [系统集成 API](/docs/v3api/system/system-api)。
+其它函数的分栏：本地协议服务见 [本地协议服务](/docs/v3api/resources/local-server-api)，菜单与右键菜单见 [菜单](/docs/v3api/menu/menu-api)，窗口菜单栏见 [窗口菜单栏](/docs/v3api/window/window-menu)，系统集成见 [系统集成 API](/docs/v3api/system/system-api)。
 
 ---
 

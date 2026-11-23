@@ -41,6 +41,8 @@ group:
 
 在 `BarOverlay` 模式下，页面负责绘制标题和自定义内容，左右两侧的覆盖层按钮仍由 JadeView 提供。页面需要为按钮留出空间，并设置可拖动和可交互区域。
 
+标题栏下方还可以显示窗口菜单栏，见[窗口菜单栏](/docs/v3api/window/window-menu)。`BarOverlay` 和 `hidden` 的窗口没有窗口装饰，不会自动挂载应用菜单。
+
 ## 按钮尺寸
 
 下列尺寸均为逻辑像素（DIP），随系统缩放等比放大。`H` 表示当前标题栏高度：默认 32，可用 [`set_titlebar_style`](#设置标题栏样式set_titlebar_style) 的 `height` 改为 20–100。

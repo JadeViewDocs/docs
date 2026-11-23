@@ -128,7 +128,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 
 ---
 
-Other API groups: local protocol service in [Local Protocol Service](/en-US/docs/v3api/resources/local-server-api), system integration in [System Integration API](/en-US/docs/v3api/system/system-api), menus and right-click integration in [Menus](/en-US/docs/v3api/menu/menu-api).
+Other API groups: local protocol service in [Local Protocol Service](/en-US/docs/v3api/resources/local-server-api), window menu bars in [Window Menu Bar](/en-US/docs/v3api/window/window-menu), system integration in [System Integration API](/en-US/docs/v3api/system/system-api), menus and right-click integration in [Menus](/en-US/docs/v3api/menu/menu-api).
 
 ---
 

@@ -8,12 +8,7 @@ group:
 
 # Menus
 
-One `JadeMenuItemDesc` definition supports two kinds of menus:
-
-- **Popup menus**: `jade_menu_popup`, for context and tray overlays.
-- **Window menu bars**: `jade_set_application_menu` / `jade_window_set_menu`, below the title bar.
-
-A normal window without a custom menu shows the built-in Edit / View / Window / Help menus.
+This page covers the `JadeMenuItemDesc` structure, icon rules, and the popup menus used for context and tray overlays (`jade_menu_popup`). Window menu bars below the title bar have their own page: [Window Menu Bar](/en-US/docs/v3api/window/window-menu).
 
 ## Menu items
 
@@ -95,42 +90,16 @@ int32_t jade_menu_popup(uint32_t window_id, const JadeMenuItemDesc* items,
 
 Selecting a custom item emits `menu-command` with `{"item_id":"..."}`. See [Event Types](/en-US/docs/v3api/messaging/event-types).
 
-## Window menu bars
-
-```c
-int32_t jade_set_application_menu(const JadeMenuItemDesc* items, uint32_t item_count);
-int32_t jade_window_set_menu(uint32_t window_id, const JadeMenuItemDesc* items,
-                             uint32_t item_count);
-```
-
-| Call | Scope |
-|---|---|
-| `jade_window_set_menu` | The specified window, highest priority. |
-| `jade_set_application_menu` | Every normal window without its own menu. |
-| No custom menu | The built-in default menu. |
-
-- Root items must be submenus (`kind=1`).
-- `item_count=0` hides the bar.
-- The bar hides in fullscreen; borderless windows do not receive it automatically.
-
-```c
-JadeMenuItemDesc bar[] = {
-    { "file",      NULL,   "File", NULL,     1, 0, { 0 } },
-    { "file-new",  "file", "New",  "Ctrl+N", 0, 0, { 0 } },
-    { "file-quit", "file", "Quit", NULL,     0, 0, { 0 } },
-};
-
-jade_set_application_menu(bar, 3);
-```
-
 ## Events
+
+Popup menus and the window menu bar share the same events:
 
 | Event | Fires when | Payload |
 |---|---|---|
 | `menu-command` | A custom menu item is selected | `{"item_id":"..."}` |
 | `menu-error` | A popup cannot be shown | `{"message":"..."}` |
 
-The source ID is the owner Window ID, or `0` for an ownerless popup.
+The source ID is the owner Window ID, or `0` for an ownerless popup. For window menu bar setup, see [Window Menu Bar](/en-US/docs/v3api/window/window-menu).
 
 ## Page context menu
 

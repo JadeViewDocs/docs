@@ -41,6 +41,8 @@ From left to right, the areas are:
 
 In `BarOverlay` mode, the page draws the title and custom content, while JadeView provides the overlay buttons on either side. Leave room for the buttons and define draggable and interactive areas in the page.
 
+A window menu bar can also sit below the title bar; see [Window Menu Bar](/en-US/docs/v3api/window/window-menu). Windows with `BarOverlay` or `hidden` have no window decorations, so they never attach the application menu automatically.
+
 ## Button sizes
 
 All sizes are in device-independent pixels (DIP) and scale with the system DPI. `H` is the current title bar height: 32 by default, adjustable to 20–100 through the `height` argument of [`set_titlebar_style`](#set-the-title-bar-style-set_titlebar_style).
