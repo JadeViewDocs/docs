@@ -10,11 +10,11 @@ group:
 
 本页覆盖运行时生命周期、路径查询、配置初始化、异步请求结果与错误处理，以及库分配字符串的所有权。
 
-窗口创建与配置见[创建窗口](/docs/v3api/window-api)，窗口操作见[窗口对象](/docs/v3api/window-objects)及其他窗口分类；视图对象的创建、挂载、页面操作和布局见 [WebView API](/docs/v3api/webview-api)。两类对象各有一张配置字段表，分别在这两页。
+窗口创建与配置见[创建窗口](/docs/v3api/window/window-api)，窗口操作见[窗口对象](/docs/v3api/window/window-objects)及其他窗口分类；视图对象的创建、挂载、页面操作和布局见 [WebView API](/docs/v3api/page/webview-api)。两类对象各有一张配置字段表，分别在这两页。
 
 ---
 
-V3 配置与 DLL/SDK 版本检查见 [ABI 契约](/docs/v3api/abi)。默认初始化函数必须传入输出容量，并检查返回的错误码。
+V3 配置与 DLL/SDK 版本检查见 [ABI 契约](/docs/v3api/overview/abi)。默认初始化函数必须传入输出容量，并检查返回的错误码。
 
 ## 生命周期与启动
 
@@ -49,7 +49,7 @@ int32_t JadeView_init(int32_t enable_devmod, const char* log_path, const char* d
 | 正常启动完成 | `0` | JSON：`{"ok":true,"message":"success"}` |
 | `app_name` / `app_signature` 校验失败 | `0` | 纯文本 `"<code>: <message>"`（`code` 为 `missing_app_name` / `missing_app_signature` / `app_signature_too_short`） |
 
-> 程序运行期间的崩溃**不走 `app-ready`**，而是通过独立的 [`crash`](/docs/v3api/event-types) 事件上报。
+> 程序运行期间的崩溃**不走 `app-ready`**，而是通过独立的 [`crash`](/docs/v3api/messaging/event-types) 事件上报。
 
 请在 **`JadeView_init` 之前** 就 `jade_on("app-ready", ...)`，否则会漏掉第一条通知。初始化参数校验失败时 `JadeView_init` 直接返回 `0`；创建和消息入队成功也不等于页面已就绪或已接收。
 
@@ -127,7 +127,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 
 **返回值：** 成功时返回**写入 `buffer` 的字节数**（不含结尾 `\0`）；若 `buffer` 太小，**返回负的所需字节数**（绝对值为容纳完整路径含 `\0` 所需大小），此时不写入内容；其余失败（如 `name` 不支持、指针无效）返回 `0`。
 
-其它函数的分栏：本地协议服务见 [本地协议服务](/docs/v3api/local-server-api)，菜单与右键菜单见 [菜单](/docs/v3api/menu-api)，系统集成见 [系统集成 API](/docs/v3api/system-api)。
+其它函数的分栏：本地协议服务见 [本地协议服务](/docs/v3api/resources/local-server-api)，菜单与右键菜单见 [菜单](/docs/v3api/menu/menu-api)，系统集成见 [系统集成 API](/docs/v3api/system/system-api)。
 
 ---
 
@@ -141,7 +141,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 int32_t window_options_default(struct WebViewWindowOptions* out, size_t capacity);
 ```
 
-使用非空 `WebViewWindowOptions` 前调用，再按需赋值；传 `NULL` 给创建入口则使用默认值。字段说明见 [窗口 API](/docs/v3api/window-api)。
+使用非空 `WebViewWindowOptions` 前调用，再按需赋值；传 `NULL` 给创建入口则使用默认值。字段说明见 [窗口 API](/docs/v3api/window/window-api)。
 
 ### 视图配置默认值（`webview_settings_default`）
 
@@ -149,7 +149,7 @@ int32_t window_options_default(struct WebViewWindowOptions* out, size_t capacity
 int32_t webview_settings_default(struct WebViewSettings* out, size_t capacity);
 ```
 
-使用非空 `WebViewSettings` 前调用，再按需赋值；传 `NULL` 给创建入口则使用默认值。字段说明见 [WebView API](/docs/v3api/webview-api)。
+使用非空 `WebViewSettings` 前调用，再按需赋值；传 `NULL` 给创建入口则使用默认值。字段说明见 [WebView API](/docs/v3api/page/webview-api)。
 
 ---
 
@@ -196,7 +196,7 @@ typedef struct JadeRequestResult {
 | 4 | 失败（failed） |
 | 5 | 已取消（cancelled） |
 
-> 这套编号属于**请求结果**；对象生命周期状态是另一套 `JADE_STATE_*` 常量（见 [窗口 API](/docs/v3api/window-objects)），不要混用。
+> 这套编号属于**请求结果**；对象生命周期状态是另一套 `JADE_STATE_*` 常量（见 [窗口 API](/docs/v3api/window/window-objects)），不要混用。
 
 ---
 
@@ -284,7 +284,7 @@ if (!send_ipc_message(view_id, "message", "hello")) {
 | `JADE_PLATFORM_ERROR` | -7 | | |
 | `JADE_BUSY` | -8 | | |
 
-其中 `JADE_WRONG_OBJECT_TYPE` 对应「把 Window ID 当成 WebView ID」这类错类型调用（见 [窗口 API](/docs/v3api/window-objects)）；`JADE_BUSY` 常见于 [JAPK 卸载](/docs/v3api/japk) 与原生资源释放。
+其中 `JADE_WRONG_OBJECT_TYPE` 对应「把 Window ID 当成 WebView ID」这类错类型调用（见 [窗口 API](/docs/v3api/window/window-objects)）；`JADE_BUSY` 常见于 [JAPK 卸载](/docs/v3api/resources/japk) 与原生资源释放。
 
 ---
 

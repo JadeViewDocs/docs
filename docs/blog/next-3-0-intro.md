@@ -239,7 +239,7 @@ v2 的窗口装饰只有一个字符串 `frame_style`，三档：`normal` / `no-
 
 ![Windows 启动画面示例](/screenshot/splash-preview.png)
 
-[启动画面 API 与示例](/docs/v3api/splash-api)
+[启动画面 API 与示例](/docs/v3api/window/splash-api)
 
 ---
 
@@ -341,7 +341,7 @@ options.title_bar_style = "BarOverlay";
 
 `create_webview_window` 和 `create_window` 的最后一个参数是可选的 `features`。内容保护和位置保存从窗口选项移到 `JadeWindowFeatures`，启动画面也在这里设置。传 `NULL` 时，这三项功能默认关闭。
 
-[ABI 契约](/docs/v3api/abi) · [窗口扩展配置](/docs/v3api/window-api#窗口功能jadewindowfeatures)
+[ABI 契约](/docs/v3api/overview/abi) · [窗口扩展配置](/docs/v3api/window/window-api#窗口功能jadewindowfeatures)
 
 最后一件容易忽略的：**Windows 本地页面从 HTTP 换成了 HTTPS。**
 

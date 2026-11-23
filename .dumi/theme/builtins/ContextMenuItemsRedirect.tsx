@@ -10,7 +10,7 @@ export default memo(function ContextMenuItemsRedirect() {
 
   useEffect(() => {
     const prefix = base === '/' ? '' : base;
-    navigate(`${prefix}/docs/v3api/context-menu-items`, { replace: true });
+    navigate(`${prefix}/docs/v3api/menu/context-menu-items`, { replace: true });
   }, [base, navigate]);
 
   return null;

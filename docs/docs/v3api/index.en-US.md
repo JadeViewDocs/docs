@@ -12,7 +12,7 @@ Explains how to **start JadeView**, and what each field of the two structs used 
 
 ---
 
-V3 configuration and DLL/SDK checks: [ABI contract](/en-US/docs/v3api/abi). Default initializers require the output capacity and return an error code.
+V3 configuration and DLL/SDK checks: [ABI contract](/en-US/docs/v3api/overview/abi). Default initializers require the output capacity and return an error code.
 
 ## Lifecycle and Startup
 
@@ -47,7 +47,7 @@ The `event_data` format differs between success and failure (success is JSON, fa
 | Normal startup completed | `0` | JSON: `{"ok":true,"message":"success"}` |
 | `app_name` / `app_signature` validation failed | `0` | Plain text `"<code>: <message>"` (`code` is one of `missing_app_name` / `missing_app_signature` / `app_signature_too_short`) |
 
-> A crash during runtime does **not** go through `app-ready`; it is reported via the separate [`crash`](/en-US/docs/v3api/event-types#crash) event.
+> A crash during runtime does **not** go through `app-ready`; it is reported via the separate [`crash`](/en-US/docs/v3api/messaging/event-types#crash) event.
 
 Call `jade_on("app-ready", ...)` **before `JadeView_init`**, otherwise you will miss the first notification.
 
@@ -128,7 +128,7 @@ int32_t getPath(const char* name, char* buffer, size_t buffer_size);
 
 ---
 
-Other API groups: local protocol service in [Local Protocol Service](/en-US/docs/v3api/local-server-api), system integration in [System Integration API](/en-US/docs/v3api/system-api), menus and right-click integration in [Menus](/en-US/docs/v3api/menu-api).
+Other API groups: local protocol service in [Local Protocol Service](/en-US/docs/v3api/resources/local-server-api), system integration in [System Integration API](/en-US/docs/v3api/system/system-api), menus and right-click integration in [Menus](/en-US/docs/v3api/menu/menu-api).
 
 ---
 
@@ -200,7 +200,7 @@ When you pass a non-NULL config struct to a window / WebView creation call, call
 int32_t window_options_default(struct WebViewWindowOptions* out, size_t capacity);
 ```
 
-Call it before using a non-NULL `WebViewWindowOptions`, then assign what you need; passing `NULL` to a creation entry uses the defaults. For the fields see [Window API](/en-US/docs/v3api/window-api).
+Call it before using a non-NULL `WebViewWindowOptions`, then assign what you need; passing `NULL` to a creation entry uses the defaults. For the fields see [Window API](/en-US/docs/v3api/window/window-api).
 
 ### WebView settings default (`webview_settings_default`)
 
@@ -208,7 +208,7 @@ Call it before using a non-NULL `WebViewWindowOptions`, then assign what you nee
 int32_t webview_settings_default(struct WebViewSettings* out, size_t capacity);
 ```
 
-Call it before using a non-NULL `WebViewSettings`, then assign what you need; passing `NULL` to a creation entry uses the defaults. For the fields see [WebView API](/en-US/docs/v3api/webview-api).
+Call it before using a non-NULL `WebViewSettings`, then assign what you need; passing `NULL` to a creation entry uses the defaults. For the fields see [WebView API](/en-US/docs/v3api/page/webview-api).
 
 ---
 
@@ -255,7 +255,7 @@ typedef struct JadeRequestResult {
 | 4 | Failed |
 | 5 | Cancelled |
 
-> These numbers belong to **request results**. Object lifecycle states use a different set of `JADE_STATE_*` constants (see [Window API](/en-US/docs/v3api/window-objects)) — do not mix them up.
+> These numbers belong to **request results**. Object lifecycle states use a different set of `JADE_STATE_*` constants (see [Window API](/en-US/docs/v3api/window/window-objects)) — do not mix them up.
 
 ---
 
@@ -343,7 +343,7 @@ The error codes defined in `include/JadeView.h` (the value source for `jade_last
 | `JADE_PLATFORM_ERROR` | -7 | | |
 | `JADE_BUSY` | -8 | | |
 
-`JADE_WRONG_OBJECT_TYPE` covers calls with the wrong ID type, such as passing a Window ID where a WebView ID is expected (see [Window API](/en-US/docs/v3api/window-objects)); `JADE_BUSY` is common during [JAPK unmount](/en-US/docs/v3api/japk) and native resource release.
+`JADE_WRONG_OBJECT_TYPE` covers calls with the wrong ID type, such as passing a Window ID where a WebView ID is expected (see [Window API](/en-US/docs/v3api/window/window-objects)); `JADE_BUSY` is common during [JAPK unmount](/en-US/docs/v3api/resources/japk) and native resource release.
 
 ---
 

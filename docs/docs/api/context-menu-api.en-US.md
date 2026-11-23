@@ -50,7 +50,7 @@ Automatically triggered on right-click (requires `allow_right_click=1`); `event_
 | `has_source` / `source_url` | Resource source information (image / audio / video) | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
 | `has_selection` | Whether there is selected text | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
 | `selection_text` | Selected text | ![Windows](/platform-windows.svg) |
-| `default_menu_names` | List of WebView2 default menu items, each containing `name`, `label`, and `kind` (see [Item Types and Native Actions](/en-US/docs/v3api/context-menu-items)) | ![Windows](/platform-windows.svg) |
+| `default_menu_names` | List of WebView2 default menu items, each containing `name`, `label`, and `kind` (see [Item Types and Native Actions](/en-US/docs/v3api/menu/context-menu-items)) | ![Windows](/platform-windows.svg) |
 
 
 ### Menu Item Clicked Event (`menu-item-clicked`)
@@ -85,7 +85,7 @@ uint32_t jade_menu_item_create(const char* label, int kind, uint32_t parent_menu
 
 ### kind Parameter Description
 
-For menu item type descriptions and the list of WebView2 native Names for `kind=5` default menu items (categorized by right-click context), see [Item Types and Native Actions](/en-US/docs/v3api/context-menu-items).
+For menu item type descriptions and the list of WebView2 native Names for `kind=5` default menu items (categorized by right-click context), see [Item Types and Native Actions](/en-US/docs/v3api/menu/context-menu-items).
 
 ### Set Menu Item Enabled State (`jade_menu_item_set_enabled`)
 

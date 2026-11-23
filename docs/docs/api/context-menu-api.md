@@ -10,7 +10,7 @@ group:
 
 利用 WebView2 原生上下文菜单 API，实现可自定义的右键菜单系统。
 
-> 本文档适用于 JadeView v2；v3 请使用 [网页右键菜单](/docs/v3api/context-menu-api)。
+> 本文档适用于 JadeView v2；v3 请使用 [网页右键菜单](/docs/v3api/menu/context-menu-api)。
 
 ## 事件
 
@@ -52,7 +52,7 @@ group:
 | `has_source` / `source_url` | 资源源信息（图片/音视频） | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
 | `has_selection` | 是否有选中文本 | ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
 | `selection_text` | 选中文本 | ![Windows](/platform-windows.svg) |
-| `default_menu_names` | WebView2 默认菜单项列表，每项含 `name`、`label`、`kind`（见 [菜单项类型与原生动作](/docs/v3api/context-menu-items)） | ![Windows](/platform-windows.svg) |
+| `default_menu_names` | WebView2 默认菜单项列表，每项含 `name`、`label`、`kind`（见 [菜单项类型与原生动作](/docs/v3api/menu/context-menu-items)） | ![Windows](/platform-windows.svg) |
 
 ### 菜单项点击事件（`menu-item-clicked`）
 
@@ -86,7 +86,7 @@ uint32_t jade_menu_item_create(const char* label, int kind, uint32_t parent_menu
 
 ### kind 参数说明
 
-菜单项类型说明、`kind=5` 默认菜单项的 WebView2 原生 Name 列表（按右键上下文分类）详见 [菜单项类型与原生动作](/docs/v3api/context-menu-items)。
+菜单项类型说明、`kind=5` 默认菜单项的 WebView2 原生 Name 列表（按右键上下文分类）详见 [菜单项类型与原生动作](/docs/v3api/menu/context-menu-items)。
 
 ### 设置菜单项启用状态（`jade_menu_item_set_enabled`）
 
