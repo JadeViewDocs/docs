@@ -5,7 +5,7 @@
 // 路由/激活用 dumi 主包核心导出（Link / useLocation，主题自带 Navbar 也这么用），安全。
 import { createStyles, useTheme } from 'antd-style';
 import { Link, useFullSidebarData, useLocation } from 'dumi';
-import { BookOpen, ChevronRight, Code2, Download } from 'lucide-react';
+import { BookOpen, ChevronRight, Code2, Download, FlaskConical } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -55,6 +55,15 @@ const DOCS_SECTIONS = [
     icon: <Code2 size={18} />,
     grad: 'linear-gradient(135deg, rgba(251,191,36,0.22), rgba(234,88,12,0.10))',
     iconBg: 'linear-gradient(135deg, #FBBF24, #EA580C)',
+  },
+  {
+    // v3 是独立文档（测试版）：与 v2 的 orange/amber 区分开，用冷色表示「预览」；
+    // 图标与侧边栏 v3 分区同款（FlaskConical）。
+    key: 'v3api' as const,
+    link: '/docs/v3api',
+    icon: <FlaskConical size={18} />,
+    grad: 'linear-gradient(135deg, rgba(56,189,248,0.22), rgba(14,165,233,0.05))',
+    iconBg: 'linear-gradient(135deg, #38BDF8, #0EA5E9)',
   },
 ];
 
@@ -490,6 +499,11 @@ export default memo(function JadeNavbar() {
 
   // 悬停某个带下拉的触发器：测量其所在胶囊底边 → 面板定位到「胶囊下方 12px」、并相对触发器水平居中。
   // 切换菜单时 active/coords 变化驱动面板滑动 + 内容交叉淡入（见下方共享面板）。
+  // 文档面板加入 v3 卡片后宽约 750px，居中到较窄视口时会被裁掉，故统一夹在视口内（左右各留 12px）。
+  const place = (centerX: number, width: number) => {
+    const max = Math.max(12, window.innerWidth - width - 12);
+    return Math.round(Math.max(12, Math.min(centerX - width / 2, max)));
+  };
   const openMenu = (key: 'docs' | 'sdk' | 'products', el: HTMLElement) => {
     clearTimeout(closeTimer.current);
     const cap = (el.closest('.jade-capsule-header') as HTMLElement) || el;
@@ -497,7 +511,7 @@ export default memo(function JadeNavbar() {
     const cr = cap.getBoundingClientRect();
     const centerX = tr.left + tr.width / 2;
     centerXRef.current = centerX;
-    setCoords({ left: Math.round(centerX - widthCache.current[key] / 2), top: Math.round(cr.bottom + 12) });
+    setCoords({ left: place(centerX, widthCache.current[key]), top: Math.round(cr.bottom + 12) });
     setActive(key);
   };
   const scheduleClose = () => {
@@ -512,7 +526,7 @@ export default memo(function JadeNavbar() {
     const w = panelRef.current.offsetWidth;
     if (!w) return;
     widthCache.current[active] = w;
-    const target = Math.round(centerXRef.current - w / 2);
+    const target = place(centerXRef.current, w);
     setCoords((c) => (Math.abs(c.left - target) > 1 ? { ...c, left: target } : c));
   }, [active]);
 
