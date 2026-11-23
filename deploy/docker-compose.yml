@@ -47,6 +47,9 @@ services:
       MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:-}
       # 拉镜像加速器回退列表（逗号分隔主机名）。留空用代码内置默认；
       # 国内加速器时常失效，失效了改这里再 `docker compose up -d webhook` 即可。
-      PULL_MIRRORS: ${PULL_MIRRORS:-docker.1ms.run,docker.m.daocloud.io,docker.1panel.live,hub.rat.dev}
+      PULL_MIRRORS: ${PULL_MIRRORS:-docker.1ms.run,docker.m.daocloud.io,hub.rat.dev,docker.1panel.live}
+      # 单次拉取「字节数不再前进」超过该秒数就判定为该源假死，放弃并换下一个源。
+      # containerd 读 blob 没有空闲超时，对端断流时 pull 会永远挂着，必须有这个看门狗。
+      PULL_STALL_SECONDS: ${PULL_STALL_SECONDS:-90}
     working_dir: /app
     command: bash -c "pip install --quiet -i https://pypi.tuna.tsinghua.edu.cn/simple fastapi uvicorn docker && python webhook-server.py"

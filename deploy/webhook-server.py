@@ -61,9 +61,14 @@ DEPLOY_LOCK = threading.Lock()
 # 国内公共加速器时常失效，失效了改这里(或 compose 的 PULL_MIRRORS 环境变量)即可，无需动代码。
 PULL_MIRRORS = os.environ.get(
     'PULL_MIRRORS',
-    'docker.1ms.run,docker.m.daocloud.io,docker.1panel.live,hub.rat.dev',
+    'docker.1ms.run,docker.m.daocloud.io,hub.rat.dev,docker.1panel.live',
 )
 PULL_RETRIES = int(os.environ.get('PULL_RETRIES', '3'))
+# 单次拉取「字节数不再前进」超过该秒数，判定为对端假死并放弃当前源。
+# 必须要有：containerd 拉 blob 没有空闲读超时，对端悄悄断流时 pull 会永远挂着——
+# 实测 docker.1panel.live 停在 9300a022b87e 的 33/50MB 一个半小时，既不报错也不结束，
+# 部署锁被占死，之后所有部署请求排队等锁，站点一直停在旧镜像。
+PULL_STALL_SECONDS = int(os.environ.get('PULL_STALL_SECONDS', '90'))
 
 ALLOWED_PATHS = {'/webhook/deploy', '/health'}
 
@@ -90,7 +95,8 @@ async def lifespan(app: FastAPI):
     logger.info(f"容器: {CONTAINER_NAME}  端口: {SITE_PORT} -> 80")
     logger.info(f"Docker Hub 用户: {DOCKERHUB_USER or '未配置'}")
     logger.info(f"阿里云 ACR: {ACR_IMAGE or '未配置'}  用户: {ACR_USERNAME or '未配置'}")
-    logger.info(f"拉镜像顺序: ACR -> docker.io 加速器 {PULL_MIRRORS}")
+    logger.info(f"拉取顺序: docker.io 加速器 {PULL_MIRRORS} -> daemon 默认")
+    logger.info("ACR 仅作部署成功后的补推目标——新版本首次部署必须走 docker.io 加速器")
     logger.info("端点: POST /webhook/deploy")
     logger.info("=" * 50)
     yield
@@ -133,9 +139,11 @@ def _split_image(image: str):
 def _is_transient(err_msg: str) -> bool:
     """判断是否为可退避重试的临时错误（限流/超时），而非镜像不存在等硬错误。"""
     m = err_msg.lower()
-    return any(k in m for k in ('429', 'too many requests', 'timeout',
-                                'deadline', 'temporarily', 'connection',
-                                'i/o timeout', 'reset by peer'))
+    # 国内加速器的限流文案是中文（如 docker.1ms.run 的「上游限流，请稍后重试」），
+    # 只匹配英文关键字会把它当成硬错误直接换源——限流通常几十秒就恢复，值得重试。
+    return any(k in m for k in ('429', 'too many', 'rate limit', '限流', '请稍后重试',
+                                'timeout', 'deadline', 'temporarily', 'connection',
+                                'i/o timeout', 'reset by peer', '502', '503', '504'))
 
 
 def _pull_with_progress(client, repository: str, tag: str | None = None):
@@ -145,28 +153,59 @@ def _pull_with_progress(client, repository: str, tag: str | None = None):
     下载十几分钟毫无日志输出，看起来像卡死。改为消费 /images/create 的事件流，
     每 20s 打一行「N/M 层就绪 + 活跃层字节数」，让下载进度可见。
     error 事件抛异常，交由外层 pull_image 的重试/换源逻辑处理。
+
+    另外看门狗：daemon 会持续发进度心跳，但对端断流时字节数不再前进。
+    超过 PULL_STALL_SECONDS 无字节进展就抛异常，让外层换下一个源——否则
+    pull 会永远挂着（daemon 侧对 blob 读取没有空闲超时），部署锁再也不会释放。
     """
     last_log = time.monotonic()
+    last_progress = time.monotonic()
     layers = {}  # layer_id -> (status, progressDetail)
     stream = client.api.pull(repository, tag=tag, stream=True)
-    for raw in stream:
-        evt = json.loads(raw) if isinstance(raw, (str, bytes)) else raw
-        if 'error' in evt:
-            raise RuntimeError(evt['error'])
-        lid = evt.get('id')
-        if lid:
-            layers[lid] = (evt.get('status', ''), evt.get('progressDetail') or {})
-        now = time.monotonic()
-        if now - last_log >= 20:
-            last_log = now
-            done = sum(1 for s, _ in layers.values() if s in ('Already exists', 'Pull complete'))
-            active = [
-                f"{lid[:12]} {s} {d.get('current', 0) >> 20}/{d.get('total', 0) >> 20}MB"
+    try:
+        for raw in stream:
+            evt = json.loads(raw) if isinstance(raw, (str, bytes)) else raw
+            if 'error' in evt:
+                raise RuntimeError(evt['error'])
+            now = time.monotonic()
+            lid = evt.get('id')
+            if lid:
+                status = evt.get('status', '')
+                detail = evt.get('progressDetail') or {}
+                prev = layers.get(lid)
+                layers[lid] = (status, detail)
+                # 任何字节数变化（含重试归零、层刚出现）都算有进展
+                if prev is None or detail.get('current') != prev[1].get('current'):
+                    last_progress = now
+                elif status != prev[0] and status in ('Pull complete', 'Already exists',
+                                                      'Download complete'):
+                    last_progress = now
+
+            # 仍在下载/解压、且没到总量的层，超过阈值没有字节进展就是死连接
+            stalled = [
+                f"{lid[:12]} {d.get('current', 0) >> 20}/{d['total'] >> 20}MB"
                 for lid, (s, d) in layers.items()
-                if s in ('Downloading', 'Extracting', 'Download complete') and d.get('total')
+                if s in ('Downloading', 'Extracting') and d.get('total')
+                and d.get('current', 0) < d['total']
             ]
-            suffix = f"，进行中: {'; '.join(active[:3])}" if active else ''
-            logger.info(f"拉取进度: {done}/{len(layers)} 层就绪{suffix}")
+            if stalled and now - last_progress >= PULL_STALL_SECONDS:
+                raise RuntimeError(
+                    f"拉取停滞 {int(now - last_progress)}s 无字节进展（{'; '.join(stalled[:3])}）"
+                )
+
+            if now - last_log >= 20:
+                last_log = now
+                done = sum(1 for s, _ in layers.values() if s in ('Already exists', 'Pull complete'))
+                active = [
+                    f"{lid[:12]} {s} {d.get('current', 0) >> 20}/{d.get('total', 0) >> 20}MB"
+                    for lid, (s, d) in layers.items()
+                    if s in ('Downloading', 'Extracting', 'Download complete') and d.get('total')
+                ]
+                suffix = f"，进行中: {'; '.join(active[:3])}" if active else ''
+                logger.info(f"拉取进度: {done}/{len(layers)} 层就绪{suffix}")
+    finally:
+        # 主动关掉事件流，让 daemon 取消这次 pull（否则残留的下载会继续占用连接）
+        stream.close()
     if tag and tag.startswith('sha256:'):
         return client.images.get(f"{repository}@{tag}")
     return client.images.get(f"{repository}:{tag}" if tag else repository)
@@ -232,7 +271,9 @@ def pull_image(client, image: str):
                 msg = str(e)
                 logger.warning(f"拉取失败（源: {source}）: {msg}")
                 if _is_transient(msg) and attempt < PULL_RETRIES:
-                    backoff = min(5 * attempt, 15)
+                    # 限流要等配额恢复，5~15s 往往不够，退避拉长到 20/40s
+                    rate_limited = '限流' in msg or 'rate limit' in msg.lower()
+                    backoff = (20 * attempt) if rate_limited else min(5 * attempt, 15)
                     logger.info(f"临时错误，{backoff}s 后重试…")
                     time.sleep(backoff)
                     continue
