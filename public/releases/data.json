@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-11-22T23:09:34.760Z",
+  "updated_at": "2026-11-23T15:17:00.667Z",
   "releases": [
+    {
+      "tag_name": "v3.0.0-beta.2",
+      "name": "v3.0.0-beta.2 (Build 26K01)",
+      "published_at": "2026-11-23T15:16:28Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v3.0.0-beta.2",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v3.0.0-beta.2",
+      "body": "# JadeView 3.0 Beta.2 更新日志\n\n**版本** `3.0.0-beta.2`\n\n## 新增自绘网页弹窗（Windows）\n\nJadeView 接管 HTTP(S) 网页的 `window.open()` 弹窗，保留与发起页面的通讯和登录会话。\n\n- 地址栏支持编辑网址、查看连接状态和刷新页面。`Ctrl+L` 或 `Alt+D` 可聚焦地址栏并全选网址。\n- 标题和图标随网页更新，外观跟随发起窗口。弹窗和主窗口可独立在任务栏切换。\n- 支持打开 DevTools。弹窗禁用 `jade://` 自定义协议及其本地映射地址。\n\n## 窗口\n\n- `set_window_frame` 调整为只设置标题栏样式，窗口边框通过创建选项 `noframe` 设置。\n- ABI 更新至 `0x00030003`。宿主需要使用新版头文件重新编译，动态绑定需要同步更新函数签名和 ABI 校验。\n\n- Windows 11 22H2 及以上版本支持 `mica_keepActive`、`micaAlt_keepActive` 和 `acrylic_keepActive`，窗口失焦时仍显示对应的原生材质。\n- Windows 覆盖层按钮和窗口缩放边缘优先于页面拖拽区，按钮与缩放边缘重叠时优先响应按钮。\n- Windows 拖动缩放时合并同一批尺寸变化，减少 WebView2 尺寸提交和菜单栏层级更新。右侧标题栏按钮的绘制、点击和提示共用同一份布局。\n\n## 菜单\n\n- 去掉 Windows 亚克力弹出菜单上的额外颗粒，让菜单底色和分割线更均匀。\n- Windows 菜单按 WinUI 主题调整悬浮、按下、禁用、分割线和边框样式，弹出菜单的快捷键靠右对齐。\n- 弹出菜单的亚克力仅在 Windows 11 上启用。Windows 10、关闭透明效果或无法合成材质时使用随主题变化的纯色，对比度主题使用系统配色。\n- Windows 11 弹出菜单使用贴近边缘的轻阴影，主菜单和子菜单都能与底下的内容区分开。\n- Windows 纯色上下文菜单使用 ClearType 绘制菜单项和快捷键。亚克力菜单按物理像素对齐文字，使用灰度抗锯齿。\n- Windows 自绘菜单支持从 WebView2 用方向键、Home、End、Enter、空格和 Esc 操作。UI Automation 可直接操作菜单项、展开或收起子菜单，并读取复选状态。\n- Windows 右键菜单向上展开时固定底边，菜单内容随顶边向上滑出。\n"
+    },
     {
       "tag_name": "v3.0.0-beta.1",
       "name": "v3.0.0-beta.1 (Build 26K01)",
