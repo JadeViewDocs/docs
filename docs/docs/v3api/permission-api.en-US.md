@@ -2,8 +2,8 @@
 title: Web Permissions
 order: 2
 group:
-  title: Windows & Views
-  order: 1
+  title: Pages
+  order: 1.5
 ---
 
 # Web Permission API

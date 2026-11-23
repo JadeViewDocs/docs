@@ -213,7 +213,7 @@ typedef struct JadeEvent {
 | `sequence` | `uint64_t` | Event sequence number |
 | `request_id` | `uint64_t` | Associated request ID |
 | `flags` | `uint32_t` | Flags, such as `JADE_EVENT_REPLAY` |
-| `state` | `uint32_t` | Object state (`JADE_STATE_*`, see [Window API](/en-US/docs/v3api/window-api)) |
+| `state` | `uint32_t` | Object state (`JADE_STATE_*`, see [Window API](/en-US/docs/v3api/window-objects)) |
 | `error_code` | `int32_t` | Error code for failed events |
 | `name` | `const char*` | Event name |
 | `data` | `const uint8_t*` | Payload pointer, valid only during the callback |

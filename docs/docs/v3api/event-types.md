@@ -115,7 +115,7 @@ JadeView 初始化完成后触发。所有窗口创建、API 调用都必须在�
   - `{"source":"frontend","url":"<页面当前地址>"}` — 由前端 `window.close()` 发起；`url` 取 JadeView 直接读取的 WebView 当前地址，非页面自报值。
 - **来源 ID**：目标 Window ID
 
-> 标题栏关闭按钮、`window.close()` 与 Alt+F4 走同一关闭流程，均会派发 `window-closing`；宿主回调返回非空指针即可拦截。详见[关闭流程](/docs/v3api/window-api)。
+> 标题栏关闭按钮、`window.close()` 与 Alt+F4 走同一关闭流程，均会派发 `window-closing`；宿主回调返回非空指针即可拦截。详见[关闭流程](/docs/v3api/window-lifecycle)。
 
 ---
 

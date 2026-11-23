@@ -1,9 +1,9 @@
 ﻿---
 title: Startup Splash
-order: 4
+order: 1.5
 group:
-  title: Native UI
-  order: 4
+  title: Windows
+  order: 1
 ---
 
 # Startup Splash
@@ -14,7 +14,7 @@ Whether the window has a title bar or border is entirely up to the options used 
 
 ## Preview
 
-![Startup splash](/splash-preview.png)
+![Startup splash](/screenshot/splash-preview.png)
 
 ## Window creation parameters
 

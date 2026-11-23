@@ -1,9 +1,9 @@
 ---
-title: WebView API
+title: WebView
 order: 1
 group:
-  title: Windows & Views
-  order: 1
+  title: Pages
+  order: 1.5
 ---
 
 # WebView API (Page Control)
@@ -14,7 +14,7 @@ A window and a web view are two distinct objects: **window operations use a Wind
 
 Destroying the default WebView clears the default association — another instance is not selected automatically. Destroying a Window destroys all of its WebViews first.
 
-Unless explicitly noted, every parameter on this page is a **WebView ID**. `WebViewSettings` fields are documented in the [Window API](/en-US/docs/v3api/window-api); this page focuses on what you can call **after a view is created**.
+Unless explicitly noted, every parameter on this page is a **WebView ID**. `WebViewSettings` and the view operations are documented on this page.
 
 ---
 
@@ -47,7 +47,7 @@ uint32_t second = add_webview(window_id, "https://example.com", &settings, NULL)
 send_ipc_message(second, "message", "hello");
 ```
 
-`WebViewSettings` fields are listed in the [Window API](/en-US/docs/v3api/window-api); initialize the struct with `webview_settings_default` from the [Core API](/en-US/docs/v3api/index).
+`WebViewSettings` fields are listed below; initialize the struct with `webview_settings_default` from the [Core API](/en-US/docs/v3api/index).
 
 ***
 

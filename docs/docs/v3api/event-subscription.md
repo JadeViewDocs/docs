@@ -213,7 +213,7 @@ typedef struct JadeEvent {
 | `sequence` | `uint64_t` | 事件序号 |
 | `request_id` | `uint64_t` | 关联的请求 ID |
 | `flags` | `uint32_t` | 标志位，如 `JADE_EVENT_REPLAY` |
-| `state` | `uint32_t` | 对象状态（`JADE_STATE_*`，见 [窗口 API](/docs/v3api/window-api)） |
+| `state` | `uint32_t` | 对象状态（`JADE_STATE_*`，见 [窗口 API](/docs/v3api/window-objects)） |
 | `error_code` | `int32_t` | 失败事件的错误码 |
 | `name` | `const char*` | 事件名 |
 | `data` | `const uint8_t*` | 正文指针，仅在回调期间有效 |

@@ -10,7 +10,7 @@ group:
 
 本页覆盖运行时生命周期、路径查询、配置初始化、异步请求结果与错误处理，以及库分配字符串的所有权。
 
-窗口对象的创建、配置和属性操作见 [窗口 API](/docs/v3api/window-api)；视图对象的创建、挂载、页面操作和布局见 [WebView API](/docs/v3api/webview-api)。两类对象各有一张配置字段表，分别在这两页。
+窗口创建与配置见[创建窗口](/docs/v3api/window-api)，窗口操作见[窗口对象](/docs/v3api/window-objects)及其他窗口分类；视图对象的创建、挂载、页面操作和布局见 [WebView API](/docs/v3api/webview-api)。两类对象各有一张配置字段表，分别在这两页。
 
 ---
 
@@ -196,7 +196,7 @@ typedef struct JadeRequestResult {
 | 4 | 失败（failed） |
 | 5 | 已取消（cancelled） |
 
-> 这套编号属于**请求结果**；对象生命周期状态是另一套 `JADE_STATE_*` 常量（见 [窗口 API](/docs/v3api/window-api)），不要混用。
+> 这套编号属于**请求结果**；对象生命周期状态是另一套 `JADE_STATE_*` 常量（见 [窗口 API](/docs/v3api/window-objects)），不要混用。
 
 ---
 
@@ -284,7 +284,7 @@ if (!send_ipc_message(view_id, "message", "hello")) {
 | `JADE_PLATFORM_ERROR` | -7 | | |
 | `JADE_BUSY` | -8 | | |
 
-其中 `JADE_WRONG_OBJECT_TYPE` 对应「把 Window ID 当成 WebView ID」这类错类型调用（见 [窗口 API](/docs/v3api/window-api)）；`JADE_BUSY` 常见于 [JAPK 卸载](/docs/v3api/japk) 与原生资源释放。
+其中 `JADE_WRONG_OBJECT_TYPE` 对应「把 Window ID 当成 WebView ID」这类错类型调用（见 [窗口 API](/docs/v3api/window-objects)）；`JADE_BUSY` 常见于 [JAPK 卸载](/docs/v3api/japk) 与原生资源释放。
 
 ---
 

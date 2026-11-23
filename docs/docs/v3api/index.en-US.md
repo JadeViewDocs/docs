@@ -255,7 +255,7 @@ typedef struct JadeRequestResult {
 | 4 | Failed |
 | 5 | Cancelled |
 
-> These numbers belong to **request results**. Object lifecycle states use a different set of `JADE_STATE_*` constants (see [Window API](/en-US/docs/v3api/window-api)) — do not mix them up.
+> These numbers belong to **request results**. Object lifecycle states use a different set of `JADE_STATE_*` constants (see [Window API](/en-US/docs/v3api/window-objects)) — do not mix them up.
 
 ---
 
@@ -343,7 +343,7 @@ The error codes defined in `include/JadeView.h` (the value source for `jade_last
 | `JADE_PLATFORM_ERROR` | -7 | | |
 | `JADE_BUSY` | -8 | | |
 
-`JADE_WRONG_OBJECT_TYPE` covers calls with the wrong ID type, such as passing a Window ID where a WebView ID is expected (see [Window API](/en-US/docs/v3api/window-api)); `JADE_BUSY` is common during [JAPK unmount](/en-US/docs/v3api/japk) and native resource release.
+`JADE_WRONG_OBJECT_TYPE` covers calls with the wrong ID type, such as passing a Window ID where a WebView ID is expected (see [Window API](/en-US/docs/v3api/window-objects)); `JADE_BUSY` is common during [JAPK unmount](/en-US/docs/v3api/japk) and native resource release.
 
 ---
 

@@ -115,7 +115,7 @@ The user clicked close (or the frontend called `window.close()`, or Alt+F4, or t
   - `{"source":"frontend","url":"<page's current URL>"}` — initiated by the frontend `window.close()`; `url` is the WebView's current address read directly by JadeView, not a value reported by the page.
 - **Source ID**: id of the window about to close
 
-> The title-bar close button, `window.close()` and Alt+F4 share one close flow; the host's registered `window-closing` callback **will** be called and can block the close by returning a non-null pointer. See [Close Flow](/en-US/docs/v3api/window-api).
+> The title-bar close button, `window.close()` and Alt+F4 share one close flow; the host's registered `window-closing` callback **will** be called and can block the close by returning a non-null pointer. See [Close Flow](/en-US/docs/v3api/window-lifecycle).
 
 ---
 

@@ -2,7 +2,7 @@
 title: Theme Management
 order: 2
 group:
-  title: Windows & Views
+  title: Windows
   order: 1
 ---
 
@@ -37,14 +37,14 @@ Windows' immersive dark native title bar has no Linux equivalent: on Linux the t
 
 **Purpose**: On **Windows 11**, apply a system-provided **background material** (such as Mica or Acrylic) to a window, matching the kind of effects found under "Personalization" in the system settings. Common values for `backdrop_type`: **`mica`**, **`micaAlt`**, **`acrylic`**, plus **`default`** (a solid color that does not depend on the Win11 DWM material API). Values are **case-insensitive** (e.g. `Mica`, `MICA` both work).
 
-Use `mica_keepActive`, `micaAlt_keepActive`, or `acrylic_keepActive` to retain the material when the window loses focus. These values require Windows 11 22H2 or later and Windows App Runtime 1.8 matching the host process architecture. System transparency settings still apply.
+`mica_keepActive`, `micaAlt_keepActive`, and `acrylic_keepActive` retain their native Windows materials when the window loses focus. The system-drawn non-client area can retain its active appearance while focus moves normally. These modes require no Windows App Runtime installation and respect system transparency and contrast settings.
 
 ```c
 int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);
 ```
 
 :::warning{title="Platform Differences"}
-**Windows 11 only**. Linux (WebKitGTK) has no equivalent for system materials; the call is a no-op and returns `0`. On Linux, use `set_window_background_color` to set a solid color instead, or use a `transparent` window plus a semi-transparent page background.
+System materials require **Windows 11 22H2 or later**. The `default` value works on both Windows and Linux. On Linux you can also use `set_window_background_color` to set a solid color.
 :::
 
 ---

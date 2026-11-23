@@ -2,8 +2,8 @@
 title: 网页权限
 order: 2
 group:
-  title: 窗口与视图
-  order: 1
+  title: 页面
+  order: 1.5
 ---
 
 # 网页权限 API

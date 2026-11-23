@@ -237,7 +237,7 @@ v2 的窗口装饰只有一个字符串 `frame_style`，三档：`normal` / `no-
 
 每个窗口可以单独设置 LOGO、背景色、加载动画颜色和最短显示时间。建窗时把 `JadeSplashOptions` 传给 `JadeWindowFeatures.splash`，LOGO 可传 PNG 或 ICO 的路径，也可直接传图片字节。
 
-![Windows 启动画面示例](/splash-preview.png)
+![Windows 启动画面示例](/screenshot/splash-preview.png)
 
 [启动画面 API 与示例](/docs/v3api/splash-api)
 

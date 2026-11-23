@@ -1,9 +1,9 @@
 ﻿---
 title: 启动画面
-order: 4
+order: 1.5
 group:
-  title: 原生 UI
-  order: 4
+  title: 窗口
+  order: 1
 ---
 
 # 启动画面
@@ -14,7 +14,7 @@ JadeView 在配置了启动画面的窗口内显示 LOGO 和加载动画。覆�
 
 ## 效果
 
-![启动画面](/splash-preview.png)
+![启动画面](/screenshot/splash-preview.png)
 
 ## 窗口创建参数
 

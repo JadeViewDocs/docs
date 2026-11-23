@@ -2,7 +2,7 @@
 title: 主题管理
 order: 2
 group:
-  title: 窗口与视图
+  title: 窗口
   order: 1
 ---
 
@@ -36,14 +36,14 @@ Windows 的**沉浸式暗色原生标题栏**在 Linux 无对应——Linux 标�
 
 **用途**：在 **Windows 11** 上给窗口加上系统提供的**背景材质**（如云母、亚克力），和系统设置里「个性化」那类效果一致。`backdrop_type` 常用取值：**`mica`**、**`micaAlt`**、**`acrylic`**，以及 **`default`**（纯色底，不依赖 Win11 DWM 材质 API）。取值**大小写不敏感**（如 `Mica`、`MICA` 均可）。
 
-`mica_keepActive`、`micaAlt_keepActive`、`acrylic_keepActive` 在窗口失焦时保留背景材料。使用这些值需要 Windows 11 22H2 或更新版本，并安装与宿主进程架构匹配的 Windows App Runtime 1.8。系统透明效果等设置仍然适用。
+`mica_keepActive`、`micaAlt_keepActive` 和 `acrylic_keepActive` 在失焦时继续显示相应的 Windows 原生材质。系统绘制的非客户区可能仍显示为激活外观，窗口焦点正常切换。以上模式无需安装 Windows App Runtime，系统透明效果和对比度设置仍然适用。
 
 ```c
 int32_t set_window_backdrop(uint32_t window_id, const char* backdrop_type);
 ```
 
 :::warning{title=平台差异}
-**仅 Windows 11**。Linux（WebKitGTK）无系统材质等价物，调用为 no-op 并返回 `0`。Linux 上请改用 `set_window_background_color` 设纯色，或窗口 `transparent` + 页面半透明背景。
+系统材质需要 **Windows 11 22H2 或更新版本**。`default` 在 Windows 与 Linux 都可用。Linux 上也可用 `set_window_background_color` 设纯色。
 :::
 
 ---
