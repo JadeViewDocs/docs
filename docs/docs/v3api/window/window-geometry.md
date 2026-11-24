@@ -25,14 +25,14 @@ int32_t set_window_title(uint32_t window_id, const char* title);
 
 ### 设置窗口大小
 
-按像素改变窗口宽度和高度。
+按逻辑像素改变窗口宽度和高度。Windows 按可见窗体计算。
 
 ```c
 int32_t set_window_size(uint32_t window_id, int32_t width, int32_t height);
 ```
 
 - `window_id` `uint32_t` - 目标 Window ID
-- `width` / `height` `int32_t` - 新的宽高（像素）
+- `width` / `height` `int32_t` - 新的宽高（逻辑像素）
 
 ---
 
@@ -50,6 +50,8 @@ int32_t set_window_position(uint32_t window_id, int32_t x, int32_t y);
 ---
 
 ### 获取窗口位置和尺寸（`get_window_bounds`）
+
+Windows 返回窗体外框的位置和可见窗体的宽高，单位为物理像素。
 
 ```c
 int32_t get_window_bounds(uint32_t window_id, char* buffer, int32_t buffer_size);

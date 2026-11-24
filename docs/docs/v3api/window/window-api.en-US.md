@@ -47,8 +47,7 @@ uint32_t create_webview_window(const char* url, uint32_t parent_window_id, const
   **WebViewWindowOptions options:**
   - `struct_size` and `abi_version` `uint32_t` - Both are filled by `window_options_default`.
   - `title` `string` - The text shown in the window's title bar
-  - `width` `int32_t` - Initial width (pixels)
-  - `height` `int32_t` - Initial height (pixels)
+  - `width` / `height` `int32_t` - Initial width and height in logical pixels. On Windows these measure the visible window and define the restored size of a window created maximized.
   - `resizable` `int32_t` - Whether the user can resize the window by dragging its edges with the mouse
   - `title_bar_style` `const char*` - `default` for the system title bar, `hidden` to hide it, or `BarOverlay` for overlaid caption buttons. `NULL` selects the default.
   - `noframe` `int32_t` - Borderless: `1` uses the existing borderless implementation, `0` keeps the system frame; borderless takes precedence over the system title bar

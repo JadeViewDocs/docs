@@ -89,7 +89,7 @@ typedef struct WebViewWindowOptions {
 | `struct_size` | `uint32_t` | 结构体字节数，由 `window_options_default` 填入 |
 | `abi_version` | `uint32_t` | ABI 版本，由 `window_options_default` 填入 |
 | `title` | `const char*` | 窗口标题栏文字 |
-| `width` / `height` | `int32_t` | 初始宽高，单位为逻辑像素，必须为正值 |
+| `width` / `height` | `int32_t` | 初始宽高，单位为逻辑像素，必须为正值。Windows 按可见窗体计算，最大化创建时用作还原尺寸 |
 | `resizable` | `int32_t` | 是否允许用户拖动边缘调整大小 |
 | `noframe` | `int32_t` | `1` 使用无边框实现，`0` 保留系统边框，默认 `0`；无边框优先于系统标题栏 |
 | `title_bar_style` | `const char*` | `default` 系统标题栏、`hidden` 隐藏标题栏、`BarOverlay` 隐藏标题栏并启用按钮覆盖层；`NULL` 等同 `default` |
@@ -103,8 +103,8 @@ typedef struct WebViewWindowOptions {
 | `maximized` | `int32_t` | 打开时是否最大化 |
 | `maximizable` / `minimizable` | `int32_t` | 标题栏上最大化 / 最小化按钮是否生效 |
 | `x` / `y` | `int32_t` | 窗口左上角坐标，`-1` 表示居中 |
-| `min_width` / `min_height` | `int32_t` | 最小宽高，`0` 表示不限制 |
-| `max_width` / `max_height` | `int32_t` | 最大宽高，`0` 表示不限制 |
+| `min_width` / `min_height` | `int32_t` | 最小宽高，`0` 表示不限制。Windows 按可见窗体的逻辑像素计算 |
+| `max_width` / `max_height` | `int32_t` | 最大宽高，`0` 表示不限制。Windows 按可见窗体的逻辑像素计算 |
 | `fullscreen` | `int32_t` | 打开时是否全屏 |
 | `focus` | `int32_t` | 打开后是否抢键盘焦点 |
 | `hide_window` | `int32_t` | 默认 `0`（创建后显示）；非 `0` 时先创建但不显示，适合先加载再显示 |

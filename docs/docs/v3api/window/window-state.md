@@ -100,6 +100,8 @@ int32_t is_window_fullscreen(uint32_t window_id);
 
 ## 窗口约束
 
+Windows 的最小、最大尺寸按可见窗体的逻辑像素计算。传 `0` 可取消对应方向的限制。
+
 ### 设置窗口最小尺寸（`set_window_min_size`）
 
 ```c
@@ -123,6 +125,8 @@ int32_t set_window_max_size(uint32_t window_id, int32_t width, int32_t height);
 ---
 
 ### 设置窗口是否可调整大小（`set_window_resizable`）
+
+Windows 上，普通窗口切换此设置时会保留屏幕上的可见位置和宽高。
 
 ```c
 int32_t set_window_resizable(uint32_t window_id, int32_t resizable);

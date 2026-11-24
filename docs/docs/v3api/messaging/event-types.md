@@ -121,7 +121,7 @@ JadeView 初始化完成后触发。所有窗口创建、API 调用都必须在�
 
 ### `window-resized`
 
-窗口尺寸变化。
+窗口尺寸变化。Windows 返回可见窗体的宽高，单位为物理像素。
 
 - **`event_data`**：`{"width": 整数, "height": 整数}`
 - **来源 ID**：目标 Window ID

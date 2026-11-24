@@ -121,7 +121,7 @@ The user clicked close (or the frontend called `window.close()`, or Alt+F4, or t
 
 ### `window-resized`
 
-The window size changed.
+The window size changed. On Windows, the dimensions measure the visible window in physical pixels.
 
 - **`event_data`**: `{"width": integer, "height": integer}`
 - **Source ID**: id of the target window

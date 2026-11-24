@@ -120,6 +120,8 @@ int32_t is_window_fullscreen(uint32_t window_id);
 
 ### Set the Window Minimum Size (`set_window_min_size`)
 
+On Windows, minimum and maximum sizes apply to the visible window in logical pixels. Pass `0` to clear a limit on that axis.
+
 ```c
 int32_t set_window_min_size(uint32_t window_id, int32_t width, int32_t height);
 ```
@@ -141,6 +143,8 @@ int32_t set_window_max_size(uint32_t window_id, int32_t width, int32_t height);
 ***
 
 ### Set Whether the Window Is Resizable (`set_window_resizable`)
+
+On Windows, changing this setting preserves the visible position and size of a window in its normal state.
 
 ```c
 int32_t set_window_resizable(uint32_t window_id, int32_t resizable);
