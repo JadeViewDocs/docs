@@ -8,6 +8,8 @@ group:
 
 # Window API
 
+> This page applies to JadeView 2.x. For JadeView 3.0, see [Create a Window](/en-US/docs/v3api/window/window-api).
+
 The Window API provides everything you need to create and manage windows, including creating windows, resizing, setting themes, and more.
 
 For WebView-related operations such as page navigation, script execution, DevTools, and printing, see [WebView API](/en-US/docs/api/webview-api).

@@ -192,7 +192,7 @@ You can get the default WebView ID as soon as creation is accepted. Wait for the
 
 ### Create a Frameless Window
 
-Set the initialized `options.noframe` field to `1` and call `create_webview_window`. When migrating from `create_borderless_webview_window`, keep passing the same WebView settings and window features.
+Initialize `WebViewWindowOptions`, set `options.noframe` to `1`, and call `create_webview_window`. Pass WebView settings and window features as needed.
 
 ```c
 WebViewWindowOptions options;

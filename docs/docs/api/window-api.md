@@ -8,6 +8,8 @@ group:
 
 # 窗口 API
 
+> 本页适用于 JadeView 2.x。JadeView 3.0 的建窗接口见[创建窗口](/docs/v3api/window/window-api)。
+
 窗口 API 提供了创建和管理窗口的所有功能，包括创建窗口、调整大小、设置主题等。
 
 页面导航、脚本执行、DevTools、打印等 WebView 相关操作见 [WebView API](/docs/api/webview-api)。

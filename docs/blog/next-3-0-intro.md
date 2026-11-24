@@ -314,7 +314,7 @@ unregister_japk(archive_id);
 
 | v2 的写法 | 3.0 的写法 |
 | --- | --- |
-| `create_borderless_webview_window(...)` | 初始化窗口选项，设置 `noframe = 1`，再调 `create_webview_window(...)` |
+| `create_borderless_webview_window` | 已移除。初始化窗口选项并设置 `noframe = 1`，再调用 [`create_webview_window`](/docs/v3api/window/window-api#创建无边框窗口) |
 | `execute_javascript(window_id, script)` | `execute_webview_script(webview_id, script)` + 请求 ID |
 | `frame_style = "no-titlebar"` | `noframe` + `title_bar_style` 两个字段 |
 | `set_window_frame_style(...)` | `set_window_frame(window_id, noframe, title_bar_style)` |

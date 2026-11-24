@@ -218,7 +218,7 @@ uint32_t view_id = get_default_webview(window_id);
 
 ### 创建无边框窗口
 
-将已初始化的 `options.noframe` 设为 `1`，继续调用 `create_webview_window`。从 `create_borderless_webview_window` 迁移时可沿用原有的 WebView 设置和窗口扩展配置。
+初始化 `WebViewWindowOptions` 后，将 `options.noframe` 设为 `1`，再调用 `create_webview_window`。按需传入 WebView 设置和窗口扩展配置。
 
 ```c
 WebViewWindowOptions options;
