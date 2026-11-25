@@ -75,7 +75,8 @@ export default memo(function DocumentLayout({ children }: any) {
   const hostname = useSiteStore((s: any) => siteSelectors.hostname(s));
 
   // 侧栏是否「适用」（文档页 + 未在 frontmatter 关闭 + 确有侧栏数据）—— 决定是否挂载 aside / 左侧占位
-  const sidebarApplicable = page === 'docs' && fm.sidebar !== false && hasSidebarData;
+  const widePage = page === 'docs' && fm.wide === true;
+  const sidebarApplicable = page === 'docs' && !widePage && fm.sidebar !== false && hasSidebarData;
   // 是否展开显示（适用 且 非 mobile）；mobile 下保持挂载但宽度动画收起到 0
   const showSidebar = sidebarApplicable && !mobile;
 
@@ -168,8 +169,8 @@ export default memo(function DocumentLayout({ children }: any) {
           <Header />
         </LayoutHeader>
         <LayoutMain>
-          {/* 侧栏不适用（首页/变更日志/ fm.sidebar=false）且桌面端：左侧占位，保持正文居中（与原版一致） */}
-          {!mobile && !sidebarApplicable && <nav style={{ width: tocWidth }} />}
+          {/* 侧栏不适用（首页/变更日志/ fm.sidebar=false）且桌面端：左侧占位，保持正文居中（宽屏独立页 widePage 不占位） */}
+          {!mobile && !sidebarApplicable && !widePage && <nav style={{ width: tocWidth }} />}
           {/* 侧栏适用：恒定挂载的 motion.aside —— 宽度/透明度随 showSidebar 平滑收展，两个方向都有过渡 */}
           {sidebarApplicable && (
             <motion.aside
@@ -217,14 +218,14 @@ export default memo(function DocumentLayout({ children }: any) {
             {page === 'home' && <Home>{children}</Home>}
             {page === 'changelog' && <Changelog>{children}</Changelog>}
             {page === 'search' && children}
-            {page === 'docs' && (
+            {page === 'docs' && (widePage ? children : (
               <Docs>
                 <DocBreadcrumb />
                 {/* 博客文章信息栏：非 /blog/* 路由自动渲染为 null，不影响 API 文档页 */}
                 <PostHeader />
                 {children}
               </Docs>
-            )}
+            ))}
           </section>
           {!mobile && toc && <LayoutToc tocWidth={tocWidth}>{toc}</LayoutToc>}
         </LayoutMain>

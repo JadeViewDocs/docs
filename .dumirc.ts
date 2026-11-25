@@ -472,7 +472,7 @@ html[data-prefers-color='light'] .jade-capsule-header a.ant-btn:hover {
           title: '社区',
           items: [
             { title: 'QQ 群：703623743', url: 'https://qm.qq.com/q/MVsl5VWokC', openExternal: true },
-            { title: 'GitHub Issues', url: 'https://github.com/JadeViewDocs/JadeView/issues', openExternal: true },
+            { title: '问题反馈', url: '/issues' },
             { title: 'Gitee', url: 'https://gitee.com/ilinxuan/JadeView_library', openExternal: true },
             { title: '邮箱', url: 'mailto:ihanlong@qq.com' },
           ],
