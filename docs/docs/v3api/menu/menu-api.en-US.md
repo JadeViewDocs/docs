@@ -49,7 +49,7 @@ A submenu's `id` is its children's `parent_id`. At most 512 items and three subm
 |---|---|
 | `icon_path` | PNG/ICO or TTF/OTF/TTC/OTC path. Mounted JAPK `app/...` paths work. Font collections use their first face. |
 | `icon_data` / `icon_data_size` | PNG/ICO bytes, copied during the call, up to 8 MiB. |
-| `icon_codepoint` | Unicode codepoint in the specified font, such as `0xE749`. Omit the font path to use the default icon font. See the [Segoe Fluent Icons list](https://learn.microsoft.com/en-us/windows/apps/design/iconography/segoe-fluent-icons-font) for Windows glyphs and their codepoints. |
+| `icon_codepoint` | Unicode codepoint in the specified font, such as `0xE749`. Without a font path, the default icon font on Windows is Segoe MDL2 Assets — see the [MDL2 icon list](https://learn.microsoft.com/en-us/windows/apps/design/iconography/segoe-ui-symbol-font). For Segoe Fluent Icons, pass a Fluent font file via `icon_path` or set the `JADEVIEW_MENU_ICON_FONT` environment variable. |
 
 A nonzero `icon_codepoint` takes precedence over images. A font path selects the glyph source. With a zero codepoint, image bytes take precedence over an image path. If the specified font lacks the glyph, the menu call returns `0` with `JADE_INVALID_ARGUMENT`.
 
