@@ -1,11 +1,12 @@
 // 发行版本页（从旧站 static/releases/index.html 迁移，样式按新站 lobehub 风格重做）。
 // 数据：消费工作流生成的 /releases/data.json（GitHub Releases 快照：tag_name/name/published_at/prerelease/
-//   html_url/gitee_url/body-markdown）。后续 CI 改成写本站 public/releases/data.json 即可。
+//   html_url/body-markdown）。后续 CI 改成写本站 public/releases/data.json 即可。
 // 功能保留：发行版本(语义化说明 + 最新稳定版 + 稳定/预发布列表) / 发行日历(热力图) / 所有发行(筛选+分页) / 详情(Markdown)。
+import { Github } from '@lobehub/icons';
 import { Segmented, theme as antdTheme } from 'antd';
 import { createStyles } from 'antd-style';
 import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
-import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, memo, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useT } from '../locales/strings';
 
 // Markdown（@lobehub/ui）内部静态依赖 katex/shiki，builtins 又是静态注册的，
@@ -14,6 +15,10 @@ const Markdown = lazy(() => import('@lobehub/ui').then((m) => ({ default: m.Mark
 
 const DATA_URL = '/releases/data.json';
 const PAGE_SIZE = 10;
+// AtomGit 发行页：单版本直链为 `${ATOMGIT_RELEASES_URL}/{tag_name}`，正式版与预发布版一致
+const ATOMGIT_RELEASES_URL = 'https://atomgit.com/ituyang/JadeView/releases';
+// AtomGit 官方单色标志（24×24 svg）
+const ATOMGIT_MARK_URL = 'https://atomcode.atomgit.com/assets/atomgit-mark.svg';
 
 type Release = {
   tag_name: string;
@@ -21,7 +26,6 @@ type Release = {
   published_at: string;
   prerelease?: boolean;
   html_url?: string;
-  gitee_url?: string;
   body?: string;
 };
 
@@ -513,9 +517,10 @@ export default memo(function ReleaseNotes() {
   const stableBadge = { color: theme.colorSuccess, background: theme.colorSuccessBg };
   const preBadge = { color: theme.colorWarning, background: theme.colorWarningBg };
 
-  const GhLink = ({ href, label }: { href?: string; label: string }) =>
+  const ExtLink = ({ href, label, icon }: { href?: string; label: string; icon?: ReactNode }) =>
     href ? (
       <a className={styles.link} href={href} rel="noreferrer" target="_blank">
+        {icon}
         {label}
         <ExternalLink size={12} />
       </a>
@@ -555,8 +560,12 @@ export default memo(function ReleaseNotes() {
             <div className={styles.detailMeta}>
               <span>{formatDate(r.published_at, t)}</span>
               <span className={styles.links}>
-                <GhLink href={r.html_url} label="GitHub" />
-                {!r.prerelease && <GhLink href={r.gitee_url} label="Gitee" />}
+                <ExtLink href={r.html_url} icon={<Github size={14} />} label="GitHub" />
+                <ExtLink
+                  href={`${ATOMGIT_RELEASES_URL}/${r.tag_name}`}
+                  icon={<img alt="" height={14} src={ATOMGIT_MARK_URL} width={14} />}
+                  label="AtomGit"
+                />
               </span>
             </div>
             {r.body ? (
@@ -653,8 +662,12 @@ export default memo(function ReleaseNotes() {
                       {t.latestStable}
                     </span>
                     <span className={styles.links}>
-                      <GhLink href={latest.html_url} label="GitHub" />
-                      <GhLink href={latest.gitee_url} label="Gitee" />
+                      <ExtLink href={latest.html_url} icon={<Github size={14} />} label="GitHub" />
+                      <ExtLink
+                        href={`${ATOMGIT_RELEASES_URL}/${latest.tag_name}`}
+                        icon={<img alt="" height={14} src={ATOMGIT_MARK_URL} width={14} />}
+                        label="AtomGit"
+                      />
                     </span>
                   </div>
                   <h2 className={styles.latestVer} onClick={() => open(latest.tag_name)}>
