@@ -1,6 +1,7 @@
 // 发行版本页（从旧站 static/releases/index.html 迁移，样式按新站 lobehub 风格重做）。
-// 数据：消费工作流生成的 /releases/data.json（GitHub Releases 快照：tag_name/name/published_at/prerelease/
-//   html_url/body-markdown）。后续 CI 改成写本站 public/releases/data.json 即可。
+// 数据：运行时直接拉线上发行列表（AtomGit + GitHub 公开接口），无需重建站点即可看到新版本。
+//   两个来源共用一套闸门：任意两次请求至少间隔 2 秒（上游 AtomGit 限 2 次/秒、GitHub 未登录 60 次/小时），
+//   各自响应缓存 10 秒。GitHub 数据为准（日期/正文准、历史全），AtomGit 兜底 + 国内更快出内容。
 // 功能保留：发行版本(语义化说明 + 最新稳定版 + 稳定/预发布列表) / 发行日历(热力图) / 所有发行(筛选+分页) / 详情(Markdown)。
 import { Github } from '@lobehub/icons';
 import { Segmented, theme as antdTheme } from 'antd';
@@ -13,12 +14,23 @@ import { useT } from '../locales/strings';
 // 会拖进所有页面的首屏 chunk。lazy 化后只在打开版本详情时加载。
 const Markdown = lazy(() => import('@lobehub/ui').then((m) => ({ default: m.Markdown })));
 
-const DATA_URL = '/releases/data.json';
 const PAGE_SIZE = 10;
 // AtomGit 发行页：单版本直链为 `${ATOMGIT_RELEASES_URL}/{tag_name}`，正式版与预发布版一致
 const ATOMGIT_RELEASES_URL = 'https://atomgit.com/ituyang/JadeView/releases';
 // AtomGit 官方单色标志（24×24 svg）
 const ATOMGIT_MARK_URL = 'https://atomcode.atomgit.com/assets/atomgit-mark.svg';
+// 线上发行列表，两个上游（均免认证、CORS 放开任意 Origin）：
+//   AtomGit 国内快，但历史版本少、只有 created_at；GitHub 数据全、日期准，国内可能不通。
+const ATOMGIT_API_URL = 'https://api.atomgit.com/api/v5/repos/ituyang/JadeView/releases?per_page=100';
+const GITHUB_API_URL = 'https://api.github.com/repos/JadeViewDocs/JadeView/releases?per_page=100';
+const GITHUB_TAG_BASE = 'https://github.com/JadeViewDocs/JadeView/releases/tag';
+// 上游限流都很紧（AtomGit 2 次/秒、GitHub 未登录 60 次/小时）：两个来源共用一套闸门——
+//   任意两次请求至少间隔 2 秒，各自响应缓存 10 秒，命中缓存不发请求。
+const ATOMGIT_CACHE_KEY = 'jadeview:releases:atomgit';
+const GITHUB_CACHE_KEY = 'jadeview:releases:github';
+const RELEASES_LAST_REQ_KEY = 'jadeview:releases:last-req';
+const RELEASES_CACHE_TTL = 10_000;
+const RELEASES_MIN_INTERVAL = 2_000;
 
 type Release = {
   tag_name: string;
@@ -29,12 +41,153 @@ type Release = {
   body?: string;
 };
 
-function formatDate(dateStr: string, t: { today: string; yesterday: string; dateLocale: string }) {
+type AtomgitRelease = {
+  tag_name?: string;
+  name?: string;
+  body?: string;
+  prerelease?: boolean;
+  created_at?: string;
+};
+
+type GithubRelease = {
+  tag_name?: string;
+  name?: string;
+  body?: string;
+  prerelease?: boolean;
+  published_at?: string;
+  html_url?: string;
+};
+
+type CacheEntry = { at: number; releases: Release[] };
+
+type DateWords = {
+  justNow: string;
+  minutesAgo: (minutes: number) => string;
+  halfHourAgo: string;
+  almostAnHourAgo: string;
+  hoursAgo: (hours: number) => string;
+  yesterday: string;
+  dateLocale: string;
+};
+
+// 展示规则（按本地时间）：
+//   不足 1 小时 → 口语化（刚刚 / x 分钟前 / 半个小时前 / 快一个小时前），跨不跨自然日都一样
+//   同一自然日内 → x 个小时前
+//   前一自然日   → 昨天
+//   更早         → 年月日
+function formatDate(dateStr: string, t: DateWords) {
   const date = new Date(dateStr);
-  const diffDays = Math.floor((Date.now() - date.getTime()) / 86400000);
-  if (diffDays === 0) return t.today;
+  const elapsedMinutes = (Date.now() - date.getTime()) / 60000;
+  if (elapsedMinutes < 1) return t.justNow;
+  if (elapsedMinutes < 20) return t.minutesAgo(Math.floor(elapsedMinutes));
+  if (elapsedMinutes < 45) return t.halfHourAgo;
+  if (elapsedMinutes < 60) return t.almostAnHourAgo;
+
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  // round 而不是 floor：夏令时会让两天相差 23 或 25 小时
+  const diffDays = Math.round((startOfDay(new Date()) - startOfDay(date)) / 86400000);
+  if (diffDays === 0) return t.hoursAgo(Math.floor(elapsedMinutes / 60));
   if (diffDays === 1) return t.yesterday;
   return date.toLocaleDateString(t.dateLocale, { year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+
+// 拉线上发行列表。
+// 为什么不读站点里的 /releases/data.json：快照是构建期随镜像发出去的，发版后不重建站点就一直是旧数据。
+function readCache(key: string): Release[] | null {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    const entry = JSON.parse(raw) as CacheEntry;
+    if (!Array.isArray(entry.releases)) return null;
+    return Date.now() - entry.at < RELEASES_CACHE_TTL ? entry.releases : null;
+  } catch {
+    // 存储不可用（隐私模式 / 配额满）时当作无缓存
+    return null;
+  }
+}
+
+function writeCache(key: string, releases: Release[]) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify({ at: Date.now(), releases } satisfies CacheEntry));
+  } catch {
+    // 写不进缓存不影响展示
+  }
+}
+
+// 共用闸门：两次上游请求至少间隔 2 秒（时间戳落 localStorage，刷新页面 / 多标签页同样生效）
+async function passGate() {
+  let lastReq = 0;
+  try {
+    lastReq = Number(window.localStorage.getItem(RELEASES_LAST_REQ_KEY)) || 0;
+  } catch {
+    // 读不到时间戳时不额外等待
+  }
+  const wait = RELEASES_MIN_INTERVAL - (Date.now() - lastReq);
+  if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+  try {
+    window.localStorage.setItem(RELEASES_LAST_REQ_KEY, String(Date.now()));
+  } catch {
+    // 记不了时间戳，退化为不跨页节流
+  }
+}
+
+async function loadReleaseList<T>(
+  cacheKey: string,
+  url: string,
+  toRelease: (r: T) => Release | null,
+): Promise<Release[]> {
+  const cached = readCache(cacheKey);
+  if (cached) return cached;
+
+  await passGate();
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data: unknown = await res.json();
+  if (!Array.isArray(data)) throw new Error('接口返回格式异常');
+  const releases = (data as T[])
+    .map(toRelease)
+    .filter((r): r is Release => r !== null)
+    // 接口按创建顺序返回（旧→新），页面约定首项为最新
+    .sort((a, b) => (Date.parse(b.published_at) || 0) - (Date.parse(a.published_at) || 0));
+  writeCache(cacheKey, releases);
+  return releases;
+}
+
+const fetchAtomgitReleases = () =>
+  loadReleaseList<AtomgitRelease>(ATOMGIT_CACHE_KEY, ATOMGIT_API_URL, (r) =>
+    r.tag_name
+      ? {
+          tag_name: r.tag_name,
+          name: r.name || r.tag_name,
+          // AtomGit 只有 created_at：新发布的版本它≈发布时间，更早的版本是迁移进 AtomGit 的时间
+          published_at: r.created_at || '',
+          prerelease: Boolean(r.prerelease),
+          html_url: `${GITHUB_TAG_BASE}/${r.tag_name}`,
+          body: r.body || '',
+        }
+      : null,
+  );
+
+const fetchGithubReleases = () =>
+  loadReleaseList<GithubRelease>(GITHUB_CACHE_KEY, GITHUB_API_URL, (r) =>
+    r.tag_name
+      ? {
+          tag_name: r.tag_name,
+          name: r.name || r.tag_name,
+          published_at: r.published_at || '',
+          prerelease: Boolean(r.prerelease),
+          html_url: r.html_url || `${GITHUB_TAG_BASE}/${r.tag_name}`,
+          body: r.body || '',
+        }
+      : null,
+  );
+
+// 合并两份列表：primary（GitHub：日期/正文准、历史全）优先，再补它没有的版本，按发布时间倒序
+function mergeReleases(primary: Release[], extra: Release[]): Release[] {
+  const seen = new Set(primary.map((r) => r.tag_name));
+  return [...primary, ...extra.filter((r) => !seen.has(r.tag_name))].sort(
+    (a, b) => (Date.parse(b.published_at) || 0) - (Date.parse(a.published_at) || 0),
+  );
 }
 
 // —— URL 状态同步（SPA 单页，用查询参数；刷新可还原、可分享、前进后退可用）——
@@ -481,13 +634,22 @@ export default memo(function ReleaseNotes() {
   const load = () => {
     setLoading(true);
     setError(false);
-    fetch(DATA_URL)
-      .then((r) => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
+    // AtomGit 国内快，先出内容；GitHub 数据更全（日期/正文准确、历史版本完整），拿到后按它为准合并。
+    fetchAtomgitReleases()
+      .then((atomgit) => {
+        setReleases(atomgit);
+        fetchGithubReleases()
+          .then((github) => setReleases((prev) => mergeReleases(github, prev)))
+          .catch(() => {
+            // GitHub 不通（国内常见）就只用 AtomGit 的列表
+          });
       })
-      .then((d) => setReleases(Array.isArray(d.releases) ? d.releases : []))
-      .catch(() => setError(true))
+      // AtomGit 也不可用时，反过来只靠 GitHub
+      .catch(() =>
+        fetchGithubReleases()
+          .then(setReleases)
+          .catch(() => setError(true)),
+      )
       .finally(() => setLoading(false));
   };
   useEffect(load, []);
@@ -500,8 +662,11 @@ export default memo(function ReleaseNotes() {
   const dateMap = useMemo(() => {
     const m: Record<string, Release[]> = {};
     releases.forEach((r) => {
-      const d = r.published_at.slice(0, 10);
-      (m[d] ||= []).push(r);
+      // 按本地自然日归档（日历格子用的也是本地日期）；
+      // 直接切 ISO 串前 10 位是 UTC 日期，跟展示/日历会差一天
+      const d = new Date(r.published_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      (m[key] ||= []).push(r);
     });
     return m;
   }, [releases]);
