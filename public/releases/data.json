@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-11-27T01:47:02.963Z",
+  "updated_at": "2026-11-27T15:54:29.792Z",
   "releases": [
+    {
+      "tag_name": "v3.0.0-beta.6",
+      "name": "v3.0.0-beta.6 (Build 26K02)",
+      "published_at": "2026-11-27T15:54:09Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v3.0.0-beta.6",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v3.0.0-beta.6",
+      "body": "## 修复\n\n### Windows 平台\n\n- **弹出菜单与菜单栏图标发虚、粗细不一致**\n  - 图标不再被强行撑满固定的方框，改为按字体原本的设计尺寸绘制：笔画多的图标不再糊成一团，笔画细的图标不再发灰，同一个菜单里的图标轻重一致\n  - 在高缩放比例的屏幕上不再被二次采样，图标边缘保持锐利\n  - 图标整体比之前略小一点，这是去掉拉伸后的正常尺寸，也是字体设计里原本的大小\n- **弹出菜单边框过重与圆角对齐**\n  - 优化 Windows 11 下右键/弹出菜单的外框与投影过渡，去除多余的硬边，使菜单边缘在桌面背景下更自然、接近原生菜单观感\n  - 统一菜单项悬停高亮背景与外窗的边距，使首尾项的激活圆角与 Windows 11、Windows 10 菜单外窗圆角保持同心对齐\n\n## 文件校验\n\n```\n7d514decf53a5be01138ae880be7666363db1a60a010bfdb5e03ca866f3dd839  JadeView_win_x86_v3.0.0-beta.6.26K02.zip\n2402d7523617fabb085e7186dc5ac36f42cf691c178531c9cb7e71d25b0679a8  JadeView_win_x64_v3.0.0-beta.6.26K02.zip\ne918997050fe59a7f45d013fb0aa81f17255cc25c531e75c44a94a8d8a265f24  JadeView_win_arm64_v3.0.0-beta.6.26K02.zip\n0282984e0fe3fd5fb3b2a972a88c16ed694b35951863428b2e1c497e3bae7223  JadeView_linux_x64_v3.0.0-beta.6.26K02.zip\nbcd9804d7eddf867d5e0bdc069a91a78178903a41c59f08f4c2e7c6aa58d4691  JadeView_linux_arm64_v3.0.0-beta.6.26K02.zip\n```\n"
+    },
     {
       "tag_name": "v3.0.0-beta.5",
       "name": "v3.0.0-beta.5（构建26K01）",
