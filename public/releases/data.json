@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-11-26T01:28:58.162Z",
+  "updated_at": "2026-11-27T01:26:17.424Z",
   "releases": [
+    {
+      "tag_name": "v3.0.0-beta.5",
+      "name": "v3.0.0-beta.5（构建26K01）",
+      "published_at": "2026-11-26T16:50:51Z",
+      "prerelease": true,
+      "html_url": "https://github.com/JadeViewDocs/JadeView/releases/tag/v3.0.0-beta.5",
+      "gitee_url": "https://gitee.com/ilinxuan/JadeView_library/releases/tag/v3.0.0-beta.5",
+      "body": "## 修复\n\n### Windows 平台\n\n- 修复时间戳等高频刷新页面上自定义标题栏拖拽区失效的问题\n- DLL 被宿主卸载后重新加载时，新建窗口可能崩溃\n- 移动窗口时网页反复失焦、重新聚焦\n- 关闭窗口后拖放目标与处理句柄未释放\n- 子窗口更改父窗口后，位置查询与焦点回退使用新父窗口\n- 可从资源管理器拖入路径超过 260 字符的文件\n\n### Linux 平台\n\n- X11 下关闭 WebView 时误销毁其宿主窗口\n- 窗口关闭后 WebView 与 WebKit 子进程未释放\n- 同一 WebView 打开或关闭另一个窗口时，新窗口丢失网页内容\n- 缩放页面下前进/后退手势坐标错误并触发脚本报错\n\n"
+    },
     {
       "tag_name": "v3.0.0-beta.4",
       "name": "v3.0.0-beta.4 (Build 26K01)",
