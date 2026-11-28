@@ -8,27 +8,34 @@ group:
 
 # Page Context Menu
 
-JadeView owns the page right-click menu on Windows and Linux. By default it shows the browser's native menu; to customize it, set a template per WebView with `jade_webview_set_context_menu`. A template can keep native print/save-as/copy actions and add custom items.
+The page context menu handles right-click actions inside a WebView. By default JadeView shows the browser's native menu for the clicked target; to customize items, bind a per-WebView template with `jade_webview_set_context_menu`.
+
+![Annotated page context menu and cascading submenu](/screenshot/menu-context-annotated.en.png)
+
+From the numbered callouts above:
+
+1. **10pt continuous-curve border**: Shares the same rendering engine as `jade_menu_popup`, with live acrylic blur and an immediate 1px anti-aliased border.
+2. **Built-in `role` actions and separators**: Items with a `role` execute directly in the browser or runtime (e.g. copy image link, inspect element) without firing custom click events.
+3. **6pt concentric hover highlight**: 4 DIP inset matching the outer squircle curvature; items with submenus expand automatically on hover.
+4. **Cascading submenus**: Nested under a submenu item via `parent_id` (up to 3 levels, 512 items total).
+5. **Shortcut hint column**: Right-aligned `accelerator` text (such as `Ctrl, Ctrl`), display only.
 
 ## Default menu
 
-With no template, JadeView shows the native menu for the current context; the host registers no event:
+Without a custom template, JadeView shows context-appropriate items automatically. Right-click availability is controlled by `allow_right_click` in window options:
 
-- **Windows**: JadeView listens for WebView2's `ContextMenuRequested`, reads the native items of the current context, and draws them with ImGui. When the user picks one, the native `CommandId` is returned to WebView2, which performs the native print/save-as/copy/undo action.
-- **Linux**: the WebKitGTK context menu is read, drawn by the same ImGui backend, and its native `gio::Action` runs.
+| Target | Typical default items |
+| --- | --- |
+| Page background | Back, Forward, Reload, Save as, Print, Inspect |
+| Selected text | Copy, Print, Inspect |
+| Editable input | Undo, Redo, Cut, Copy, Paste, Paste as plain text, Select all, Inspect |
+| Link | Open link in new window, Save link as, Copy link, Inspect |
+| Image | Save image as, Copy image, Copy image link, Magnify image, Inspect |
+| Audio / Video | Save media as, Copy link, Inspect |
 
-Whether the menu may open is controlled by the WebView `allow_right_click` setting. The exact items depend on the WebView runtime and the right-click target:
-
-| Target | Common native items | Platform |
-|---|---|---|
-| Page background | Back, forward, reload, save as, print, inspect| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| Selected text | Copy, print, inspect| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| Editable area | Undo, redo, cut, copy, paste, paste and match style, select all, inspect| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| Link | Open link in new window, save link as, copy link, inspect| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| Image | Save image as, copy image, copy image address, magnify image, inspect| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| Video / audio | Save media as, copy link, inspect| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-
-Print, save-as, copy, and undo are performed by the browser and do not emit `menu-command`.
+:::tip{title="High-DPI positioning"}
+On Windows high-DPI displays, WebView2's `Location` coordinates are scaled by the owner window's DPI automatically so right-clicks inside inputs, scrolled containers, or images align accurately with the cursor.
+:::
 
 ## Custom template
 
@@ -40,91 +47,65 @@ typedef struct JadeContextMenuItemDesc {
     const char* label;
     const char* accelerator;
     const char* role;         /* unified action name */
-    uint32_t kind;            /* 0 command, 1 submenu, 2 separator, 3 checkbox, 4 radio */
-    uint32_t flags;           /* bit 0 disabled, bit 1 checked */
+    uint32_t kind;            /* 0 normal, 1 submenu, 2 separator, 3 checkbox, 4 radio */
+    uint32_t flags;           /* bit0 disabled, bit1 checked */
     JadeMenuIconDesc icon;
 } JadeContextMenuItemDesc;
 
 int32_t jade_webview_set_context_menu(
     uint32_t webview_id,
     const JadeContextMenuItemDesc* items,
-    uint32_t item_count);
+    uint32_t item_count
+);
 
 int32_t jade_webview_clear_context_menu(uint32_t webview_id);
 ```
 
-The template is stored per WebView and copied during the call. With no template the default menu is used; a template replaces it completely. `jade_webview_clear_context_menu` or `item_count=0` restores the default menu.
+Templates are stored per `webview_id`; passing `item_count = 0` or calling `jade_webview_clear_context_menu` restores the default menu.
 
-### Items
+### Item types and constraints
 
-`kind` is the same as the regular menu:
-
-| kind | Type | Description |
-|---:|---|---|
-| 0 | Command | Performs an action; without `role` it reports an event |
-| 1 | Submenu | Children point to its `id` through `parent_id` |
-| 2 | Separator | Not clickable |
-| 3 | Checkbox | Toggles checked state; `flags` bit 1 means checked |
-| 4 | Radio | Mutually exclusive in its group; `flags` bit 1 means checked |
-
-See [Item Types and Native Actions](/en-US/docs/v3api/menu/context-menu-items) for the complete kind, unified-role, and platform-compatibility reference.
-
-Constraints:
+| `kind` | Type | Description |
+| ---: | --- | --- |
+| `0` | Normal | Runs `role`, or emits a custom click event when `role` is omitted. |
+| `1` | Submenu | Container item; children reference its `id` via `parent_id`. |
+| `2` | Separator | Non-interactive divider line. |
+| `3` | Checkbox | `flags` bit1 (`2`) marks it checked. |
+| `4` | Radio | Mutually exclusive within the group; `flags` bit1 (`2`) marks it checked. |
 
 - `struct_size` must equal `sizeof(JadeContextMenuItemDesc)`.
-- `id` may be empty for `role` rows and separators; the runtime generates an internal id. Custom items and submenus need a unique `id`.
-- A custom item's `id` is returned verbatim in `context-menu-click`.
-- A submenu's `id` is the `parent_id` of its children. At most 512 rows and three submenu levels.
-- Except for separators, `label` and `role` must provide at least one; a role row without `label` uses the native localized text when available, otherwise the built-in role label.
+- `id` may be omitted for `role` items and separators, but is required and unique for custom items and submenus.
+- Every item except separators needs at least `label` or `role`; omitting `label` uses the localized native label for `role`.
+- Icon descriptors follow the same rules as [Menu API icon rules](/en-US/docs/v3api/menu/menu-api#icon-rules). See [Context Menu Items and Roles](/en-US/docs/v3api/menu/context-menu-items) for the full list.
 
-Set both `icon_path` and `icon_codepoint` to use a font glyph. For example, a Python template item can use `{"id": "open", "label": "Open", "icon_path": "app/fonts/icons.ttf", "icon_codepoint": 0xE001}`. Mount the JAPK first and use a codepoint present in that font. In C, set these fields on `JadeContextMenuItemDesc.icon`. [Icon configuration](/en-US/docs/v3api/menu/menu-api)
+## Common built-in roles
 
-### Native actions (`role`)
+`role` matching ignores case and separators (`saveAs`, `save-as`, and `saveas` are equivalent):
 
-`role` uses one unified action name across platforms. The runtime maps it to the current platform's native menu item; if the current context has no such action, the row is disabled. A duplicated action never needs two platform-specific names.
+| Category | Common `role` values |
+| --- | --- |
+| Edit | `undo`, `redo`, `cut`, `copy`, `paste`, `pasteAndMatchStyle`, `delete`, `selectAll` |
+| Navigation | `back`, `forward`, `reload`, `forceReload` |
+| Page & DevTools | `print`, `saveAs`, `viewSource`, `inspectElement`, `toggleDevTools` |
+| Zoom | `zoomIn`, `zoomOut`, `resetZoom` |
+| Window | `togglefullscreen`, `minimize`, `close`, `quit` |
 
-Common roles:
+## Example
 
-| role | Behavior | Platform |
-|---|---|---|
-| `undo` `redo` `cut` `copy` `paste` `pasteAndMatchStyle` `delete` `selectAll` | Native edit action of the current context| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| `back` `forward` `reload` `forceReload` | Native navigation item; falls back to the navigation API| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| `print` `saveAs` | WebView2 / WebKitGTK print and save-as| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| `viewSource` `inspectElement` | Native inspect item; falls back to DevTools| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| `toggleDevTools` | Opens DevTools| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| `resetZoom` `zoomIn` `zoomOut` | WebView zoom (0.25–5.0)| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-| `togglefullscreen` `minimize` `close` `quit` | Window actions| ![Windows](/platform-windows.svg) ![Linux](/platform-linux.svg) |
-
-See [Item Types and Native Actions](/en-US/docs/v3api/menu/context-menu-items) for the full list of link, image, and media roles with platform compatibility.
-
-Unified role names ignore case and separators (`saveAs`, `save-as`, and `saveas` are equivalent). `back` / `forward` are disabled automatically from the WebView history; edit actions are available only when the current context supports them.
-
-Menu labels and shortcuts use the system language by default; the template's `label`/`accelerator` override them. `flags` bit 0 forces disabled; bit 1 sets the checkbox/radio state.
-
-### Custom item event
-
-A command item without `role` is handled by the host. Selecting it closes the menu and emits `context-menu-click`:
-
-```json
-{"window_id":1,"webview_id":2,"item_id":"copy-link"}
-```
-
-`role` items are executed by the browser or runtime and do not emit `context-menu-click`.
-
-### Example
+The example below mixes built-in actions (`undo`, `redo`, `copy`, `saveImageAs`) with a custom `"copy-link"` item:
 
 ```c
 JadeContextMenuItemDesc items[] = {
     { sizeof(JadeContextMenuItemDesc), NULL, NULL, NULL, NULL, "undo", 0, 0, { 0 } },
     { sizeof(JadeContextMenuItemDesc), NULL, NULL, NULL, NULL, "redo", 0, 0, { 0 } },
-    { sizeof(JadeContextMenuItemDesc), NULL, NULL, NULL, NULL, NULL, 2, 0, { 0 } },
+    { sizeof(JadeContextMenuItemDesc), NULL, NULL, NULL, NULL, NULL,   2, 0, { 0 } },
     { sizeof(JadeContextMenuItemDesc), NULL, NULL, NULL, NULL, "copy", 0, 0, { 0 } },
     { sizeof(JadeContextMenuItemDesc), NULL, NULL, NULL, NULL, "saveImageAs", 0, 0, { 0 } },
-    { sizeof(JadeContextMenuItemDesc), "copy-link", NULL, "Copy link", NULL, NULL, 0, 0, { 0 } },
+    { sizeof(JadeContextMenuItemDesc), "copy-link", NULL, "Copy Link", NULL, NULL, 0, 0, { 0 } },
 };
 
 if (!jade_webview_set_context_menu(webview_id, items, 6)) {
-    /* rejected; inspect jade_last_error_code()/jade_last_error_message() */
+    /* Query jade_last_error_code() / jade_last_error_message() on failure */
 }
 ```
 
@@ -145,27 +126,32 @@ view.set_context_menu([
     {"role": "reload"},
     {"role": "toggleDevTools"},
     {"kind": "separator"},
-    {"id": "copy-link", "label": "Copy link"},
+    {"id": "copy-link", "label": "Copy Link"},
 ])
-```
 
-Restore the default menu:
-
-```python
+# Restore default menu
 view.clear_context_menu()
 ```
 
-## Fully custom menu
+## Events
 
-To control every item without native actions, the page can listen for the DOM `contextmenu` event, call `preventDefault()`, and ask the host through IPC to call `jade_menu_popup`:
+Custom items without a `role` emit `context-menu-click` when selected:
+
+```json
+{"window_id":1,"webview_id":2,"item_id":"copy-link"}
+```
+
+Items with a `role` are handled directly by the browser or runtime and do not emit this event.
+
+## Fully custom menus
+
+If you do not need browser built-in actions, listen for DOM `contextmenu`, call `e.preventDefault()`, and invoke [`jade_menu_popup`](/en-US/docs/v3api/menu/menu-api#show-a-popup-menu-jade_menu_popup) over IPC:
 
 ```c
 JadeMenuItemDesc items[] = {
-    { "copy", NULL, "Copy", NULL, 0, 0, { 0 } },
-    { "sep",  NULL, NULL,   NULL, 2, 0, { 0 } },
+    { "copy",  NULL, "Copy",  NULL, 0, 0, { 0 } },
+    { "sep",   NULL, NULL,    NULL, 2, 0, { 0 } },
     { "about", NULL, "About", NULL, 0, 0, { 0 } },
 };
-jade_menu_popup(window_id, items, 3, NULL); /* NULL = pointer position */
+jade_menu_popup(window_id, items, 3, NULL); /* NULL = current cursor position */
 ```
-
-Selections arrive through `menu-command` as `{"item_id":"..."}`. A fully custom menu does not include the default native items; use `jade_webview_set_context_menu` when native print/save-as/copy actions are needed.
