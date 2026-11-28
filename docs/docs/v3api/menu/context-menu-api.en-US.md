@@ -14,7 +14,7 @@ The page context menu handles right-click actions inside a WebView. By default J
 
 From the numbered callouts above:
 
-1. **10pt continuous-curve border**: Shares the same rendering engine as `jade_menu_popup`, with live acrylic blur and an immediate 1px anti-aliased border.
+1. **10pt continuous-curve border**: Shares the same rendering engine as `jade_menu_popup`, with live acrylic blur and a 1px anti-aliased border.
 2. **Built-in `role` actions and separators**: Items with a `role` execute directly in the browser or runtime (e.g. copy image link, inspect element) without firing custom click events.
 3. **6pt concentric hover highlight**: 4 DIP inset matching the outer squircle curvature; items with submenus expand automatically on hover.
 4. **Cascading submenus**: Nested under a submenu item via `parent_id` (up to 3 levels, 512 items total).

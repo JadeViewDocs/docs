@@ -22,13 +22,13 @@ JadeView provides native-style popup menus (`jade_menu_popup`) for dropdown list
 
 ## Anatomy and visual design
 
-Popup menus use real-time translucent Acrylic on Windows 11 and solid rounded panels on Windows 10 and Linux. All platforms share **10pt continuous curvature corners (Squircle)**, a crisp 1px anti-aliased border from the very first frame, and concentric 6pt hover highlights.
+Popup menus use real-time translucent Acrylic on Windows 11 and solid rounded panels on Windows 10 and Linux. All platforms share **10pt continuous curvature corners (Squircle)**, a crisp 1px anti-aliased border, and concentric 6pt hover highlights.
 
 ![Popup menu real-photo anatomy](/screenshot/menu-overview-annotated.en.png)
 
 From the numbered callouts above:
 
-1. **10pt continuous-curve border**: Outer shell uses a 10 DIP squircle outline with an immediate 1 physical pixel border (no fade-in lag).
+1. **10pt continuous-curve border**: Outer shell uses a 10 DIP squircle outline with a 1px anti-aliased border.
 2. **Check and icon column (`kind = 3 / 4`)**: Renders check/radio marks alongside optional PNG/ICO bitmaps or font glyphs. Right-aligned `accelerator` labels (such as `"Ctrl+O"`) are also supported.
 3. **Acrylic translucent backdrop**: Samples underlying windows smoothly on Windows 11 while keeping menu labels legible.
 4. **Work-area clamping and soft shadow**: Automatically clamps inside the work area or flips upward near screen edges, paired with a layered shadow and 6pt concentric hover highlight (see [Page Context Menu](/en-US/docs/v3api/menu/context-menu-api)).
